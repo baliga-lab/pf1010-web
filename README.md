@@ -3,7 +3,7 @@ Aquaponic Site
 Project Sturcture:  
 
 aqxWeb  
-|- aqxWeb      Main Project directory  
+|- aqxWeb 	   Main Project directory  
     - config   common configuration/ property files etc.  
     - dav      project directory for data analytics and visulization  
       - api    api developed by DAV  
