@@ -1,11 +1,12 @@
 #DAO for systems table
 
-def SystemsDAO():
+class SystemsDAO:
 
     #constructor
     def __init__(self, conn):
         self.conn = conn
 
+    #method to get all systems from database
     def get_systems(self):
         cursor = self.conn.cursor();
         query = ("select system_uid, user_id, location_lat ,location_lng "
