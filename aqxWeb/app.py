@@ -1,11 +1,5 @@
-#import sys
-#sys.path.insert(0,'/dav/api')
-#import app_dav
-
-import json
-
-from dav.dao.system import get_systems
-from flask import Flask,jsonify,render_template
+from dav.app.system import get_all_systems
+from flask import Flask, render_template
 app = Flask(__name__)
 
 ######################################################################
@@ -23,31 +17,12 @@ def index():
 ######################################################################
 ##  Data Analytics and Viz. API
 ######################################################################
-@app.route('/aqxapi/test/json')
-def test():
-    # This is a dummy list, 2 nested arrays containing some
-    # params and values
-    list = [
-        {'param': 'foo', 'val': 2},
-        {'param': 'bar', 'val': 10}
-    ]
-    # jsonify will do for us all the work, returning the
-    # previous data structure in JSON
-    return jsonify(results=list)
+
 
 
 @app.route('/aqxapi/get/systems')
-def get_all_systems():
-   print get_systems();
-   #return 'data printed';
-   #return jsonify(systems=get_systems())
-   systems=get_systems()
-
-   system = systems[0]
-   return system[0];
-
-#   obj = {'systems' : get_systems()}
-#  return json.dump(obj)
+def get_systems():
+    return get_all_systems()
 
 ######################################################################
 ##  Social Components API
