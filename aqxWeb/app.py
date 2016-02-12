@@ -3,7 +3,7 @@ from flask import Flask, render_template
 import os
 from mysql.connector.pooling import MySQLConnectionPool
 #set env variable here to read config from env variable
-# ex: os.environ['AQUAPONICS_SETTINGS']="/home/user/PycharmProjects/aqxWeb-NEU/aqxWeb/system_db.cfg"
+#os.environ['AQUAPONICS_SETTINGS']="/home/user/PycharmProjects/aqxWeb-NEU/aqxWeb/system_db.cfg"
 app = Flask(__name__)
 app.config.from_envvar('AQUAPONICS_SETTINGS')
 #to hold db connection pool
@@ -12,6 +12,27 @@ pool = None
 def init_app(app):
     #connect to the database
     create_conn()
+
+######################################################################
+##  method to get db connection from pool
+######################################################################
+def get_conn():
+    return pool.get_connection()
+
+######################################################################
+##  method to create connection when application starts
+######################################################################
+def create_conn():
+    global pool
+    print("PID %d: initializing pool..." % os.getpid())
+    dbconfig = {
+        "host":     app.config['HOST'],
+        "user":     app.config['USER'],
+        "passwd":   app.config['PASS'],
+        "db":       app.config['DB']
+        }
+    pool = MySQLConnectionPool(pool_name = "mypool", pool_size = app.config['POOLSIZE'], **dbconfig)
+
 ######################################################################
 ##  UI API
 ######################################################################
@@ -38,24 +59,16 @@ def get_systems():
     return davAPI.get_all_systems(get_conn())
 
 ######################################################################
-##  method to get db connection from pool
+##  API call to get metadata of a given system
 ######################################################################
-def get_conn():
-    return pool.get_connection()
 
-######################################################################
-##  method to create connection when application starts
-######################################################################
-def create_conn():
-    global pool
-    print("PID %d: initializing pool..." % os.getpid())
-    dbconfig = {
-        "host":     app.config['HOST'],
-        "user":     app.config['USER'],
-        "passwd":   app.config['PASS'],
-        "db":       app.config['DB']
-        }
-    pool = MySQLConnectionPool(pool_name = "mypool", pool_size = app.config['POOLSIZE'], **dbconfig)
+@app.route('/aqxapi/get/metadata/<system_id>', methods=['GET'])
+def get_metadata(system_id):
+    print system_id
+    davAPI = DavAPI()
+    return davAPI.get_system_metadata(get_conn(), system_id)
+
+
 
 ######################################################################
 ##  Social Components API
