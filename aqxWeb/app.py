@@ -62,11 +62,11 @@ def get_systems():
 ##  API call to get metadata of a given system
 ######################################################################
 
-@app.route('/aqxapi/get/metadata/<system_id>', methods=['GET'])
-def get_metadata(system_id):
-    print system_id
+@app.route('/aqxapi/getsystem/meta/<system_uid>', methods=['GET'])
+def get_metadata(system_uid):
+    print system_uid
     davAPI = DavAPI()
-    return davAPI.get_system_metadata(get_conn(), system_id)
+    return davAPI.get_system_metadata(get_conn(), system_uid)
 
 
 
