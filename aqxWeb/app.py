@@ -27,10 +27,11 @@ def index():
 def test():
     # This is a dummy list, 2 nested arrays containing some
     # params and values
-    list = [
+    list1 = [
         {'param': 'foo', 'val': 2},
         {'param': 'bar', 'val': 10}
     ]
+
     # jsonify will do for us all the work, returning the
     # previous data structure in JSON
     return jsonify(results=list)
@@ -48,6 +49,14 @@ def get_all_systems():
 
 #   obj = {'systems' : get_systems()}
 #  return json.dump(obj)
+
+
+@app.route('/displaymap')
+def display_map():
+    json_obj = [{"title": "System1", "lat": 59.3, "lng": 18.1, "description": "Tilpia, Lettuce"},
+                    {"title": "System2", "lat": 59.9, "lng": 10.8, "description": "Tilapia, Tomatoes"},
+                    {"title": "System3", "lat": 55.7, "lng": 12.6, "description": "Salmon, Potatoes"}]
+    return render_template("/dav/maps.html", **locals())
 
 ######################################################################
 ##  Social Components API
