@@ -3,7 +3,7 @@ from flask import Flask, render_template
 import os
 from mysql.connector.pooling import MySQLConnectionPool
 #set env variable here to read config from env variable
-os.environ['AQUAPONICS_SETTINGS']="C:\\Users\\Brian\\Documents\\GitHub\\aqxWeb-NEU\\aqxWeb\system_db.cfg"
+# os.environ['AQUAPONICS_SETTINGS']="C:\\Users\\Brian\\Documents\\GitHub\\aqxWeb-NEU\\aqxWeb\system_db.cfg"
 app = Flask(__name__)
 app.config.from_envvar('AQUAPONICS_SETTINGS')
 #to hold db connection pool
