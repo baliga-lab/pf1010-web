@@ -69,6 +69,16 @@ def get_metadata(system_uid):
     return davAPI.get_system_metadata(get_conn(), system_uid)
 
 
+######################################################################
+##  API call to get metadata of all the systems
+######################################################################
+
+@app.route('/aqxapi/get/systems/metadata')
+def get_all_systems_info():
+    davAPI = DavAPI()
+    return davAPI.get_all_systems_info(get_conn())
+
+
 
 ######################################################################
 ##  Social Components API

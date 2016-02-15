@@ -44,3 +44,31 @@ class DavAPI:
 
 
         return result
+
+    ###############################################################################
+    # get_all_systems_info
+    ###############################################################################
+
+    def get_all_systems_info(self, conn):
+        s = SystemsDAO(conn)
+        systems = s.get_all_systems_info()
+
+        # Create a list of systems
+        systems_list = []
+        for system in systems:
+            # For each system, create a system
+            obj = {'system_uid': system[0],
+                   'user_id': system[1],
+                   'system_name': system[2],
+                   'start_date': str(system[3]),
+                   'aqx_technique_name': system[4],
+                   'growbed_media': system[5],
+                   'crop_name': system[6],
+                   'crop_count': system[7],
+                   'organism_name': system[8],
+                   'organism_count': system[9]}
+
+            systems_list.append(json.dumps(obj))
+
+        return json.dumps({'systems': systems_list})
+
