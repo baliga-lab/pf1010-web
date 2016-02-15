@@ -3,14 +3,14 @@ from flask import Flask, render_template
 import os
 from mysql.connector.pooling import MySQLConnectionPool
 #set env variable here to read config from env variable
-#os.environ['AQUAPONICS_SETTINGS']="/home/user/PycharmProjects/aqxWeb-NEU/aqxWeb/system_db.cfg"
+os.environ['AQUAPONICS_SETTINGS']="C:\\Users\\Brian\\Documents\\GitHub\\aqxWeb-NEU\\aqxWeb\system_db.cfg"
 app = Flask(__name__)
 app.config.from_envvar('AQUAPONICS_SETTINGS')
 #to hold db connection pool
 pool = None
 
 def init_app(app):
-    #connect to the database
+    # connect to the database
     create_conn()
 
 ######################################################################
@@ -36,7 +36,6 @@ def create_conn():
 ######################################################################
 ##  UI API
 ######################################################################
-
 @app.route('/')
 @app.route('/index')
 def index():
@@ -44,6 +43,36 @@ def index():
     return render_template("index.html",
                            title='Home',
                            user=user)
+
+######################################################################
+##  Interactive map of all active systems
+######################################################################
+@app.route('/map')
+def displayMapPage():
+    # json_obj = bostonapi.get_systems_and_metadata()
+    json_obj = [{"title": "System1", "lat": 59.3, "lng": 18.1, "description": {"aqx_techniques":"Nutrient Film Technique (NFT)",
+                                                                               "aqx_organism":"Blue Tilapia",
+                                                                               "growbed_media":"Clay Pebbles",
+                                                                               "crop":"Lettuce"}},
+                {"title": "System2", "lat": 59.9, "lng": 10.8, "description": {"aqx_techniques":"Ebb and Flow (Media-based)",
+                                                                               "aqx_organism":"Mozambique Tilapia",
+                                                                               "growbed_media":"Coconut Coir",
+                                                                               "crop":"Bok Choy"}},
+                {"title": "System3", "lat": 55.7, "lng": 12.6, "description": {"aqx_techniques": "Floating Raft",
+                                                                               "aqx_organism":"Koi",
+                                                                               "growbed_media":"Seed Starter Plugs",
+                                                                               "crop":"Carrot"}}]
+    json_obj = filter(lambda x: (x['lat'] and x['lng']), json_obj)
+
+    return render_template("dav/mapPage.html", json_obj=json_obj)
+
+
+######################################################################
+##  Test page for weather widget
+######################################################################
+@app.route('/weathertest')
+def weather():
+    return render_template("dav/weatherTest.html")
 
 ######################################################################
 ##  Data Analytics and Viz. API
@@ -83,8 +112,6 @@ def get_all_systems_info():
 ######################################################################
 ##  Social Components API
 ######################################################################
-
-
 #init method for application
 if __name__ == "__main__":
     init_app(app)
