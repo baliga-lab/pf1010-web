@@ -41,7 +41,7 @@ class SystemsDAO:
     # method to get the metadata of all the systems
     def get_all_systems_info(self):
         cursor = self.conn.cursor()
-        query = ("SELECT s.system_uid, s.user_id, s.name, s.start_date, "
+        query = ("SELECT s.system_uid, s.user_id, s.name, s.start_date, s.location_lat, location_lng, "
                  "aqt.name as 'aqx_technique', "
                  "gm.name as 'growbed_media', "
                  "cr.name as 'crop_name', "
