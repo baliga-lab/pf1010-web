@@ -69,9 +69,8 @@ def displayMapPage():
                      "aqx_organisms":["Mozambique Tilapia", "Bluegill", "Shrimp", "Nile Tilapia", "Blue Tilapia", "Koi", "Goldfish", "Betta Fish"],
                      "growbed_media":["Clay Pebbles", "Coconut Coir", "Seed Starter Plugs"],
                      "crops": ["Bok Choy", "Carrot", "Lettuce", "Pea", "Strawberry"]}
-    tech = metadata_json["aqx_techniques"]
 
-    return render_template("dav/mapPage.html", json_obj=json_obj, metadata_json=metadata_json, tech=tech)
+    return render_template("dav/mapPage.html", json_obj=json_obj, metadata_json=metadata_json)
 
 ######################################################################
 ##  Test page for pin filtering
