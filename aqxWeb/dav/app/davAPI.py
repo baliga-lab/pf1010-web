@@ -60,8 +60,8 @@ class DavAPI:
                    'user_id': system[1],
                    'system_name': system[2],
                    'start_date': str(system[3]),
-                   'latitude': str(system[4]),
-                   'longitude': str(system[5]),
+                   'lat': str(system[4]),
+                   'lng': str(system[5]),
                    'aqx_technique_name': system[6],
                    'growbed_media': system[7],
                    'crop_name': system[8],
@@ -69,7 +69,7 @@ class DavAPI:
                    'organism_name': system[10],
                    'organism_count': system[11]}
 
-            systems_list.append(json.dumps(obj))
+            systems_list.append(obj)
 
         return json.dumps({'systems': systems_list})
 

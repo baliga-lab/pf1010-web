@@ -45,6 +45,8 @@
 <input type="button" id="resetbtn" name="reset" value="Reset"/>
 <script readonly>
     var json_ob = {{ json_obj|safe }};
+    console.log(json_ob);
+    console.log(json_ob.systems[0].organism_name);
     json_ob = json_ob.systems;
     console.log(json_ob);
     var meta_data = {{ metadata_json|safe }};

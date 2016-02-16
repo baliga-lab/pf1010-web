@@ -3,8 +3,10 @@ from flask import Flask, render_template
 import os
 import urllib, json
 from mysql.connector.pooling import MySQLConnectionPool
+
 #set env variable here to read config from env variable, if it does not work add complete path
 os.environ['AQUAPONICS_SETTINGS']="system_db.cfg"
+
 app = Flask(__name__)
 app.config.from_envvar('AQUAPONICS_SETTINGS')
 #to hold db connection pool
@@ -70,7 +72,7 @@ def displayMapPage():
         #Having trouble with filtering on the fly, using this for now
         json_obj = filter(lambda x: (x['lat'] and x['lng']), json_obj)
     else:
-        json_obj = json.dumps(get_all_systems_info())
+        json_obj = get_all_systems_info()
 
     print str(json_obj)
     metadata_json = {"aqx_techniques":["Nutrient Film Technique (NFT)", "Ebb and Flow (Media-based)", "Floating Raft", "Vertical Flow Through"],
