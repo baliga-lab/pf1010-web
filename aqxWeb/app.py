@@ -3,10 +3,10 @@ from flask import Flask, render_template
 import os
 from mysql.connector.pooling import MySQLConnectionPool
 #set env variable here to read config from env variable
-# os.environ['AQUAPONICS_SETTINGS']="C:\\Users\\Brian\\Documents\\GitHub\\aqxWeb-NEU\\aqxWeb\system_db.cfg"
+# os.environ['AQUAPONICS_SETTINGS']=""
 app = Flask(__name__)
 app.config.from_envvar('AQUAPONICS_SETTINGS')
-#to hold db connection pool
+to hold db connection pool
 pool = None
 
 def init_app(app):
@@ -62,10 +62,22 @@ def displayMapPage():
                                                                                "aqx_organism":"Koi",
                                                                                "growbed_media":"Seed Starter Plugs",
                                                                                "crop":"Carrot"}}]
+    #Having trouble with filtering on the fly, using this for now
     json_obj = filter(lambda x: (x['lat'] and x['lng']), json_obj)
 
-    return render_template("dav/mapPage.html", json_obj=json_obj)
+    metadata_json = {"aqx_techniques":["Nutrient Film Technique (NFT)", "Ebb and Flow (Media-based)", "Floating Raft", "Vertical Flow Through"],
+                     "aqx_organisms":["Mozambique Tilapia", "Bluegill", "Shrimp", "Nile Tilapia", "Blue Tilapia", "Koi", "Goldfish", "Betta Fish"],
+                     "growbed_media":["Clay Pebbles", "Coconut Coir", "Seed Starter Plugs"],
+                     "crops": ["Bok Choy", "Carrot", "Lettuce", "Pea", "Strawberry"]}
 
+    return render_template("dav/mapPage.html", json_obj=json_obj, metadata_json=metadata_json)
+
+######################################################################
+##  Test page for pin filtering
+######################################################################
+@app.route('/filtertest')
+def filterTest():
+    return render_template("dav/DAVindex.html")
 
 ######################################################################
 ##  Test page for weather widget
