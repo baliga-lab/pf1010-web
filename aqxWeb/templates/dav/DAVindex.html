@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/dav/underscore-min.js') }}"></script>
+</head>
+<body>
+<script>
+    //Sample data
+    function uploadClicked() {
+        var systemInfo = [{
+            sys_name: "SomeName", lat: 59.3, lng: 18.1, user_id: 123456,
+            metadata: {
+                aqx_tech: "AAnutrient film technique",
+                aqx_organism: "AAtilapia",
+                growbed_media: "AAclay pebbles",
+                crops: "AAlettuce",
+                indoor_outdoor: "AAindoor"
+            }
+        },
+            {
+                sys_name: "SomeName", lat: 59.3, lng: 18.1, user_id: 123456,
+                metadata: {
+                    aqx_tech: "BBnutrient film technique",
+                    aqx_organism: "BBtilapia",
+                    growbed_media: "BBclay pebbles",
+                    crops: "BBlettuce",
+                    indoor_outdoor: "BBindoor"
+                }
+            },
+            {
+                sys_name: "SomeName", lat: 59.3, lng: 18.1, user_id: 123456,
+                metadata: {
+                    aqx_tech: "AAnutrient film technique",
+                    aqx_organism: "BBtilapia",
+                    growbed_media: "BBclay pebbles",
+                    crops: "BBlettuce",
+                    indoor_outdoor: "BBindoor"
+                }
+            }];
+
+
+        var filteredSystems = [];
+
+        var dropDownObject1 = document.getElementById("selectTechnique");
+        var dropDownObject2 = document.getElementById("selectOrgansim");
+        var dropDownObject3 = document.getElementById("selectCrop");
+        var dropDownObject4 = document.getElementById("selectGrowbedMedium");
+        var dp1 = dropDownObject1.value;
+        var dp2 = dropDownObject2.value;
+        var dp3 = dropDownObject3.value;
+        var dp4 = dropDownObject4.value;
+        {#    var dp1, dp2, dp3, dp4;#}
+        {#    dp1 = 'AAnutrient film technique';#}
+        {#    dp2 = '';#}
+        {#    dp3 = '';#}
+        {#    dp4 = '';#}
+
+        if (!_.isEmpty(dp1)) {
+            filteredSystems = _.filter(systemInfo, function (system) {
+                return (system.metadata.aqx_tech === dp1);
+            });
+        } else {
+            filteredSystems = systemInfo;
+        }
+
+        if (!_.isEmpty(dp2)) {
+            filteredSystems = _.filter(filteredSystems, function (system) {
+                return (system.metadata.aqx_organism === dp2);
+            });
+        }
+
+        if (!_.isEmpty(dp3)) {
+            filteredSystems = _.filter(filteredSystems, function (system) {
+                return (system.metadata.growbed_media === dp3);
+            });
+        }
+
+        if (!_.isEmpty(dp4)) {
+            filteredSystems = _.filter(filteredSystems, function (system) {
+                return (system.metadata.crops === dp4);
+            });
+        }
+        // Call displayMap with filteredSystems
+        console.log(filteredSystems);
+    };
+</script>
+</body>
+</html>
