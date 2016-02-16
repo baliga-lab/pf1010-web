@@ -1,17 +1,17 @@
 from dav.app.davAPI import DavAPI
 from flask import Flask, render_template
 import os
-from mysql.connector.pooling import MySQLConnectionPool
+# from mysql.connector.pooling import MySQLConnectionPool
 #set env variable here to read config from env variable
-# os.environ['AQUAPONICS_SETTINGS']=""
+os.environ['AQUAPONICS_SETTINGS']="C:\\Users\\Brian\\Documents\\GitHub\\aqxWeb-NEU\\aqxWeb\\system_db.cfg"
 app = Flask(__name__)
 app.config.from_envvar('AQUAPONICS_SETTINGS')
-to hold db connection pool
+#to hold db connection pool
 pool = None
 
-def init_app(app):
-    # connect to the database
-    create_conn()
+# def init_app(app):
+#     # connect to the database
+#     create_conn()
 
 ######################################################################
 ##  method to get db connection from pool
@@ -21,17 +21,17 @@ def get_conn():
 
 ######################################################################
 ##  method to create connection when application starts
-######################################################################
-def create_conn():
-    global pool
-    print("PID %d: initializing pool..." % os.getpid())
-    dbconfig = {
-        "host":     app.config['HOST'],
-        "user":     app.config['USER'],
-        "passwd":   app.config['PASS'],
-        "db":       app.config['DB']
-        }
-    pool = MySQLConnectionPool(pool_name = "mypool", pool_size = app.config['POOLSIZE'], **dbconfig)
+# ######################################################################
+# def create_conn():
+#     global pool
+#     print("PID %d: initializing pool..." % os.getpid())
+#     dbconfig = {
+#         "host":     app.config['HOST'],
+#         "user":     app.config['USER'],
+#         "passwd":   app.config['PASS'],
+#         "db":       app.config['DB']
+#         }
+#     pool = MySQLConnectionPool(pool_name = "mypool", pool_size = app.config['POOLSIZE'], **dbconfig)
 
 ######################################################################
 ##  UI API
@@ -133,5 +133,5 @@ def get_all_aqx_metadata():
 ######################################################################
 #init method for application
 if __name__ == "__main__":
-    init_app(app)
+    # init_app(app)
     app.run(debug=True)
