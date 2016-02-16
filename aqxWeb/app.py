@@ -1,7 +1,8 @@
 from dav.app.davAPI import DavAPI
 from flask import Flask, render_template
 import os
-# from mysql.connector.pooling import MySQLConnectionPool
+import urllib, json
+from mysql.connector.pooling import MySQLConnectionPool
 #set env variable here to read config from env variable
 os.environ['AQUAPONICS_SETTINGS']="C:\\Users\\Brian\\Documents\\GitHub\\aqxWeb-NEU\\aqxWeb\\system_db.cfg"
 app = Flask(__name__)
@@ -9,9 +10,9 @@ app.config.from_envvar('AQUAPONICS_SETTINGS')
 #to hold db connection pool
 pool = None
 
-# def init_app(app):
-#     # connect to the database
-#     create_conn()
+def init_app(app):
+    # connect to the database
+    create_conn()
 
 ######################################################################
 ##  method to get db connection from pool
@@ -22,16 +23,16 @@ def get_conn():
 ######################################################################
 ##  method to create connection when application starts
 # ######################################################################
-# def create_conn():
-#     global pool
-#     print("PID %d: initializing pool..." % os.getpid())
-#     dbconfig = {
-#         "host":     app.config['HOST'],
-#         "user":     app.config['USER'],
-#         "passwd":   app.config['PASS'],
-#         "db":       app.config['DB']
-#         }
-#     pool = MySQLConnectionPool(pool_name = "mypool", pool_size = app.config['POOLSIZE'], **dbconfig)
+def create_conn():
+    global pool
+    print("PID %d: initializing pool..." % os.getpid())
+    dbconfig = {
+        "host":     app.config['HOST'],
+        "user":     app.config['USER'],
+        "passwd":   app.config['PASS'],
+        "db":       app.config['DB']
+    }
+    pool = MySQLConnectionPool(pool_name = "mypool", pool_size = app.config['POOLSIZE'], **dbconfig)
 
 ######################################################################
 ##  UI API
@@ -50,21 +51,28 @@ def index():
 @app.route('/map')
 def displayMapPage():
     # json_obj = bostonapi.get_systems_and_metadata()
-    json_obj = [{"title": "System1", "lat": 59.3, "lng": 18.1, "description": {"aqx_techniques":"Nutrient Film Technique (NFT)",
-                                                                               "aqx_organism":"Blue Tilapia",
-                                                                               "growbed_media":"Clay Pebbles",
-                                                                               "crop":"Lettuce"}},
-                {"title": "System2", "lat": 59.9, "lng": 10.8, "description": {"aqx_techniques":"Ebb and Flow (Media-based)",
-                                                                               "aqx_organism":"Mozambique Tilapia",
-                                                                               "growbed_media":"Coconut Coir",
-                                                                               "crop":"Bok Choy"}},
-                {"title": "System3", "lat": 55.7, "lng": 12.6, "description": {"aqx_techniques": "Floating Raft",
-                                                                               "aqx_organism":"Koi",
-                                                                               "growbed_media":"Seed Starter Plugs",
-                                                                               "crop":"Carrot"}}]
-    #Having trouble with filtering on the fly, using this for now
-    json_obj = filter(lambda x: (x['lat'] and x['lng']), json_obj)
+    # url = "http://localhost:5000/aqxapi/get/systems"
+    # response = urllib.urlopen(url)
+    MOCK = False
+    if (MOCK):
+        json_obj = [{"title": "System1", "lat": 59.3, "lng": 18.1, "description": {"aqx_techniques":"Nutrient Film Technique (NFT)",
+                                                                                   "aqx_organism":"Blue Tilapia",
+                                                                                   "growbed_media":"Clay Pebbles",
+                                                                                   "crop":"Lettuce"}},
+                    {"title": "System2", "lat": 59.9, "lng": 10.8, "description": {"aqx_techniques":"Ebb and Flow (Media-based)",
+                                                                                   "aqx_organism":"Mozambique Tilapia",
+                                                                                   "growbed_media":"Coconut Coir",
+                                                                                   "crop":"Bok Choy"}},
+                    {"title": "System3", "lat": 55.7, "lng": 12.6, "description": {"aqx_techniques": "Floating Raft",
+                                                                                   "aqx_organism":"Koi",
+                                                                                   "growbed_media":"Seed Starter Plugs",
+                                                                                   "crop":"Carrot"}}]
+        #Having trouble with filtering on the fly, using this for now
+        json_obj = filter(lambda x: (x['lat'] and x['lng']), json_obj)
+    else:
+        json_obj = json.dumps(get_all_systems_info())
 
+    print str(json_obj)
     metadata_json = {"aqx_techniques":["Nutrient Film Technique (NFT)", "Ebb and Flow (Media-based)", "Floating Raft", "Vertical Flow Through"],
                      "aqx_organisms":["Mozambique Tilapia", "Bluegill", "Shrimp", "Nile Tilapia", "Blue Tilapia", "Koi", "Goldfish", "Betta Fish"],
                      "growbed_media":["Clay Pebbles", "Coconut Coir", "Seed Starter Plugs"],
@@ -133,5 +141,5 @@ def get_all_aqx_metadata():
 ######################################################################
 #init method for application
 if __name__ == "__main__":
-    # init_app(app)
+    init_app(app)
     app.run(debug=True)

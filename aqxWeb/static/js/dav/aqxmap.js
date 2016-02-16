@@ -35,10 +35,10 @@ $(document).ready(function() {
      */
     function buildContentString(dataPoint) {
         return "<h2>" + dataPoint.title + "</h2>" +
-            "<ul><li>Aquaponics Technique: " + dataPoint.description['aqx_techniques'] + "</li>" +
-            "<li>Aquatic organism: " + dataPoint.description['aqx_organism'] + "</li>" +
-            "<li>Growbed Medium: " + dataPoint.description['growbed_media'] + "</li>" +
-            "<li>Crop: " + dataPoint.description['crop'] + "</li></ul>";
+            "<ul><li>Aquaponics Technique: " + dataPoint.aqx_techniques + "</li>" +
+            "<li>Aquatic organism: " + dataPoint.aqx_organism + "</li>" +
+            "<li>Growbed Medium: " + dataPoint.growbed_media + "</li>" +
+            "<li>Crop: " + dataPoint.crop + "</li></ul>";
     }
 
     /**

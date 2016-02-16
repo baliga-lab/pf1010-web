@@ -45,6 +45,8 @@
 <input type="button" id="resetbtn" name="reset" value="Reset"/>
 <script readonly>
     var json_ob = {{ json_obj|safe }};
+    json_ob = json_ob.systems;
+    console.log(json_ob);
     var meta_data = {{ metadata_json|safe }};
     var markers = [];
 </script>
@@ -67,73 +69,39 @@
         var dp3 = dropDownObject3.value;
         var dp4 = dropDownObject4.value;
 
-        if (dp1 != "Choose an Aquaponics Technique") {
-            console.log("here1");
-            filteredSystems = _.reject(systemInfo, function (system) {
-                return (system.description.aqx_techniques === dp1);
-            });
-            console.log(filteredSystems);
-        } else {
-            filteredSystems = systemInfo;
-        }
+                if (dp1 != "Choose an Aquaponics Technique") {
+                    console.log("here1");
+                    filteredSystems = _.filter(systemInfo, function (system) {
+                        return (system.description.aqx_techniques === dp1);
+                    });
+                    console.log(filteredSystems);
+                } else {
+                    filteredSystems = systemInfo;
+                }
 
-        if (dp2 != "Choose an Aquatic Organism") {
-            console.log("here2");
-            filteredSystems.concat(_.reject(systemInfo, function (system) {
-                return (system.description.aqx_organism === dp2);
-            }));
-            console.log(filteredSystems);
-        }
+                if (dp2 != "Choose an Aquatic Organism") {
+                    console.log("here2");
+                    filteredSystems = _.filter(filteredSystems, function (system) {
+                        return (system.description.aqx_organism === dp2);
+                    });
+                    console.log(filteredSystems);
+                }
 
-        if (dp3 != "Choose a Crop") {
-            console.log("here3");
-            filteredSystems.concat(_.filter(systemInfo, function (system) {
-                return (system.description.crop === dp3);
-            }));
-            console.log(filteredSystems);
-        }
+                if (dp3 != "Choose a Crop") {
+                    console.log("here3");
+                    filteredSystems = _.filter(filteredSystems, function (system) {
+                        return (system.description.crop === dp3);
+                    });
+                    console.log(filteredSystems);
+                }
 
-        if (dp4 != "Choose a Growbed Medium") {
-            console.log("here4");
-            filteredSystems.concat(_.filter(systeInfo, function (system) {
-                return (system.description.growbed_media === dp4);
-            }));
-            console.log(filteredSystems);
-        }
-
-        {#        if (dp1 != "Choose an Aquaponics Technique") {#}
-        {#            console.log("here1");#}
-        {#            filteredSystems = _.filter(systemInfo, function (system) {#}
-        {#                return (system.description.aqx_techniques === dp1);#}
-        {#            });#}
-        {#            console.log(filteredSystems);#}
-        {#        } else {#}
-        {#            filteredSystems = systemInfo;#}
-        {#        }#}
-        {##}
-        {#        if (dp2 != "Choose an Aquatic Organism") {#}
-        {#            console.log("here2");#}
-        {#            filteredSystems = _.filter(filteredSystems, function (system) {#}
-        {#                return (system.description.aqx_organism === dp2);#}
-        {#            });#}
-        {#            console.log(filteredSystems);#}
-        {#        }#}
-        {##}
-        {#        if (dp3 != "Choose a Crop") {#}
-        {#            console.log("here3");#}
-        {#            filteredSystems = _.filter(filteredSystems, function (system) {#}
-        {#                return (system.description.crop === dp3);#}
-        {#            });#}
-        {#            console.log(filteredSystems);#}
-        {#        }#}
-        {##}
-        {#        if (dp4 != "Choose a Growbed Medium") {#}
-        {#            console.log("here4");#}
-        {#            filteredSystems = _.filter(filteredSystems, function (system) {#}
-        {#                return (system.description.growbed_media === dp4);#}
-        {#            });#}
-        {#            console.log(filteredSystems);#}
-        {#        }#}
+                if (dp4 != "Choose a Growbed Medium") {
+                    console.log("here4");
+                    filteredSystems = _.filter(filteredSystems, function (system) {
+                        return (system.description.growbed_media === dp4);
+                    });
+                    console.log(filteredSystems);
+                }
         // Call displayMap with filteredSystems
         console.log(filteredSystems);
 
@@ -153,6 +121,19 @@
         removeFilteredMarkers(filteredSystems);
     };
 
+{#    function hideMarkerIfFiltered(marker){#}
+{#        var dropDownObject1 = document.getElementById("selectTechnique");#}
+{#        var dropDownObject2 = document.getElementById("selectOrganism");#}
+{#        var dropDownObject3 = document.getElementById("selectCrop");#}
+{#        var dropDownObject4 = document.getElementById("selectGrowbedMedium");#}
+{#        var dp1 = dropDownObject1.value;#}
+{#        var dp2 = dropDownObject2.value;#}
+{#        var dp3 = dropDownObject3.value;#}
+{#        var dp4 = dropDownObject4.value;#}
+{##}
+{#        if (marker.)#}
+{#    }#}
+
     $('#resetbtn').click(function(){
         for (var i = 0, length = markers.length; i < length; i++) {
             markers[i].setVisible(true);
@@ -163,10 +144,5 @@
         $('#selectGrowbedMedium').val("Choose a Growbed Medium");
     });
 </script>
-{#<script type="text/javascript"#}
-{#        src="http://maps.googleapis.com/maps/api/js"></script>#}
-{#<script src="http://www.google.com/jsapi" type="text/javascript"></script>#}
-{#<script type="text/javascript">google.load("jquery", "1.3.2");</script>#}
-{#<script src="{{ url_for('static', filename='js/dav/aqxMap.js') }}"></script>#}
 </body>
 </html>
