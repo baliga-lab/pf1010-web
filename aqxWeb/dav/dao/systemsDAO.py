@@ -66,3 +66,15 @@ class SystemsDAO:
             self.conn.close()
 
         return rows
+
+    # method to get the filtering criteria
+    def get_all_aqx_metadata(self):
+        cursor = self.conn.cursor()
+        query_aqx_techniques = ("SELECT name from aqx_techniques;")
+        try:
+            cursor.execute(query_aqx_techniques)
+            aqx_techniques = cursor.fetchall()
+        finally:
+            cursor.close()
+            self.conn.close()
+        return aqx_techniques

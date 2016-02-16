@@ -107,7 +107,14 @@ def get_all_systems_info():
     davAPI = DavAPI()
     return davAPI.get_all_systems_info(get_conn())
 
+######################################################################
+##  API call to get filtering criteria
+######################################################################
 
+@app.route('/aqxapi/get/systems/filter')
+def get_all_aqx_metadata():
+    davAPI = DavAPI()
+    return davAPI.get_all_aqx_metadata(get_conn())
 
 ######################################################################
 ##  Social Components API

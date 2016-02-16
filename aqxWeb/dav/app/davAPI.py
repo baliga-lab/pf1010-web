@@ -74,3 +74,17 @@ class DavAPI:
 
         return json.dumps({'systems': systems_list})
 
+    ###############################################################################
+    # get_all_aqx_metadata
+    ###############################################################################
+
+    def get_all_aqx_metadata(self, conn):
+        s = SystemsDAO(conn)
+        results = s.get_all_aqx_metadata()
+
+        list = []
+        for result in results:
+            obj = result[0]
+            list.append(obj)
+        return json.dumps({'aqx_techniques': list})
+
