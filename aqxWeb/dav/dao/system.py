@@ -11,10 +11,8 @@ app.config['DB']   = 'aquaponics'
 
 
 def dbconn():
-    #return MySQLdb.connect(host=app.config['HOST'], user=app.config['USER'],
-    #                       passwd=app.config['PASS'], db=app.config['DB'])
-    return MySQLdb.connect(host='localhost', user='root',
-                           passwd='horses', db='aquaponics')
+    return MySQLdb.connect(host=app.config['HOST'], user=app.config['USER'],
+                           passwd=app.config['PASS'], db=app.config['DB'])
 
 
 def get_systems():
