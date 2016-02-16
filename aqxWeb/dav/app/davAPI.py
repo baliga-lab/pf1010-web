@@ -1,4 +1,6 @@
-from ..dao.systemsDAO import SystemsDAO
+from aqxWeb.dav.dao.systemsDAO import SystemsDAO
+from aqxWeb.dav.dao.MetaDataDAO import MetadataDAO
+from collections import defaultdict
 import json
 
 
@@ -6,12 +8,12 @@ import json
 
 
 class DavAPI:
+
+
     ###############################################################################
     # get_systems
     # Fetches all the systems with its location and its user_id
     ###############################################################################
-
-    # method to get all system data
     # param conn : db connection
     def get_all_systems(self, conn):
         # Fetch all the systems
@@ -29,26 +31,23 @@ class DavAPI:
 
             systems_list.append(json.dumps(obj))
 
-        # Print JSON on console
-        # print json.dumps({'systems' : systems_list})
-        # Return the JSON
         return json.dumps({'systems': systems_list})
 
     ###############################################################################
     # get_system_metadata
     ###############################################################################
-
+    # param conn : db connection
+    # param system_id : system id
     def get_system_metadata(self, conn, system_id):
         s = SystemsDAO(conn)
         result = s.get_metadata(system_id)
-
 
         return result
 
     ###############################################################################
     # get_all_systems_info
     ###############################################################################
-
+    # param conn : db connection
     def get_all_systems_info(self, conn):
         s = SystemsDAO(conn)
         systems = s.get_all_systems_info()
@@ -75,16 +74,15 @@ class DavAPI:
         return json.dumps({'systems': systems_list})
 
     ###############################################################################
-    # get_all_aqx_metadata
+    # fetches all filter criteria
     ###############################################################################
 
-    def get_all_aqx_metadata(self, conn):
-        s = SystemsDAO(conn)
-        results = s.get_all_aqx_metadata()
-
-        list = []
+    def get_all_filters_metadata(self, conn):
+        m = MetadataDAO(conn)
+        results = m.get_all_filters()
+        vals = defaultdict(list)
         for result in results:
-            obj = result[0]
-            list.append(obj)
-        return json.dumps({'aqx_techniques': list})
-
+            type = result[0]
+            value = result[1]
+            vals[type].append(value)
+        return json.dumps({'filters': vals})

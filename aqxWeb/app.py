@@ -3,15 +3,15 @@ from flask import Flask, render_template
 import os
 import urllib, json
 from mysql.connector.pooling import MySQLConnectionPool
-#set env variable here to read config from env variable
-os.environ['AQUAPONICS_SETTINGS']="C:\\Users\\Brian\\Documents\\GitHub\\aqxWeb-NEU\\aqxWeb\\system_db.cfg"
+#set env variable here to read config from env variable, if it does not work add complete path
+os.environ['AQUAPONICS_SETTINGS']="system_db.cfg"
 app = Flask(__name__)
 app.config.from_envvar('AQUAPONICS_SETTINGS')
 #to hold db connection pool
 pool = None
-
+davAPI = DavAPI()
+#connect to the database
 def init_app(app):
-    # connect to the database
     create_conn()
 
 ######################################################################
@@ -22,16 +22,16 @@ def get_conn():
 
 ######################################################################
 ##  method to create connection when application starts
-# ######################################################################
+# #####################################################################
 def create_conn():
     global pool
     print("PID %d: initializing pool..." % os.getpid())
     dbconfig = {
-        "host":     app.config['HOST'],
-        "user":     app.config['USER'],
-        "passwd":   app.config['PASS'],
-        "db":       app.config['DB']
-    }
+         "host":     app.config['HOST'],
+         "user":     app.config['USER'],
+         "passwd":   app.config['PASS'],
+         "db":       app.config['DB']
+         }
     pool = MySQLConnectionPool(pool_name = "mypool", pool_size = app.config['POOLSIZE'], **dbconfig)
 
 ######################################################################
@@ -111,10 +111,9 @@ def get_systems():
 ##  API call to get metadata of a given system
 ######################################################################
 
-@app.route('/aqxapi/getsystem/meta/<system_uid>', methods=['GET'])
+@app.route('/aqxapi/get/system/meta/<system_uid>', methods=['GET'])
 def get_metadata(system_uid):
     print system_uid
-    davAPI = DavAPI()
     return davAPI.get_system_metadata(get_conn(), system_uid)
 
 
@@ -124,22 +123,24 @@ def get_metadata(system_uid):
 
 @app.route('/aqxapi/get/systems/metadata')
 def get_all_systems_info():
-    davAPI = DavAPI()
     return davAPI.get_all_systems_info(get_conn())
 
 ######################################################################
 ##  API call to get filtering criteria
 ######################################################################
 
-@app.route('/aqxapi/get/systems/filter')
+@app.route('/aqxapi/get/systems/filters')
 def get_all_aqx_metadata():
-    davAPI = DavAPI()
-    return davAPI.get_all_aqx_metadata(get_conn())
+    return davAPI.get_all_filters_metadata(get_conn())
 
 ######################################################################
 ##  Social Components API
 ######################################################################
-#init method for application
+
+
+
+
+#common init method for application
 if __name__ == "__main__":
     init_app(app)
     app.run(debug=True)

@@ -26,10 +26,8 @@ class SystemsDAO:
         cursor = self.conn.cursor()
         query = "SELECT name FROM systems WHERE system_uid = %s"
 
-
-
         try:
-            cursor.execute(query, (system_ui, ))
+            cursor.execute(query, (system_ui,))
             result, = cursor.fetchall()
 
         finally:
@@ -66,15 +64,3 @@ class SystemsDAO:
             self.conn.close()
 
         return rows
-
-    # method to get the filtering criteria
-    def get_all_aqx_metadata(self):
-        cursor = self.conn.cursor()
-        query_aqx_techniques = ("SELECT name from aqx_techniques;")
-        try:
-            cursor.execute(query_aqx_techniques)
-            aqx_techniques = cursor.fetchall()
-        finally:
-            cursor.close()
-            self.conn.close()
-        return aqx_techniques
