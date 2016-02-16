@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Explore Project Feed Around the World!</title>
+    <style>
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+        #map {
+            width: 700px;
+            height: 500px;
+        }
+    </style>
+</head>
+<body>
+<div id="map"></div>
+<script readonly>
+        var json_ob = {{ json_obj|safe }};
+</script>
+<script type="text/javascript"
+        src="http://maps.googleapis.com/maps/api/js"></script>
+<script src="http://www.google.com/jsapi" type="text/javascript"></script>
+<script type="text/javascript">google.load("jquery", "1.3.2");</script>
+<script src="{{ url_for('static', filename='js/dav/aqxMap.js') }}"></script>
+</body>
+</html>
