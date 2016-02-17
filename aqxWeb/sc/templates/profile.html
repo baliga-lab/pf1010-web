@@ -1,10 +1,7 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Hi</title>
-</head>
-<body>
+{% extends "layout.html" %}
+{% block body %}
+
+
 <form action="/updateprofile" method="post">
   First name:
   <input type="text" name="firstname">
@@ -29,6 +26,4 @@
     <br>
   <input type="submit" value="Submit" />
 </form>
-
-</body>
-</html>
+{% endblock %}
