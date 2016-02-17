@@ -42,7 +42,7 @@ class UserDAO:
             cursor.close()
         return "User inserted"
 
-    # method to put user information
+    # method to delete user information
     def delete_user(self, user_id):
 
         cursor = self.conn.cursor()

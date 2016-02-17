@@ -9,10 +9,10 @@ class MetadataDAO:
     # method to get the filtering criteria
     def get_all_filters(self):
         cursor = self.conn.cursor()
-        query_filters = ("select \'crop\', c.name from crops c union "
-                         "select \'technique\' , aqt.name  from aqx_techniques aqt union "
-                         "select \'organism\', ao.name  from aquatic_organisms ao union "
-                         "select \'gbmedia\', gbm.name  from growbed_media gbm;")
+        query_filters = ("select \'crops\', c.name from crops c union "
+                         "select \'aqx_techniques\' , aqt.name  from aqx_techniques aqt union "
+                         "select \'aqx_organisms\', ao.name  from aquatic_organisms ao union "
+                         "select \'growbed_media\', gbm.name  from growbed_media gbm;")
         try:
             cursor.execute(query_filters)
             aqx_techniques = cursor.fetchall()
