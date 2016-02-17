@@ -16,11 +16,13 @@ class UserDAOTest(unittest.TestCase):
         u.delete_user("6546546465")
         pass
 
+    #get user data
     def test_get_user(self):
         u = UserDAO(self.conn)
         response = u.get_user("108935443071440000056")
         self.assertNotEqual(len(response), 0, 'user exist')
 
+    #insert user data
     def test_put_user(self):
         user = {"googleid" : "6546546465",
                 "email" : "asdasd@as.com",

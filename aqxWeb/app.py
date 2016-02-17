@@ -1,5 +1,5 @@
 from dav.app.davAPI import DavAPI
-from flask import Flask, render_template
+from flask import Flask, render_template, request
 import os
 import urllib, json
 from mysql.connector.pooling import MySQLConnectionPool
@@ -9,10 +9,17 @@ os.environ['AQUAPONICS_SETTINGS']="system_db.cfg"
 
 app = Flask(__name__)
 app.config.from_envvar('AQUAPONICS_SETTINGS')
+
 #to hold db connection pool
 pool = None
+
+#creating object for dav api
 davAPI = DavAPI()
+
+
 #connect to the database
+
+
 def init_app(app):
     create_conn()
 
@@ -115,7 +122,6 @@ def get_systems():
 
 @app.route('/aqxapi/get/system/meta/<system_uid>', methods=['GET'])
 def get_metadata(system_uid):
-    print system_uid
     return davAPI.get_system_metadata(get_conn(), system_uid)
 
 
@@ -134,6 +140,23 @@ def get_all_systems_info():
 @app.route('/aqxapi/get/systems/filters')
 def get_all_aqx_metadata():
     return davAPI.get_all_filters_metadata(get_conn())
+
+######################################################################
+##  API call to get user data
+######################################################################
+
+@app.route('/aqxapi/get/user/<uid>' ,methods=['GET'])
+def get_user(uid):
+    return davAPI.get_user(get_conn(),uid)
+
+######################################################################
+##  API call to put user data
+######################################################################
+
+@app.route('/aqxapi/put/user' ,methods=['POST'])
+def put_user():
+    user = request.get_json()
+    return davAPI.put_user(get_conn(),user)
 
 ######################################################################
 ##  Social Components API

@@ -1,5 +1,6 @@
 from aqxWeb.dav.dao.systemsDAO import SystemsDAO
 from aqxWeb.dav.dao.MetaDataDAO import MetadataDAO
+from aqxWeb.dav.dao.UserDAO import UserDAO
 from collections import defaultdict
 import json
 
@@ -86,3 +87,32 @@ class DavAPI:
             value = result[1]
             vals[type].append(value)
         return json.dumps({'filters': vals})
+
+     ###############################################################################
+    # fetch user data
+    ###############################################################################
+
+    def get_user(self, conn, user_id):
+        u = UserDAO(conn)
+        result = u.get_user(user_id)
+        user = {
+            "id" : result[0],
+            "google_id" : result[1],
+            "email" : result[2],
+            "latitude" : str(result[3]),
+            "longitude" :str(result[4])
+        }
+        return json.dumps({'user': user})
+
+     ###############################################################################
+    # insert user data
+    ###############################################################################
+
+    def put_user(self, conn, user):
+        u = UserDAO(conn)
+        result = u.put_user(user)
+        message = {
+            "message" : result
+        }
+        return json.dumps({'status': message})
+
