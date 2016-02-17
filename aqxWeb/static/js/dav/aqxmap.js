@@ -34,11 +34,11 @@ $(document).ready(function() {
      * @returns {string} - HTML that populates a System's InfoWindow
      */
     function buildContentString(dataPoint) {
-        return "<h2>" + dataPoint.title + "</h2>" +
-            "<ul><li>Aquaponics Technique: " + dataPoint.aqx_techniques + "</li>" +
-            "<li>Aquatic organism: " + dataPoint.aqx_organism + "</li>" +
+        return "<h2>" + dataPoint.system_name + "</h2>" +
+            "<ul><li>Aquaponics Technique: " + dataPoint.aqx_technique_name + "</li>" +
+            "<li>Aquatic organism: " + dataPoint.organism_name + "</li>" +
             "<li>Growbed Medium: " + dataPoint.growbed_media + "</li>" +
-            "<li>Crop: " + dataPoint.crop + "</li></ul>";
+            "<li>Crop: " + dataPoint.crop_name + "</li></ul>";
     }
 
     /**
