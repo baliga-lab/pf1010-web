@@ -36,7 +36,7 @@ class User:
 
     def updateprofile(self,firstname, lastname, dateofbirth, organization, email):
         query = """
-        MATCH(x:Users)
+        MATCH(x:User)
         WHERE x.sql_id = 1
         SET x.name = {nameupdate}
         """
@@ -51,30 +51,27 @@ class User:
         else:
             return False
 
-    def add_post(self, title, tags, text):
+    def add_post(self, text, privacy, link):
         user = self.find()
         post = Node(
             "Post",
             id=str(uuid.uuid4()),
-            title=title,
+            title= "Post",
             text=text,
+            link=link,
+            privacy=privacy,
+            page_type="MyPage",
             timestamp=timestamp(),
             date=date()
         )
-        rel = Relationship(user, "PUBLISHED", post)
+        rel = Relationship(user, "POSTED", post)
         graph.create(rel)
-
-        tags = [x.strip() for x in tags.lower().split(',')]
-        for t in set(tags):
-            tag = graph.merge_one("Tag", "name", t)
-            rel = Relationship(tag, "TAGGED", post)
-            graph.create(rel)
 
     def get_recent_posts(self):
         query = """
-        MATCH (user:User)-[:PUBLISHED]->(post:Post)<-[:TAGGED]-(tag:Tag)
+        MATCH (user:User)-[:POSTED]->(post:Post)
         WHERE user.username = {username}
-        RETURN post, COLLECT(tag.name) AS tags
+        RETURN post
         ORDER BY post.timestamp DESC LIMIT 5
         """
 
@@ -82,9 +79,9 @@ class User:
 
 def get_todays_recent_posts():
     query = """
-    MATCH (user:User)-[:PUBLISHED]->(post:Post)<-[:TAGGED]-(tag:Tag)
+    MATCH (user:User)-[:POSTED]->(post:Post)
     WHERE post.date = {today}
-    RETURN user.username AS username, post, COLLECT(tag.name) AS tags
+    RETURN user.username AS username, post
     ORDER BY post.timestamp DESC LIMIT 5
     """
 

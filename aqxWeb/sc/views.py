@@ -1,5 +1,5 @@
 from flask import Flask, request, session, redirect, url_for, render_template, flash
-from models import User,get_todays_recent_posts
+from models import User, get_todays_recent_posts
 from aqxWeb.sc import app
 
 @app.route('/profile')
@@ -25,19 +25,13 @@ def index():
 
 @app.route('/add_post', methods=['POST'])
 def add_post():
-    title = request.form['title']
-    tags = request.form['tags']
+    privacy = request.form['privacy']
     text = request.form['text']
-
-    if not title or not tags  or not text:
-        if not title:
-            flash('You must give your post a title.')
-        if not tags:
-            flash('You must give your post at least one tag.')
-        if not text:
+    link = request.form['link']
+    if not text:
             flash('You must give your post a text body.')
     else:
-        User(session['username']).add_post(title,tags, text)
+        User(session['username']).add_post(text, privacy, link)
 
     return redirect(url_for('index'))
 

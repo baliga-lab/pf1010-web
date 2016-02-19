@@ -3,6 +3,36 @@
 <title>Feed1010-SocialNetwork</title>
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css"
       integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"
+        integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous">
+</script>
+<style>
+    body {
+        background-color: #EEE;
+    }
+    .attachedImg {
+        display: block;
+        max-width: 200px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+    .post {
+        background-color: #FFF;
+        margin-bottom: 10px;
+        width: 60%;
+        padding: 20px;
+        border-radius: 15px;
+    }
+    .post .media {
+        width: 100%;
+        text-align: center;
+    }
+    .post .dttime {
+        float: right;
+        margin-right: 20px;
+    }
+</style>
 
 <nav class="navbar navbar-default">
     <div class="container-fluid">
@@ -21,11 +51,11 @@
         <!-- Collect the nav links, forms, and other content for toggling -->
         <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
             {% if session.username %}
-                <ul class="nav navbar-nav">
+                <ul id="main_menu" class="nav navbar-nav">
 
-                    <li class="active"><a href="#">Home <span class="sr-only">(current)</span></a></li>
+                    <li><a id="index" class="active" href="/">Home <span class="sr-only">(current)</span></a></li>
 
-                    <li><a href="{{ url_for('profile') }}">Profile</a></li>
+                    <li><a id="profile" href="{{ url_for('profile') }}">Profile</a></li>
 
                     <li class="dropdown">
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
@@ -81,15 +111,22 @@
     </div><!-- /.container-fluid -->
 </nav>
 
-</div>
+<div class="container">
 {% for message in get_flashed_messages() %}
     <div class="flash">{{ message }}</div>
 {% endfor %}
-{% block body %}{% endblock %}
+    {% block body %}{% endblock %}
 </div>
-
-
-
+<script>
+$(function() {
+     var current_page = window.location.href.substr(window.location.href.lastIndexOf("/")+1);
+     $("#main_menu").each(function(){
+          if($(this).attr("href") == current_page || $(this).attr("href") == '' )
+            $(this).addClass("active");
+     })
+});
+</script>
+{% block script %}{% endblock %}
 
 
 
