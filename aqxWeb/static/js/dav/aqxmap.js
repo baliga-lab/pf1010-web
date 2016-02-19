@@ -13,8 +13,8 @@ $(document).ready(function() {
      */
     function populateDropdown(key, elementId){
         var select = document.getElementById(elementId);
-        for(var i = 0; i < meta_data[key].length; i++) {
-            var opt = meta_data[key][i];
+        for(var i = 0; i < meta_data_object[key].length; i++) {
+            var opt = meta_data_object[key][i];
             var el = document.createElement("option");
             el.textContent = opt;
             el.value = opt;
@@ -98,8 +98,8 @@ $(document).ready(function() {
      * Initializes a Google Map
      */
     function initializeMap() {
-        var defaultCenter = {lat: 57.9, lng: 14.6};
-        var defaultZoom = 4;
+        var defaultCenter = {lat: 47.622577, lng: -122.337436};
+        var defaultZoom = 3;
 
         // Set map config
         map = new google.maps.Map(document.getElementById('map'), {
@@ -111,8 +111,8 @@ $(document).ready(function() {
         infoWindow = new google.maps.InfoWindow();
 
         // Add map to markers
-        for (var i = 0, length = json_ob.length; i < length; i++) {
-            addMarker(json_ob[i]);
+        for (var i = 0, length = system_and_info_object.length; i < length; i++) {
+            addMarker(system_and_info_object[i]);
         }
     }
     initializeMap();

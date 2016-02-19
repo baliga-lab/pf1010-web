@@ -45,12 +45,10 @@
 <input type="submit" id="submitbtn" name="mysubmit" value="Submit" onclick="uploadClicked()"/>
 <input type="button" id="resetbtn" name="reset" value="Reset"/>
 <script readonly>
-    var json_ob = {{ json_obj|safe }};
-    console.log(json_ob);
-    console.log(json_ob.systems[0].organism_name);
-    json_ob = json_ob.systems;
-    console.log(json_ob);
-    var meta_data = {{ metadata_json|safe }};
+    var system_and_info_object = {{ systems_and_info_json|safe }};
+    system_and_info_object = system_and_info_object.systems;
+    var meta_data_object = {{ metadata_json|safe }};
+    meta_data_object = meta_data_object.filters;
     var markers = [];
 </script>
 <script type="text/javascript"
@@ -60,7 +58,7 @@
 <script>
     //Sample data
     function uploadClicked() {
-        var systemInfo = json_ob;
+        var systemInfo = system_and_info_object;
         var filteredSystems = [];
 
         var dropDownObject1 = document.getElementById("selectTechnique");

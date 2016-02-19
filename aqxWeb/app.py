@@ -54,40 +54,16 @@ def index():
                            title='Home',
                            user=user)
 
+
 ######################################################################
 ##  Interactive map of all active systems
 ######################################################################
-@app.route('/map')
-def displayMapPage():
-    # json_obj = bostonapi.get_systems_and_metadata()
-    # url = "http://localhost:5000/aqxapi/get/systems"
-    # response = urllib.urlopen(url)
-    MOCK = False
-    if (MOCK):
-        json_obj = [{"title": "System1", "lat": 59.3, "lng": 18.1, "description": {"aqx_techniques":"Nutrient Film Technique (NFT)",
-                                                                                   "aqx_organism":"Blue Tilapia",
-                                                                                   "growbed_media":"Clay Pebbles",
-                                                                                   "crop":"Lettuce"}},
-                    {"title": "System2", "lat": 59.9, "lng": 10.8, "description": {"aqx_techniques":"Ebb and Flow (Media-based)",
-                                                                                   "aqx_organism":"Mozambique Tilapia",
-                                                                                   "growbed_media":"Coconut Coir",
-                                                                                   "crop":"Bok Choy"}},
-                    {"title": "System3", "lat": 55.7, "lng": 12.6, "description": {"aqx_techniques": "Floating Raft",
-                                                                                   "aqx_organism":"Koi",
-                                                                                   "growbed_media":"Seed Starter Plugs",
-                                                                                   "crop":"Carrot"}}]
-        #Having trouble with filtering on the fly, using this for now
-        json_obj = filter(lambda x: (x['lat'] and x['lng']), json_obj)
-    else:
-        json_obj = get_all_systems_info()
+@app.route('/explore')
+def display_explore_page():
+    systems_and_info_json = get_all_systems_info()
+    metadata_json = get_all_aqx_metadata()
+    return render_template("dav/explorePage.html", **locals())
 
-    print str(json_obj)
-    metadata_json = {"aqx_techniques":["Nutrient Film Technique (NFT)", "Ebb and Flow (Media-based)", "Floating Raft", "Vertical Flow Through"],
-                     "aqx_organisms":["Mozambique Tilapia", "Bluegill", "Shrimp", "Nile Tilapia", "Blue Tilapia", "Koi", "Goldfish", "Betta Fish"],
-                     "growbed_media":["Clay Pebbles", "Coconut Coir", "Seed Starter Plugs"],
-                     "crops": ["Bok Choy", "Carrot", "Lettuce", "Pea", "Strawberry"]}
-
-    return render_template("dav/mapPage.html", json_obj=json_obj, metadata_json=metadata_json)
 
 ######################################################################
 ##  Test page for pin filtering
