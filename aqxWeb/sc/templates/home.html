@@ -6,13 +6,13 @@
                 <textarea id="new_post" name="text" rows="3" cols="60" style="width: 100%"
                           placeholder="Share what you are doing.."></textarea>
                 <div class="links">
+                    <input type="hidden" name="link" value=""/>
                 </div>
                 <div class="controls form-inline">
                     <button type="button" class="btn" data-toggle="modal" data-target="#linkModal"
                         id="add_link">Add Link
                     </button>
-                    <select name="privacy" style="height: 30px; width: 200px; margin-left: 200px; margin-right: 100px"
-                    class="form-control">
+                    <select name="privacy" style="height: 30px; width: 100px; margin-left: 200px; margin-right: 100px">
                         <option value="public">Public</option>
                     </select>
                     <input type="submit" class="btn btn-primary" value="Share">
@@ -33,7 +33,7 @@
                                    placeholder="Type an image/video url here.." />
                         </div>
                         <div class="modal-footer">
-                            <button id="close" type="button" class="btn btn-default">Close</button>
+                            <button id="addUrl" type="button" class="btn btn-default">Add Link</button>
                         </div>
                     </div>
                 </div>
@@ -51,10 +51,11 @@
 {% endblock %}
 {% block script %}
     <script>
-        $("#close").click(function(){
+        $("#addUrl").click(function(){
             console.log("close click");
             var link = $("#new_link").val();
             var text = $("#new_post").val();
+            $(".links").empty();
             $(".links").append("<a href='"+link+"'>"+link+"</a>");
             $(".links").append("<input type='hidden' name='link' value='"+ link +"'/><br/>");
             $("#linkModal").modal("hide");
