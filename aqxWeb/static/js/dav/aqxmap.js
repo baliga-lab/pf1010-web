@@ -21,39 +21,29 @@ var buildContentString = function(dataPoint) {
         "<li>Crop: " + crop + "</li></ul>";
 };
 
-// When the Reset button is clicked, resets the contents of the dropdowns
-// TODO: Will also be used to reset the map Markers, and to clear the filter criteria.
-$('#resetbtn').click(function(){
-    $('#selectTechnique').val("Choose an Aquaponics Technique");
-    $('#selectOrganism').val("Choose an Aquatic Organism");
-    $('#selectCrop').val("Choose a Crop");
-    $('#selectGrowbedMedium').val("Choose a Growbed Medium");
-});
-
 /**
  *
  * @param key - Identifies a metadata category that will populate the dropdown
  * @param elementId - Identifies the dropdown to populate
  */
-var populateDropdown = function(key, elementId){
+var populateDropdown = function(key, elementId, meta_data_object){
     var select = document.getElementById(elementId);
-    for (value in meta_data_object[key]){
-        var opt = meta_data_object[key][value];
+    _.each(meta_data_object[key], function(meta_data){
         var el = document.createElement("option");
-        el.textContent = opt;
-        el.value = opt;
+        el.textContent = meta_data;
+        el.value = meta_data;
         select.appendChild(el);
-    }
+    });
 };
 
 var main = function(system_and_info_object, meta_data_object) {
     var map;
 
     // Populate out dropdowns.
-    populateDropdown("aqx_techniques", "selectTechnique");
-    populateDropdown("aqx_organisms", "selectOrganism");
-    populateDropdown("growbed_media", "selectGrowbedMedium");
-    populateDropdown("crops", "selectCrop");
+    populateDropdown("aqx_techniques", "selectTechnique", meta_data_object);
+    populateDropdown("aqx_organisms", "selectOrganism", meta_data_object);
+    populateDropdown("growbed_media", "selectGrowbedMedium", meta_data_object);
+    populateDropdown("crops", "selectCrop", meta_data_object);
 
     /**
      *
@@ -103,11 +93,33 @@ var main = function(system_and_info_object, meta_data_object) {
         infoWindow = new google.maps.InfoWindow();
 
         // Add map to markers
-        for (item in system_and_info_object){
-            addMarker(system_and_info_object[item]);
-        }
+        _.each(system_and_info_object, function(system_and_info) {
+             addMarker(system_and_info);
+        });
     }
     initializeMap();
+};
+
+/**
+ * Resets all markers to a visible state, and resets dropdowns
+ * to their default values.
+ */
+function reset() {
+    _.each(system_and_info_object, function(system) {
+        system.marker.setVisible(true);
+    });
+    $('#selectTechnique option').prop('selected', function() {
+        return this.defaultSelected;
+    });
+    $('#selectOrganism option').prop('selected', function() {
+        return this.defaultSelected;
+    });
+    $('#selectCrop option').prop('selected', function() {
+        return this.defaultSelected;
+    });
+    $('#selectGrowbedMedium option').prop('selected', function() {
+        return this.defaultSelected;
+    });
 };
 
 /**
@@ -120,19 +132,16 @@ function filterSystemsBasedOnDropdownValues() {
     var dp4 = document.getElementById("selectGrowbedMedium").value;
 
     _.each(system_and_info_object, function(system) {
-        if((!_.isEmpty(dp1) && system.aqx_technique_name != dp1) || (!_.isEmpty(dp2) && system.organism_name != dp2) || (!_.isEmpty(dp3) &&system.crop_name != dp3) || (!_.isEmpty(dp4) && system.growbed_media != dp4)) {
+        if((!_.isEmpty(dp1) && system.aqx_technique_name != dp1)
+            || (!_.isEmpty(dp2) && system.organism_name != dp2)
+            || (!_.isEmpty(dp3) &&system.crop_name != dp3)
+            || (!_.isEmpty(dp4) && system.growbed_media != dp4))
+        {
             system.marker.setVisible(false);
         } else {
             system.marker.setVisible(true);
         }
     });
-};
-
-
-function reset() {
-     _.each(system_and_info_object, function(system) {
-         system.marker.setVisible(true);
-     });
 };
 
 function filterSystemsBasedOnSelectedUser() {
@@ -145,7 +154,7 @@ function filterSystemsBasedOnSelectedUser() {
             system.marker.setVisible(false);
         });
         // Set visible = true only for checked items
-         _.each(checkedItems, function(item) {
+        _.each(checkedItems, function(item) {
             _.each(system_and_info_object, function(system) {
                 if(system.system_name === item.value)
                     system.marker.setVisible(true);
