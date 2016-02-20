@@ -1,6 +1,7 @@
 from dav.app.davAPI import DavAPI
 from flask import Flask, render_template, request
 import os
+import json
 from mysql.connector.pooling import MySQLConnectionPool
 
 # Set environment variable here to read configuration from environment variable,
@@ -70,6 +71,7 @@ def index():
 @app.route('/explore')
 def display_explore_page():
     systems_and_info_json = get_all_systems_info()
+    systems = json.loads(systems_and_info_json)['systems']
     metadata_json = get_all_aqx_metadata()
     return render_template("dav/explorePage.html", **locals())
 
