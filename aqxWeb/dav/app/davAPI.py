@@ -10,35 +10,15 @@ import json
 
 class DavAPI:
 
-
-    ###############################################################################
-    # get_systems
-    # Fetches all the systems with its location and its user_id
-    ###############################################################################
-    # param conn : db connection
-    def get_all_systems(self, conn):
-        # Fetch all the systems
-        s = SystemsDAO(conn)
-        systems = s.get_systems()
-
-        # Create a list of systems
-        systems_list = []
-        for system in systems:
-            # For each system, create a JSON
-            obj = {'system_id': system[0],
-                   'user_id': str(system[1]),
-                   'latitude': str(system[2]),
-                   'longitude': str(system[3])}
-
-            systems_list.append(json.dumps(obj))
-
-        return json.dumps({'systems': systems_list})
-
     ###############################################################################
     # get_system_metadata
     ###############################################################################
     # param conn : db connection
     # param system_id : system id
+    # get_system_metadata(system_uid) - It takes in the system_uid as the input
+    #                                   parameter and returns the metadata for the
+    #                                   given system. Currently, it returns only
+    #                                   the name of the system.
     def get_system_metadata(self, conn, system_id):
         s = SystemsDAO(conn)
         result = s.get_metadata(system_id)
@@ -49,6 +29,8 @@ class DavAPI:
     # get_all_systems_info
     ###############################################################################
     # param conn : db connection
+    # get_all_systems_info() - It returns the system information as a JSON
+    #                          object.
     def get_all_systems_info(self, conn):
         s = SystemsDAO(conn)
         systems = s.get_all_systems_info()
@@ -78,6 +60,8 @@ class DavAPI:
     # fetches all filter criteria
     ###############################################################################
 
+    # get_all_filters_metadata - It returns all the metadata that are needed
+    #                            to filter the displayed systems.
     def get_all_filters_metadata(self, conn):
         m = MetadataDAO(conn)
         results = m.get_all_filters()
@@ -88,7 +72,7 @@ class DavAPI:
             vals[type].append(value)
         return json.dumps({'filters': vals})
 
-     ###############################################################################
+    ###############################################################################
     # fetch user data
     ###############################################################################
 
@@ -104,7 +88,7 @@ class DavAPI:
         }
         return json.dumps({'user': user})
 
-     ###############################################################################
+    ###############################################################################
     # insert user data
     ###############################################################################
 

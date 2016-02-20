@@ -18,8 +18,8 @@ class DavApiTest(unittest.TestCase):
         pass
 
     #get all systems
-    def test_get_systems(self):
-        response = self.app.get('/aqxapi/get/systems')
+    def test_get_all_systems_info(self):
+        response = self.app.get('/aqxapi/get/systems/metadata')
         print(response)
         result = json.loads(response.data)
         self.assertNotEqual(len(result), 0, 'systems exist')

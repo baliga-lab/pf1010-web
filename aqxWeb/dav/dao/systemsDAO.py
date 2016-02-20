@@ -5,23 +5,11 @@ class SystemsDAO:
     def __init__(self, conn):
         self.conn = conn
 
-    # method to get all systems from database
-    def get_systems(self):
-        cursor = self.conn.cursor();
-        query = ("select system_uid, user_id, location_lat ,location_lng "
-                 "from systems")
-
-        try:
-            cursor.execute(query)
-            rows = cursor.fetchall()
-
-        finally:
-            cursor.close()
-            self.conn.close()
-
-        return rows
-
-    # method to get the metadata of a given system from the database
+    ###############################################################################
+    # get_metadata(system_uid) - It takes in the system_uid as the input
+    #                            parameter and returns the metadata for the
+    #                            given system. Currently, it returns only
+    #                            the name of the system.
     def get_metadata(self, system_ui):
         cursor = self.conn.cursor()
         query = "SELECT name FROM systems WHERE system_uid = %s"
@@ -36,7 +24,9 @@ class SystemsDAO:
 
         return result
 
-    # method to get the metadata of all the systems
+    ###############################################################################
+    # get_all_systems_info() - It returns the system information as a JSON
+    #                          object.
     def get_all_systems_info(self):
         cursor = self.conn.cursor()
         query = ("SELECT s.system_uid, s.user_id, s.name, s.start_date, s.location_lat, location_lng, "
@@ -64,3 +54,5 @@ class SystemsDAO:
             self.conn.close()
 
         return rows
+
+    ###############################################################################
