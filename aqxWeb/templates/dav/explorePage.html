@@ -48,83 +48,87 @@
 <br><br>
 <input type="submit" id="submitbtn" name="mysubmit" value="Submit" onclick="uploadClicked()"/>
 <input type="button" id="resetbtn" name="reset" value="Reset"/>
-<script readonly>
-    var system_and_info_object = {{ systems_and_info_json|safe }};
-    system_and_info_object = system_and_info_object.systems;
-    var meta_data_object = {{ metadata_json|safe }};
-    meta_data_object = meta_data_object.filters;
-    var markers = [];
-</script>
 <script type="text/javascript"
         src="http://maps.googleapis.com/maps/api/js">
 </script>
 <script src="{{ url_for('static', filename='js/dav/aqxMap.js') }}"></script>
 <script>
-    //Sample data
-    function uploadClicked() {
-        var systemInfo = system_and_info_object;
-        var filteredSystems = [];
+    var system_and_info_object = {{ systems_and_info_json|safe }};
+    system_and_info_object = system_and_info_object.systems;
+    var meta_data_object = {{ metadata_json|safe }};
+    meta_data_object = meta_data_object.filters;
+    $(document).ready(main(system_and_info_object, meta_data_object));
+</script>
+</body>
+</html>
 
-        var dropDownObject1 = document.getElementById("selectTechnique");
-        var dropDownObject2 = document.getElementById("selectOrganism");
-        var dropDownObject3 = document.getElementById("selectCrop");
-        var dropDownObject4 = document.getElementById("selectGrowbedMedium");
-        var dp1 = dropDownObject1.value;
-        var dp2 = dropDownObject2.value;
-        var dp3 = dropDownObject3.value;
-        var dp4 = dropDownObject4.value;
-
-                if (dp1 != "Choose an Aquaponics Technique") {
-                    console.log("here1");
-                    filteredSystems = _.filter(systemInfo, function (system) {
-                        return (system.description.aqx_techniques === dp1);
-                    });
-                    console.log(filteredSystems);
-                } else {
-                    filteredSystems = systemInfo;
-                }
-
-                if (dp2 != "Choose an Aquatic Organism") {
-                    console.log("here2");
-                    filteredSystems = _.filter(filteredSystems, function (system) {
-                        return (system.description.aqx_organism === dp2);
-                    });
-                    console.log(filteredSystems);
-                }
-
-                if (dp3 != "Choose a Crop") {
-                    console.log("here3");
-                    filteredSystems = _.filter(filteredSystems, function (system) {
-                        return (system.description.crop === dp3);
-                    });
-                    console.log(filteredSystems);
-                }
-
-                if (dp4 != "Choose a Growbed Medium") {
-                    console.log("here4");
-                    filteredSystems = _.filter(filteredSystems, function (system) {
-                        return (system.description.growbed_media === dp4);
-                    });
-                    console.log(filteredSystems);
-                }
-        // Call displayMap with filteredSystems
-        console.log(filteredSystems);
-
-        // Naive function to filter markers off map.
-        // Uses title to id a marker, which won't work
-        // Can maybe use UID
-        // TODO: Do this better, and get it to work correctly from aqxmap.js
-        function removeFilteredMarkers(filteredSystems){
-            for (var i = 0; i < markers.length; i++) {
-                for (var j = 0; j < filteredSystems.length; j++){
-                    if (markers[i].title === filteredSystems[j].title){
-                        markers[i].setVisible(false);
-                    }
-                }
-            }
-        }
-        removeFilteredMarkers(filteredSystems);
-    };
+{#<script src="{{ url_for('static', filename='js/dav/aqxMap.js') }}"></script>#}
+{#<script>#}
+{#    //Sample data#}
+{#    function uploadClicked() {#}
+{#        var systemInfo = system_and_info_object;#}
+{#        var filteredSystems = [];#}
+{##}
+{#        var dropDownObject1 = document.getElementById("selectTechnique");#}
+{#        var dropDownObject2 = document.getElementById("selectOrganism");#}
+{#        var dropDownObject3 = document.getElementById("selectCrop");#}
+{#        var dropDownObject4 = document.getElementById("selectGrowbedMedium");#}
+{#        var dp1 = dropDownObject1.value;#}
+{#        var dp2 = dropDownObject2.value;#}
+{#        var dp3 = dropDownObject3.value;#}
+{#        var dp4 = dropDownObject4.value;#}
+{##}
+{#        if (dp1 != "Choose an Aquaponics Technique") {#}
+{#            console.log("here1");#}
+{#            filteredSystems = _.filter(systemInfo, function (system) {#}
+{#                return (system.description.aqx_techniques === dp1);#}
+{#            });#}
+{#            console.log(filteredSystems);#}
+{#        } else {#}
+{#            filteredSystems = systemInfo;#}
+{#        }#}
+{##}
+{#        if (dp2 != "Choose an Aquatic Organism") {#}
+{#            console.log("here2");#}
+{#            filteredSystems = _.filter(filteredSystems, function (system) {#}
+{#                return (system.description.aqx_organism === dp2);#}
+{#            });#}
+{#            console.log(filteredSystems);#}
+{#        }#}
+{##}
+{#        if (dp3 != "Choose a Crop") {#}
+{#            console.log("here3");#}
+{#            filteredSystems = _.filter(filteredSystems, function (system) {#}
+{#                return (system.description.crop === dp3);#}
+{#            });#}
+{#            console.log(filteredSystems);#}
+{#        }#}
+{##}
+{#        if (dp4 != "Choose a Growbed Medium") {#}
+{#            console.log("here4");#}
+{#            filteredSystems = _.filter(filteredSystems, function (system) {#}
+{#                return (system.description.growbed_media === dp4);#}
+{#            });#}
+{#            console.log(filteredSystems);#}
+{#        }#}
+{#        // Call displayMap with filteredSystems#}
+{#        console.log(filteredSystems);#}
+{##}
+{#        // Naive function to filter markers off map.#}
+{#        // Uses title to id a marker, which won't work#}
+{#        // Can maybe use UID#}
+{#        // TODO: Do this better, and get it to work correctly from aqxmap.js#}
+{#        function removeFilteredMarkers(filteredSystems){#}
+{#            for (var i = 0; i < markers.length; i++) {#}
+{#                for (var j = 0; j < filteredSystems.length; j++){#}
+{#                    if (markers[i].title === filteredSystems[j].title){#}
+{#                        markers[i].setVisible(false);#}
+{#                    }#}
+{#                }#}
+{#            }#}
+{#        }#}
+{#        removeFilteredMarkers(filteredSystems);#}
+{#    };#}
 
 {#    function hideMarkerIfFiltered(marker){#}
 {#        var dropDownObject1 = document.getElementById("selectTechnique");#}
@@ -138,16 +142,4 @@
 {##}
 {#        if (marker.)#}
 {#    }#}
-
-    $('#resetbtn').click(function(){
-        for (var i = 0, length = markers.length; i < length; i++) {
-            markers[i].setVisible(true);
-        }
-        $('#selectTechnique').val("Choose an Aquaponics Technique");
-        $('#selectOrganism').val("Choose an Aquatic Organism");
-        $('#selectCrop').val("Choose a Crop");
-        $('#selectGrowbedMedium').val("Choose a Growbed Medium");
-    });
-</script>
-</body>
-</html>
+{#</script>#}

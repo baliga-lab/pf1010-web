@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>QUnit basic example</title>
+    <link rel="stylesheet" href="//code.jquery.com/qunit/qunit-1.21.0.css">
+</head>
+<body>
+<div id="qunit"></div>
+<div id="qunit-fixture"></div>
+<script src="//code.jquery.com/qunit/qunit-1.21.0.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+<script src="/aqxWeb-NEU/aqxWeb/static/js/dav/aqxmap.js"></script>
+<script src="/aqxWeb-NEU/tests/dav/js/exploreTestMockConstants.js"></script>
+<script>
+    QUnit.test("BuildContentString test", function( assert ) {
+        assert.equal(buildContentString(dataPointOne), expectedHTMLOne);
+    });
+    QUnit.test("BuildContentString, nulls should return Not available", function( assert ) {
+        assert.equal(buildContentString(dataPointTwo), expectedHTMLTwo);
+    });
+    QUnit.test()
+</script>
+</body>
+</html>

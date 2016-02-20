@@ -2,44 +2,58 @@
  * Created by Brian on 2/14/2016.
  */
 
-$(document).ready(function() {
+/**
+ *
+ * @param dataPoint - An Object(dict) that represents an Aquaponics System
+ * @returns {string} - HTML that populates a System's InfoWindow
+ */
+var buildContentString = function(dataPoint) {
+    var name = dataPoint.system_name == null ? "Not available" : dataPoint.system_name;
+    var technique = dataPoint.aqx_technique_name == null ? "Not available" : dataPoint.aqx_technique_name;
+    var organism = dataPoint.organism_name == null ? "Not availalble" : dataPoint.organism_name;
+    var growbed = dataPoint.growbed_media == null ? "Not available" : dataPoint.growbed_media;
+    var crop = dataPoint.crop_name == null ? "Not available" : dataPoint.crop_name;
 
+    return "<h2>" + name + "</h2>" +
+        "<ul><li>Aquaponics Technique: " + technique + "</li>" +
+        "<li>Aquatic organism: " + organism+ "</li>" +
+        "<li>Growbed Medium: " + growbed + "</li>" +
+        "<li>Crop: " + crop + "</li></ul>";
+};
+
+// When the Reset button is clicked, resets the contents of the dropdowns
+// TODO: Will also be used to reset the map Markers, and to clear the filter criteria.
+$('#resetbtn').click(function(){
+    $('#selectTechnique').val("Choose an Aquaponics Technique");
+    $('#selectOrganism').val("Choose an Aquatic Organism");
+    $('#selectCrop').val("Choose a Crop");
+    $('#selectGrowbedMedium').val("Choose a Growbed Medium");
+});
+
+/**
+ *
+ * @param key - Identifies a metadata category that will populate the dropdown
+ * @param elementId - Identifies the dropdown to populate
+ */
+var populateDropdown = function(key, elementId){
+    var select = document.getElementById(elementId);
+    for (value in meta_data_object[key]){
+        var opt = meta_data_object[key][value];
+        var el = document.createElement("option");
+        el.textContent = opt;
+        el.value = opt;
+        select.appendChild(el);
+    }
+};
+
+var main = function(system_and_info_object, meta_data_object) {
     var map;
 
-    /**
-     *
-     * @param key - Identifies a metadata category that will populate the dropdown
-     * @param elementId - Identifies the dropdown to populate
-     */
-    function populateDropdown(key, elementId){
-        var select = document.getElementById(elementId);
-        for(var i = 0; i < meta_data_object[key].length; i++) {
-            var opt = meta_data_object[key][i];
-            var el = document.createElement("option");
-            el.textContent = opt;
-            el.value = opt;
-            select.appendChild(el);
-        }
-    };
-
-    // Populate out dropdowns. This might get moved to the html.
+    // Populate out dropdowns.
     populateDropdown("aqx_techniques", "selectTechnique");
     populateDropdown("aqx_organisms", "selectOrganism");
     populateDropdown("growbed_media", "selectGrowbedMedium");
     populateDropdown("crops", "selectCrop");
-
-    /**
-     *
-     * @param dataPoint - An Object(dict) that represents an Aquaponics System
-     * @returns {string} - HTML that populates a System's InfoWindow
-     */
-    function buildContentString(dataPoint) {
-        return "<h2>" + dataPoint.system_name + "</h2>" +
-            "<ul><li>Aquaponics Technique: " + dataPoint.aqx_technique_name + "</li>" +
-            "<li>Aquatic organism: " + dataPoint.organism_name + "</li>" +
-            "<li>Growbed Medium: " + dataPoint.growbed_media + "</li>" +
-            "<li>Crop: " + dataPoint.crop_name + "</li></ul>";
-    }
 
     /**
      *
@@ -70,28 +84,6 @@ $(document).ready(function() {
                 infoWindow.close();
             }
         })(marker1));
-
-        // Add the marker to a list.
-        // TODO: Can we refactor this so we're only storing the list of markers to remove
-        markers.push(marker1);
-    }
-
-    // Naive implementation to filter out markers
-    // TODO: Implement a quicker way to filter these.
-    //function removeFilteredMarkers(filteredSystems){
-    //    for (var i = 0; i < markers.length; i++) {
-    //        for (var j = 0; j < filteredSystems.length; j++){
-    //            if (markers[i].title === filteredSystems[j].title){
-    //                markers[i].setMap(null);
-    //            }
-    //        }
-    //    }
-    //}
-
-    function resetMarkers(){
-         for (var i = 0, length = markers.length; i < length; i++) {
-            markers[i].setMap(map);
-        }
     }
 
     /**
@@ -99,7 +91,7 @@ $(document).ready(function() {
      */
     function initializeMap() {
         var defaultCenter = {lat: 47.622577, lng: -122.337436};
-        var defaultZoom = 3;
+        var defaultZoom = 7;
 
         // Set map config
         map = new google.maps.Map(document.getElementById('map'), {
@@ -111,9 +103,9 @@ $(document).ready(function() {
         infoWindow = new google.maps.InfoWindow();
 
         // Add map to markers
-        for (var i = 0, length = system_and_info_object.length; i < length; i++) {
-            addMarker(system_and_info_object[i]);
+        for (item in system_and_info_object){
+            addMarker(system_and_info_object[item]);
         }
     }
     initializeMap();
-});
+};
