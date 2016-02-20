@@ -91,7 +91,7 @@ var main = function(system_and_info_object, meta_data_object) {
      */
     function initializeMap() {
         var defaultCenter = {lat: 47.622577, lng: -122.337436};
-        var defaultZoom = 7;
+        var defaultZoom = 3;
 
         // Set map config
         map = new google.maps.Map(document.getElementById('map'), {
