@@ -6,7 +6,8 @@ class MetadataDAO:
     def __init__(self, conn):
         self.conn = conn
 
-    # method to get the filtering criteria
+    # get_all_filters - It returns all the metadata that are needed
+    #                   to filter the displayed systems.
     def get_all_filters(self):
         cursor = self.conn.cursor()
         query_filters = ("select \'crops\', c.name from crops c union "
