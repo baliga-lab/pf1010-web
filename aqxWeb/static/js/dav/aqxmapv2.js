@@ -120,6 +120,7 @@ function filterSystemsBasedOnDropdownValues() {
     var dp4 = document.getElementById("selectGrowbedMedium").value;
 
     _.each(system_and_info_object, function(system) {
+
         if((!_.isEmpty(dp1) && system.aqx_technique_name != dp1) || (!_.isEmpty(dp2) && system.organism_name != dp2) || (!_.isEmpty(dp3) &&system.crop_name != dp3) || (!_.isEmpty(dp4) && system.growbed_media != dp4)) {
             system.marker.setVisible(false);
         } else {
@@ -133,27 +134,4 @@ function reset() {
      _.each(system_and_info_object, function(system) {
          system.marker.setVisible(true);
      });
-};
-
-function filterSystemsBasedOnSelectedUser() {
-    // Gets an array of checked checkboxes
-    var checkedItems = $('#listOfUserSystems input:checked');
-
-    if(checkedItems.length > 0) {
-        // Set visibility for all the systems to false
-        _.each(system_and_info_object, function(system) {
-            system.marker.setVisible(false);
-        });
-        // Set visible = true only for checked items
-         _.each(checkedItems, function(item) {
-            _.each(system_and_info_object, function(system) {
-                if(system.system_name === item.value)
-                    system.marker.setVisible(true);
-            });
-        });
-    } else if(checkedItems.length == 0) {
-        _.each(system_and_info_object, function(system) {
-            system.marker.setVisible(true);
-        });
-    }
-};
+}
