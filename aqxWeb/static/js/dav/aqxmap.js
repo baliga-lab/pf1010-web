@@ -57,33 +57,33 @@ var main = function(system_and_info_object, meta_data_object) {
 
     /**
      *
-     * @param dataPoint - An Object(dict) that represents an Aquaponics System
+     * @param system - An Object(dict) that represents an Aquaponics System
      */
-    function addMarker(dataPoint) {
+    function addMarker(system) {
         // Set the marker's location and infoWindow content
-        var latLng = new google.maps.LatLng(dataPoint.lat, dataPoint.lng);
-        var content = buildContentString(dataPoint);
-        marker1 = new google.maps.Marker({
-            title: dataPoint.title,
+        var latLng = new google.maps.LatLng(system.lat, system.lng);
+        var content = buildContentString(system);
+        marker = new google.maps.Marker({
+            title: system.title,
             position: latLng,
             map: map,
             content: content
         });
-
+        system.marker = marker;
         // Add a listener for mouseover events that opens an infoWindow for the system
-        google.maps.event.addListener(marker1, 'mouseover', (function (marker1, content) {
+        google.maps.event.addListener(marker, 'mouseover', (function (marker, content) {
             return function () {
                 infoWindow.setContent(content);
-                infoWindow.open(map, marker1);
+                infoWindow.open(map, marker);
             }
-        })(marker1, content));
+        })(marker, content));
 
         // Add a listener that closes the infoWindow when the mouse moves away from the marker
-        google.maps.event.addListener(marker1, 'mouseout', (function () {
+        google.maps.event.addListener(marker, 'mouseout', (function () {
             return function () {
                 infoWindow.close();
             }
-        })(marker1));
+        })(marker));
     }
 
     /**
@@ -109,3 +109,29 @@ var main = function(system_and_info_object, meta_data_object) {
     }
     initializeMap();
 };
+
+/**
+ * Filter systems based on dropdown values
+ */
+function filterSystemsBasedOnDropdownValues() {
+    var dp1 = document.getElementById("selectTechnique").value;
+    var dp2 = document.getElementById("selectOrganism").value;
+    var dp3 = document.getElementById("selectCrop").value;
+    var dp4 = document.getElementById("selectGrowbedMedium").value;
+
+    _.each(system_and_info_object, function(system) {
+
+        if((!_.isEmpty(dp1) && system.aqx_technique_name != dp1) || (!_.isEmpty(dp2) && system.organism_name != dp2) || (!_.isEmpty(dp3) &&system.crop_name != dp3) || (!_.isEmpty(dp4) && system.growbed_media != dp4)) {
+            system.marker.setVisible(false);
+        } else {
+            system.marker.setVisible(true);
+        }
+    });
+};
+
+
+function reset() {
+     _.each(system_and_info_object, function(system) {
+         system.marker.setVisible(true);
+     });
+}

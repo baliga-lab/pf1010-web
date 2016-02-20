@@ -26,28 +26,28 @@
 <body>
 <div style="width: 100%">
 <div style="width: 50%; float:left; position: fixed; overflow: hidden; background-color: rgb(229, 227, 223);" id="map"></div>
-<div style="width: 50%;">
+<div style="width: 50%; float:right;">
 
 <select id="selectTechnique">
-    <option>Choose an Aquaponics Technique</option>
+    <option value="">Choose an Aquaponics Technique</option>
 </select>
 <br><br>
 <select id="selectOrganism">
-    <option>Choose an Aquatic Organism</option>
+    <option value="">Choose an Aquatic Organism</option>
 </select>
 <br><br>
 <select id="selectCrop">
-    <option>Choose a Crop</option>
+    <option value="">Choose a Crop</option>
 </select>
 <br><br>
 <select id="selectGrowbedMedium">
-    <option>Choose a Growbed Medium</option>
+    <option value="">Choose a Growbed Medium</option>
 </select>
 </div>
     </div>
 <br><br>
-<input type="submit" id="submitbtn" name="mysubmit" value="Submit" onclick="uploadClicked()"/>
-<input type="button" id="resetbtn" name="reset" value="Reset"/>
+<input type="submit" id="submitbtn" name="mysubmit" value="Submit" onclick="filterSystemsBasedOnDropdownValues()"/>
+<input type="button" id="resetbtn" name="reset" value="Reset" onclick="reset()"/>
 <script type="text/javascript"
         src="http://maps.googleapis.com/maps/api/js">
 </script>
