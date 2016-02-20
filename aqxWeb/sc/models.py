@@ -1,25 +1,10 @@
 from py2neo import authenticate,Graph, Node, Relationship
-from passlib.handlers import bcrypt
 from datetime import datetime as dt
-import bcrypt
-import os
 import uuid
 
-url = os.environ.get('GRAPHENEDB_URL', 'http://localhost:7474')
-username = os.environ.get('NEO4J_USERNAME')
-password = os.environ.get('NEO4J_PASSWORD')
-
-
-if username and password:
-    authenticate(url.strip('http://'), username, password)
-
-
-#authenticate("localhost:7474", "neo4j", "neo4jnew")
-graph = Graph()
+graph = Graph("http://aquaponics_sc:bwadsXAk63y6R0uBHN2g@aquaponicssc.sb02.stations.graphenedb.com:24789/db/data/")
 
 class User:
-
-   # def __init__(self, firstname, lastname, dateofbirth, organization, email, username):
 
     def __init__(self,username):
         '''
