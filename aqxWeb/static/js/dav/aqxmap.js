@@ -2,6 +2,18 @@
  * Created by Brian on 2/14/2016.
  */
 
+// Icon used to indicate markers selected either by click or from the list.
+var starredIcon = {
+    url: "http://maps.google.com/mapfiles/kml/paddle/orange-stars.png",
+    scaledSize: new google.maps.Size(33, 33)
+};
+
+// Default icon for markers
+var defaultIcon = {
+    url: "http://maps.google.com/mapfiles/kml/paddle/red-circle.png",
+    scaledSize: new google.maps.Size(33, 33)
+};
+
 /**
  *
  * @param dataPoint - An Object(dict) that represents an Aquaponics System
@@ -35,34 +47,39 @@ var populateDropdown = function(key, elementId, meta_data_object){
         select.appendChild(el);
     });
 };
-//
-//var goldStar = {
-//    path: 'M 125,5 155,90 245,90 175,145 200,230 125,180 50,230 75,145 5,90 95,90 z',
-//    fillColor: 'yellow',
-//    fillOpacity: 0.9,
-//    scale: 0.1,
-//    strokeColor: 'gold',
-//    strokeWeight: 1
-//};
-var starredIcon = {
-    url: "http://maps.google.com/mapfiles/kml/paddle/orange-stars.png",
-    scaledSize: new google.maps.Size(33, 33)
-};
-var defaultIcon = {
-    url: "http://maps.google.com/mapfiles/kml/paddle/red-circle.png",
-    scaledSize: new google.maps.Size(33, 33) // scaled size
+
+/**
+ * Populates the given CheckList with the names of all visible Markers
+ *
+ * @param systems_and_info_object - Object containing systems and their metadata
+ * @param elementID - ID of the checklist to populate
+ */
+var populateCheckList = function(systems_and_info_object, elementID){
+    var checkList = document.getElementById(elementID);
+    checkList.innerHTML = "";
+    _.each(systems_and_info_object, function(system) {
+        if (system.marker.getVisible()) {
+            checkList.innerHTML +=  "<li><input type=\"checkbox\" value=\"" + system.system_name + "\">"
+                + system.system_name + "</li>";
+        }
+    });
 };
 
+/**
+ * Prepares the page by initializing the Map and populating it with Markers,
+ * then populates the metadata dropdowns, and the checklist of visible system names
+ *
+ * @param system_and_info_object - Object containing systems and their metadata
+ * @param meta_data_object -  Object containing all unique metadata values
+ */
 var main = function(system_and_info_object, meta_data_object) {
     var map;
 
-    // Populate out dropdowns.
-    populateDropdown("aqx_techniques", "selectTechnique", meta_data_object);
-    populateDropdown("aqx_organisms", "selectOrganism", meta_data_object);
-    populateDropdown("growbed_media", "selectGrowbedMedium", meta_data_object);
-    populateDropdown("crops", "selectCrop", meta_data_object);
-
     /**
+     * Creates a marker at a given system's lat/lng, sets its infoWindow content
+     * based on the system's metadata, and adds mouseover, mouseout, and click
+     * event Listeners to show the infoWindow, close it, and select the Marker,
+     * respectively
      *
      * @param system - An Object(dict) that represents an Aquaponics System
      */
@@ -78,7 +95,9 @@ var main = function(system_and_info_object, meta_data_object) {
             content: content,
             icon: defaultIcon
         });
+        // Add Marker for this System
         system.marker = marker;
+
         // Add a listener for mouseover events that opens an infoWindow for the system
         google.maps.event.addListener(marker, 'mouseover', (function (marker, content) {
             return function () {
@@ -93,14 +112,28 @@ var main = function(system_and_info_object, meta_data_object) {
                 infoWindow.close();
             }
         })(marker));
+
+        // Add a listener that flips the icon of the marker on click
+        google.maps.event.addListener(marker, 'click', (function (marker) {
+            return function () {
+                if (marker.getIcon().url === defaultIcon.url){
+                    marker.setIcon(starredIcon);
+                }
+                else{
+                    marker.setIcon(defaultIcon);
+                }
+            }
+        })(marker));
     }
 
     /**
      * Initializes a Google Map
+     * The map is centered at ISB, but zoomed to show all of North America
+     * Also populates the map with a marker for each System
      */
     function initializeMap() {
         var defaultCenter = {lat: 47.622577, lng: -122.337436};
-        var defaultZoom = 7;
+        var defaultZoom = 3;
 
         // Set map config
         map = new google.maps.Map(document.getElementById('map'), {
@@ -116,7 +149,17 @@ var main = function(system_and_info_object, meta_data_object) {
             addMarker(system_and_info);
         });
     }
+    // Create map and populate with markers
     initializeMap();
+
+    // Populate out dropdowns.
+    populateDropdown("aqx_techniques", "selectTechnique", meta_data_object);
+    populateDropdown("aqx_organisms", "selectOrganism", meta_data_object);
+    populateDropdown("growbed_media", "selectGrowbedMedium", meta_data_object);
+    populateDropdown("crops", "selectCrop", meta_data_object);
+
+    // Populate the checklist
+    populateCheckList(system_and_info_object, "listOfUserSystems");
 };
 
 /**
@@ -124,10 +167,17 @@ var main = function(system_and_info_object, meta_data_object) {
  * to their default values.
  */
 function reset() {
+
+    // Sets all markers as visible and gives them the default Marker icon
     _.each(system_and_info_object, function(system) {
         system.marker.setVisible(true);
         system.marker.setIcon(defaultIcon);
     });
+
+    // Now that all markers are visible, repopulate the checklist
+    populateCheckList(system_and_info_object, "listOfUserSystems");
+
+    // For each dropdown, reset them to their default values
     $('#selectTechnique option').prop('selected', function() {
         return this.defaultSelected;
     });
@@ -162,8 +212,16 @@ function filterSystemsBasedOnDropdownValues() {
             system.marker.setVisible(true);
         }
     });
+
+    // Repopulate the checklist so only visible systems appear
+    populateCheckList(system_and_info_object, "listOfUserSystems");
 };
 
+/**
+ * Whenever a checklist item is checked or unchecked, alter the marker icons
+ * to display the yellow star marker for checked items, and default marker
+ * for unchecked items
+ */
 $('#listOfUserSystems').change(function() {
     var checkedItems = $('#listOfUserSystems input:checked');
     console.log(checkedItems.length);
@@ -174,34 +232,24 @@ $('#listOfUserSystems').change(function() {
             system.marker.setIcon(defaultIcon);
         });
         _.each(checkedItems, function (item) {
-            console.log(item.value);
             _.each(system_and_info_object, function (system) {
-                console.log(system.system_name);
                 if (system.system_name === item.value) {
+                    console.log(system.system_name + " matched " + item.value);
                     system.marker.setIcon(starredIcon);
                 }
             });
         });
-    }else if (checkedItems.length == 0){
+    }
+    else if (checkedItems.length == 0){
         _.each(system_and_info_object, function (system) {
             system.marker.setIcon(defaultIcon);
         });
     }
+    //var counter = 0;
+    //_.each(system_and_info_object, function (system) {
+    //    if (system.marker.getIcon().url === starredIcon.url){
+    //        counter += 1;
+    //        console.log("Number of starred entries: " + counter);
+    //    }
+    //});
 });
-
-
-function filterSystemsBasedOnSelectedUser() {
-    // Gets an array of checked checkboxes
-    var checkedItems = $('#listOfUserSystems input:checked');
-
-    // If a new item has had its checkbox selected
-    if(checkedItems.length > 0) {
-        _.each(checkedItems, function (item) {
-            _.each(system_and_info_object, function (system) {
-                if (system.system_name === item.value) {
-                    system.marker.setIcon(starredIcon);
-                }
-            });
-        });
-    }
-};
