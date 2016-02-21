@@ -151,4 +151,4 @@ def put_user():
 # Common init method for application
 if __name__ == "__main__":
     init_app(app)
-    app.run(debug=True)
+    app.run(debug=True, host='192.168.1.3', port =5001)

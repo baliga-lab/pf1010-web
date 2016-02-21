@@ -159,9 +159,11 @@ var main = function(system_and_info_object, meta_data_object) {
             return function () {
                 if (marker.getIcon().url === defaultIcon.url){
                     marker.setIcon(starredIcon);
+                    marker.setZIndex(9999);
                 }
                 else{
                     marker.setIcon(defaultIcon);
+                    marker.setZIndex(1);
                 }
             }
         })(marker));
@@ -250,8 +252,10 @@ $('#listOfUserSystems').change(function() {
     _.each(system_and_info_object, function (system) {
         if (_.contains(checkedNames, system.system_name)) {
             system.marker.setIcon(starredIcon);
+            system.marker.setZIndex(9999);
         }else{
             system.marker.setIcon(defaultIcon);
+            system.marker.setZIndex(1);
         }
     });
 });
