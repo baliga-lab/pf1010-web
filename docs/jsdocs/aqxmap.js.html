@@ -1,4 +1,32 @@
-/**
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: aqxmap.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: aqxmap.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
  * Created by Brian on 2/14/2016.
  */
 
@@ -22,21 +50,21 @@ var defaultIcon = {
 /**
  * Generates the HTML content of a Marker's InfoWindow
  *
- * @param system An Object(dict) that represents an Aquaponics System
+ * @param dataPoint An Object(dict) that represents an Aquaponics System
  * @return {String} The HTML that populates a System's InfoWindow
  */
-var buildContentString = function(system) {
-    var name = system.system_name == null ? "Not available" : system.system_name;
-    var technique = system.aqx_technique_name == null ? "Not available" : system.aqx_technique_name;
-    var organism = system.organism_name == null ? "Not availalble" : system.organism_name;
-    var growbed = system.growbed_media == null ? "Not available" : system.growbed_media;
-    var crop = system.crop_name == null ? "Not available" : system.crop_name;
+var buildContentString = function(dataPoint) {
+    var name = dataPoint.system_name == null ? "Not available" : dataPoint.system_name;
+    var technique = dataPoint.aqx_technique_name == null ? "Not available" : dataPoint.aqx_technique_name;
+    var organism = dataPoint.organism_name == null ? "Not availalble" : dataPoint.organism_name;
+    var growbed = dataPoint.growbed_media == null ? "Not available" : dataPoint.growbed_media;
+    var crop = dataPoint.crop_name == null ? "Not available" : dataPoint.crop_name;
 
-    return "<h2>" + name + "</h2>" +
-        "<ul><li>Aquaponics Technique: " + technique + "</li>" +
-        "<li>Aquatic organism: " + organism+ "</li>" +
-        "<li>Growbed Medium: " + growbed + "</li>" +
-        "<li>Crop: " + crop + "</li></ul>";
+    return "&lt;h2>" + name + "&lt;/h2>" +
+        "&lt;ul>&lt;li>Aquaponics Technique: " + technique + "&lt;/li>" +
+        "&lt;li>Aquatic organism: " + organism+ "&lt;/li>" +
+        "&lt;li>Growbed Medium: " + growbed + "&lt;/li>" +
+        "&lt;li>Crop: " + crop + "&lt;/li>&lt;/ul>";
 };
 
 /**
@@ -68,10 +96,108 @@ var populateCheckList = function(systems_and_info_object, elementID){
     checkList.innerHTML = "";
     _.each(systems_and_info_object, function(system) {
         if (system.marker.getVisible()) {
-            checkList.innerHTML +=  "<li><input type=\"checkbox\" value=\"" + system.system_name + "\">"
-                + system.system_name + "</li>";
+            checkList.innerHTML +=  "&lt;li>&lt;input type=\"checkbox\" value=\"" + system.system_name + "\">"
+                + system.system_name + "&lt;/li>";
         }
     });
+};
+
+/**
+ * Prepares the page by initializing the Map and populating it with Markers,
+ * then populates the metadata dropdowns, and the checklist of visible system names
+ *
+ * @param system_and_info_object - Object containing systems and their metadata
+ * @param meta_data_object -  Object containing all unique metadata values
+ */
+var main = function(system_and_info_object, meta_data_object) {
+    var map;
+
+    /**
+     * Creates a marker at a given system's lat/lng, sets its infoWindow content
+     * based on the system's metadata, and adds mouseover, mouseout, and click
+     * event Listeners to show the infoWindow, close it, and select the Marker,
+     * respectively
+     *
+     * @param system - An Object(dict) that represents an Aquaponics System
+     *
+     */
+    function addMarker(system) {
+
+        // Set the marker's location and infoWindow content
+        var latLng = new google.maps.LatLng(system.lat, system.lng);
+        var content = buildContentString(system);
+        marker = new google.maps.Marker({
+            title: system.title,
+            position: latLng,
+            map: map,
+            content: content,
+            icon: defaultIcon
+        });
+        // Add Marker for this System
+        system.marker = marker;
+
+        // Add a listener for mouseover events that opens an infoWindow for the system
+        google.maps.event.addListener(marker, 'mouseover', (function (marker, content) {
+            return function () {
+                infoWindow.setContent(content);
+                infoWindow.open(map, marker);
+            }
+        })(marker, content));
+
+        // Add a listener that closes the infoWindow when the mouse moves away from the marker
+        google.maps.event.addListener(marker, 'mouseout', (function () {
+            return function () {
+                infoWindow.close();
+            }
+        })(marker));
+
+        // Add a listener that flips the icon of the marker on click
+        google.maps.event.addListener(marker, 'click', (function (marker) {
+            return function () {
+                if (marker.getIcon().url === defaultIcon.url){
+                    marker.setIcon(starredIcon);
+                }
+                else{
+                    marker.setIcon(defaultIcon);
+                }
+            }
+        })(marker));
+    }
+
+    /**
+     * Initializes a Google Map
+     * The map is centered at ISB, but zoomed to show all of North America
+     * Also populates the map with a marker for each System
+     */
+    function initializeMap() {
+        var defaultCenter = {lat: 47.622577, lng: -122.337436};
+        var defaultZoom = 3;
+
+        // Set map config
+        map = new google.maps.Map(document.getElementById('map'), {
+            zoom: defaultZoom,
+            center: defaultCenter
+        });
+
+        // Create infowindow global class
+        infoWindow = new google.maps.InfoWindow();
+
+        // Add map to markers
+        _.each(system_and_info_object, function(system_and_info) {
+            addMarker(system_and_info);
+        });
+    }
+    // Create map and populate with markers
+    initializeMap();
+
+    // Populate out dropdowns.
+    populateDropdown("aqx_techniques", "selectTechnique", meta_data_object);
+    populateDropdown("aqx_organisms", "selectOrganism", meta_data_object);
+    populateDropdown("growbed_media", "selectGrowbedMedium", meta_data_object);
+    populateDropdown("crops", "selectCrop", meta_data_object);
+
+    // Populate the checklist
+    populateCheckList(system_and_info_object, "listOfUserSystems");
 };
 
 /**
@@ -105,107 +231,6 @@ function reset() {
 };
 
 /**
- * Prepares the page by initializing the Map and populating it with Markers,
- * then populates the metadata dropdowns, and the checklist of visible system names
- *
- * @param system_and_info_object - Object containing systems and their metadata
- * @param meta_data_object -  Object containing all unique metadata values
- */
-var main = function(system_and_info_object, meta_data_object) {
-    var map;
-
-    /**
-     * Creates a marker at a given system's lat/lng, sets its infoWindow content
-     * based on the system's metadata, and adds mouseover, mouseout, and click
-     * event Listeners to show the infoWindow, close it, and select the Marker,
-     * respectively
-     *
-     * @param system An Object(dict) that represents an Aquaponics System
-     *
-     */
-    function addMarker(system) {
-
-        // Set the marker's location and infoWindow content
-        var latLng = new google.maps.LatLng(system.lat, system.lng);
-        var content = buildContentString(system);
-        marker = new google.maps.Marker({
-            title: system.title,
-            position: latLng,
-            map: map,
-            content: content,
-            icon: defaultIcon
-        });
-        // Add Marker for this System
-        system.marker = marker;
-
-        // Add a listener for mouseover events that opens an infoWindow for the system
-        google.maps.event.addListener(marker, 'mouseover', (function (marker, content) {
-            return function () {
-                infoWindow.setContent(content);
-                infoWindow.open(map, marker);
-            }
-        })(marker, content));
-
-        // Add a listener that closes the infoWindow when the mouse moves away from the marker
-        google.maps.event.addListener(marker, 'mouseout', (function () {
-            return function () {
-                infoWindow.close();
-            }
-        })(marker));
-
-        // Add a listener that flips the Icon style of the marker on click
-        google.maps.event.addListener(marker, 'click', (function (marker) {
-            return function () {
-                if (marker.getIcon().url === defaultIcon.url){
-                    marker.setIcon(starredIcon);
-                }
-                else{
-                    marker.setIcon(defaultIcon);
-                }
-            }
-        })(marker));
-    }
-
-    /**
-     * Initializes a Google Map
-     * The map is centered at ISB, but zoomed to show all of North America
-     * Also populates the map with a marker for each System
-     */
-    function initializeMap() {
-        var defaultCenter = {lat: 47.622577, lng: -122.337436};
-        var defaultZoom = 3;
-
-        // Initialize and configure map with the given zoom and center
-        map = new google.maps.Map(document.getElementById('map'), {
-            zoom: defaultZoom,
-            center: defaultCenter
-        });
-
-        // Create a global InfoWindow
-        infoWindow = new google.maps.InfoWindow();
-
-        // Adds each Maker to the Map
-        // Technically, each Marker has a map attribute, and this is adding the
-        // globally defined map above to each marker generated from the systems JSON
-        _.each(system_and_info_object, function(system_and_info) {
-            addMarker(system_and_info);
-        });
-    }
-    // Create map and populate with markers
-    initializeMap();
-
-    // Populate our dropdowns
-    populateDropdown("aqx_techniques", "selectTechnique", meta_data_object);
-    populateDropdown("aqx_organisms", "selectOrganism", meta_data_object);
-    populateDropdown("growbed_media", "selectGrowbedMedium", meta_data_object);
-    populateDropdown("crops", "selectCrop", meta_data_object);
-
-    // Populate the checklist
-    // All systems are visible at this point, so this list contains each system name
-    populateCheckList(system_and_info_object, "listOfUserSystems");
-};
-
-/**
  * Filter systems based on dropdown values
  */
 function filterSystemsBasedOnDropdownValues() {
@@ -215,10 +240,10 @@ function filterSystemsBasedOnDropdownValues() {
     var dp4 = document.getElementById("selectGrowbedMedium").value;
 
     _.each(system_and_info_object, function(system) {
-        if((!_.isEmpty(dp1) && system.aqx_technique_name != dp1)
-            || (!_.isEmpty(dp2) && system.organism_name != dp2)
-            || (!_.isEmpty(dp3) &&system.crop_name != dp3)
-            || (!_.isEmpty(dp4) && system.growbed_media != dp4))
+        if((!_.isEmpty(dp1) &amp;&amp; system.aqx_technique_name != dp1)
+            || (!_.isEmpty(dp2) &amp;&amp; system.organism_name != dp2)
+            || (!_.isEmpty(dp3) &amp;&amp;system.crop_name != dp3)
+            || (!_.isEmpty(dp4) &amp;&amp; system.growbed_media != dp4))
         {
             system.marker.setVisible(false);
         } else {
@@ -236,9 +261,9 @@ function filterSystemsBasedOnDropdownValues() {
  * for unchecked items
  * @type {*|jQuery}
  */
-// TODO: Might be able to simplify logic here, always set all to default, then if checkeditems > 0 do inner loops
 $('#listOfUserSystems').change(function() {
     var checkedItems = $('#listOfUserSystems input:checked');
+    console.log(checkedItems.length);
 
     // If a new item has had its checkbox selected
     if(checkedItems.length > 0) {
@@ -248,6 +273,7 @@ $('#listOfUserSystems').change(function() {
         _.each(checkedItems, function (item) {
             _.each(system_and_info_object, function (system) {
                 if (system.system_name === item.value) {
+                    console.log(system.system_name + " matched " + item.value);
                     system.marker.setIcon(starredIcon);
                 }
             });
@@ -258,4 +284,33 @@ $('#listOfUserSystems').change(function() {
             system.marker.setIcon(defaultIcon);
         });
     }
-});
+    //var counter = 0;
+    //_.each(system_and_info_object, function (system) {
+    //    if (system.marker.getIcon().url === starredIcon.url){
+    //        counter += 1;
+    //        console.log("Number of starred entries: " + counter);
+    //    }
+    //});
+});</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Global</h3><ul><li><a href="global.html#buildContentString">buildContentString</a></li><li><a href="global.html#defaultIcon">defaultIcon</a></li><li><a href="global.html#filterSystemsBasedOnDropdownValues">filterSystemsBasedOnDropdownValues</a></li><li><a href="global.html#main">main</a></li><li><a href="global.html#populateCheckList">populateCheckList</a></li><li><a href="global.html#populateDropdown">populateDropdown</a></li><li><a href="global.html#reset">reset</a></li><li><a href="global.html#starredIcon">starredIcon</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.0-dev</a> on Sun Feb 21 2016 08:10:03 GMT+0300 (MSK)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>
