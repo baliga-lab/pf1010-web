@@ -66,7 +66,6 @@ var populateDropdown = function(key, elementId, meta_data_object){
 var populateCheckList = function(systems_and_info_object, elementID){
     var checkList = document.getElementById(elementID);
     checkList.innerHTML = "";
-    debugger;
     _.each(systems_and_info_object, function(system) {
         if (system.marker.getVisible()) {
             checkList.innerHTML +=  "<li><input type=\"checkbox\" value=\"" + system.system_name + "\">"
