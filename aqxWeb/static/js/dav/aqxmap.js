@@ -35,6 +35,23 @@ var populateDropdown = function(key, elementId, meta_data_object){
         select.appendChild(el);
     });
 };
+//
+//var goldStar = {
+//    path: 'M 125,5 155,90 245,90 175,145 200,230 125,180 50,230 75,145 5,90 95,90 z',
+//    fillColor: 'yellow',
+//    fillOpacity: 0.9,
+//    scale: 0.1,
+//    strokeColor: 'gold',
+//    strokeWeight: 1
+//};
+var starredIcon = {
+    url: "http://maps.google.com/mapfiles/kml/paddle/orange-stars.png",
+    scaledSize: new google.maps.Size(33, 33)
+};
+var defaultIcon = {
+    url: "http://maps.google.com/mapfiles/kml/paddle/red-circle.png",
+    scaledSize: new google.maps.Size(33, 33) // scaled size
+};
 
 var main = function(system_and_info_object, meta_data_object) {
     var map;
@@ -50,6 +67,7 @@ var main = function(system_and_info_object, meta_data_object) {
      * @param system - An Object(dict) that represents an Aquaponics System
      */
     function addMarker(system) {
+
         // Set the marker's location and infoWindow content
         var latLng = new google.maps.LatLng(system.lat, system.lng);
         var content = buildContentString(system);
@@ -57,7 +75,8 @@ var main = function(system_and_info_object, meta_data_object) {
             title: system.title,
             position: latLng,
             map: map,
-            content: content
+            content: content,
+            icon: defaultIcon
         });
         system.marker = marker;
         // Add a listener for mouseover events that opens an infoWindow for the system
@@ -94,7 +113,7 @@ var main = function(system_and_info_object, meta_data_object) {
 
         // Add map to markers
         _.each(system_and_info_object, function(system_and_info) {
-             addMarker(system_and_info);
+            addMarker(system_and_info);
         });
     }
     initializeMap();
@@ -107,6 +126,7 @@ var main = function(system_and_info_object, meta_data_object) {
 function reset() {
     _.each(system_and_info_object, function(system) {
         system.marker.setVisible(true);
+        system.marker.setIcon(defaultIcon);
     });
     $('#selectTechnique option').prop('selected', function() {
         return this.defaultSelected;
@@ -144,25 +164,44 @@ function filterSystemsBasedOnDropdownValues() {
     });
 };
 
+$('#listOfUserSystems').change(function() {
+    var checkedItems = $('#listOfUserSystems input:checked');
+    console.log(checkedItems.length);
+
+    // If a new item has had its checkbox selected
+    if(checkedItems.length > 0) {
+        _.each(system_and_info_object, function (system) {
+            system.marker.setIcon(defaultIcon);
+        });
+        _.each(checkedItems, function (item) {
+            console.log(item.value);
+            _.each(system_and_info_object, function (system) {
+                console.log(system.system_name);
+                if (system.system_name === item.value) {
+                    system.marker.setIcon(starredIcon);
+                }
+            });
+        });
+    }else if (checkedItems.length == 0){
+        _.each(system_and_info_object, function (system) {
+            system.marker.setIcon(defaultIcon);
+        });
+    }
+});
+
+
 function filterSystemsBasedOnSelectedUser() {
     // Gets an array of checked checkboxes
     var checkedItems = $('#listOfUserSystems input:checked');
 
+    // If a new item has had its checkbox selected
     if(checkedItems.length > 0) {
-        // Set visibility for all the systems to false
-        _.each(system_and_info_object, function(system) {
-            system.marker.setVisible(false);
-        });
-        // Set visible = true only for checked items
-        _.each(checkedItems, function(item) {
-            _.each(system_and_info_object, function(system) {
-                if(system.system_name === item.value)
-                    system.marker.setVisible(true);
+        _.each(checkedItems, function (item) {
+            _.each(system_and_info_object, function (system) {
+                if (system.system_name === item.value) {
+                    system.marker.setIcon(starredIcon);
+                }
             });
-        });
-    } else if(checkedItems.length == 0) {
-        _.each(system_and_info_object, function(system) {
-            system.marker.setVisible(true);
         });
     }
 };

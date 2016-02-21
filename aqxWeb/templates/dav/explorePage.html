@@ -54,7 +54,7 @@
 
     <ul id="listOfUserSystems" style="overflow-y: scroll; max-height: 200px;">
         {% for sys in systems %}
-            <li><input type="checkbox" onclick="filterSystemsBasedOnSelectedUser()" value="{{sys['system_name']}}">{{sys['system_name']}}</li>
+            <li><input type="checkbox" value="{{sys['system_name']}}">{{sys['system_name']}}</li>
         {% endfor %}
     </ul>
 </div>
