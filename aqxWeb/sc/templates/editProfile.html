@@ -1,0 +1,49 @@
+{% extends "layout.html" %}
+
+{% block script %}
+
+ <script>
+        $(function () {
+var access_token=localStorage.getItem('access_token');
+            $.ajax({
+                url: "https://www.googleapis.com/plus/v1/people/me?access_token=" + access_token,
+                success: function (response) {
+                    console.log(response);
+                    //console.log(response.id)
+                    console.log(response.organizations[0].name);
+                    $('#userId').val(response.id);
+                    $('#fdisplayName').val(response.name.familyName);
+                    $('#gdisplayName').val(response.name.givenName);
+                    $('#displayName').val(response.displayName);
+                    $('#welcome').append(response.displayName);
+                    $('#organization').val(response.organizations[0].name);
+                    $('#email').val(response.emails[0].value);
+                    $('#profileLink').attr('href', response.url);
+                    $('#returnlogin').append(response.displayName + '?');
+                    $('#userImage').attr('src',response.image.url);
+
+
+                }
+            });
+        });
+</script>
+
+{% endblock %}
+
+{% block body %}
+
+    <div>
+        <form action="/updateprofile" method="post">
+            First Name:<input class="form-control width200" id="gdisplayName" name="firstname" readonly="readonly"/><br />
+            Last Name:<input class="form-control width200" id="fdisplayName" name="lastname" readonly="readonly"><br />
+            Display Name:<input class="form-control width200" id="displayName" name="displayname" ><br />
+            Organization:<input class="form-control width200" id="organization" name="organization"/><br />
+            <!--retrieve dob and email from neo4j-->
+            Date of Birth:<input class="form-control width200" id="dob" name="dob" /><br />
+            Email:<input class="form-control width200" id="email" name="email"/><br />
+            <button type="submit" class="btn btn-default">Save</button>
+        </form>
+    </div>
+
+{% endblock %}
+

@@ -22,8 +22,6 @@ def index():
 def login():
     return render_template('login.html')
 
-
-
 @app.route('/Home')
 def home():
     return render_template('userData.html')
@@ -71,40 +69,27 @@ def get_user(google_id, email,GivenName,familyName):
         conn.close()
     print(userID);
 
-
-	#print(dbconn())
-   #  print (graph);
-
-##	neoDb =connectToNeoDB()
-##	cursor = conn.cursor()
-    # print(conn);
-
-
-
-
-
-
-
-
-
-
-
 '''
 ##################'''
 @app.route('/profile')
 def profile():
     return render_template("profile.html")
 
+@app.route('/editprofile')
+def editprofile():
+    return render_template("editProfile.html")
+
 @app.route('/updateprofile', methods=['GET', 'POST'])
 def updateprofile():
     if request.method == 'POST':
-        firstname = request.form['firstname']
-        lastname = request.form['lastname']
+        #firstname = request.form['firstname']
+        #lastname = request.form['lastname']
         dateofbirth = request.form['dob']
+        displayname = request.form['displayname']
         organization = request.form['organization']
         email = request.form['email']
 
-        User(session['username']).updateprofile(firstname, lastname, dateofbirth, organization, email)
+        User(session['username']).updateprofile(displayname, email, organization)
         return "User Profile updated"
 
 '''

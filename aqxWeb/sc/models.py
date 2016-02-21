@@ -22,14 +22,14 @@ class User:
         user = graph.find_one("User", "username", self.username)
         return user
 
-    def updateprofile(self,firstname, lastname, dateofbirth, organization, email):
+    def updateprofile(self, displayname, email, organization):
         query = """
         MATCH(x:User)
         WHERE x.sql_id = 1
-        SET x.name = {nameupdate}
+        SET x.username = {newdisplayname}, x.email = {newemail}
         """
 
-        return graph.cypher.execute(query, nameupdate=firstname)
+        return graph.cypher.execute(query, newdisplayname=displayname, newemail=email)
 
 
     def verify_password(self, password):

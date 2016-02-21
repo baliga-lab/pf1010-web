@@ -1,5 +1,5 @@
 {% extends "layout.html" %}
-{% block script %}
+<!--{% block script %}
 
  <script>
         $(function () {
@@ -21,59 +21,24 @@ var access_token=localStorage.getItem('access_token');
                 }
             });
         });
-</script>
+</script>-->
 
 {% endblock %}
 
 {% block body %}
 
-
-
     <div>
-
-
 
      <div class="width200">
         <img class="imgstyle" id="userImage" src="#" />
     </div>
     <br />
-    FamilyName:<input class="form-control width200" id="fdisplayName"  />
-    GivenName:<input class="form-control width200" id="gdisplayName" />
-    ID:<input class="form-control width200" id="userId" /><br />
 
-    <a id="profileLink" class="btn mycolor width200" href="#">Go to My Profile</a><br /><br />
-    <a id="returnlogin" class="btn mycolor width200" href="index.html">Not&ensp;</a>
+    <!--ID:<input class="form-control width200" id="userId" /><br />-->
+
+    <a id="profileLink" class="btn mycolor width200" href="#">Go to My Google Plus Profile</a><br /><br />
+    <a id="editprofile" class="btn mycolor width200" href="{{ url_for('editprofile') }}">Edit Profile</a><br /><br />
+    <!--<a id="returnlogin" class="btn mycolor width200" href="index.html">Not&ensp;</a>-->
  </div>
-
-
-
-<form action="/updateprofile" method="post">
-  First name:
-  <input type="text" name="firstname">
-  <br>
-  Last name:
-  <input type="text" name="lastname">
-  <br>
-   Date of birth:
-  <input type="text" name="dob">
-  <br>
-  Organization:
-  <input type="text" name="organization">
-  <br>
-    Email:
-  <input type="text" name="email">
-  <br>
-  <label for="gender">Gender:</label>
-  <select name="gender" id="gender">
-    <option>Male</option>
-    <option>Female</option>
-  </select>
-    <br>
-  <input type="submit" value="Submit" />
-</form>
-
-
-
-
 
 {% endblock %}
