@@ -1,8 +1,11 @@
 from py2neo import authenticate,Graph, Node, Relationship
 from datetime import datetime as dt
 import uuid
+from aqxWeb.sc import app
+app.config.from_pyfile('settings.cfg')
 
-graph = Graph("http://aquaponics_sc:bwadsXAk63y6R0uBHN2g@aquaponicssc.sb02.stations.graphenedb.com:24789/db/data/")
+#graph = Graph("http://aquaponics_sc:bwadsXAk63y6R0uBHN2g@aquaponicssc.sb02.stations.graphenedb.com:24789/db/data/")
+graph = Graph(app.config['CONNECTIONSETTING']);
 
 class User:
 

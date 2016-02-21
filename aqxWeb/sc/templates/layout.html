@@ -7,6 +7,12 @@
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"
         integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous">
 </script>
+<link rel="stylesheet" href="static/css/main.css">
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8/jquery.min.js"></script>
+    <link href="static/css/bootstrap.css" rel="stylesheet" />
+    <script src="https://plus.google.com/js/client:plusone.js"></script>
+
+
 <style>
     body {
         background-color: #EEE;
@@ -51,6 +57,7 @@
         <!-- Collect the nav links, forms, and other content for toggling -->
         <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
             {% if session.username %}
+
                 <ul id="main_menu" class="nav navbar-nav">
 
                     <li><a id="index" class="active" href="/">Home <span class="sr-only">(current)</span></a></li>
@@ -103,7 +110,8 @@
             <ul class="nav navbar-nav navbar-right">
                 {% if not session.username %}
                     Welcome Guest User!
-                    <a href="{{ url_for('login') }}">Login</a>
+                    <a class="btn btn-primary" href="https://accounts.google.com/o/oauth2/auth?response_type=token&client_id=757190606234-pnqru7tabom1p1hhvpm0d3c3lnjk2vv4.apps.googleusercontent.com&redirect_uri=http://127.0.0.1:5000/Home&scope=https://www.googleapis.com/auth/plus.login https://www.googleapis.com/auth/userinfo.email">Login with Google+</a>
+
                 {% endif %}
             </ul>
 
