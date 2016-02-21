@@ -135,7 +135,7 @@ var main = function(system_and_info_object, meta_data_object) {
             content: content,
             icon: defaultIcon
         });
-        // Add Marker for this System
+        // Add Marker to this System
         system.marker = marker;
 
         // Add a listener for mouseover events that opens an infoWindow for the system
@@ -154,6 +154,7 @@ var main = function(system_and_info_object, meta_data_object) {
         })(marker));
 
         // Add a listener that flips the Icon style of the marker on click
+        // TODO: If a marker is selected in the checklist and is then clicked to de-select, it needs to be removed from the checklist
         google.maps.event.addListener(marker, 'click', (function (marker) {
             return function () {
                 if (marker.getIcon().url === defaultIcon.url){
@@ -191,7 +192,6 @@ var main = function(system_and_info_object, meta_data_object) {
             addMarker(system_and_info);
         });
     }
-    // Create map and populate with markers
     initializeMap();
 
     // Populate our dropdowns
@@ -236,26 +236,22 @@ function filterSystemsBasedOnDropdownValues() {
  * for unchecked items
  * @type {*|jQuery}
  */
-// TODO: Might be able to simplify logic here, always set all to default, then if checkeditems > 0 do inner loops
+// TODO: If a marker is selected in the checklist and is then clicked to de-select, it needs to be removed from the checklist
 $('#listOfUserSystems').change(function() {
-    var checkedItems = $('#listOfUserSystems input:checked');
 
-    // If a new item has had its checkbox selected
-    if(checkedItems.length > 0) {
-        _.each(system_and_info_object, function (system) {
+    // Generate the list of selected System Names
+    var checkedNames = [];
+    _.each($('#listOfUserSystems input:checked'), function(checkedInput){
+        checkedNames.push(checkedInput.value);
+    });
+
+    // For each System, if its name is in the checkedNames list, give it the star Icon
+    // otherwise ensure it has the default Icon
+    _.each(system_and_info_object, function (system) {
+        if (_.contains(checkedNames, system.system_name)) {
+            system.marker.setIcon(starredIcon);
+        }else{
             system.marker.setIcon(defaultIcon);
-        });
-        _.each(checkedItems, function (item) {
-            _.each(system_and_info_object, function (system) {
-                if (system.system_name === item.value) {
-                    system.marker.setIcon(starredIcon);
-                }
-            });
-        });
-    }
-    else if (checkedItems.length == 0){
-        _.each(system_and_info_object, function (system) {
-            system.marker.setIcon(defaultIcon);
-        });
-    }
+        }
+    });
 });
