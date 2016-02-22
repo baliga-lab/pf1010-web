@@ -19,45 +19,62 @@
         }
         #map {
             width: 700px;
-            height: 500px;
+            height: 600px;
+        }
+        .dropdown {
+            width: 100%;
+            height: 34px;
+            padding: 6px 12px;
+            font-size: 14px;
+            line-height: 1.42857143;
+            color: #555;
+            background-color: #fff;
+            background-image: none;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-shadow: inset 0 1px 1px rgba(0,0,0,.075);
+            transition: border-color ease-in-out .15s,box-shadow ease-in-out .15s;
         }
     </style>
 </head>
 <body>
-<div style="width: 100%">
+<div class="container" style="width: 100%; margin-top: 2%; margin-left: 2%">
 <div style="width: 50%; float:left; position: fixed; overflow: hidden; background-color: rgb(229, 227, 223);" id="map"></div>
-<div style="float:left;">
-
-<select id="selectTechnique">
+    <div style="width: 50%; padding-left:2%; float:left;">
+    <div style="width: 45%;" class="form-group">
+<label class="control-label">Select filtering criteria</label>
+    <br>
+<select class="dropdown" id="selectTechnique">
     <option value="" selected="selected">Choose an Aquaponics Technique</option>
 </select>
 <br><br>
-<select id="selectOrganism">
+<select class="dropdown" id="selectOrganism">
     <option value="" selected="selected">Choose an Aquatic Organism</option>
 </select>
 <br><br>
-<select id="selectCrop">
+<select class="dropdown" id="selectCrop">
     <option value="" selected="selected">Choose a Crop</option>
 </select>
 <br><br>
-<select id="selectGrowbedMedium">
+<select class="dropdown" id="selectGrowbedMedium">
     <option value="" selected="selected">Choose a Growbed Medium</option>
 </select>
 
 
 <br><br>
 
-<input type="submit" id="submitbtn" name="mysubmit" value="Submit" onclick="filterSystemsBasedOnDropdownValues()"/>
-<input type="button" id="resetbtn" name="reset" value="Reset" onclick="reset()"/>
+<input class="btn btn-primary" type="submit" id="submitbtn" name="mysubmit" value="Submit" onclick="filterSystemsBasedOnDropdownValues()"/>
+<input class="btn btn-primary" type="button" id="resetbtn" name="reset" value="Reset" onclick="reset()"/>
 </div>
-<div style="float:left;">
-
+    <div class="form-group" style="width: 40%; padding-top:2%;">
+    <label class="control-label">Select public systems</label>
     <ul id="listOfUserSystems" style="overflow-y: scroll; max-height: 200px;">
 {#        {% for sys in systems %}#}
 {#            <li><input type="checkbox" value="{{sys['system_name']}}">{{sys['system_name']}}</li>#}
 {#        {% endfor %}#}
     </ul>
 </div>
+    </div>
 </div>
 
 
