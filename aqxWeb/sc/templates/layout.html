@@ -82,9 +82,10 @@
             {% endif %}
             <ul class="nav navbar-nav navbar-right">
                 {% if not session.username %}
-                    Welcome Guest User!
-                    <a class="btn btn-primary" href="https://accounts.google.com/o/oauth2/auth?response_type=token&client_id=757190606234-pnqru7tabom1p1hhvpm0d3c3lnjk2vv4.apps.googleusercontent.com&redirect_uri=http://127.0.0.1:5000/Home&scope=https://www.googleapis.com/auth/plus.login https://www.googleapis.com/auth/userinfo.email">Login with Google+</a>
-
+                <br>
+                <li>Welcome Guest User!</li>
+                <br>
+                <li><a class="btn" href="https://accounts.google.com/o/oauth2/auth?response_type=token&client_id=757190606234-pnqru7tabom1p1hhvpm0d3c3lnjk2vv4.apps.googleusercontent.com&redirect_uri=http://127.0.0.1:5000/Home&scope=https://www.googleapis.com/auth/plus.login https://www.googleapis.com/auth/userinfo.email">Login with Google+</a></li>
                 {% endif %}
             </ul>
 

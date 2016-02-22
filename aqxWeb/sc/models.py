@@ -2,25 +2,56 @@ from py2neo import authenticate, Graph, Node, Relationship, cypher
 from datetime import datetime as dt
 import uuid
 from aqxWeb.sc import app
+
+# File for db configuration
 app.config.from_pyfile('settings.cfg')
 
-#graph = Graph("http://aquaponics_sc:bwadsXAk63y6R0uBHN2g@aquaponicssc.sb02.stations.graphenedb.com:24789/db/data/")
+# Create / Load graph with the connection settings
 graph = Graph(app.config['CONNECTIONSETTING']);
+
+################################################################################
+# Class : User
+# Contains information related to the user who is logged in
+################################################################################
 
 class User:
 
+    ############################################################################
+    # function : __init__
+    # purpose : main function sets username
+    # params :
+    #       username : username for user
+    # returns : None
+    # Exceptions : None
+    ############################################################################
+
     def __init__(self,username):
-        '''
-        self.firstname = firstname
-        self.lastname = lastname
-        self.dateofbirth = dateofbirth
-        self.organization = organization
-        self.email = email '''
         self.username = username
 
+    ############################################################################
+    # function : find
+    # purpose : function used to find user name based on username
+    # params : self (User)
+    # returns : User node
+    # Exceptions : cypher.CypherError, cypher.CypherTransactionError
+    ############################################################################
+
     def find(self):
-        user = graph.find_one("User", "username", self.username)
-        return user
+        try:
+            user = graph.find_one("User", "username", self.username)
+            return user
+        except cypher.CypherError, cypher.CypherTransactionError:
+            raise "Exception occured in function User.find()"
+
+    ############################################################################
+    # function : updateprofile
+    # purpose : function used to update the user profile
+    # params :
+    #        displayname : display name which need to changed
+    #        email : email for the user
+    # returns : Boolean
+    # Exceptions : None
+    ############################################################################
 
     def updateprofile(self, displayname, email, organization):
         query = """
@@ -28,9 +59,19 @@ class User:
         WHERE x.sql_id = 1
         SET x.username = {newdisplayname}, x.email = {newemail}
         """
+        try:
+            return graph.cypher.execute(query, newdisplayname=displayname, newemail=email)
+        except cypher.CypherError, cypher.CypherTransactionError:
+            raise "Exception occured in function updateprofile()"
 
-        return graph.cypher.execute(query, newdisplayname=displayname, newemail=email)
-
+    ############################################################################
+    # function : verify_password
+    # purpose : function which checks if the possword is correct
+    # params :
+    #        password : password which needs to be verified
+    # returns : Boolean
+    # Exceptions : None
+    ############################################################################
 
     def verify_password(self, password):
         user = self.find()
@@ -157,11 +198,27 @@ def get_all_recent_comments():
     except cypher.CypherError, cypher.CypherTransactionError:
         raise "Exception occured in function get_all_recent_comments "
 
+############################################################################
+# function : timestamp
+# purpose : gets current timestamp value
+# params : None
+# returns : timestamp in seconds
+# Exceptions : None
+############################################################################
+
 def timestamp():
     epoch = dt.utcfromtimestamp(0)
     now = dt.now()
     delta = now - epoch
     return delta.total_seconds()
+
+############################################################################
+# function : date
+# purpose : function to return current date with given format
+# params : None
+# returns : returns current date in YYYY-DD-MM format
+# Exceptions : None
+############################################################################
 
 def date():
     return dt.now().strftime('%Y-%m-%d')
