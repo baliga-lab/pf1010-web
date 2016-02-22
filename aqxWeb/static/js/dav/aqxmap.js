@@ -184,7 +184,7 @@ var main = function(system_and_info_object, meta_data_object) {
      * @param system An Object(dict) that represents an Aquaponics System
      * @param oms An OverlappingMarkerSpiderfication object that manages clustered Markers
      */
-    function addMarker(system, oms) {
+    function addMarker(system, oms, mc) {
 
         // Set the marker's location and infoWindow content
         var latLng = new google.maps.LatLng(system.lat, system.lng);
@@ -201,7 +201,9 @@ var main = function(system_and_info_object, meta_data_object) {
         system.marker = marker;
 
         // Add marker to the OverlappingMarkerSpiderfier which handles clustered pins
+        mc.addMarker(marker);
         oms.addMarker(marker);
+
 
         // Add a listener for mouseover events that opens an infoWindow for the system
         google.maps.event.addListener(marker, MOUSEOVER, (function (marker, content) {
@@ -247,6 +249,9 @@ var main = function(system_and_info_object, meta_data_object) {
          *                       Markers to see their InfoWindows
          */
         var oms = new OverlappingMarkerSpiderfier(map, {markersWontMove : true, keepSpiderfied : true});
+        var mc = new MarkerClusterer(map);
+        var minClusterZoom = 10;
+        mc.setMaxZoom(minClusterZoom);
 
         // Create a global InfoWindow
         infoWindow = new google.maps.InfoWindow();
@@ -255,7 +260,7 @@ var main = function(system_and_info_object, meta_data_object) {
         // Technically, each Marker has a map attribute, and this is adding the
         // globally defined map above to each marker generated from the systems JSON
         _.each(system_and_info_object, function(system_and_info) {
-            addMarker(system_and_info, oms);
+            addMarker(system_and_info, oms, mc);
         });
     }
     initializeMap();
