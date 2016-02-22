@@ -31,7 +31,7 @@ var SELECT_CROP = "selectCrop";
 var SELECT_GROWBED_MEDIUM = "selectGrowbedMedium";
 var SPIDERFY = 'spiderfy';
 var MOUSEOVER = 'mouseover';
-var CLICK = 'click';
+var CLICK = 'dblclick';
 var MOUSEOUT = 'mouseout';
 var SELECTED = 'selected';
 var CHECKED = 'checked';
@@ -89,7 +89,8 @@ var populateCheckList = function(systems_and_info_object, elementID){
     checkList.innerHTML = "";
     _.each(systems_and_info_object, function(system) {
         if (system.marker.getVisible()) {
-            checkList.innerHTML +=  "<li><input id=\"" + system.system_uid + "\" type=\"checkbox\" value=\"" + system.system_name + "\">"
+            checkList.innerHTML +=  "<li><input id=\"" + system.system_uid
+                + "\" type=\"checkbox\" value=\"" + system.system_name + "\">"
                 + system.system_name + "</li>";
         }
     });
@@ -135,14 +136,14 @@ function reset() {
  */
 var flipIcons = function(marker, systemID) {
     if (marker.getIcon().url === defaultIcon.url) {
-        marker.setIcon(starredIcon);
-        $("#" + systemID).prop(CHECKED, true);
         marker.setZIndex(google.maps.Marker.MAX_ZINDEX + 1);
+        $("#" + systemID).prop(CHECKED, true);
+        marker.setIcon(starredIcon);
     }
     else {
-        marker.setIcon(defaultIcon);
-        $("#" + systemID).prop(CHECKED, false);
         marker.setZIndex(google.maps.Marker.MIN_ZINDEX);
+        $("#" + systemID).prop(CHECKED, false);
+        marker.setIcon(defaultIcon);
     }
 };
 
@@ -164,7 +165,7 @@ var main = function(system_and_info_object, meta_data_object) {
      * respectively
      *
      * @param system An Object(dict) that represents an Aquaponics System
-     *
+     * @param oms An OverlappingMarkerSpiderfication object that manages clustered Markers
      */
     function addMarker(system, oms) {
 
@@ -180,11 +181,6 @@ var main = function(system_and_info_object, meta_data_object) {
         });
         // Add Marker to this System
         system.marker = marker;
-
-        // Listener that immediately undoes the 'click' that causes spiderfication
-        oms.addListener(SPIDERFY, function(marker, event) {
-            flipIcons(marker, system.system_uid);
-        });
 
         // Add marker to the OverlappingMarkerSpiderfier which handles clustered pins
         oms.addMarker(marker);
