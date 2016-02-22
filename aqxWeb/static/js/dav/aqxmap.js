@@ -19,6 +19,27 @@ var defaultIcon = {
     scaledSize: new google.maps.Size(33, 33)
 };
 
+var DEFAULT_CENTER = {lat: 47.622577, lng: -122.337436};
+var DEFAULT_ZOOM = 3;
+var MAP = 'map';
+var OPTION = 'option';
+var NOT_AVAILABLE = 'Not available';
+var LIST_OF_USER_SYSTEMS = "listOfUserSystems";
+var SELECT_TECHNIQUE = "selectTechnique";
+var SELECT_ORGANISM = "selectOrganism";
+var SELECT_CROP = "selectCrop";
+var SELECT_GROWBED_MEDIUM = "selectGrowbedMedium";
+var SPIDERFY = 'spiderfy';
+var MOUSEOVER = 'mouseover';
+var CLICK = 'click';
+var MOUSEOUT = 'mouseout';
+var SELECTED = 'selected';
+var CHECKED = 'checked';
+var AQX_TECHNIQUES = "aqx_techniques";
+var AQX_ORGANISMS = "aqx_organisms";
+var CROPS = "crops";
+var GROWBED_MEDIA = "growbed_media";
+
 /**
  * Generates the HTML content of a Marker's InfoWindow
  *
@@ -26,11 +47,11 @@ var defaultIcon = {
  * @return {String} The HTML that populates a System's InfoWindow
  */
 var buildContentString = function(system) {
-    var name = system.system_name == null ? "Not available" : system.system_name;
-    var technique = system.aqx_technique_name == null ? "Not available" : system.aqx_technique_name;
-    var organism = system.organism_name == null ? "Not availalble" : system.organism_name;
-    var growbed = system.growbed_media == null ? "Not available" : system.growbed_media;
-    var crop = system.crop_name == null ? "Not available" : system.crop_name;
+    var name = system.system_name == null ? NOT_AVAILABLE : system.system_name;
+    var technique = system.aqx_technique_name == null ? NOT_AVAILABLE : system.aqx_technique_name;
+    var organism = system.organism_name == null ? NOT_AVAILABLE : system.organism_name;
+    var growbed = system.growbed_media == null ? NOT_AVAILABLE : system.growbed_media;
+    var crop = system.crop_name == null ? NOT_AVAILABLE : system.crop_name;
 
     return "<h2>" + name + "</h2>" +
         "<ul><li>Aquaponics Technique: " + technique + "</li>" +
@@ -50,7 +71,7 @@ var buildContentString = function(system) {
 var populateDropdown = function(key, elementId, meta_data_object){
     var select = document.getElementById(elementId);
     _.each(meta_data_object[key], function(meta_data){
-        var el = document.createElement("option");
+        var el = document.createElement(OPTION);
         el.textContent = meta_data;
         el.value = meta_data;
         select.appendChild(el);
@@ -87,19 +108,19 @@ function reset() {
     });
 
     // Now that all markers are visible, repopulate the checklist
-    populateCheckList(system_and_info_object, "listOfUserSystems");
+    populateCheckList(system_and_info_object, LIST_OF_USER_SYSTEMS);
 
     // For each dropdown, reset them to their default values
-    $('#selectTechnique option').prop('selected', function() {
+    $('#selectTechnique option').prop(SELECTED, function() {
         return this.defaultSelected;
     });
-    $('#selectOrganism option').prop('selected', function() {
+    $('#selectOrganism option').prop(SELECTED, function() {
         return this.defaultSelected;
     });
-    $('#selectCrop option').prop('selected', function() {
+    $('#selectCrop option').prop(SELECTED, function() {
         return this.defaultSelected;
     });
-    $('#selectGrowbedMedium option').prop('selected', function() {
+    $('#selectGrowbedMedium option').prop(SELECTED, function() {
         return this.defaultSelected;
     });
 };
@@ -115,12 +136,12 @@ function reset() {
 var flipIcons = function(marker, systemID) {
     if (marker.getIcon().url === defaultIcon.url) {
         marker.setIcon(starredIcon);
-        $("#" + systemID).prop("checked", true);
+        $("#" + systemID).prop(CHECKED, true);
         marker.setZIndex(google.maps.Marker.MAX_ZINDEX + 1);
     }
     else {
         marker.setIcon(defaultIcon);
-        $("#" + systemID).prop("checked", false);
+        $("#" + systemID).prop(CHECKED, false);
         marker.setZIndex(google.maps.Marker.MIN_ZINDEX);
     }
 };
@@ -134,6 +155,7 @@ var flipIcons = function(marker, systemID) {
  */
 var main = function(system_and_info_object, meta_data_object) {
     var map;
+    var infoWindow;
 
     /**
      * Creates a marker at a given system's lat/lng, sets its infoWindow content
@@ -149,7 +171,7 @@ var main = function(system_and_info_object, meta_data_object) {
         // Set the marker's location and infoWindow content
         var latLng = new google.maps.LatLng(system.lat, system.lng);
         var content = buildContentString(system);
-        marker = new google.maps.Marker({
+        var marker = new google.maps.Marker({
             title: system.title,
             position: latLng,
             map: map,
@@ -159,15 +181,16 @@ var main = function(system_and_info_object, meta_data_object) {
         // Add Marker to this System
         system.marker = marker;
 
-        // Immediately undo the 'click' that causes spiderfication
-        oms.addListener('spiderfy', function(marker, event) {
+        // Listener that immediately undoes the 'click' that causes spiderfication
+        oms.addListener(SPIDERFY, function(marker, event) {
             flipIcons(marker, system.system_uid);
         });
 
+        // Add marker to the OverlappingMarkerSpiderfier which handles clustered pins
         oms.addMarker(marker);
 
         // Add a listener for mouseover events that opens an infoWindow for the system
-        google.maps.event.addListener(marker, 'mouseover', (function (marker, content) {
+        google.maps.event.addListener(marker, MOUSEOVER, (function (marker, content) {
             return function () {
                 infoWindow.setContent(content);
                 infoWindow.open(map, marker);
@@ -175,14 +198,14 @@ var main = function(system_and_info_object, meta_data_object) {
         })(marker, content));
 
         // Add a listener that closes the infoWindow when the mouse moves away from the marker
-        google.maps.event.addListener(marker, 'mouseout', (function () {
+        google.maps.event.addListener(marker, MOUSEOUT, (function () {
             return function () {
                 infoWindow.close();
             }
         })(marker));
 
         // Add a listener that flips the Icon style of the marker on click
-        google.maps.event.addListener(marker, 'click', (function (marker) {
+        google.maps.event.addListener(marker, CLICK, (function (marker) {
             return function () {
                 flipIcons(marker, system.system_uid);
             }
@@ -195,21 +218,26 @@ var main = function(system_and_info_object, meta_data_object) {
      * Also populates the map with a marker for each System
      */
     function initializeMap() {
-        var defaultCenter = {lat: 47.622577, lng: -122.337436};
-        var defaultZoom = 3;
-
         // Initialize and configure map with the given zoom and center
-        map = new google.maps.Map(document.getElementById('map'), {
-            zoom: defaultZoom,
-            center: defaultCenter
+        map = new google.maps.Map(document.getElementById(MAP), {
+            zoom: DEFAULT_ZOOM,
+            center: DEFAULT_CENTER
         });
 
+        /**
+         * Create an OverlappingMarkerSpiderfier object which will manage our clustered Markers
+         * @param markersWontMove Set to true, this frees oms from having to create closures that
+         *                        manage marker movements, which speeds things up a bit
+         * @param keepSpiderfied Set to true so that spiderfied pins don't spontaneously close.
+         *                       This setting is more conducive to allowing users to hover over
+         *                       Markers to see their InfoWindows
+         */
         var oms = new OverlappingMarkerSpiderfier(map, {markersWontMove : true, keepSpiderfied : true});
 
         // Create a global InfoWindow
         infoWindow = new google.maps.InfoWindow();
 
-        // Adds each Maker to the Map
+        // Adds each Marker to the Map and OverlappingMarkerSpiderfier
         // Technically, each Marker has a map attribute, and this is adding the
         // globally defined map above to each marker generated from the systems JSON
         _.each(system_and_info_object, function(system_and_info) {
@@ -219,24 +247,24 @@ var main = function(system_and_info_object, meta_data_object) {
     initializeMap();
 
     // Populate our dropdowns
-    populateDropdown("aqx_techniques", "selectTechnique", meta_data_object);
-    populateDropdown("aqx_organisms", "selectOrganism", meta_data_object);
-    populateDropdown("growbed_media", "selectGrowbedMedium", meta_data_object);
-    populateDropdown("crops", "selectCrop", meta_data_object);
+    populateDropdown(AQX_TECHNIQUES, SELECT_TECHNIQUE, meta_data_object);
+    populateDropdown(AQX_ORGANISMS, SELECT_ORGANISM, meta_data_object);
+    populateDropdown(CROPS, SELECT_CROP, meta_data_object);
+    populateDropdown(GROWBED_MEDIA, SELECT_GROWBED_MEDIUM, meta_data_object);
 
     // Populate the checklist
     // All systems are visible at this point, so this list contains each system name
-    populateCheckList(_.sortBy(system_and_info_object,'system_name'), "listOfUserSystems");
+    populateCheckList(_.sortBy(system_and_info_object,'system_name'), LIST_OF_USER_SYSTEMS);
 };
 
 /**
  * Filter systems based on dropdown values
  */
 function filterSystemsBasedOnDropdownValues() {
-    var dp1 = document.getElementById("selectTechnique").value;
-    var dp2 = document.getElementById("selectOrganism").value;
-    var dp3 = document.getElementById("selectCrop").value;
-    var dp4 = document.getElementById("selectGrowbedMedium").value;
+    var dp1 = document.getElementById(SELECT_TECHNIQUE).value;
+    var dp2 = document.getElementById(SELECT_ORGANISM).value;
+    var dp3 = document.getElementById(SELECT_CROP).value;
+    var dp4 = document.getElementById(SELECT_GROWBED_MEDIUM).value;
 
     _.each(system_and_info_object, function(system) {
         if((!_.isEmpty(dp1) && system.aqx_technique_name != dp1)
@@ -251,7 +279,7 @@ function filterSystemsBasedOnDropdownValues() {
     });
 
     // Repopulate the checklist so only visible systems appear
-    populateCheckList(system_and_info_object, "listOfUserSystems");
+    populateCheckList(system_and_info_object, LIST_OF_USER_SYSTEMS);
 };
 
 /**
