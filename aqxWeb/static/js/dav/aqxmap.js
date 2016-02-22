@@ -123,7 +123,7 @@ var main = function(system_and_info_object, meta_data_object) {
      * @param system An Object(dict) that represents an Aquaponics System
      *
      */
-    function addMarker(system) {
+    function addMarker(system, oms) {
 
         // Set the marker's location and infoWindow content
         var latLng = new google.maps.LatLng(system.lat, system.lng);
@@ -138,23 +138,25 @@ var main = function(system_and_info_object, meta_data_object) {
         // Add Marker to this System
         system.marker = marker;
 
-        //oms.addListener('click', function(marker, event) {
-        //    infoWindow.setContent(content);
-        //    infoWindow.open(map, marker);
-        //    marker.setIcon(starredIcon);
-        //    if (marker.getIcon().url === defaultIcon.url) {
-        //        marker.setIcon(starredIcon);
-        //    }
-        //    else {
-        //        marker.setIcon(defaultIcon);
-        //    }
-        //});
-        //
-        //oms.addListener('unspiderfy', function(marker, event) {
-        //    infoWindow.close();
-        //});
-        //
-        //oms.addMarker(marker);
+        oms.addListener('click', function(marker, event) {
+            if (marker.getIcon().url === defaultIcon.url) {
+                marker.setIcon(starredIcon);
+            }
+            else {
+                marker.setIcon(defaultIcon);
+            }
+        });
+
+        oms.addListener('spiderfy', function(marker, event) {
+            if (marker.getIcon().url === defaultIcon.url) {
+                marker.setIcon(starredIcon);
+            }
+            else {
+                marker.setIcon(defaultIcon);
+            }
+        });
+
+        oms.addMarker(marker);
 
         // Add a listener for mouseover events that opens an infoWindow for the system
         google.maps.event.addListener(marker, 'mouseover', (function (marker, content) {
@@ -203,7 +205,7 @@ var main = function(system_and_info_object, meta_data_object) {
             center: defaultCenter
         });
 
-        //oms = new OverlappingMarkerSpiderfier(map);
+        var oms = new OverlappingMarkerSpiderfier(map, {markersWontMove : true, keepSpiderfied : true});
 
         // Create a global InfoWindow
         infoWindow = new google.maps.InfoWindow();
@@ -212,7 +214,7 @@ var main = function(system_and_info_object, meta_data_object) {
         // Technically, each Marker has a map attribute, and this is adding the
         // globally defined map above to each marker generated from the systems JSON
         _.each(system_and_info_object, function(system_and_info) {
-            addMarker(system_and_info);
+            addMarker(system_and_info, oms);
         });
     }
     initializeMap();
