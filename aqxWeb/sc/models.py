@@ -7,7 +7,7 @@ from aqxWeb.sc import app
 app.config.from_pyfile('settings.cfg')
 
 # Create / Load graph with the connection settings
-graph = Graph(app.config['CONNECTIONSETTING']);
+graph = Graph(app.config['CONNECTIONSETTING'])
 
 ################################################################################
 # Class : User

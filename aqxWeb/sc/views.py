@@ -6,28 +6,58 @@ import requests
 import aqxdb
 from mysql.connector import errorcode
 from mysql.connector import connect
-###################
 
+#######################################################################################
+# function : dbconn
+# purpose : Connect with DB
+# parameters : None
+# returns: DB connection
+#######################################################################################
 def dbconn():
     return mysql.connector.connect(user=app.config['USER'], password=app.config['PASS'],
                               host=app.config['HOST'],
                               database=app.config['DB'])
 
 @app.route('/')
+#######################################################################################
+# function : index
+# purpose : renders home page with populated posts and comments
+# parameters : None
+# returns: home.html, posts and comments
+#######################################################################################
 def index():
     posts = get_all_recent_posts()
     comments = get_all_recent_comments()
     return render_template('home.html', posts=posts, comments=comments)
 
 @app.route('/login')
+#######################################################################################
+# function : login
+# purpose : renders login.html
+# parameters : None
+# returns: login.html page
+#######################################################################################
 def login():
     return render_template('login.html')
 
 @app.route('/Home')
+#######################################################################################
+# function : home
+# purpose : renders userData.html
+# parameters : None
+# returns: userData.html page
+#######################################################################################
 def home():
     return render_template('userData.html')
 
 @app.route('/signin', methods=['POST'])
+#######################################################################################
+# function : signin
+# purpose : signs in with POST and takes data from the request
+# parameters : None
+# returns: response
+# Exception : app.logger.exception
+#######################################################################################
 def signin():
     try:
         access_token = request.form['access_token']
@@ -59,25 +89,57 @@ def signin():
     except:
         app.logger.exception("Got an exception")
         raise
-def get_user(google_id, email,GivenName,familyName):
+#######################################################################################
+# function : get_user
+# purpose :
+#           google_id : google id fetched from google+ login
+#           email : email of the user who is currently logged in
+#           givenName : First name of user
+#           familyName : Last name of user
+# parameters : None
+# returns: returns userId
+# Exception : ?
+#######################################################################################
+def get_user(google_id, email, givenName, familyName):
     conn = dbconn()
     cursor = conn.cursor()
     try:
-        userID= aqxdb.get_or_create_user(conn, cursor, google_id, email,GivenName,familyName)
-        return userID
+        userId= aqxdb.get_or_create_user(conn, cursor, google_id, email, givenName, familyName)
+        return userId
     finally:
         conn.close()
     print(userID);
 
 @app.route('/profile')
+#######################################################################################
+# function : profile
+# purpose : renders profile.html
+# parameters : None
+# returns: profile.html
+# Exception : None
+#######################################################################################
 def profile():
     return render_template("profile.html")
 
 @app.route('/editprofile')
+#######################################################################################
+# function : editprofile
+# purpose : renders editProfile.html
+# parameters : None
+# returns: editProfile.html
+# Exception : None
+#######################################################################################
 def editprofile():
     return render_template("editProfile.html")
 
 @app.route('/updateprofile', methods=['GET', 'POST'])
+#######################################################################################
+# function : updateprofile
+# purpose : updates user profile in db
+# parameters : None
+# returns: status
+# Exception : None
+#######################################################################################
 def updateprofile():
     if request.method == 'POST':
         #firstname = request.form['firstname']
@@ -86,11 +148,17 @@ def updateprofile():
         displayname = request.form['displayname']
         organization = request.form['organization']
         email = request.form['email']
-
         User(session['username']).updateprofile(displayname, email, organization)
         return "User Profile updated"
 
 @app.route('/add_comment', methods=['POST'])
+#######################################################################################
+# function : add_comment
+# purpose : adds comments to the post
+# parameters : None
+# returns: calls index function
+# Exception : None
+#######################################################################################
 def add_comment():
     comment = request.form['newcomment']
     app.logger.debug(comment)
@@ -104,6 +172,13 @@ def add_comment():
     return redirect(url_for('index'))
 
 @app.route('/add_post', methods=['POST'])
+#######################################################################################
+# function : add_post
+# purpose : adds posts newly created by user
+# parameters : None
+# returns: calls index function
+# Exception : None
+#######################################################################################
 def add_post():
     privacy = request.form['privacy']
     text = request.form['text']
@@ -117,6 +192,13 @@ def add_post():
     return redirect(url_for('index'))
 
 @app.route('/like_post', methods=['POST'])
+#######################################################################################
+# function : like_post
+# purpose : like posts previously created by user
+# parameters : None
+# returns: calls index function
+# Exception : None
+#######################################################################################
 def like_post():
     postid = request.form['postid']
     User(session['username']).like_post(postid)
@@ -124,6 +206,13 @@ def like_post():
     return redirect(url_for('index'))
 
 @app.route('/logout')
+#######################################################################################
+# function : logout
+# purpose : logout of current session
+# parameters : None
+# returns: calls index function
+# Exception : None
+#######################################################################################
 def logout():
     session.pop('username', None)
     flash('Logged out.')
