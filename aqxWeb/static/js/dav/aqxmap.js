@@ -138,22 +138,46 @@ var main = function(system_and_info_object, meta_data_object) {
         // Add Marker to this System
         system.marker = marker;
 
-        oms.addListener('click', function(marker, event) {
+
+        var flipIcons = function(marker, systemID) {
             if (marker.getIcon().url === defaultIcon.url) {
                 marker.setIcon(starredIcon);
+                $("#" + systemID).prop("checked", false);
+                marker.setZIndex(google.maps.Marker.MAX_ZINDEX + 1);
             }
             else {
                 marker.setIcon(defaultIcon);
+                $("#" + systemID).prop("checked", false);
+                marker.setZIndex(google.maps.Marker.MIN_ZINDEX);
             }
-        });
+        };
+
+        //oms.addListener('click', function(marker, event) {
+        //    //flipIcons(marker, system.system_uid);
+        //    if (marker.getIcon().url === defaultIcon.url) {
+        //        marker.setIcon(starredIcon);
+        //        $("#" + system.system_uid).prop("checked", false);
+        //        marker.setZIndex(google.maps.Marker.MAX_ZINDEX + 1);
+        //    }
+        //    else {
+        //        marker.setIcon(defaultIcon);
+        //        $("#" + system.system_uid).prop("checked", false);
+        //        marker.setZIndex(google.maps.Marker.MIN_ZINDEX);
+        //    }
+        //});
 
         oms.addListener('spiderfy', function(marker, event) {
             if (marker.getIcon().url === defaultIcon.url) {
                 marker.setIcon(starredIcon);
+                $("#" + system.system_uid).prop("checked", false);
+                marker.setZIndex(google.maps.Marker.MAX_ZINDEX + 1);
             }
             else {
                 marker.setIcon(defaultIcon);
+                $("#" + system.system_uid).prop("checked", false);
+                marker.setZIndex(google.maps.Marker.MIN_ZINDEX);
             }
+            //flipIcons(marker, system.system_uid);
         });
 
         oms.addMarker(marker);
@@ -176,15 +200,16 @@ var main = function(system_and_info_object, meta_data_object) {
         // Add a listener that flips the Icon style of the marker on click
         google.maps.event.addListener(marker, 'click', (function (marker) {
             return function () {
+                //flipIcons(marker, system.system_uid);
                 if (marker.getIcon().url === defaultIcon.url){
                     marker.setIcon(starredIcon);
                     marker.setZIndex(google.maps.Marker.MAX_ZINDEX + 1);
-                     $("#" +system.system_uid).prop("checked", true);
+                    $("#" +system.system_uid).prop("checked", true);
                 }
                 else{
                     marker.setIcon(defaultIcon);
                     marker.setZIndex(google.maps.Marker.MIN_ZINDEX);
-                     $("#" +system.system_uid).prop("checked", false);
+                    $("#" +system.system_uid).prop("checked", false);
                 }
             }
         })(marker));
