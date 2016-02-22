@@ -251,7 +251,7 @@
 
     
 
-    <h4 class="name" id="buildContentString"><span class="type-signature"></span>buildContentString<span class="signature">(dataPoint)</span><span class="type-signature"> &rarr; {String}</span></h4>
+    <h4 class="name" id="buildContentString"><span class="type-signature"></span>buildContentString<span class="signature">(system)</span><span class="type-signature"> &rarr; {String}</span></h4>
 
     
 
@@ -294,7 +294,7 @@
 
         <tr>
             
-                <td class="name"><code>dataPoint</code></td>
+                <td class="name"><code>system</code></td>
             
 
             <td class="type">
@@ -346,7 +346,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="aqxmap.js.html">aqxmap.js</a>, <a href="aqxmap.js.html#line28">line 28</a>
+        <a href="aqxmap.js.html">aqxmap.js</a>, <a href="aqxmap.js.html#line59">line 59</a>
     </li></ul></dd>
     
 
@@ -450,7 +450,151 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="aqxmap.js.html">aqxmap.js</a>, <a href="aqxmap.js.html#line208">line 208</a>
+        <a href="aqxmap.js.html">aqxmap.js</a>, <a href="aqxmap.js.html#line277">line 277</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id="flipIcons"><span class="type-signature"></span>flipIcons<span class="signature">(marker, systemID)</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+<div class="description">
+    Flips the current Marker icon from starredIcon to defaultIconand vice versa. Used to "select" and "de-select" markers.Also, puts the display priority to the maximum if the icon is starred
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>marker</code></td>
+            
+
+            <td class="type">
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">A Marker object representing a system</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>systemID</code></td>
+            
+
+            <td class="type">
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">The System_UID for the system represented by marker</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="aqxmap.js.html">aqxmap.js</a>, <a href="aqxmap.js.html#line154">line 154</a>
     </li></ul></dd>
     
 
@@ -594,7 +738,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="aqxmap.js.html">aqxmap.js</a>, <a href="aqxmap.js.html#line84">line 84</a>
+        <a href="aqxmap.js.html">aqxmap.js</a>, <a href="aqxmap.js.html#line174">line 174</a>
     </li></ul></dd>
     
 
@@ -617,6 +761,150 @@
 
 
 
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id="markerIsStarred"><span class="type-signature"></span>markerIsStarred<span class="signature">(marker)</span><span class="type-signature"> &rarr; {boolean}</span></h4>
+
+    
+
+
+
+<div class="description">
+    Returns true if the given marker has the "starred" icon
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>marker</code></td>
+            
+
+            <td class="type">
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="aqxmap.js.html">aqxmap.js</a>, <a href="aqxmap.js.html#line49">line 49</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">boolean</span>
+
+
+    </dd>
+</dl>
+
+    
 
 
 
@@ -738,7 +1026,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="aqxmap.js.html">aqxmap.js</a>, <a href="aqxmap.js.html#line66">line 66</a>
+        <a href="aqxmap.js.html">aqxmap.js</a>, <a href="aqxmap.js.html#line98">line 98</a>
     </li></ul></dd>
     
 
@@ -882,7 +1170,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="aqxmap.js.html">aqxmap.js</a>, <a href="aqxmap.js.html#line50">line 50</a>
+        <a href="aqxmap.js.html">aqxmap.js</a>, <a href="aqxmap.js.html#line81">line 81</a>
     </li></ul></dd>
     
 
@@ -964,7 +1252,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="aqxmap.js.html">aqxmap.js</a>, <a href="aqxmap.js.html#line179">line 179</a>
+        <a href="aqxmap.js.html">aqxmap.js</a>, <a href="aqxmap.js.html#line120">line 120</a>
     </li></ul></dd>
     
 
@@ -1006,13 +1294,13 @@
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Global</h3><ul><li><a href="global.html#buildContentString">buildContentString</a></li><li><a href="global.html#defaultIcon">defaultIcon</a></li><li><a href="global.html#filterSystemsBasedOnDropdownValues">filterSystemsBasedOnDropdownValues</a></li><li><a href="global.html#main">main</a></li><li><a href="global.html#populateCheckList">populateCheckList</a></li><li><a href="global.html#populateDropdown">populateDropdown</a></li><li><a href="global.html#reset">reset</a></li><li><a href="global.html#starredIcon">starredIcon</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Global</h3><ul><li><a href="global.html#buildContentString">buildContentString</a></li><li><a href="global.html#defaultIcon">defaultIcon</a></li><li><a href="global.html#filterSystemsBasedOnDropdownValues">filterSystemsBasedOnDropdownValues</a></li><li><a href="global.html#flipIcons">flipIcons</a></li><li><a href="global.html#main">main</a></li><li><a href="global.html#markerIsStarred">markerIsStarred</a></li><li><a href="global.html#populateCheckList">populateCheckList</a></li><li><a href="global.html#populateDropdown">populateDropdown</a></li><li><a href="global.html#reset">reset</a></li><li><a href="global.html#starredIcon">starredIcon</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.0-dev</a> on Sun Feb 21 2016 08:10:03 GMT+0300 (MSK)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.0-dev</a> on Mon Feb 22 2016 22:05:19 GMT+0300 (MSK)
 </footer>
 
 <script> prettyPrint(); </script>

@@ -2,6 +2,23 @@
  * Created by Brian on 2/14/2016.
  */
 
+/**
+ * An Icon that represents selected system Markers
+ * @type {{url: string, scaledSize: google.maps.Size}}
+ */
+var starredIcon = {
+    url: "http://maps.google.com/mapfiles/kml/paddle/orange-stars.png",
+    scaledSize: new google.maps.Size(40, 40)
+};
+/**
+ * The default Icon for system Markers
+ * @type {{url: string, scaledSize: google.maps.Size}}
+ */
+var defaultIcon = {
+    url: "http://maps.google.com/mapfiles/kml/paddle/red-circle.png",
+    scaledSize: new google.maps.Size(33, 33)
+};
+
 // Define some global constants
 var DEFAULT_CENTER = {lat: 47.622577, lng: -122.337436};
 var DEFAULT_ZOOM = 3;
@@ -23,23 +40,6 @@ var AQX_TECHNIQUES = "aqx_techniques";
 var AQX_ORGANISMS = "aqx_organisms";
 var CROPS = "crops";
 var GROWBED_MEDIA = "growbed_media";
-
-/**
- * An Icon that represents selected system Markers
- * @type {{url: string, scaledSize: google.maps.Size}}
- */
-var starredIcon = {
-    url: "http://maps.google.com/mapfiles/kml/paddle/orange-stars.png",
-    scaledSize: new google.maps.Size(40, 40)
-};
-/**
- * The default Icon for system Markers
- * @type {{url: string, scaledSize: google.maps.Size}}
- */
-var defaultIcon = {
-    url: "http://maps.google.com/mapfiles/kml/paddle/red-circle.png",
-    scaledSize: new google.maps.Size(33, 33)
-};
 
 /**
  * Returns true if the given marker has the "starred" icon
@@ -152,7 +152,7 @@ function reset() {
  * @param systemID The System_UID for the system represented by marker
  */
 var flipIcons = function(marker, systemID) {
-    if (markerIsStarred(marker)) {
+    if (!markerIsStarred(marker)) {
         marker.setZIndex(google.maps.Marker.MAX_ZINDEX + 1);
         marker.setIcon(starredIcon);
         $("#" + systemID).prop(CHECKED, true);
