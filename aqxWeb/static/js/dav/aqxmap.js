@@ -6,7 +6,7 @@
  * An Icon that represents selected system Markers
  * @type {{url: string, scaledSize: google.maps.Size}}
  */
-var starredIcon = {
+var SELECTED_ICON = {
     url: "http://maps.google.com/mapfiles/kml/paddle/orange-stars.png",
     scaledSize: new google.maps.Size(40, 40)
 };
@@ -14,7 +14,7 @@ var starredIcon = {
  * The default Icon for system Markers
  * @type {{url: string, scaledSize: google.maps.Size}}
  */
-var defaultIcon = {
+var DEFAULT_ICON = {
     url: "http://maps.google.com/mapfiles/kml/paddle/red-circle.png",
     scaledSize: new google.maps.Size(33, 33)
 };
@@ -47,7 +47,7 @@ var GROWBED_MEDIA = "growbed_media";
  * @returns {boolean}
  */
 var markerIsStarred = function(marker){
-    return marker.getIcon().url === starredIcon.url;
+    return marker.getIcon().url === SELECTED_ICON.url;
 };
 
 /**
@@ -122,7 +122,7 @@ function reset() {
     // Sets all markers as visible and gives them the default Marker icon
     _.each(system_and_info_object, function(system) {
         system.marker.setVisible(true);
-        system.marker.setIcon(defaultIcon);
+        system.marker.setIcon(DEFAULT_ICON);
     });
 
     // Now that all markers are visible, repopulate the checklist
@@ -144,7 +144,7 @@ function reset() {
 };
 
 /**
- * Flips the current Marker icon from starredIcon to defaultIcon
+ * Flips the current Marker icon from SELECTED_ICON to DEFAULT_ICON
  * and vice versa. Used to "select" and "de-select" markers.
  * Also, puts the display priority to the maximum if the icon is starred
  *
@@ -154,12 +154,12 @@ function reset() {
 var flipIcons = function(marker, systemID) {
     if (!markerIsStarred(marker)) {
         marker.setZIndex(google.maps.Marker.MAX_ZINDEX + 1);
-        marker.setIcon(starredIcon);
+        marker.setIcon(SELECTED_ICON);
         $("#" + systemID).prop(CHECKED, true);
     }
     else {
         marker.setZIndex(google.maps.Marker.MIN_ZINDEX);
-        marker.setIcon(defaultIcon);
+        marker.setIcon(DEFAULT_ICON);
         $("#" + systemID).prop(CHECKED, false);
     }
 };
@@ -194,7 +194,7 @@ var main = function(system_and_info_object, meta_data_object) {
             position: latLng,
             map: map,
             content: content,
-            icon: defaultIcon,
+            icon: DEFAULT_ICON,
             zIndex: google.maps.Marker.MIN_ZINDEX
         });
         // Add Marker to this System
@@ -314,10 +314,10 @@ $('#listOfUserSystems').change(function() {
     // otherwise ensure it has the default Icon
     _.each(system_and_info_object, function (system) {
         if (_.contains(checkedNames, system.system_name)) {
-            system.marker.setIcon(starredIcon);
+            system.marker.setIcon(SELECTED_ICON);
             system.marker.setZIndex(google.maps.Marker.MAX_ZINDEX + 1);
         }else{
-            system.marker.setIcon(defaultIcon);
+            system.marker.setIcon(DEFAULT_ICON);
             system.marker.setZIndex(google.maps.Marker.MIN_ZINDEX - 1);
         }
     });
