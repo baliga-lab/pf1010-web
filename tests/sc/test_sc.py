@@ -19,7 +19,7 @@ class FlaskTestCase(unittest.TestCase):
         tester = sc.app.test_client(self)
         response=tester.get("/", content_type="html/text")
         self.assertEqual(response.status_code,200)
-    # Ensure that flask was setup correctly
+    # Ensure that add_post works correctly
     def test_add_post(self):
         sc.app.config['SECRET_KEY']=os.urandom(24)
         with sc.app.test_client() as client:
@@ -30,6 +30,18 @@ class FlaskTestCase(unittest.TestCase):
                 data=dict(privacy="public",text="unittest",link="")
             )
             self.assertTrue(res is not None)
+    # Ensure that add_post works correctly
+    def test_display_today_post(self):
+        sc.app.config['SECRET_KEY']=os.urandom(24)
+        with sc.app.test_client() as client:
+            with client.session_transaction() as sess:
+                sess['username']="nisha"
+            res=client.get(
+                "/",
+
+            )
+            self.assertTrue(res is not None)
+
 
 
 
