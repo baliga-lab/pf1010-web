@@ -2,23 +2,7 @@
  * Created by Brian on 2/14/2016.
  */
 
-/**
- * An Icon that represents selected system Markers
- * @type {{url: string, scaledSize: google.maps.Size}}
- */
-var starredIcon = {
-    url: "http://maps.google.com/mapfiles/kml/paddle/orange-stars.png",
-    scaledSize: new google.maps.Size(33, 33)
-};
-/**
- * The default Icon for system Markers
- * @type {{url: string, scaledSize: google.maps.Size}}
- */
-var defaultIcon = {
-    url: "http://maps.google.com/mapfiles/kml/paddle/red-circle.png",
-    scaledSize: new google.maps.Size(33, 33)
-};
-
+// Define some global constants
 var DEFAULT_CENTER = {lat: 47.622577, lng: -122.337436};
 var DEFAULT_ZOOM = 3;
 var MAP = 'map';
@@ -39,6 +23,32 @@ var AQX_TECHNIQUES = "aqx_techniques";
 var AQX_ORGANISMS = "aqx_organisms";
 var CROPS = "crops";
 var GROWBED_MEDIA = "growbed_media";
+
+/**
+ * An Icon that represents selected system Markers
+ * @type {{url: string, scaledSize: google.maps.Size}}
+ */
+var starredIcon = {
+    url: "http://maps.google.com/mapfiles/kml/paddle/orange-stars.png",
+    scaledSize: new google.maps.Size(40, 40)
+};
+/**
+ * The default Icon for system Markers
+ * @type {{url: string, scaledSize: google.maps.Size}}
+ */
+var defaultIcon = {
+    url: "http://maps.google.com/mapfiles/kml/paddle/red-circle.png",
+    scaledSize: new google.maps.Size(33, 33)
+};
+
+/**
+ * Returns true if the given marker has the "starred" icon
+ * @param marker
+ * @returns {boolean}
+ */
+var markerIsStarred = function(marker){
+    return marker.getIcon().url === starredIcon.url;
+};
 
 /**
  * Generates the HTML content of a Marker's InfoWindow
@@ -84,14 +94,21 @@ var populateDropdown = function(key, elementId, meta_data_object){
  * @param systems_and_info_object - Object containing systems and their metadata
  * @param elementID - ID of the checklist to populate
  */
+// TODO: Look into changing this similarly to the above fxn (as per Guna). It can definitely be done, just gotta research it.
 var populateCheckList = function(systems_and_info_object, elementID){
     var checkList = document.getElementById(elementID);
     checkList.innerHTML = "";
     _.each(systems_and_info_object, function(system) {
         if (system.marker.getVisible()) {
-            checkList.innerHTML +=  "<li><input id=\"" + system.system_uid
-                + "\" type=\"checkbox\" value=\"" + system.system_name + "\">"
-                + system.system_name + "</li>";
+            if(markerIsStarred(system.marker)) {
+                checkList.innerHTML += "<li><input id=\"" + system.system_uid
+                    + "\" type=\"checkbox\" value=\"" + system.system_name + "\"checked>"
+                    + system.system_name + "</li>";
+            }else{
+                checkList.innerHTML += "<li><input id=\"" + system.system_uid
+                    + "\" type=\"checkbox\" value=\"" + system.system_name + "\">"
+                    + system.system_name + "</li>";
+            }
         }
     });
 };
@@ -135,15 +152,15 @@ function reset() {
  * @param systemID The System_UID for the system represented by marker
  */
 var flipIcons = function(marker, systemID) {
-    if (marker.getIcon().url === defaultIcon.url) {
+    if (markerIsStarred(marker)) {
         marker.setZIndex(google.maps.Marker.MAX_ZINDEX + 1);
-        $("#" + systemID).prop(CHECKED, true);
         marker.setIcon(starredIcon);
+        $("#" + systemID).prop(CHECKED, true);
     }
     else {
         marker.setZIndex(google.maps.Marker.MIN_ZINDEX);
-        $("#" + systemID).prop(CHECKED, false);
         marker.setIcon(defaultIcon);
+        $("#" + systemID).prop(CHECKED, false);
     }
 };
 
@@ -177,7 +194,8 @@ var main = function(system_and_info_object, meta_data_object) {
             position: latLng,
             map: map,
             content: content,
-            icon: defaultIcon
+            icon: defaultIcon,
+            zIndex: google.maps.Marker.MIN_ZINDEX
         });
         // Add Marker to this System
         system.marker = marker;
@@ -300,7 +318,7 @@ $('#listOfUserSystems').change(function() {
             system.marker.setZIndex(google.maps.Marker.MAX_ZINDEX + 1);
         }else{
             system.marker.setIcon(defaultIcon);
-            system.marker.setZIndex(google.maps.Marker.MIN_ZINDEX);
+            system.marker.setZIndex(google.maps.Marker.MIN_ZINDEX - 1);
         }
     });
 });
