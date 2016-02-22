@@ -177,10 +177,12 @@ var main = function(system_and_info_object, meta_data_object) {
                 if (marker.getIcon().url === defaultIcon.url){
                     marker.setIcon(starredIcon);
                     marker.setZIndex(google.maps.Marker.MAX_ZINDEX + 1);
+                     $("#" +system.system_uid).prop("checked", true);
                 }
                 else{
                     marker.setIcon(defaultIcon);
                     marker.setZIndex(google.maps.Marker.MIN_ZINDEX);
+                     $("#" +system.system_uid).prop("checked", false);
                 }
             }
         })(marker));
