@@ -64,6 +64,7 @@
 <script type="text/javascript"
         src="http://maps.googleapis.com/maps/api/js">
 </script>
+<script type="text/javascript" src="{{ url_for('static', filename='js/dav/oms-min.js') }}"></script>
 <script src="{{ url_for('static', filename='js/dav/aqxMap.js') }}"></script>
 <script>
     var system_and_info_object = {{ systems_and_info_json|safe }};

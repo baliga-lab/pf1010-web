@@ -8,10 +8,13 @@
 <body>
 <div id="qunit"></div>
 <div id="qunit-fixture"></div>
+<script type="text/javascript"
+        src="http://maps.googleapis.com/maps/api/js"></script>
 <script src="//code.jquery.com/qunit/qunit-1.21.0.js"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
 <script src="/aqxWeb-NEU/aqxWeb/static/js/dav/aqxmap.js"></script>
 <script src="/aqxWeb-NEU/tests/dav/js/exploreTestMockConstants.js"></script>
+
 <script>
     QUnit.test("BuildContentString test", function( assert ) {
         assert.equal(buildContentString(dataPointOne), expectedHTMLOne);
@@ -19,7 +22,6 @@
     QUnit.test("BuildContentString, nulls should return Not available", function( assert ) {
         assert.equal(buildContentString(dataPointTwo), expectedHTMLTwo);
     });
-    QUnit.test()
 </script>
 </body>
 </html>

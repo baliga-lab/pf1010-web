@@ -138,6 +138,24 @@ var main = function(system_and_info_object, meta_data_object) {
         // Add Marker to this System
         system.marker = marker;
 
+        //oms.addListener('click', function(marker, event) {
+        //    infoWindow.setContent(content);
+        //    infoWindow.open(map, marker);
+        //    marker.setIcon(starredIcon);
+        //    if (marker.getIcon().url === defaultIcon.url) {
+        //        marker.setIcon(starredIcon);
+        //    }
+        //    else {
+        //        marker.setIcon(defaultIcon);
+        //    }
+        //});
+        //
+        //oms.addListener('unspiderfy', function(marker, event) {
+        //    infoWindow.close();
+        //});
+        //
+        //oms.addMarker(marker);
+
         // Add a listener for mouseover events that opens an infoWindow for the system
         google.maps.event.addListener(marker, 'mouseover', (function (marker, content) {
             return function () {
@@ -159,11 +177,11 @@ var main = function(system_and_info_object, meta_data_object) {
             return function () {
                 if (marker.getIcon().url === defaultIcon.url){
                     marker.setIcon(starredIcon);
-                    marker.setZIndex(9999);
+                    marker.setZIndex(google.maps.Marker.MAX_ZINDEX + 1);
                 }
                 else{
                     marker.setIcon(defaultIcon);
-                    marker.setZIndex(1);
+                    marker.setZIndex(google.maps.Marker.MIN_ZINDEX);
                 }
             }
         })(marker));
@@ -183,6 +201,8 @@ var main = function(system_and_info_object, meta_data_object) {
             zoom: defaultZoom,
             center: defaultCenter
         });
+
+        //oms = new OverlappingMarkerSpiderfier(map);
 
         // Create a global InfoWindow
         infoWindow = new google.maps.InfoWindow();
@@ -252,10 +272,10 @@ $('#listOfUserSystems').change(function() {
     _.each(system_and_info_object, function (system) {
         if (_.contains(checkedNames, system.system_name)) {
             system.marker.setIcon(starredIcon);
-            system.marker.setZIndex(9999);
+            system.marker.setZIndex(google.maps.Marker.MAX_ZINDEX + 1);
         }else{
             system.marker.setIcon(defaultIcon);
-            system.marker.setZIndex(1);
+            system.marker.setZIndex(google.maps.Marker.MIN_ZINDEX);
         }
     });
 });
