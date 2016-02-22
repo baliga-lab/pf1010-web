@@ -68,7 +68,7 @@ var populateCheckList = function(systems_and_info_object, elementID){
     checkList.innerHTML = "";
     _.each(systems_and_info_object, function(system) {
         if (system.marker.getVisible()) {
-            checkList.innerHTML +=  "<li><input type=\"checkbox\" value=\"" + system.system_name + "\">"
+            checkList.innerHTML +=  "<li><input id=\"" + system.system_uid + "\" type=\"checkbox\" value=\"" + system.system_name + "\">"
                 + system.system_name + "</li>";
         }
     });
@@ -154,16 +154,18 @@ var main = function(system_and_info_object, meta_data_object) {
         })(marker));
 
         // Add a listener that flips the Icon style of the marker on click
-        // TODO: If a marker is selected in the checklist and is then clicked to de-select, it needs to be removed from the checklist
         google.maps.event.addListener(marker, 'click', (function (marker) {
             return function () {
                 if (marker.getIcon().url === defaultIcon.url){
                     marker.setIcon(starredIcon);
                     marker.setZIndex(9999);
+                    // Select checkbox
+                    $("#" +system.system_uid).prop("checked", true);
                 }
                 else{
                     marker.setIcon(defaultIcon);
                     marker.setZIndex(1);
+                    $("#" +system.system_uid).prop("checked", false);
                 }
             }
         })(marker));
@@ -238,7 +240,6 @@ function filterSystemsBasedOnDropdownValues() {
  * for unchecked items
  * @type {*|jQuery}
  */
-// TODO: If a marker is selected in the checklist and is then clicked to de-select, it needs to be removed from the checklist
 $('#listOfUserSystems').change(function() {
 
     // Generate the list of selected System Names
