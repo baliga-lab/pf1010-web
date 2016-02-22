@@ -42,10 +42,18 @@ class FlaskTestCase(unittest.TestCase):
             )
             self.assertTrue(res is not None)
 
+    #tests profile page
+    def test_profile_page_loads(self):
+        with sc.app.test_client() as c:
+            response = c.get('/profile')
+            self.assertEquals(response.status_code, 200)
 
 
-
-
+    #tests edit profile page
+    def test_edit_profile_page_loads(self):
+        with sc.app.test_client() as c:
+            response = c.get('/editprofile')
+            self.assertEquals(response.status_code, 200)
 
 
     if __name__ == "__main__":
