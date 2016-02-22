@@ -1,5 +1,5 @@
 from flask import Flask, request, session, redirect, url_for, render_template, flash, Response, jsonify
-from models import User, get_todays_recent_posts, graph
+from models import User, get_all_recent_posts, get_all_recent_comments, graph
 from aqxWeb.sc import app
 import mysql.connector
 import requests
@@ -15,8 +15,9 @@ def dbconn():
 
 @app.route('/')
 def index():
-    posts = get_todays_recent_posts()
-    return render_template('home.html', posts=posts)
+    posts = get_all_recent_posts()
+    comments = get_all_recent_comments()
+    return render_template('home.html', posts=posts, comments=comments)
 
 @app.route('/login')
 def login():
@@ -25,7 +26,6 @@ def login():
 @app.route('/Home')
 def home():
     return render_template('userData.html')
-
 
 @app.route('/signin', methods=['POST'])
 def signin():
@@ -69,8 +69,6 @@ def get_user(google_id, email,GivenName,familyName):
         conn.close()
     print(userID);
 
-'''
-##################'''
 @app.route('/profile')
 def profile():
     return render_template("profile.html")
@@ -92,38 +90,38 @@ def updateprofile():
         User(session['username']).updateprofile(displayname, email, organization)
         return "User Profile updated"
 
-'''
-@app.route('/mainPage')
-def mainPage():
-    posts = get_todays_recent_posts()
-    return render_template('home.html', posts=posts)'''
+@app.route('/add_comment', methods=['POST'])
+def add_comment():
+    comment = request.form['newcomment']
+    app.logger.debug(comment)
+    postid =  request.form['postid']
+    if comment == "":
+        flash('Comment can not be empty')
+        redirect(url_for('index'))
+    else:
+        User(session['username']).add_comment(comment, postid)
+        flash('Your comment has been posted')
+    return redirect(url_for('index'))
 
 @app.route('/add_post', methods=['POST'])
 def add_post():
     privacy = request.form['privacy']
     text = request.form['text']
     link = request.form['link']
-    if not text:
-            flash('You must give your post a text body.')
+    if text == "":
+            flash('Post can not be empty.')
+            redirect(url_for('index'))
     else:
         User(session['username']).add_post(text, privacy, link)
-
+        flash('Your post has been shared')
     return redirect(url_for('index'))
-'''
-@app.route('/login', methods=['GET', 'POST'])
-def login():
-    if request.method == 'POST':
-        username = request.form['username']
-        password = request.form['password']
 
-        if not User(username).verify_password(password):
-            flash('Invalid login.')
-        else:
-            session['username'] = username
-            flash('Logged in.')
-            return redirect(url_for('index'))
-
-    return render_template('login.html')'''
+@app.route('/like_post', methods=['POST'])
+def like_post():
+    postid = request.form['postid']
+    User(session['username']).like_post(postid)
+    flash('You liked the post')
+    return redirect(url_for('index'))
 
 @app.route('/logout')
 def logout():
