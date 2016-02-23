@@ -40,6 +40,7 @@ var AQX_TECHNIQUES = "aqx_techniques";
 var AQX_ORGANISMS = "aqx_organisms";
 var CROPS = "crops";
 var GROWBED_MEDIA = "growbed_media";
+var MIN_CLUSTER_ZOOM = 11;
 
 /**
  * Returns true if the given marker has the "starred" icon
@@ -200,10 +201,17 @@ var main = function(system_and_info_object, meta_data_object) {
         // Add Marker to this System
         system.marker = marker;
 
-        // Add marker to the OverlappingMarkerSpiderfier which handles clustered pins
-        mc.addMarker(marker);
+        // Add marker to the OverlappingMarkerSpiderfier which handles selection og clustered Markers
         oms.addMarker(marker);
 
+        // Add the marker to the MarkerClusterer which handles icon display for clustered Markers
+        mc.addMarker(marker);
+
+        // Adds a listener that prevents the map from over-zooming on stacked Markers
+        google.maps.event.addListener(mc, 'clusterclick', function() {
+            if(map.getZoom() > MIN_CLUSTER_ZOOM + 1)
+            map.setZoom(MIN_CLUSTER_ZOOM + 1);
+        });
 
         // Add a listener for mouseover events that opens an infoWindow for the system
         google.maps.event.addListener(marker, MOUSEOVER, (function (marker, content) {
@@ -250,8 +258,7 @@ var main = function(system_and_info_object, meta_data_object) {
          */
         var oms = new OverlappingMarkerSpiderfier(map, {markersWontMove : true, keepSpiderfied : true});
         var mc = new MarkerClusterer(map);
-        var minClusterZoom = 10;
-        mc.setMaxZoom(minClusterZoom);
+        mc.setMaxZoom(MIN_CLUSTER_ZOOM);
 
         // Create a global InfoWindow
         infoWindow = new google.maps.InfoWindow();
