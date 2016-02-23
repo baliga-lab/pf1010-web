@@ -77,24 +77,6 @@ def display_explore_page():
 
 
 ######################################################################
-# Test page for pin filtering
-######################################################################
-
-@app.route('/filtertest')
-def filterTest():
-    return render_template("dav/DAVindex.html")
-
-
-######################################################################
-# Test page for weather widget
-######################################################################
-
-@app.route('/weathertest')
-def weather():
-    return render_template("dav/weatherTest.html")
-
-
-######################################################################
 # API call to get metadata of a given system
 ######################################################################
 

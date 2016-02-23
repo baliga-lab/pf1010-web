@@ -34,6 +34,7 @@ var SELECT_GROWBED_MEDIUM = "selectGrowbedMedium";
 var SPIDERFY = 'spiderfy';
 var MOUSEOVER = 'mouseover';
 var CLICK = 'dblclick';
+var CLUSTER_CLICK = 'clusterclick';
 var MOUSEOUT = 'mouseout';
 var SELECTED = 'selected';
 var CHECKED = 'checked';
@@ -41,7 +42,7 @@ var AQX_TECHNIQUES = "aqx_techniques";
 var AQX_ORGANISMS = "aqx_organisms";
 var CROPS = "crops";
 var GROWBED_MEDIA = "growbed_media";
-var MIN_CLUSTER_ZOOM = 11;
+var MIN_CLUSTER_ZOOM = 15;
 
 /**
  * @param mc MarkcerClusterer object. Must be global so that the clusters can be altered
@@ -152,12 +153,12 @@ function reset() {
 
     // Sets all markers as visible and gives them the default Marker icon
     _.each(system_and_info_object, function(system) {
-        if (!system.marker.getVisible()){
-            mc.addMarker(system.marker);
-        }
         system.marker.setVisible(true);
         system.marker.setIcon(DEFAULT_ICON);
     });
+
+    // Repaint the clusters on reset
+    mc.repaint();
 
     // Unspiderfy any currently spiderfied markers
     oms.unspiderfy();
@@ -220,7 +221,7 @@ var main = function(system_and_info_object, meta_data_object) {
         mc.addMarker(marker);
 
         // Adds a listener that prevents the map from over-zooming on stacked Markers
-        google.maps.event.addListener(mc, 'clusterclick', function() {
+        google.maps.event.addListener(mc, CLUSTER_CLICK, function() {
             if(map.getZoom() > MIN_CLUSTER_ZOOM + 1)
                 map.setZoom(MIN_CLUSTER_ZOOM + 1);
         });
@@ -271,6 +272,7 @@ var main = function(system_and_info_object, meta_data_object) {
         oms = new OverlappingMarkerSpiderfier(map, {markersWontMove : true, keepSpiderfied : true});
         mc = new MarkerClusterer(map);
         mc.setMaxZoom(MIN_CLUSTER_ZOOM);
+        mc.setIgnoreHidden(true);
 
         // Create a global InfoWindow
         infoWindow = new google.maps.InfoWindow();
@@ -299,6 +301,23 @@ var main = function(system_and_info_object, meta_data_object) {
 };
 
 /**
+ * Given a system, compares its metadata with the values from the four metadata dropdowns
+ * and returns true if there is a match, false otherwise
+ * @param system An Aquaponics system plus its metadata values
+ * @param dp1 The value from the first dropdown for Aquaponics Technique
+ * @param dp2 The value from the second dropdown for Aquatic Organism
+ * @param dp3 The value from the third dropdown for Crop name
+ * @param dp4 The value from the fourth dropdown for Growbed Media
+ * @returns {boolean}
+ */
+var system_metadata_matches_any_dropdown = function(system, dp1, dp2, dp3, dp4){
+    return ((!_.isEmpty(dp1) && system.aqx_technique_name != dp1)
+    || (!_.isEmpty(dp2) && system.organism_name != dp2)
+    || (!_.isEmpty(dp3) &&system.crop_name != dp3)
+    || (!_.isEmpty(dp4) && system.growbed_media != dp4))
+};
+
+/**
  * Filter systems based on dropdown values
  */
 function filterSystemsBasedOnDropdownValues() {
@@ -308,18 +327,15 @@ function filterSystemsBasedOnDropdownValues() {
     var dp4 = document.getElementById(SELECT_GROWBED_MEDIUM).value;
 
     _.each(system_and_info_object, function(system) {
-        if((!_.isEmpty(dp1) && system.aqx_technique_name != dp1)
-            || (!_.isEmpty(dp2) && system.organism_name != dp2)
-            || (!_.isEmpty(dp3) &&system.crop_name != dp3)
-            || (!_.isEmpty(dp4) && system.growbed_media != dp4))
-        {
+        if (system_metadata_matches_any_dropdown(system, dp1, dp2, dp3, dp4)){
             system.marker.setVisible(false);
-            mc.removeMarker(system.marker);
         } else {
             system.marker.setVisible(true);
-            mc.addMarker(system.marker);
         }
     });
+
+    // Repaint clustered markers now that we've filtered
+    mc.repaint();
 
     // Repopulate the checklist so only visible systems appear
     populateCheckList(system_and_info_object, LIST_OF_USER_SYSTEMS);
