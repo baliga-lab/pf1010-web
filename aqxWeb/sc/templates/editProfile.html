@@ -8,9 +8,9 @@ var access_token=localStorage.getItem('access_token');
             $.ajax({
                 url: "https://www.googleapis.com/plus/v1/people/me?access_token=" + access_token,
                 success: function (response) {
-                    console.log(response);
+                    //console.log(response);
                     //console.log(response.id)
-                    console.log(response.organizations[0].name);
+                    //console.log(response.organizations[0].name);
                     $('#userId').val(response.id);
                     $('#fdisplayName').val(response.name.familyName);
                     $('#gdisplayName').val(response.name.givenName);
@@ -40,15 +40,15 @@ var access_token=localStorage.getItem('access_token');
             Organization:<input class="form-control width200" id="organization" name="organization"/><br />
             Gender:
             <label class="radio-inline">
-                <input type="radio" name="optradio">Male
+                <input type="radio" name="optradio" id="rbMale">Male
             </label>
             <label class="radio-inline">
-                <input type="radio" name="optradio">Female
+                <input type="radio" name="optradio" id="rbFemale">Female
             </label><br />
             <br />
             <!--retrieve dob and email from neo4j-->
             Date of Birth:<input class="form-control width200" id="dob" name="dob" /><br />
-            Email:<input class="form-control width200" id="email" name="email"/><br />
+            Email:<input class="form-control width200" id="email" name="email" readonly="readonly"/><br />
             <button type="submit" class="btn btn-default">Save</button>
         </form>
     </div>

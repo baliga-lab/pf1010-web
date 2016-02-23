@@ -53,15 +53,16 @@ class User:
     # Exceptions : None
     ############################################################################
 
-    def updateprofile(self, displayname, email, organization):
+    def updateprofile(self, displayname, dob):
         query = """
         MATCH(x:User)
-        WHERE x.sql_id = 1
-        SET x.username = {newdisplayname}, x.email = {newemail}
+        WHERE x.username = {username}
+        SET x.name = {newdisplayname}, x.dob = {newDOB}
         """
         try:
-            return graph.cypher.execute(query, newdisplayname=displayname, newemail=email)
-        except cypher.CypherError, cypher.CypherTransactionError:
+            return graph.cypher.execute(query, username = self.username, newdisplayname = displayname, newDOB = dob)
+        except Exception as e:
+            print str(e)
             raise "Exception occured in function updateprofile()"
 
     ############################################################################

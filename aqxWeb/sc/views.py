@@ -144,11 +144,9 @@ def updateprofile():
     if request.method == 'POST':
         #firstname = request.form['firstname']
         #lastname = request.form['lastname']
-        dateofbirth = request.form['dob']
         displayname = request.form['displayname']
-        organization = request.form['organization']
-        email = request.form['email']
-        User(session['username']).updateprofile(displayname, email, organization)
+        dateofbirth = request.form['dob']
+        User(session['username']).updateprofile(displayname, dateofbirth)
         return "User Profile updated"
 
 @app.route('/add_comment', methods=['POST'])
@@ -217,3 +215,25 @@ def logout():
     session.pop('username', None)
     flash('Logged out.')
     return redirect(url_for('index'))
+
+
+@app.route('/testSignin', methods=['POST'])
+#######################################################################################
+# function : Test Insertion and deletion of the user in Neo4j and mySql
+# purpose : signs in with POST and takes data from the request
+# parameters : None
+# returns: response
+# Exception : app.logger.exception
+#######################################################################################
+def testSignin():
+    try:
+        GivenName=request.form['givenName']
+        familyName=request.form['familyName']
+        email = request.form['email']
+        user_id = request.form['id']
+        user_id = get_user(user_id, email,GivenName,familyName)
+        return Response("ok", mimetype='text/plain')
+    except:
+        app.logger.exception("Got an exception")
+        raise
+

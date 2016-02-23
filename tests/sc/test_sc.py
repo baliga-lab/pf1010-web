@@ -87,6 +87,16 @@ class FlaskTestCase(unittest.TestCase):
             response = c.get('/editprofile')
             self.assertEquals(response.status_code, 200)
 
+    # Ensure that test_add_user works correctly
+    def test_add_user(self):
+        sc.app.config['SECRET_KEY']=os.urandom(24)
+        with sc.app.test_client() as client:
+            res=client.post(
+                "/testSignin",
+                data=dict(givenName="test",familyName="123",email="test123@gmail.com",id="test123")
+            )
+            self.assertTrue(res.status_code, 200)
+
     # End of FlaskTestCase class
 
     if __name__ == "__main__":
