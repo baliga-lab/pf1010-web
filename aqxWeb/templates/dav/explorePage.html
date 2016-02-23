@@ -19,13 +19,13 @@
         }
         #map {
             width: 80%;
-            height: 600px;
+            height: 550px;
         }
         .dropdown {
             width: 100%;
-            height: 34px;
-            padding: 6px 12px;
-            font-size: 14px;
+            height: 28px;
+            padding: 3px 7px;
+            font-size: 12px;
             line-height: 1.42857143;
             color: #555;
             background-color: #fff;
@@ -39,9 +39,9 @@
 </head>
 <body>
 <div class="container" style="width: 100%; margin-top: 2%; margin-left: 2%">
-    <div style="width: 50%; float:left; position: fixed; overflow: hidden; background-color: rgb(229, 227, 223);" id="map"></div>
-    <div style="width: 50%; padding-left:2%; float:left;">
-        <div style="width: 45%;" class="form-group">
+    <div style="width: 70%; float: left; position: relative; overflow: hidden; background-color: rgb(229, 227, 223);" id="map"></div>
+    <div style="width: 30%; padding-left:2%; float:left;">
+        <div style="width: 75%;" class="form-group">
             <label class="control-label">Select filtering criteria</label>
             <br>
             <select class="dropdown" id="selectTechnique">
@@ -66,19 +66,20 @@
             <input class="btn btn-primary" type="submit" id="submitbtn" name="mysubmit" value="Submit" onclick="filterSystemsBasedOnDropdownValues()"/>
             <input class="btn btn-primary" type="button" id="resetbtn" name="reset" value="Reset" onclick="reset()"/>
         </div>
-        <div class="form-group" style="width: 40%; padding-top:2%;">
+        <div class="form-group" style="width: 75%; padding-top:2%;">
             <label class="control-label">Select public systems</label>
-            <ul id="listOfUserSystems" style="overflow-y: scroll; max-height: 200px;">
+            <ul id="listOfUserSystems" style="overflow-y: scroll; max-height: 110px;">
                 {#        {% for sys in systems %}#}
                 {#            <li><input type="checkbox" value="{{sys['system_name']}}">{{sys['system_name']}}</li>#}
                 {#        {% endfor %}#}
             </ul>
         </div>
-        <div class="form-group" style="width: 40%; padding-top:2%;">
+        <div class="form-group" style="width: 75%; padding-top:2%;">
             <label class="control-label">Select from your systems</label>
-            <ul id="listOfMySystems" style="overflow-y: scroll; max-height: 200px;">
+            <ul id="listOfMySystems" style="overflow-y: scroll; max-height: 120px;">
             </ul>
         </div>
+        <input class="btn btn-primary" type="submit" id="submitbtn" name="analyze" value="Analyze"/>
     </div>
 </div>
 

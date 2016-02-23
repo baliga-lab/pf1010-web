@@ -71,8 +71,10 @@ def index():
 @app.route('/explore')
 def display_explore_page():
     systems_and_info_json = get_all_systems_info()
+    print systems_and_info_json
     systems = json.loads(systems_and_info_json)['systems']
     metadata_json = get_all_aqx_metadata()
+    print systems
     return render_template("dav/explorePage.html", **locals())
 
 
