@@ -26,6 +26,7 @@ var MAP = 'map';
 var OPTION = 'option';
 var NOT_AVAILABLE = 'Not available';
 var LIST_OF_USER_SYSTEMS = "listOfUserSystems";
+var LIST_OF_MY_SYSTEMS = "listOfMySystems";
 var SELECT_TECHNIQUE = "selectTechnique";
 var SELECT_ORGANISM = "selectOrganism";
 var SELECT_CROP = "selectCrop";
@@ -210,7 +211,7 @@ var main = function(system_and_info_object, meta_data_object) {
         // Adds a listener that prevents the map from over-zooming on stacked Markers
         google.maps.event.addListener(mc, 'clusterclick', function() {
             if(map.getZoom() > MIN_CLUSTER_ZOOM + 1)
-            map.setZoom(MIN_CLUSTER_ZOOM + 1);
+                map.setZoom(MIN_CLUSTER_ZOOM + 1);
         });
 
         // Add a listener for mouseover events that opens an infoWindow for the system
@@ -281,6 +282,9 @@ var main = function(system_and_info_object, meta_data_object) {
     // Populate the checklist
     // All systems are visible at this point, so this list contains each system name
     populateCheckList(_.sortBy(system_and_info_object,'system_name'), LIST_OF_USER_SYSTEMS);
+
+    // Populate a placeholder checklist for logged in User's sytems
+    populate_dummy_user_systems_checklist();
 };
 
 /**
@@ -334,3 +338,29 @@ $('#listOfUserSystems').change(function() {
         }
     });
 });
+
+var populate_dummy_user_systems_checklist = function(){
+    var user_systems_and_info = {
+        "systems":
+            [
+                {"system_uid": "316f3f2e3fe411e597b1000c29b92d09",
+                    "growbed_media": null, "crop_count": 5, "organism_count": 12,
+                    "lat": "37.4142740000", "lng": "-122.0774090000", "organism_name": "Mozambique Tilapia",
+                    "system_name": "My first system", "user_id": 1,
+                    "aqx_technique_name": "Ebb and Flow (Media-based)",
+                    "crop_name": "Strawberry", "start_date": "2015-08-23"},
+                {"system_uid": "2e79ea8a411011e5aac7000c29b92d09", "growbed_media": null, "crop_count": 18,
+                    "organism_count": 20, "lat": "47.6225770000", "lng": "-122.3374360000",
+                    "organism_name": "Mozambique Tilapia", "system_name": "ISB 1", "user_id": 2,
+                    "aqx_technique_name": "Floating Raft", "crop_name": "Lettuce", "start_date": "2015-08-26"}
+            ]
+    };
+
+    var myCheckList = document.getElementById(LIST_OF_MY_SYSTEMS);
+    myCheckList.innerHTML = "";
+    _.each(user_systems_and_info.systems, function(system) {
+        myCheckList.innerHTML += "<li><input id=\"" + system.system_uid
+            + "\" type=\"checkbox\" value=\"" + system.system_name + "\">"
+            + system.system_name + "</li>";
+    });
+};
