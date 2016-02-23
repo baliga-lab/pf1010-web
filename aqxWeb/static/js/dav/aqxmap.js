@@ -44,17 +44,14 @@ var CROPS = "crops";
 var GROWBED_MEDIA = "growbed_media";
 var MIN_CLUSTER_ZOOM = 15;
 
-/**
- * @param mc MarkcerClusterer object. Must be global so that the clusters can be altered
- *           dynamically as pins are removed from the map
- */
+// Markerclusterer and OverlappingMarkerSpiderfier need global scope
 var mc;
 var oms;
 
 
 /**
  * Returns true if the given marker has the "starred" icon
- * @param marker
+ * @param marker Any system Marker
  * @returns {boolean}
  */
 var markerIsStarred = function(marker){
@@ -310,7 +307,7 @@ var main = function(system_and_info_object, meta_data_object) {
  * @param dp4 The value from the fourth dropdown for Growbed Media
  * @returns {boolean}
  */
-var system_metadata_matches_any_dropdown = function(system, dp1, dp2, dp3, dp4){
+var systemMetadataMatchesAnyDropdown = function(system, dp1, dp2, dp3, dp4){
     return ((!_.isEmpty(dp1) && system.aqx_technique_name != dp1)
     || (!_.isEmpty(dp2) && system.organism_name != dp2)
     || (!_.isEmpty(dp3) &&system.crop_name != dp3)
@@ -327,7 +324,7 @@ function filterSystemsBasedOnDropdownValues() {
     var dp4 = document.getElementById(SELECT_GROWBED_MEDIUM).value;
 
     _.each(system_and_info_object, function(system) {
-        if (system_metadata_matches_any_dropdown(system, dp1, dp2, dp3, dp4)){
+        if (systemMetadataMatchesAnyDropdown(system, dp1, dp2, dp3, dp4)){
             system.marker.setVisible(false);
         } else {
             system.marker.setVisible(true);

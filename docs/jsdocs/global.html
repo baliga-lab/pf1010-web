@@ -98,7 +98,7 @@
 
         
             
-<h4 class="name" id="defaultIcon"><span class="type-signature"></span>defaultIcon<span class="type-signature"> :Object</span></h4>
+<h4 class="name" id="DEFAULT_ICON"><span class="type-signature"></span>DEFAULT_ICON<span class="type-signature"> :Object</span></h4>
 
 
 
@@ -170,7 +170,7 @@
 
         
             
-<h4 class="name" id="starredIcon"><span class="type-signature"></span>starredIcon<span class="type-signature"> :Object</span></h4>
+<h4 class="name" id="SELECTED_ICON"><span class="type-signature"></span>SELECTED_ICON<span class="type-signature"> :Object</span></h4>
 
 
 
@@ -346,7 +346,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="aqxmap.js.html">aqxmap.js</a>, <a href="aqxmap.js.html#line59">line 59</a>
+        <a href="aqxmap.js.html">aqxmap.js</a>, <a href="aqxmap.js.html#line67">line 67</a>
     </li></ul></dd>
     
 
@@ -450,7 +450,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="aqxmap.js.html">aqxmap.js</a>, <a href="aqxmap.js.html#line277">line 277</a>
+        <a href="aqxmap.js.html">aqxmap.js</a>, <a href="aqxmap.js.html#line320">line 320</a>
     </li></ul></dd>
     
 
@@ -488,7 +488,7 @@
 
 
 <div class="description">
-    Flips the current Marker icon from starredIcon to defaultIconand vice versa. Used to "select" and "de-select" markers.Also, puts the display priority to the maximum if the icon is starred
+    Flips the current Marker icon from SELECTED_ICON to DEFAULT_ICONand vice versa. Used to "select" and "de-select" markers.Also, puts the display priority to the maximum if the icon is starred
 </div>
 
 
@@ -594,7 +594,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="aqxmap.js.html">aqxmap.js</a>, <a href="aqxmap.js.html#line154">line 154</a>
+        <a href="aqxmap.js.html">aqxmap.js</a>, <a href="aqxmap.js.html#line132">line 132</a>
     </li></ul></dd>
     
 
@@ -738,7 +738,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="aqxmap.js.html">aqxmap.js</a>, <a href="aqxmap.js.html#line174">line 174</a>
+        <a href="aqxmap.js.html">aqxmap.js</a>, <a href="aqxmap.js.html#line188">line 188</a>
     </li></ul></dd>
     
 
@@ -823,7 +823,7 @@
 
             
 
-            <td class="description last"></td>
+            <td class="description last">Any system Marker</td>
         </tr>
 
     
@@ -864,7 +864,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="aqxmap.js.html">aqxmap.js</a>, <a href="aqxmap.js.html#line49">line 49</a>
+        <a href="aqxmap.js.html">aqxmap.js</a>, <a href="aqxmap.js.html#line57">line 57</a>
     </li></ul></dd>
     
 
@@ -1026,7 +1026,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="aqxmap.js.html">aqxmap.js</a>, <a href="aqxmap.js.html#line98">line 98</a>
+        <a href="aqxmap.js.html">aqxmap.js</a>, <a href="aqxmap.js.html#line106">line 106</a>
     </li></ul></dd>
     
 
@@ -1170,7 +1170,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="aqxmap.js.html">aqxmap.js</a>, <a href="aqxmap.js.html#line81">line 81</a>
+        <a href="aqxmap.js.html">aqxmap.js</a>, <a href="aqxmap.js.html#line89">line 89</a>
     </li></ul></dd>
     
 
@@ -1252,7 +1252,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="aqxmap.js.html">aqxmap.js</a>, <a href="aqxmap.js.html#line120">line 120</a>
+        <a href="aqxmap.js.html">aqxmap.js</a>, <a href="aqxmap.js.html#line149">line 149</a>
     </li></ul></dd>
     
 
@@ -1279,6 +1279,222 @@
 
 
         
+            
+
+    
+
+    <h4 class="name" id="systemMetadataMatchesAnyDropdown"><span class="type-signature"></span>systemMetadataMatchesAnyDropdown<span class="signature">(system, dp1, dp2, dp3, dp4)</span><span class="type-signature"> &rarr; {boolean}</span></h4>
+
+    
+
+
+
+<div class="description">
+    Given a system, compares its metadata with the values from the four metadata dropdownsand returns true if there is a match, false otherwise
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>system</code></td>
+            
+
+            <td class="type">
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">An Aquaponics system plus its metadata values</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>dp1</code></td>
+            
+
+            <td class="type">
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">The value from the first dropdown for Aquaponics Technique</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>dp2</code></td>
+            
+
+            <td class="type">
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">The value from the second dropdown for Aquatic Organism</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>dp3</code></td>
+            
+
+            <td class="type">
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">The value from the third dropdown for Crop name</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>dp4</code></td>
+            
+
+            <td class="type">
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">The value from the fourth dropdown for Growbed Media</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="aqxmap.js.html">aqxmap.js</a>, <a href="aqxmap.js.html#line310">line 310</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">boolean</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+        
     
 
     
@@ -1294,13 +1510,13 @@
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Global</h3><ul><li><a href="global.html#buildContentString">buildContentString</a></li><li><a href="global.html#defaultIcon">defaultIcon</a></li><li><a href="global.html#filterSystemsBasedOnDropdownValues">filterSystemsBasedOnDropdownValues</a></li><li><a href="global.html#flipIcons">flipIcons</a></li><li><a href="global.html#main">main</a></li><li><a href="global.html#markerIsStarred">markerIsStarred</a></li><li><a href="global.html#populateCheckList">populateCheckList</a></li><li><a href="global.html#populateDropdown">populateDropdown</a></li><li><a href="global.html#reset">reset</a></li><li><a href="global.html#starredIcon">starredIcon</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Global</h3><ul><li><a href="global.html#buildContentString">buildContentString</a></li><li><a href="global.html#DEFAULT_ICON">DEFAULT_ICON</a></li><li><a href="global.html#filterSystemsBasedOnDropdownValues">filterSystemsBasedOnDropdownValues</a></li><li><a href="global.html#flipIcons">flipIcons</a></li><li><a href="global.html#main">main</a></li><li><a href="global.html#markerIsStarred">markerIsStarred</a></li><li><a href="global.html#populateCheckList">populateCheckList</a></li><li><a href="global.html#populateDropdown">populateDropdown</a></li><li><a href="global.html#reset">reset</a></li><li><a href="global.html#SELECTED_ICON">SELECTED_ICON</a></li><li><a href="global.html#systemMetadataMatchesAnyDropdown">systemMetadataMatchesAnyDropdown</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.0-dev</a> on Mon Feb 22 2016 22:05:19 GMT+0300 (MSK)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.0-dev</a> on Wed Feb 24 2016 00:19:03 GMT+0300 (MSK)
 </footer>
 
 <script> prettyPrint(); </script>
