@@ -38,6 +38,14 @@ var access_token=localStorage.getItem('access_token');
             Last Name:<input class="form-control width200" id="fdisplayName" name="lastname" readonly="readonly"><br />
             Display Name:<input class="form-control width200" id="displayName" name="displayname" ><br />
             Organization:<input class="form-control width200" id="organization" name="organization"/><br />
+            Gender:
+            <label class="radio-inline">
+                <input type="radio" name="optradio">Male
+            </label>
+            <label class="radio-inline">
+                <input type="radio" name="optradio">Female
+            </label><br />
+            <br />
             <!--retrieve dob and email from neo4j-->
             Date of Birth:<input class="form-control width200" id="dob" name="dob" /><br />
             Email:<input class="form-control width200" id="email" name="email"/><br />
