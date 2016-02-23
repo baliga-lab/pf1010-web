@@ -44,6 +44,14 @@ var GROWBED_MEDIA = "growbed_media";
 var MIN_CLUSTER_ZOOM = 11;
 
 /**
+ * @param mc MarkcerClusterer object. Must be global so that the clusters can be altered
+ *           dynamically as pins are removed from the map
+ */
+var mc;
+var oms;
+
+
+/**
  * Returns true if the given marker has the "starred" icon
  * @param marker
  * @returns {boolean}
@@ -116,36 +124,6 @@ var populateCheckList = function(systems_and_info_object, elementID){
 };
 
 /**
- * Resets all markers to a visible state, and resets dropdowns
- * to their default values.
- */
-function reset() {
-
-    // Sets all markers as visible and gives them the default Marker icon
-    _.each(system_and_info_object, function(system) {
-        system.marker.setVisible(true);
-        system.marker.setIcon(DEFAULT_ICON);
-    });
-
-    // Now that all markers are visible, repopulate the checklist
-    populateCheckList(system_and_info_object, LIST_OF_USER_SYSTEMS);
-
-    // For each dropdown, reset them to their default values
-    $('#selectTechnique option').prop(SELECTED, function() {
-        return this.defaultSelected;
-    });
-    $('#selectOrganism option').prop(SELECTED, function() {
-        return this.defaultSelected;
-    });
-    $('#selectCrop option').prop(SELECTED, function() {
-        return this.defaultSelected;
-    });
-    $('#selectGrowbedMedium option').prop(SELECTED, function() {
-        return this.defaultSelected;
-    });
-};
-
-/**
  * Flips the current Marker icon from SELECTED_ICON to DEFAULT_ICON
  * and vice versa. Used to "select" and "de-select" markers.
  * Also, puts the display priority to the maximum if the icon is starred
@@ -167,6 +145,42 @@ var flipIcons = function(marker, systemID) {
 };
 
 /**
+ * Resets all markers to a visible state, and resets dropdowns
+ * to their default values.
+ */
+function reset() {
+
+    // Sets all markers as visible and gives them the default Marker icon
+    _.each(system_and_info_object, function(system) {
+        if (!system.marker.getVisible()){
+            mc.addMarker(system.marker);
+        }
+        system.marker.setVisible(true);
+        system.marker.setIcon(DEFAULT_ICON);
+    });
+
+    // Unspiderfy any currently spiderfied markers
+    oms.unspiderfy();
+
+    // Now that all markers are visible, repopulate the checklist
+    populateCheckList(system_and_info_object, LIST_OF_USER_SYSTEMS);
+
+    // For each dropdown, reset them to their default values
+    $('#selectTechnique option').prop(SELECTED, function() {
+        return this.defaultSelected;
+    });
+    $('#selectOrganism option').prop(SELECTED, function() {
+        return this.defaultSelected;
+    });
+    $('#selectCrop option').prop(SELECTED, function() {
+        return this.defaultSelected;
+    });
+    $('#selectGrowbedMedium option').prop(SELECTED, function() {
+        return this.defaultSelected;
+    });
+};
+
+/**
  * Prepares the page by initializing the Map and populating it with Markers,
  * then populates the metadata dropdowns, and the checklist of visible system names
  *
@@ -182,11 +196,8 @@ var main = function(system_and_info_object, meta_data_object) {
      * based on the system's metadata, and adds mouseover, mouseout, and click
      * event Listeners to show the infoWindow, close it, and select the Marker,
      * respectively
-     *
-     * @param system An Object(dict) that represents an Aquaponics System
-     * @param oms An OverlappingMarkerSpiderfication object that manages clustered Markers
      */
-    function addMarker(system, oms, mc) {
+    function addMarker(system) {
 
         // Set the marker's location and infoWindow content
         var latLng = new google.maps.LatLng(system.lat, system.lng);
@@ -202,7 +213,7 @@ var main = function(system_and_info_object, meta_data_object) {
         // Add Marker to this System
         system.marker = marker;
 
-        // Add marker to the OverlappingMarkerSpiderfier which handles selection og clustered Markers
+        // Add marker to the OverlappingMarkerSpiderfier which handles selection of clustered Markers
         oms.addMarker(marker);
 
         // Add the marker to the MarkerClusterer which handles icon display for clustered Markers
@@ -257,8 +268,8 @@ var main = function(system_and_info_object, meta_data_object) {
          *                       This setting is more conducive to allowing users to hover over
          *                       Markers to see their InfoWindows
          */
-        var oms = new OverlappingMarkerSpiderfier(map, {markersWontMove : true, keepSpiderfied : true});
-        var mc = new MarkerClusterer(map);
+        oms = new OverlappingMarkerSpiderfier(map, {markersWontMove : true, keepSpiderfied : true});
+        mc = new MarkerClusterer(map);
         mc.setMaxZoom(MIN_CLUSTER_ZOOM);
 
         // Create a global InfoWindow
@@ -268,7 +279,7 @@ var main = function(system_and_info_object, meta_data_object) {
         // Technically, each Marker has a map attribute, and this is adding the
         // globally defined map above to each marker generated from the systems JSON
         _.each(system_and_info_object, function(system_and_info) {
-            addMarker(system_and_info, oms, mc);
+            addMarker(system_and_info);
         });
     }
     initializeMap();
@@ -303,8 +314,10 @@ function filterSystemsBasedOnDropdownValues() {
             || (!_.isEmpty(dp4) && system.growbed_media != dp4))
         {
             system.marker.setVisible(false);
+            mc.removeMarker(system.marker);
         } else {
             system.marker.setVisible(true);
+            mc.addMarker(system.marker);
         }
     });
 
@@ -338,6 +351,8 @@ $('#listOfUserSystems').change(function() {
         }
     });
 });
+
+
 
 var populate_dummy_user_systems_checklist = function(){
     var user_systems_and_info = {
