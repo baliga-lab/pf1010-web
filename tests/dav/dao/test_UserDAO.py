@@ -3,6 +3,8 @@ from aqxWeb import app
 from aqxWeb.dav.dao.UserDAO import UserDAO
 import json
 
+# test DAO for users table
+
 
 class UserDAOTest(unittest.TestCase):
 

@@ -19,6 +19,7 @@ class DavAPI:
     #                                   parameter and returns the metadata for the
     #                                   given system. Currently, it returns only
     #                                   the name of the system.
+
     def get_system_metadata(self, conn, system_id):
         s = SystemsDAO(conn)
         result = s.get_metadata(system_id)
@@ -31,6 +32,7 @@ class DavAPI:
     # param conn : db connection
     # get_all_systems_info() - It returns the system information as a JSON
     #                          object.
+
     def get_all_systems_info(self, conn):
         s = SystemsDAO(conn)
         systems = s.get_all_systems_info()
@@ -59,9 +61,10 @@ class DavAPI:
     ###############################################################################
     # fetches all filter criteria
     ###############################################################################
-
+    # param conn : db connection
     # get_all_filters_metadata - It returns all the metadata that are needed
     #                            to filter the displayed systems.
+
     def get_all_filters_metadata(self, conn):
         m = MetadataDAO(conn)
         results = m.get_all_filters()
@@ -75,6 +78,9 @@ class DavAPI:
     ###############################################################################
     # fetch user data
     ###############################################################################
+    # param conn : db connection
+    # param user_id : user's google id
+    # get_user - It returns user details based on google id.
 
     def get_user(self, conn, user_id):
         u = UserDAO(conn)
@@ -91,6 +97,9 @@ class DavAPI:
     ###############################################################################
     # insert user data
     ###############################################################################
+    # param conn : db connection
+    # param user : user details in the form of a json structure
+    # get_user - It inserts the user details into the users table
 
     def put_user(self, conn, user):
         u = UserDAO(conn)

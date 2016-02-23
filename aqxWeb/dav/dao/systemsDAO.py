@@ -1,6 +1,8 @@
 # DAO for systems table
 
+
 class SystemsDAO:
+
     # constructor
     def __init__(self, conn):
         self.conn = conn
@@ -10,12 +12,13 @@ class SystemsDAO:
     #                            parameter and returns the metadata for the
     #                            given system. Currently, it returns only
     #                            the name of the system.
-    def get_metadata(self, system_ui):
+    # param system_uid : system's UID
+    def get_metadata(self, system_uid):
         cursor = self.conn.cursor()
         query = "SELECT name FROM systems WHERE system_uid = %s"
 
         try:
-            cursor.execute(query, (system_ui,))
+            cursor.execute(query, (system_uid,))
             result, = cursor.fetchall()
 
         finally:

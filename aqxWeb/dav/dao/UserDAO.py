@@ -1,5 +1,5 @@
 from datetime import datetime
-# DAO for aqx_techniques table
+# DAO for users table
 
 
 class UserDAO:
@@ -7,7 +7,10 @@ class UserDAO:
     def __init__(self, conn):
         self.conn = conn
 
-    # method to get user information
+    ###############################################################################
+    # get_user(user_id) - method to fetch user details
+    # param user_id : users google id
+
     def get_user(self, user_id):
         cursor = self.conn.cursor()
         query = ("select id,google_id,email,default_site_location_lat,"
@@ -19,7 +22,10 @@ class UserDAO:
             cursor.close()
         return users
 
-    # method to put user information
+    ###############################################################################
+    # put_user(user) - method to insert user details(create new user)
+    # param user : json structure with user information
+
     def put_user(self, user):
 
         old_user = self.get_user(user.get('googleid'))
@@ -42,7 +48,10 @@ class UserDAO:
             cursor.close()
         return "User inserted"
 
-    # method to delete user information
+    ###############################################################################
+    # delete_user(user_id) - method to delete user details(cleanup for unit testing)
+    # param user_id : user id of the user
+
     def delete_user(self, user_id):
 
         cursor = self.conn.cursor()

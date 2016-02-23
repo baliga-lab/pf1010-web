@@ -1,4 +1,4 @@
-# DAO for aqx_techniques table
+# DAO for fetching all filtering metadata
 
 
 class MetadataDAO:

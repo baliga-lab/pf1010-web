@@ -14,6 +14,7 @@ class SystemsDAOTest(unittest.TestCase):
     def tearDown(self):
         pass
 
+    #get all system data
     def test_get_all_systems_info(self):
         s = SystemsDAO(self.conn)
         response = s.get_all_systems_info()

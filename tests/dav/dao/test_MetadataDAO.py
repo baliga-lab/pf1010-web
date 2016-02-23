@@ -2,6 +2,8 @@ import unittest
 from aqxWeb import app
 from aqxWeb.dav.dao.MetaDataDAO import MetadataDAO
 
+# test DAO for metadata tables
+
 
 class MetadataDAOTest(unittest.TestCase):
 
