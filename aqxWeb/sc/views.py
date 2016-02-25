@@ -62,28 +62,18 @@ def signin():
     try:
         access_token = request.form['access_token']
         print(access_token)
-        r = requests.get('https://www.googleapis.com/plus/v1/people/me?access_token='+access_token)
-        context = r.json()
-        print(context)
-        app.logger.debug("signed in: %s", str(context))
-        Name=context['name']
-        GivenName=Name['givenName']
-        familyName=Name['familyName']
-        print(GivenName)
-        print(familyName)
-        emails = context['emails']
-        user_id = context['id']
-        email=emails[0]['value']
-        session['email'] = email
-
-        session['username']= GivenName
-        if 'picture' in context:
-            imgurl = context['picture']
+        r = requests.get('https://www.googleapis.com/plus/v1/people/me?access_token=' + access_token)
+        googleAPIResponse = r.json()
+        #print(googleAPIResponse)
+        app.logger.debug("signed in: %s", str(googleAPIResponse))
+        google_id = googleAPIResponse['id']
+        if 'picture' in googleAPIResponse:
+            imgurl = googleAPIResponse['picture']
         else:
             imgurl = "/static/images/default_profile.png"
-        user_id = get_user(user_id, email,GivenName,familyName)
-        session['uid']=user_id
-        print(session['username'])
+        user_id = get_user(google_id, googleAPIResponse)
+        emails = googleAPIResponse['emails']
+        email = emails[0]['value']
         app.logger.debug("user: %s img: %s", user_id, imgurl)
         return Response("ok", mimetype='text/plain')
     except:
@@ -93,18 +83,16 @@ def signin():
 # function : get_user
 # purpose :
 #           google_id : google id fetched from google+ login
-#           email : email of the user who is currently logged in
-#           givenName : First name of user
-#           familyName : Last name of user
+#           googleAPIResponse : JSON response from the google API
 # parameters : None
 # returns: returns userId
 # Exception : ?
 #######################################################################################
-def get_user(google_id, email, givenName, familyName):
+def get_user(google_id, googleAPIResponse):
     conn = dbconn()
     cursor = conn.cursor()
     try:
-        userId= aqxdb.get_or_create_user(conn, cursor, google_id, email, givenName, familyName)
+        userId = aqxdb.get_or_create_user(conn, cursor, google_id, googleAPIResponse)
         return userId
     finally:
         conn.close()
@@ -130,9 +118,13 @@ def profile():
 # Exception : None
 #######################################################################################
 def editprofile():
-    return render_template("editProfile.html")
+    if session.get('uid') is not None:
+        user = User(session['uid']).find()
+        return render_template("editProfile.html", user=user)
+    else:
+        return render_template("/home.html")
 
-@app.route('/updateprofile', methods=['GET', 'POST'])
+@app.route('/updateprofile', methods=['POST'])
 #######################################################################################
 # function : updateprofile
 # purpose : updates user profile in db
@@ -141,13 +133,13 @@ def editprofile():
 # Exception : None
 #######################################################################################
 def updateprofile():
-    if request.method == 'POST':
-        #firstname = request.form['firstname']
-        #lastname = request.form['lastname']
-        displayname = request.form['displayname']
-        dateofbirth = request.form['dob']
-        User(session['username']).updateprofile(displayname, dateofbirth)
-        return "User Profile updated"
+    displayname = request.form['displayname']
+    gender = request.form['gender']
+    organization = request.form['organization']
+    user_type = request.form['user_type']
+    dateofbirth = request.form['dob']
+    User(session['uid']).updateprofile(displayname, gender, organization, user_type, dateofbirth)
+    return "User Profile updated"
 
 @app.route('/add_comment', methods=['POST'])
 #######################################################################################
@@ -165,7 +157,7 @@ def add_comment():
         flash('Comment can not be empty')
         redirect(url_for('index'))
     else:
-        User(session['username']).add_comment(comment, postid)
+        User(session['uid']).add_comment(comment, postid)
         flash('Your comment has been posted')
     return redirect(url_for('index'))
 
@@ -185,7 +177,7 @@ def add_post():
             flash('Post can not be empty.')
             redirect(url_for('index'))
     else:
-        User(session['username']).add_post(text, privacy, link)
+        User(session['uid']).add_post(text, privacy, link)
         flash('Your post has been shared')
     return redirect(url_for('index'))
 
@@ -199,7 +191,7 @@ def add_post():
 #######################################################################################
 def like_post():
     postid = request.form['postid']
-    User(session['username']).like_post(postid)
+    User(session['uid']).like_post(postid)
     flash('You liked the post')
     return redirect(url_for('index'))
 
@@ -212,7 +204,9 @@ def like_post():
 # Exception : None
 #######################################################################################
 def logout():
-    session.pop('username', None)
+    session.pop('uid', None)
+    session.pop('email', None)
+    session.pop('displayName', None)
     flash('Logged out.')
     return redirect(url_for('index'))
 

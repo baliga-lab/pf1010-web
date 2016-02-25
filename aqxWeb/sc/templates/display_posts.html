@@ -2,7 +2,7 @@
 {% if posts %}
     {% for row in posts %}
         <div class="post">
-    	    <b>{{ row.username }}</b> shared:
+    	    <b>{{ row.displayName }}</b> shared:
             <div class="dttime">on {{ row.post.date }}</div>
     	    <br>
     	    {{ row.post.text }}
@@ -36,7 +36,7 @@
                     <div class="comments" style="text-align: left;">
                         {% if cmt.postid == row.post.id %}
                             <div class="form-controls" >
-                                <b>{{ cmt.comment.user }}</b>:
+                                <b>{{ cmt.comment.user_display_name }}</b>:
                                 {{ cmt.comment.content }}
                             </div>
                         {% endif %}

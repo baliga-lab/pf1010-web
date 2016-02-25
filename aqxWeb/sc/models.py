@@ -18,19 +18,19 @@ class User:
 
     ############################################################################
     # function : __init__
-    # purpose : main function sets username
+    # purpose : main function sets sql_id
     # params :
-    #       username : username for user
+    #       sql_id : sql_id for user
     # returns : None
     # Exceptions : None
     ############################################################################
 
-    def __init__(self,username):
-        self.username = username
+    def __init__(self, sql_id):
+        self.sql_id = sql_id
 
     ############################################################################
     # function : find
-    # purpose : function used to find user name based on username
+    # purpose : function used to find user name based on sql_id
     # params : self (User)
     # returns : User node
     # Exceptions : cypher.CypherError, cypher.CypherTransactionError
@@ -38,7 +38,7 @@ class User:
 
     def find(self):
         try:
-            user = graph.find_one("User", "username", self.username)
+            user = graph.find_one("User", "sql_id", self.sql_id)
             return user
         except cypher.CypherError, cypher.CypherTransactionError:
             raise "Exception occured in function User.find()"
@@ -48,19 +48,19 @@ class User:
     # purpose : function used to update the user profile
     # params :
     #        displayname : display name which need to changed
-    #        email : email for the user
+    #        dob : date of birth for the user
     # returns : Boolean
     # Exceptions : None
     ############################################################################
 
-    def updateprofile(self, displayname, dob):
+    def updateprofile(self, displayname, gender, organization, user_type, dateofbirth):
         query = """
         MATCH(x:User)
-        WHERE x.username = {username}
-        SET x.name = {newdisplayname}, x.dob = {newDOB}
+        WHERE x.sql_id = {sql_id}
+        SET x.displayName = {newdisplayname}, x.gender = {newGender}, x.organization = {newOrganization}, x.user_type={newUserType}, x.dob = {newDOB}
         """
         try:
-            return graph.cypher.execute(query, username = self.username, newdisplayname = displayname, newDOB = dob)
+            return graph.cypher.execute(query, sql_id = self.sql_id, newdisplayname = displayname, newGender = gender, newOrganization = organization, newUserType=user_type, newDOB = dateofbirth)
         except Exception as e:
             print str(e)
             raise "Exception occured in function updateprofile()"
@@ -97,14 +97,13 @@ class User:
         user = self.find()
         post = Node(
             "Post",
-            id=str(uuid.uuid4()),
-            title= "Post",
-            text=text,
-            link=link,
-            privacy=privacy,
-            page_type="MyPage",
-            timestamp=timestamp(),
-            date=date()
+            id = str(uuid.uuid4()),
+            text = text,
+            link = link,
+            privacy = privacy,
+            creation_time = timestamp(),
+            modified_time = timestamp(),
+            date = date()
         )
         rel = Relationship(user, "POSTED", post)
         try:
@@ -124,12 +123,14 @@ class User:
     ############################################################################
 
     def add_comment(self, newcomment, postid):
+        user = self.find()
+        #print(user)
         comment = Node(
             "Comment",
             id=str(uuid.uuid4()),
-            title= "Comment",
             content=newcomment,
-            user=self.username,
+            user_sql_id=self.sql_id,
+            user_display_name = user['displayName'],
             creation_time=timestamp(),
             modified_time=timestamp())
         post = graph.find_one("Post", "id", postid)
@@ -170,8 +171,8 @@ class User:
 def get_all_recent_posts():
     query = """
     MATCH (user:User)-[:POSTED]->(post:Post)
-    RETURN user.username AS username, post
-    ORDER BY post.timestamp DESC
+    RETURN user.displayName AS displayName, post
+    ORDER BY post.modified_time DESC
     """
     try:
         posts = graph.cypher.execute(query)

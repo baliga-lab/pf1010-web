@@ -1,6 +1,6 @@
 {% extends "layout.html" %}
 {% block body %}
-    {% if session.username %}
+    {% if session.uid %}
         <form action="{{ url_for('add_post') }}" method="post">
             <div class="form-controls" style="width: 60%">
                 <textarea id="new_post" name="text" rows="3" cols="60" style="width: 100%"
@@ -33,7 +33,7 @@
                                    placeholder="Type an image/video url here.." />
                         </div>
                         <div class="modal-footer">
-                            <button id="addUrl" type="button" class="btn btn-default">Add Link</button>
+                            <button id="addUrl" type="button" class="btn btn-default" data-dismiss="modal">Add Link</button>
                         </div>
                     </div>
                 </div>
@@ -50,15 +50,14 @@
 {% endblock %}
 {% block script %}
     <script>
-        $("#addUrl").click(function(){
-            console.log("close click");
+        $("#addUrl").click(function() {
             var link = $("#new_link").val();
-            var text = $("#new_post").val();
-            $(".links").empty();
-            $(".links").append("<a href='"+link+"'>"+link+"</a>");
-            $(".links").append("<input type='hidden' name='link' value='"+ link +"'/><br/>");
-            $("#linkModal").modal("hide");
-            $("#add_link").hide();
+            if (link.length > 0) {
+                $(".links").empty();
+                $(".links").append("<a href='" + link + "'>" + link + "</a>");
+                $(".links").append("<input type='hidden' name='link' value='" + link + "'/><br/>");
+                $("#add_link").attr("disabled", "disabled");
+            }
         });
     </script>
 {% endblock %}

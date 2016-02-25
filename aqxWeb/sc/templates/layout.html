@@ -57,7 +57,7 @@
 
         <!-- Collect the nav links, forms, and other content for toggling -->
         <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-            {% if session.username %}
+            {% if session.uid %}
                 <br>
                 <ul id="main_menu" class="nav navbar-nav">
 
@@ -74,14 +74,14 @@
                 </form>
 
                 <ul class="nav navbar-nav navbar-right">
-                    <li> Welcome {{ session.username }}! </li>
+                    <li> Welcome {{ session.displayName }}! </li>
                     <br>
                     <li><a href="{{ url_for('logout') }}"> Logout </a> </li>
                 </ul>
 
             {% endif %}
             <ul class="nav navbar-nav navbar-right">
-                {% if not session.username %}
+                {% if not session.uid %}
                 <br>
                 <li>Welcome Guest User!</li>
                 <br>
