@@ -40,16 +40,18 @@ var access_token=localStorage.getItem('access_token');
         <div>
             <form action="/updateprofile" method="post">
                 First Name:<input class="form-control width200" id="gdisplayName" name="firstname"
-                            value = {{ user['givenName'] }} readonly="readonly"/>
+                            value = {% if user['givenName'] is defined %} {{ user['givenName'] }} {% endif %}
+                            readonly="readonly"/>
                 <br />
-                Last Name:<input class="form-control width200" id="fdisplayName" name="lastname" 
-                            value = {{ user['familyName'] }} readonly="readonly">
+                Last Name:<input class="form-control width200" id="fdisplayName" name="lastname"
+                            value = {% if user['familyName'] is defined %}  {{ user['familyName'] }} {% endif %}
+                            readonly="readonly">
                 <br />
                 Email:<input class="form-control width200" name="email" readonly="readonly" 
                         value = {{ user['email'] }} />
                 <br />
-                Display Name:<input class="form-control width200" name="displayname" 
-                        value = {{ user['displayName'] }} >
+                Display Name:<input class="form-control width200" name="displayname"
+                                value = {% if user['displayName'] is defined %}  {{ user['displayName'] }} {% endif %}>
                 <br />
                 Gender:
                     <label class="radio-inline">
@@ -62,7 +64,7 @@ var access_token=localStorage.getItem('access_token');
                     </label><br />
                 <br />
                 Organization:<input class="form-control width200" name="organization"
-                        value = {{ user['organization'] }} >
+                                value = {% if user['organization'] is defined %}  {{ user['organization'] }} {% endif %}>
                 <br />
                 User Type: <select name="user_type" id="ddUserType">
                     <option value="Subscriber" 
@@ -75,7 +77,8 @@ var access_token=localStorage.getItem('access_token');
                         {% if user['user_type'] == 'Student' %} selected {% endif %}>Student</option>
                 </select> <br /><br />
                 <!--retrieve dob and email from neo4j-->
-                Date of Birth:<input type="datetime" class="form-control width200" name="dob" value = {{ user['dob'] }}/>
+                Date of Birth:<input type="datetime" class="form-control width200" name="dob"
+                                value = {% if user['dob'] is defined %}  {{ user['dob'] }} {% endif %}>
                 <br />
                 <button type="submit" class="btn btn-default">Save</button>
             </form>

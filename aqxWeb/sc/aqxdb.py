@@ -7,15 +7,26 @@ from models import graph, timestamp, User
 import uuid
 
 def get_or_create_user(conn, cursor, google_id, googleAPIResponse):
-    name = googleAPIResponse['name']
-    givenName = name['givenName']
-    displayName = givenName
-    familyName = name['familyName']
-    emails = googleAPIResponse['emails']
-    email = emails[0]['value']
-    gender = googleAPIResponse['gender']
-    organizations = googleAPIResponse['organizations']
-    organization = organizations[0]['name']
+    name = googleAPIResponse.get('name', None)
+    if name is None:
+        givenName = None
+        displayName = None
+        familyName = None
+    else:
+        givenName = name.get('givenName', None)
+        displayName = givenName
+        familyName = name.get('familyName', None)
+    emails = googleAPIResponse.get('emails', None)
+    if emails is None:
+        email = None
+    else:
+        email = emails[0]['value']
+    gender = googleAPIResponse.get('gender', None)
+    organizations = googleAPIResponse.get('organizations', None)
+    if organizations is None:
+        organization = None
+    else:
+        organization = organizations[0]['name']
     cursor.execute('select id from users where google_id=%s', [google_id])
     row = cursor.fetchone()
     if row is None:
