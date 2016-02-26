@@ -1,13 +1,25 @@
 from py2neo import authenticate, Graph, Node, Relationship, cypher
 from datetime import datetime as dt
 import uuid
-from aqxWeb.sc import app
+#from aqxWeb.sc import social
+
+# MySql connection settings for testing
+HOST='24.18.191.175'
+USER='projectfeed'
+PASS='zpL&!k938gUcPuP'
+DB='ProjectFeedBoston'
+
+# Neo4J connection settings for testing
+CONNECTIONSETTING = "http://aquaponics_sc:bwadsXAk63y6R0uBHN2g@aquaponicssc.sb02.stations.graphenedb.com:24789/db/data/"
+USERNAME = "aquaponics_sc"
+PASSWORD = "bwadsXAk63y6R0uBHN2g"
 
 # File for db configuration
-app.config.from_pyfile('settings.cfg')
+#appsocial.config.from_pyfile('settings.cfg')
+#config.from_pyfile('settings.cfg')
 
 # Create / Load graph with the connection settings
-graph = Graph(app.config['CONNECTIONSETTING'])
+graph = Graph(CONNECTIONSETTING)
 
 ################################################################################
 # Class : User

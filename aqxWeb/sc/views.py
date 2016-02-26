@@ -1,11 +1,16 @@
-from flask import Flask, request, session, redirect, url_for, render_template, flash, Response, jsonify
+from flask import Blueprint, Flask, request, session, redirect, url_for, render_template, flash, Response, jsonify
 from models import User, get_all_recent_posts, get_all_recent_comments, graph
-from aqxWeb.sc import app
 import mysql.connector
 import requests
 import aqxdb
-from mysql.connector import errorcode
-from mysql.connector import connect
+
+social = Blueprint('social', __name__, template_folder='templates')
+
+'''
+@social.route('/home')
+def home():
+    return "hi social"
+    '''
 
 #######################################################################################
 # function : dbconn
@@ -14,11 +19,11 @@ from mysql.connector import connect
 # returns: DB connection
 #######################################################################################
 def dbconn():
-    return mysql.connector.connect(user=app.config['USER'], password=app.config['PASS'],
-                              host=app.config['HOST'],
-                              database=app.config['DB'])
+    return mysql.connector.connect(user=social.config['USER'], password=social.config['PASS'],
+                              host=social.config['HOST'],
+                              database=social.config['DB'])
 
-@app.route('/')
+@social.route('/index')
 #######################################################################################
 # function : index
 # purpose : renders home page with populated posts and comments
@@ -30,7 +35,7 @@ def index():
     comments = get_all_recent_comments()
     return render_template('home.html', posts=posts, comments=comments)
 
-@app.route('/login')
+@social.route('/login')
 #######################################################################################
 # function : login
 # purpose : renders login.html
@@ -40,17 +45,17 @@ def index():
 def login():
     return render_template('login.html')
 
-@app.route('/Home')
+@social.route('/Home')
 #######################################################################################
 # function : home
 # purpose : renders userData.html
 # parameters : None
 # returns: userData.html page
 #######################################################################################
-def home():
+def Home():
     return render_template('userData.html')
 
-@app.route('/signin', methods=['POST'])
+@social.route('/signin', methods=['POST'])
 #######################################################################################
 # function : signin
 # purpose : signs in with POST and takes data from the request
@@ -65,7 +70,7 @@ def signin():
         r = requests.get('https://www.googleapis.com/plus/v1/people/me?access_token=' + access_token)
         googleAPIResponse = r.json()
         #print(googleAPIResponse)
-        app.logger.debug("signed in: %s", str(googleAPIResponse))
+        social.logger.debug("signed in: %s", str(googleAPIResponse))
         google_id = googleAPIResponse['id']
         if 'picture' in googleAPIResponse:
             imgurl = googleAPIResponse['picture']
@@ -74,10 +79,10 @@ def signin():
         user_id = get_user(google_id, googleAPIResponse)
         emails = googleAPIResponse['emails']
         email = emails[0]['value']
-        app.logger.debug("user: %s img: %s", user_id, imgurl)
+        social.logger.debug("user: %s img: %s", user_id, imgurl)
         return Response("ok", mimetype='text/plain')
     except:
-        app.logger.exception("Got an exception")
+        social.logger.exception("Got an exception")
         raise
 #######################################################################################
 # function : get_user
@@ -98,7 +103,7 @@ def get_user(google_id, googleAPIResponse):
         conn.close()
     print(userID);
 
-@app.route('/profile')
+@social.route('/profile')
 #######################################################################################
 # function : profile
 # purpose : renders profile.html
@@ -109,7 +114,7 @@ def get_user(google_id, googleAPIResponse):
 def profile():
     return render_template("profile.html")
 
-@app.route('/editprofile')
+@social.route('/editprofile')
 #######################################################################################
 # function : editprofile
 # purpose : renders editProfile.html
@@ -124,7 +129,7 @@ def editprofile():
     else:
         return render_template("/home.html")
 
-@app.route('/updateprofile', methods=['POST'])
+@social.route('/updateprofile', methods=['POST'])
 #######################################################################################
 # function : updateprofile
 # purpose : updates user profile in db
@@ -141,7 +146,7 @@ def updateprofile():
     User(session['uid']).updateprofile(displayname, gender, organization, user_type, dateofbirth)
     return "User Profile updated"
 
-@app.route('/add_comment', methods=['POST'])
+@social.route('/add_comment', methods=['POST'])
 #######################################################################################
 # function : add_comment
 # purpose : adds comments to the post
@@ -151,7 +156,7 @@ def updateprofile():
 #######################################################################################
 def add_comment():
     comment = request.form['newcomment']
-    app.logger.debug(comment)
+    social.logger.debug(comment)
     postid =  request.form['postid']
     if comment == "":
         flash('Comment can not be empty')
@@ -161,7 +166,7 @@ def add_comment():
         flash('Your comment has been posted')
     return redirect(url_for('index'))
 
-@app.route('/add_post', methods=['POST'])
+@social.route('/add_post', methods=['POST'])
 #######################################################################################
 # function : add_post
 # purpose : adds posts newly created by user
@@ -181,7 +186,7 @@ def add_post():
         flash('Your post has been shared')
     return redirect(url_for('index'))
 
-@app.route('/like_post', methods=['POST'])
+@social.route('/like_post', methods=['POST'])
 #######################################################################################
 # function : like_post
 # purpose : like posts previously created by user
@@ -195,7 +200,7 @@ def like_post():
     flash('You liked the post')
     return redirect(url_for('index'))
 
-@app.route('/logout')
+@social.route('/logout')
 #######################################################################################
 # function : logout
 # purpose : logout of current session
@@ -211,7 +216,7 @@ def logout():
     return redirect(url_for('index'))
 
 
-@app.route('/testSignin', methods=['POST'])
+@social.route('/testSignin', methods=['POST'])
 #######################################################################################
 # function : Test Insertion and deletion of the user in Neo4j and mySql
 # purpose : signs in with POST and takes data from the request
@@ -228,6 +233,6 @@ def testSignin():
         user_id = get_user(user_id, email,GivenName,familyName)
         return Response("ok", mimetype='text/plain')
     except:
-        app.logger.exception("Got an exception")
+        social.logger.exception("Got an exception")
         raise
 
