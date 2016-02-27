@@ -3,23 +3,15 @@ from mysql.connector.pooling import MySQLConnectionPool
 import os
 import json
 from app.davAPI import DavAPI
+import ConfigParser
 
-dav = Blueprint('dav', __name__, template_folder='templates')
+dav = Blueprint('dav', __name__, template_folder='templates',static_folder='static')
+Config = ConfigParser.ConfigParser()
+
 
 @dav.route('/home')
 def home():
-    return "Hi DAV"
-
-
-# @dav.route('/static')
-# def static():
-#    return dav.send_static_file('explorePage.html')
-    # return dav.send_static_file('static/js/markerclusterer-min.js');
-
-# Set environment variable here to read configuration from environment variable,
-# if it does not work add complete path
-#os.environ['AQUAPONICS_SETTINGS'] = "system_db.cfg"
-#dav.config.from_envvar('AQUAPONICS_SETTINGS')
+    return "Data Analytics and Viz Homepage"
 
 # To hold db connection pool
 pool = None
@@ -27,10 +19,7 @@ pool = None
 # Creating object for dav api
 davAPI = DavAPI()
 
-
 # Connect to the database
-
-
 def init_app():
     create_conn()
 
@@ -48,48 +37,47 @@ def get_conn():
 ######################################################################
 
 def create_conn():
+    Config.read("./dav/config/system_db.conf")
     global pool
     print("PID %d: initializing pool..." % os.getpid())
     dbconfig = {
-         # "host":     dav.config['HOST'],
-         # "user":     dav.config['USER'],
-         # "passwd":   dav.config['PASS'],
-         # "db":       dav.config['DB']
-
-          "host":    '24.18.191.175',
-         "user":     'projectfeed',
-         "passwd":   'zpL&!k938gUcPuP',
-         "db":       'ProjectFeedBoston'
-
-         # "host":    'localhost',
-         # "user":     'aquaponics',
-         # "passwd":   'aquaponics',
-         # "db":       'aquaponics'
-
-
+         "host":     ConfigSectionMap("Aqx")['host'],
+         "user":     ConfigSectionMap("Aqx")['user'],
+         "passwd":   ConfigSectionMap("Aqx")['pass'],
+         "db":       ConfigSectionMap("Aqx")['db']
          }
-    # pool = MySQLConnectionPool(pool_name="mypool", pool_size = dav.config['POOLSIZE'], **dbconfig)
+
+    #poolSize = ConfigSectionMap("Aqx")['poolsize']
+    # pool = MySQLConnectionPool(pool_name="mypool", pool_size = poolSize, **dbconfig)
 
     pool = MySQLConnectionPool(pool_name="mypool", pool_size = 8, **dbconfig)
 
-######################################################################
-# UI API
-######################################################################
-
-# @dav.route('/')
-# @dav.route('/index')
-# def index():
-#     user = {'nickname': 'Test'}  # fake user
-#     return render_template("index.html",
-#                            title='Home',
-#                            user=user)
-
-
-# DATA ANALYTICS AND VISUALIZATION APIs
+def ConfigSectionMap(section):
+    dict1 = {}
+    options = Config.options(section)
+    for option in options:
+        try:
+            dict1[option] = Config.get(section, option)
+            if dict1[option] == -1:
+                print("skip: %s" % option)
+        except:
+            print("exception on %s!" % option)
+            dict1[option] = None
+    return dict1
 
 ######################################################################
 # Interactive map of all active systems
 ######################################################################
+# @dav.route('/conf')
+# def print_conf():
+#     Config = ConfigParser.ConfigParser()
+#     Config.read("./dav/system_db.ini")
+#     print Config.sections()
+#     print ConfigSectionMap("Aqx")['pass']
+#     print ConfigSectionMap("Aqx")['poolsize']
+#
+#     return "conf printed"
+
 
 @dav.route('/explore')
 def display_explore_page():
