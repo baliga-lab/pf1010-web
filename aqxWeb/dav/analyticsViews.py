@@ -3,10 +3,8 @@ from mysql.connector.pooling import MySQLConnectionPool
 import os
 import json
 from app.davAPI import DavAPI
-import ConfigParser
 
 dav = Blueprint('dav', __name__, template_folder='templates',static_folder='static')
-Config = ConfigParser.ConfigParser()
 
 
 @dav.route('/home')
@@ -20,8 +18,9 @@ pool = None
 davAPI = DavAPI()
 
 # Connect to the database
-def init_app():
-    create_conn()
+def init_app(app):
+    app.config.from_envvar('AQUAPONICS_SETTINGS')
+    create_conn(app)
 
 
 ######################################################################
@@ -36,34 +35,20 @@ def get_conn():
 # method to create connection when application starts
 ######################################################################
 
-def create_conn():
-    Config.read("./dav/config/system_db.conf")
+def create_conn(app):
+
     global pool
     print("PID %d: initializing pool..." % os.getpid())
     dbconfig = {
-         "host":     ConfigSectionMap("Aqx")['host'],
-         "user":     ConfigSectionMap("Aqx")['user'],
-         "passwd":   ConfigSectionMap("Aqx")['pass'],
-         "db":       ConfigSectionMap("Aqx")['db']
+         "host":     app.config['HOST'],
+         "user":     app.config['USER'],
+         "passwd":   app.config['PASS'],
+         "db":       app.config['DB']
          }
 
-    #poolSize = ConfigSectionMap("Aqx")['poolsize']
-    # pool = MySQLConnectionPool(pool_name="mypool", pool_size = poolSize, **dbconfig)
+    pool = MySQLConnectionPool(pool_name="mypool", pool_size = app.config['POOLSIZE'], **dbconfig)
 
-    pool = MySQLConnectionPool(pool_name="mypool", pool_size = 8, **dbconfig)
 
-def ConfigSectionMap(section):
-    dict1 = {}
-    options = Config.options(section)
-    for option in options:
-        try:
-            dict1[option] = Config.get(section, option)
-            if dict1[option] == -1:
-                print("skip: %s" % option)
-        except:
-            print("exception on %s!" % option)
-            dict1[option] = None
-    return dict1
 
 ######################################################################
 # Interactive map of all active systems
@@ -140,3 +125,5 @@ def put_user():
     user = request.get_json()
     return davAPI.put_user(get_conn(),user)
 
+if __name__ == '__main__':
+    init_app()

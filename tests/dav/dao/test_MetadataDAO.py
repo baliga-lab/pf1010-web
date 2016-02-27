@@ -1,17 +1,17 @@
 import unittest
-from aqxWeb import app
+from aqxWeb import run
+from aqxWeb.dav import analyticsViews
 from aqxWeb.dav.dao.MetaDataDAO import MetadataDAO
 
 # test DAO for metadata tables
-
 
 class MetadataDAOTest(unittest.TestCase):
 
     # Set up method
     def setUp(self):
-        self.app = app.app.test_client()
-        app.init_app(self.app)
-        self.conn = app.get_conn()
+        self.app = run.app.test_client()
+        analyticsViews.init_app(run.app)
+        self.conn = analyticsViews.get_conn()
 
     # Tear down method
     def tearDown(self):
