@@ -65,7 +65,7 @@ def create_conn(app):
 
 
 @dav.route('/explore')
-def display_explore_page():
+def explore():
     systems_and_info_json = get_all_systems_info()
     systems = json.loads(systems_and_info_json)['systems']
     metadata_json = get_all_aqx_metadata()

@@ -24,13 +24,14 @@
 {% block script %}
    <script>
         $(function () {
+            console.log("hey i am in userdata");
             var href = window.location.href;
             var hash = window.location.hash;
             hash = hash.substring(1);
             hash = hash.split("&");
             //console.log(hash);
             var access_token = null;
-
+console.log("hey i am in userdata");
             for (h in hash) {
                 var param = hash[h];
                 param = param.split("=");
@@ -43,14 +44,14 @@
 
 
             var xhr = new XMLHttpRequest();
-            xhr.open('POST', '/signin');
+            xhr.open('POST', '/social/signin');
             xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
             xhr.send('access_token=' + access_token);
             xhr.onload = function() {
                 if (xhr.responseText === 'ok') {
                     console.log('Signed in !');
                     localStorage.setItem('access_token',access_token);
-                 window.location = '/';
+                 window.location = '/social/index';
                 } else {
                  //   var auth2 = gapi.auth2.getAuthInstance();
                    //auth2.signOut();

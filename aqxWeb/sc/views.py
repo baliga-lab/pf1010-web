@@ -70,7 +70,7 @@ def signin():
         r = requests.get('https://www.googleapis.com/plus/v1/people/me?access_token=' + access_token)
         googleAPIResponse = r.json()
         #print(googleAPIResponse)
-        social.logger.debug("signed in: %s", str(googleAPIResponse))
+        #social.logger.debug("signed in: %s", str(googleAPIResponse))
         google_id = googleAPIResponse['id']
         if 'picture' in googleAPIResponse:
             imgurl = googleAPIResponse['picture']
@@ -79,10 +79,10 @@ def signin():
         user_id = get_user(google_id, googleAPIResponse)
         emails = googleAPIResponse['emails']
         email = emails[0]['value']
-        social.logger.debug("user: %s img: %s", user_id, imgurl)
+        #social.logger.debug("user: %s img: %s", user_id, imgurl)
         return Response("ok", mimetype='text/plain')
     except:
-        social.logger.exception("Got an exception")
+       # social.logger.exception("Got an exception")
         raise
 #######################################################################################
 # function : get_user
@@ -156,7 +156,7 @@ def updateprofile():
 #######################################################################################
 def add_comment():
     comment = request.form['newcomment']
-    social.logger.debug(comment)
+    #social.logger.debug(comment)
     postid =  request.form['postid']
     if comment == "":
         flash('Comment can not be empty')
@@ -233,6 +233,6 @@ def testSignin():
         user_id = get_user(user_id, email,GivenName,familyName)
         return Response("ok", mimetype='text/plain')
     except:
-        social.logger.exception("Got an exception")
+        #social.logger.exception("Got an exception")
         raise
 

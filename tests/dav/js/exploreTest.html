@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>QUnit Tests</title>
+    <link rel="stylesheet" href="//code.jquery.com/qunit/qunit-1.18.0.css">
+    <script src="/aqxWeb-NEU/aqxWeb/static/js/dav/underscore-min.js"></script>
+    <script type="text/javascript"
+            src="http://maps.googleapis.com/maps/api/js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    <script src="/aqxWeb-NEU/aqxWeb/static/js/dav/aqxmap.js"></script>
+    <script src="/aqxWeb-NEU/tests/dav/js/exploreTestMockConstants.js"></script>
+    <script src="//code.jquery.com/qunit/qunit-1.18.0.js"></script>
+    <script>
+        QUnit.test("BuildContentString test", function( assert ) {
+            assert.equal(buildContentString(dataPointOne), expectedHTMLOne);
+        });
+        QUnit.test("BuildContentString, nulls should return Not available", function( assert ) {
+            assert.equal(buildContentString(dataPointTwo), expectedHTMLTwo);
+        });
+        QUnit.test("Test Dropdowns", function (assert) {
+            var opts = document.getElementById("qunit-fixture").getElementsByTagName("option");
+            assert.equal(opts[0].innerHTML,"Choose an Aquaponics Technique");
+            assert.equal(opts[1].innerHTML, "Choose an Aquatic Organism");
+            assert.equal(opts[2].innerHTML, "Choose a Crop");
+            assert.equal(opts[3].innerHTML, "Choose a Growbed Medium");
+            populateDropdown("aqx_techniques", SELECT_TECHNIQUE, metadata_mock);
+            console.log(opts);
+            assert.equal(opts[0].innerHTML, techDpHTML);
+        });
+    </script>
+</head>
+<body>
+<div id="qunit"></div>
+<div id="qunit-fixture">
+    <div class="form-group">
+        <label class="control-label">Select filtering criteria</label>
+        <br>
+        <select class="dropdown" id="selectTechnique">
+            <option value="" selected="selected">Choose an Aquaponics Technique</option>
+        </select>
+        <br><br>
+        <select class="dropdown" id="selectOrganism">
+            <option value="" selected="selected">Choose an Aquatic Organism</option>
+        </select>
+        <br><br>
+        <select class="dropdown" id="selectCrop">
+            <option value="" selected="selected">Choose a Crop</option>
+        </select>
+        <br><br>
+        <select class="dropdown" id="selectGrowbedMedium">
+            <option value="" selected="selected">Choose a Growbed Medium</option>
+        </select>
+        <input class="btn btn-primary" type="submit" id="submitbtn" name="mysubmit" value="Submit" onclick="filterSystemsBasedOnDropdownValues()"/>
+        <input class="btn btn-primary" type="button" id="resetbtn" name="reset" value="Reset" onclick="reset()"/>
+    </div>
+</div>
+
+</body>
+</html>
