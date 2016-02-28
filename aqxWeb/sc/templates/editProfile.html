@@ -2,34 +2,8 @@
 
 {% block script %}
 
- <script>
-        $(function () {
-var access_token=localStorage.getItem('access_token');
-            $.ajax({
-                url: "https://www.googleapis.com/plus/v1/people/me?access_token=" + access_token,
-                success: function (response) {
-                    //console.log(response);
-                    //console.log(response.id)
-                    //console.log(response.organizations[0].name);
-                    /*
-                    $('#userId').val(response.id);
-                    $('#fdisplayName').val(response.name.familyName);
-                    $('#gdisplayName').val(response.name.givenName);
-                    $('#displayName').val(response.displayName);
-                    $('#welcome').append(response.displayName);
-                    $('#organization').val(response.organizations[0].name);
-                    $('#email').val(response.emails[0].value);
-                    $('#profileLink').attr('href', response.url);
-                    $('#returnlogin').append(response.displayName + '?');
-                    $('#userImage').attr('src',response.image.url);
-                    */
-                    $('#userImage').attr('src',response.image.url);
-                    
-
-                }
-            });
-        });
-</script>
+<!-- jQuery Script To Display Logged In User Profile Details -->
+<script type="text/javascript" src="{{ url_for('social.static', filename='js/editProfile.js') }}"></script>
 
 {% endblock %}
 
@@ -39,46 +13,52 @@ var access_token=localStorage.getItem('access_token');
 
         <div>
             <form action="/updateprofile" method="post">
-                First Name:<input class="form-control width200" id="gdisplayName" name="firstname"
-                            value = {% if user['givenName'] is defined %} {{ user['givenName'] }} {% endif %}
+
+                <img class="imgstyle" id="userImage" src="" height="200" width="200" /> <br />
+                <a id="profileLink" class="btn mycolor" target="_blank" href="#">My Google Plus Profile</a>
+                <br /><br />
+
+                First Name:<input type="text" class="form-control" name="firstname" id="txtFirstName"
+                            value = {% if user['givenName'] is not none %} {{ user['givenName'] }} {% endif %}
                             readonly="readonly"/>
                 <br />
-                Last Name:<input class="form-control width200" id="fdisplayName" name="lastname"
-                            value = {% if user['familyName'] is defined %}  {{ user['familyName'] }} {% endif %}
-                            readonly="readonly">
+                Last Name:<input type="text" class="form-control" name="lastname" id="txtLastName"
+                            value = {% if user['familyName'] is not none %}  {{ user['familyName'] }} {% endif %}
+                            readonly="readonly"/>
                 <br />
-                Email:<input class="form-control width200" name="email" readonly="readonly" 
-                        value = {{ user['email'] }} />
+                Email:<input type="text" class="form-control" name="email" id="txtEmail"
+                            value = {{ user['email'] }} readonly="readonly"/>
                 <br />
-                Display Name:<input class="form-control width200" name="displayname"
-                                value = {% if user['displayName'] is defined %}  {{ user['displayName'] }} {% endif %}>
+                Display Name:<input type="text" class="form-control" name="displayname" id="txtDisplayName"
+                             value = {% if user['displayName'] is not none %}  {{ user['displayName'] }} {% endif %}/>
                 <br />
                 Gender:
                     <label class="radio-inline">
-                        <input type="radio" name="gender" id="rbMale" value="male"
-                            {% if user['gender'] == 'male' %} checked {% endif %}>Male
+                        <input type="radio" name="gender" id="rbMale"
+                        {% if user['gender'] == 'male' %} checked {% endif %}/>Male
                     </label>
                     <label class="radio-inline">
-                        <input type="radio" name="gender" id="rbFemale" value="female"
-                        {% if user['gender'] == 'female' %} checked {% endif %}>Female
+                        <input type="radio" name="gender" id="rbFemale"
+                        {% if user['gender'] == 'female' %} checked {% endif %}/>Female
                     </label><br />
                 <br />
-                Organization:<input class="form-control width200" name="organization"
-                                value = {% if user['organization'] is defined %}  {{ user['organization'] }} {% endif %}>
+                Organization:<input type="text" class="form-control" name="organization" id="txtOrganization"
+                                value = {% if user['organization'] is not none %}  {{ user['organization'] }}
+                                {% endif %}/>
                 <br />
                 User Type: <select name="user_type" id="ddUserType">
-                    <option value="Subscriber" 
-                        {% if user['user_type'] == 'Subscriber' %} selected {% endif %}>Subscriber</option>
-                    <option value="Farmer" 
-                        {% if user['user_type'] == 'Farmer' %} selected {% endif %}>Farmer</option>
+                    <option value="Subscriber"
+                    {% if user['user_type'] == 'Subscriber' %} selected {% endif %}>Subscriber</option>
+                    <option value="Farmer"
+                    {% if user['user_type'] == 'Farmer' %} selected {% endif %}>Farmer</option>
                     <option value="Teacher"
-                        {% if user['user_type'] == 'Teacher' %} selected {% endif %}>Teacher</option>
+                    {% if user['user_type'] == 'Teacher' %} selected {% endif %}>Teacher</option>
                     <option value="Student"
-                        {% if user['user_type'] == 'Student' %} selected {% endif %}>Student</option>
+                    {% if user['user_type'] == 'Student' %} selected {% endif %}>Student</option>
                 </select> <br /><br />
                 <!--retrieve dob and email from neo4j-->
-                Date of Birth:<input type="datetime" class="form-control width200" name="dob"
-                                value = {% if user['dob'] is defined %}  {{ user['dob'] }} {% endif %}>
+                Date of Birth:<input type="datetime" class="form-control" name="dob" id="dtDOB"
+                                value = {% if user['dob'] is not none %}  {{ user['dob'] }} {% endif %}/>
                 <br />
                 <button type="submit" class="btn btn-default">Save</button>
             </form>

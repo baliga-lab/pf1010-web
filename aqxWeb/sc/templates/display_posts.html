@@ -24,7 +24,7 @@
 
             <div class="details" style="width: 100%; text-align: center;">
 
-                <form action="{{ url_for('like_post') }}" method="post">
+                <form action="{{ url_for('social.like_post') }}" method="post">
                     <div class="form-controls" style=" text-align: right;" >
                         <input type="hidden" name="postid" value="{{ row.post.id }}">
                         <input type="submit" class="btn btn-primary" value="Like">
@@ -43,7 +43,7 @@
                     </div>
                 {% endfor %}
 
-                <form action="{{ url_for('add_comment') }}" method="post">
+                <form action="{{ url_for('social.add_comment') }}" method="post">
                     <div class="form-controls" style="width: 100% ; text-align:left">
                         <input type="hidden" name="postid" value="{{ row.post.id }}">
                         <input id="newcomment" name="newcomment" cols="60" style="width: 100%"

@@ -1,25 +1,24 @@
-from py2neo import authenticate, Graph, Node, Relationship, cypher
+from py2neo import Graph, Node, Relationship, cypher
 from datetime import datetime as dt
 import uuid
-#from aqxWeb.sc import social
 
-# MySql connection settings for testing
-HOST='24.18.191.175'
-USER='projectfeed'
-PASS='zpL&!k938gUcPuP'
-DB='ProjectFeedBoston'
 
-# Neo4J connection settings for testing
-CONNECTIONSETTING = "http://aquaponics_sc:bwadsXAk63y6R0uBHN2g@aquaponicssc.sb02.stations.graphenedb.com:24789/db/data/"
-USERNAME = "aquaponics_sc"
-PASSWORD = "bwadsXAk63y6R0uBHN2g"
+# Global app instance
+app_instance = None
 
-# File for db configuration
-#appsocial.config.from_pyfile('settings.cfg')
-#config.from_pyfile('settings.cfg')
+# Initialize the app_instance
+def init_sc_app(app):
+    global app_instance
+    app_instance = app
+
+# Return the app_instance
+def get_app_instance():
+    return app_instance
 
 # Create / Load graph with the connection settings
-graph = Graph(CONNECTIONSETTING)
+def getGraphConnectionURI():
+    graph = Graph(get_app_instance().config['CONNECTIONSETTING'])
+    return graph
 
 ################################################################################
 # Class : User
@@ -50,7 +49,7 @@ class User:
 
     def find(self):
         try:
-            user = graph.find_one("User", "sql_id", self.sql_id)
+            user = getGraphConnectionURI().find_one("User", "sql_id", self.sql_id)
             return user
         except cypher.CypherError, cypher.CypherTransactionError:
             raise "Exception occured in function User.find()"
@@ -72,7 +71,7 @@ class User:
         SET x.displayName = {newdisplayname}, x.gender = {newGender}, x.organization = {newOrganization}, x.user_type={newUserType}, x.dob = {newDOB}
         """
         try:
-            return graph.cypher.execute(query, sql_id = self.sql_id, newdisplayname = displayname, newGender = gender, newOrganization = organization, newUserType=user_type, newDOB = dateofbirth)
+            return getGraphConnectionURI().cypher.execute(query, sql_id = self.sql_id, newdisplayname = displayname, newGender = gender, newOrganization = organization, newUserType=user_type, newDOB = dateofbirth)
         except Exception as e:
             print str(e)
             raise "Exception occured in function updateprofile()"
@@ -119,7 +118,7 @@ class User:
         )
         rel = Relationship(user, "POSTED", post)
         try:
-            graph.create(rel)
+            getGraphConnectionURI().create(rel)
         except cypher.CypherError, cypher.CypherTransactionError:
             raise "Exception occured in function add_post "
 
@@ -145,10 +144,10 @@ class User:
             user_display_name = user['displayName'],
             creation_time=timestamp(),
             modified_time=timestamp())
-        post = graph.find_one("Post", "id", postid)
+        post = getGraphConnectionURI().find_one("Post", "id", postid)
         rel = Relationship(post, 'HAS', comment)
         try:
-            graph.create(rel)
+            getGraphConnectionURI().create(rel)
         except cypher.CypherError, cypher.CypherTransactionError:
             raise "Exception occured in function add_comment "
 
@@ -163,10 +162,10 @@ class User:
 
     def like_post(self, postid):
         user = self.find()
-        post = graph.find_one("Post", "id", postid)
+        post = getGraphConnectionURI().find_one("Post", "id", postid)
         rel = Relationship(user, 'LIKED', post)
         try:
-            graph.create_unique(rel)
+            getGraphConnectionURI().create_unique(rel)
         except cypher.CypherError, cypher.CypherTransactionError:
             raise "Exception occured in function like_post "
 
@@ -187,7 +186,7 @@ def get_all_recent_posts():
     ORDER BY post.modified_time DESC
     """
     try:
-        posts = graph.cypher.execute(query)
+        posts = getGraphConnectionURI().cypher.execute(query)
         return posts
     except cypher.CypherError, cypher.CypherTransactionError:
         raise "Exception occured in function get_all_recent_posts "
@@ -207,7 +206,7 @@ def get_all_recent_comments():
     ORDER BY comment.creation_time
     """
     try:
-        comments = graph.cypher.execute(query)
+        comments = getGraphConnectionURI().cypher.execute(query)
         return comments
     except cypher.CypherError, cypher.CypherTransactionError:
         raise "Exception occured in function get_all_recent_comments "

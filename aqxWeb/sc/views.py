@@ -1,16 +1,14 @@
-from flask import Blueprint, Flask, request, session, redirect, url_for, render_template, flash, Response, jsonify
-from models import User, get_all_recent_posts, get_all_recent_comments, graph
+from flask import Blueprint, request, session, redirect, url_for, render_template, flash, Response
+from models import User, get_all_recent_posts, get_all_recent_comments
+from sc.models import get_app_instance
+
 import mysql.connector
 import requests
 import aqxdb
+import logging
 
-social = Blueprint('social', __name__, template_folder='templates')
+social = Blueprint('social', __name__, template_folder='templates', static_folder="static")
 
-'''
-@social.route('/home')
-def home():
-    return "hi social"
-    '''
 
 #######################################################################################
 # function : dbconn
@@ -19,9 +17,9 @@ def home():
 # returns: DB connection
 #######################################################################################
 def dbconn():
-    return mysql.connector.connect(user=social.config['USER'], password=social.config['PASS'],
-                              host=social.config['HOST'],
-                              database=social.config['DB'])
+    return mysql.connector.connect(user=get_app_instance().config['USER'], password=get_app_instance().config['PASS'],
+                              host=get_app_instance().config['HOST'],
+                              database=get_app_instance().config['DB'])
 
 @social.route('/index')
 #######################################################################################
@@ -70,7 +68,7 @@ def signin():
         r = requests.get('https://www.googleapis.com/plus/v1/people/me?access_token=' + access_token)
         googleAPIResponse = r.json()
         #print(googleAPIResponse)
-        #social.logger.debug("signed in: %s", str(googleAPIResponse))
+        logging.debug("signed in: %s", str(googleAPIResponse))
         google_id = googleAPIResponse['id']
         if 'picture' in googleAPIResponse:
             imgurl = googleAPIResponse['picture']
@@ -79,10 +77,10 @@ def signin():
         user_id = get_user(google_id, googleAPIResponse)
         emails = googleAPIResponse['emails']
         email = emails[0]['value']
-        #social.logger.debug("user: %s img: %s", user_id, imgurl)
+        logging.debug("user: %s img: %s", user_id, imgurl)
         return Response("ok", mimetype='text/plain')
     except:
-       # social.logger.exception("Got an exception")
+        logging.exception("Got an exception")
         raise
 #######################################################################################
 # function : get_user
@@ -103,16 +101,6 @@ def get_user(google_id, googleAPIResponse):
         conn.close()
     print(userID);
 
-@social.route('/profile')
-#######################################################################################
-# function : profile
-# purpose : renders profile.html
-# parameters : None
-# returns: profile.html
-# Exception : None
-#######################################################################################
-def profile():
-    return render_template("profile.html")
 
 @social.route('/editprofile')
 #######################################################################################
@@ -138,12 +126,13 @@ def editprofile():
 # Exception : None
 #######################################################################################
 def updateprofile():
-    displayname = request.form['displayname']
+    displayName = request.form['displayName']
     gender = request.form['gender']
     organization = request.form['organization']
     user_type = request.form['user_type']
     dateofbirth = request.form['dob']
-    User(session['uid']).updateprofile(displayname, gender, organization, user_type, dateofbirth)
+    User(session['uid']).updateprofile(displayName, gender, organization, user_type, dateofbirth)
+    session['displayName'] = displayName
     return "User Profile updated"
 
 @social.route('/add_comment', methods=['POST'])
@@ -156,15 +145,15 @@ def updateprofile():
 #######################################################################################
 def add_comment():
     comment = request.form['newcomment']
-    #social.logger.debug(comment)
+    logging.debug(comment)
     postid =  request.form['postid']
     if comment == "":
         flash('Comment can not be empty')
-        redirect(url_for('index'))
+        redirect(url_for('social.index'))
     else:
         User(session['uid']).add_comment(comment, postid)
         flash('Your comment has been posted')
-    return redirect(url_for('index'))
+    return redirect(url_for('social.index'))
 
 @social.route('/add_post', methods=['POST'])
 #######################################################################################
@@ -180,11 +169,11 @@ def add_post():
     link = request.form['link']
     if text == "":
             flash('Post can not be empty.')
-            redirect(url_for('index'))
+            redirect(url_for('social.index'))
     else:
         User(session['uid']).add_post(text, privacy, link)
         flash('Your post has been shared')
-    return redirect(url_for('index'))
+    return redirect(url_for('social.index'))
 
 @social.route('/like_post', methods=['POST'])
 #######################################################################################
@@ -198,7 +187,7 @@ def like_post():
     postid = request.form['postid']
     User(session['uid']).like_post(postid)
     flash('You liked the post')
-    return redirect(url_for('index'))
+    return redirect(url_for('social.index'))
 
 @social.route('/logout')
 #######################################################################################
@@ -233,6 +222,6 @@ def testSignin():
         user_id = get_user(user_id, email,GivenName,familyName)
         return Response("ok", mimetype='text/plain')
     except:
-        #social.logger.exception("Got an exception")
+        logging.exception("Got an exception")
         raise
 

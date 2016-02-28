@@ -1,7 +1,7 @@
 {% extends "layout.html" %}
 {% block body %}
     {% if session.uid %}
-        <form action="{{ url_for('add_post') }}" method="post">
+        <form action="{{ url_for('social.add_post') }}" method="post">
             <div class="form-controls" style="width: 60%">
                 <textarea id="new_post" name="text" rows="3" cols="60" style="width: 100%"
                           placeholder="Share what you are doing.."></textarea>

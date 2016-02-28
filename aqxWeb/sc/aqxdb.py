@@ -1,9 +1,9 @@
 #The access to the MySQL & Neo4J database is done from here
 
-from flask import current_app, session
+from flask import session
 from datetime import datetime
 from py2neo import Node
-from models import graph, timestamp, User
+from models import getGraphConnectionURI, timestamp, User
 import uuid
 
 def get_or_create_user(conn, cursor, google_id, googleAPIResponse):
@@ -35,7 +35,7 @@ def get_or_create_user(conn, cursor, google_id, googleAPIResponse):
         result = cursor.lastrowid
         conn.commit()
         user = Node("User", sql_id=result, google_id=google_id, email=email, givenName=givenName, familyName=familyName, displayName=displayName, user_type="Subscriber", organization=organization, creation_time=timestamp(), modified_time=timestamp(), dob="", gender=gender, status=0)
-        graph.create(user)
+        getGraphConnectionURI.create(user)
     else:
         result = row[0]
         displayName = User(result).find()['displayName']

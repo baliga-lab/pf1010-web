@@ -52,7 +52,7 @@
                 <span class="icon-bar"></span>
             </button>
             <br>
-            <a class="navbar-brand" href="#">Feed1010-Networking</a>
+            <a class="navbar-brand" href="/">Feed1010-Networking</a>
         </div>
 
         <!-- Collect the nav links, forms, and other content for toggling -->
@@ -61,9 +61,9 @@
                 <br>
                 <ul id="main_menu" class="nav navbar-nav">
 
-                    <li><a id="index" class="active" href="/">Home <span class="sr-only">(current)</span></a></li>
+                    <li><a id="index" class="active" href="{{ url_for('social.index') }}">Home <span class="sr-only">(current)</span></a></li>
 
-                    <li><a id="profile" href="{{ url_for('profile') }}">Profile</a></li>
+                    <li><a id="profile" href="{{ url_for('social.editprofile') }}">Profile</a></li>
 
                 </ul>
                 <form class="navbar-form navbar-left" role="search">
@@ -76,7 +76,7 @@
                 <ul class="nav navbar-nav navbar-right">
                     <li> Welcome {{ session.displayName }}! </li>
                     <br>
-                    <li><a href="{{ url_for('logout') }}"> Logout </a> </li>
+                    <li><a href="{{ url_for('social.logout') }}"> Logout </a> </li>
                 </ul>
 
             {% endif %}
