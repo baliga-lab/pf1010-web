@@ -76,11 +76,6 @@ def display_explore_page():
     return render_template("dav/explorePage.html", **locals())
 
 
-@app.route('/analyzeGraphs')
-def display_analyze_page():
-    # get measurement information
-    systems_and_info_json = get_all_systems_info()
-    return render_template("dav/analyze.html",  **locals())
 ######################################################################
 # API call to get metadata of a given system
 ######################################################################
