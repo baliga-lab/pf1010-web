@@ -12,7 +12,7 @@
     {% if session.uid %}
 
         <div>
-            <form action="/updateprofile" method="post">
+            <form action="{{ url_for('social.updateprofile') }}" method="post">
 
                 <img class="imgstyle" id="userImage" src="" height="200" width="200" /> <br />
                 <a id="profileLink" class="btn mycolor" target="_blank" href="#">My Google Plus Profile</a>
@@ -29,7 +29,7 @@
                 Email:<input type="text" class="form-control" name="email" id="txtEmail"
                             value = {{ user['email'] }} readonly="readonly"/>
                 <br />
-                Display Name:<input type="text" class="form-control" name="displayname" id="txtDisplayName"
+                Display Name:<input type="text" class="form-control" name="displayName" id="txtDisplayName"
                              value = {% if user['displayName'] is not none %}  {{ user['displayName'] }} {% endif %}/>
                 <br />
                 Gender:

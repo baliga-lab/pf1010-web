@@ -35,13 +35,16 @@ def get_or_create_user(conn, cursor, google_id, googleAPIResponse):
         result = cursor.lastrowid
         conn.commit()
         user = Node("User", sql_id=result, google_id=google_id, email=email, givenName=givenName, familyName=familyName, displayName=displayName, user_type="Subscriber", organization=organization, creation_time=timestamp(), modified_time=timestamp(), dob="", gender=gender, status=0)
-        getGraphConnectionURI.create(user)
+        getGraphConnectionURI().create(user)
     else:
         result = row[0]
-        displayName = User(result).find()['displayName']
+        user = User(result).find()
+        displayName = user.get('displayName', None)
         #insertIntoNeo(neoDb,google_id,email,result,GivenName,familyName)
     session['uid']=result
-    session['email'] = email
+    session['email'] = emailname
+    if displayName is None:
+        displayName = ""
     session['displayName'] = displayName
     return result
 
