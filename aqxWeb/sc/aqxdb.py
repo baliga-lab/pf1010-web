@@ -42,7 +42,7 @@ def get_or_create_user(conn, cursor, google_id, googleAPIResponse):
         displayName = user.get('displayName', None)
         #insertIntoNeo(neoDb,google_id,email,result,GivenName,familyName)
     session['uid']=result
-    session['email'] = emailname
+    session['email'] = email
     if displayName is None:
         displayName = ""
     session['displayName'] = displayName
