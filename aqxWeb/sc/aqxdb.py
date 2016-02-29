@@ -39,8 +39,12 @@ def get_or_create_user(conn, cursor, google_id, googleAPIResponse):
     else:
         result = row[0]
         user = User(result).find()
-        displayName = user.get('displayName', None)
-        #insertIntoNeo(neoDb,google_id,email,result,GivenName,familyName)
+        # There might be cases where the Neo4J does not have the corressponding User node
+        if user is None:
+            missing_user_neo4j = Node("User", sql_id=result, google_id=google_id, email=email, givenName=givenName, familyName=familyName, displayName=displayName, user_type="Subscriber", organization=organization, creation_time=timestamp(), modified_time=timestamp(), dob="", gender=gender, status=0)
+            getGraphConnectionURI().create(missing_user_neo4j)
+        else:
+            displayName = user['displayName']
     session['uid']=result
     session['email'] = email
     if displayName is None:
