@@ -1,0 +1,61 @@
+<div class="posts">
+{% if posts %}
+    {% for row in posts %}
+        <div class="post">
+    	    <b>{{ row.displayName }}</b> shared:
+            <div class="dttime">on {{ row.post.date }}</div>
+    	    <br>
+    	    {{ row.post.text }}
+            {% if row.post.link %}
+                <div class="media">
+                {%  if row.post.link.endswith(".jpg") or row.post.link.endswith(".png") or row.post.link.endswith(".gif") %}
+
+                    <img class="attachedImg" src="{{ row.post.link }}"
+                     onclick="window.open('{{ row.post.link }}', '_blank');"/>
+
+                {% else %}
+                    <iframe width="560" height="315" src="{{ row.post.link.replace("/watch?v=", "/embed/") }}"
+                        frameborder="0" allowfullscreen>
+                    [Your browser does not support frames or is currently configured not to display frames.
+                    Please use an up-to-date browser that is capable of displaying frames.]</iframe>
+                {% endif %}
+                </div>
+            {% endif %}
+
+            <div class="details" style="width: 100%; text-align: center;">
+
+                <form action="{{ url_for('social.like_post') }}" method="post">
+                    <div class="form-controls" style=" text-align: right;" >
+                        <input type="hidden" name="postid" value="{{ row.post.id }}">
+                        <input type="submit" class="btn btn-primary" value="Like">
+                    </div>
+                </form>
+
+                <br>
+                {% for cmt in comments %}
+                    <div class="comments" style="text-align: left;">
+                        {% if cmt.postid == row.post.id %}
+                            <div class="form-controls" >
+                                <b>{{ cmt.comment.user_display_name }}</b>:
+                                {{ cmt.comment.content }}
+                            </div>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+
+                <form action="{{ url_for('social.add_comment') }}" method="post">
+                    <div class="form-controls" style="width: 100% ; text-align:left">
+                        <input type="hidden" name="postid" value="{{ row.post.id }}">
+                        <input id="newcomment" name="newcomment" cols="60" style="width: 100%"
+                                  placeholder="Share comment">
+                        <input type="submit" class="btn btn-primary" value="Comment">
+                    </div>
+                </form>
+            </div>
+        </div>
+    {% endfor %}
+    {% endif %}
+{% if not posts %}
+<p>There are no posts yet!</p>
+{% endif %}
+</div>

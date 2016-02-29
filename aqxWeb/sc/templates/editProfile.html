@@ -1,0 +1,70 @@
+{% extends "layout.html" %}
+
+{% block script %}
+
+<!-- jQuery Script To Display Logged In User Profile Details -->
+<script type="text/javascript" src="{{ url_for('social.static', filename='js/editProfile.js') }}"></script>
+
+{% endblock %}
+
+{% block body %}
+    
+    {% if session.uid %}
+
+        <div>
+            <form action="{{ url_for('social.updateprofile') }}" method="post">
+
+                <img class="imgstyle" id="userImage" src="" height="200" width="200" /> <br />
+                <a id="profileLink" class="btn mycolor" target="_blank" href="#">My Google Plus Profile</a>
+                <br /><br />
+
+                First Name:<input type="text" class="form-control" name="firstname" id="txtFirstName"
+                            value = {% if user['givenName'] is not none %} {{ user['givenName'] }} {% endif %}
+                            readonly="readonly"/>
+                <br />
+                Last Name:<input type="text" class="form-control" name="lastname" id="txtLastName"
+                            value = {% if user['familyName'] is not none %}  {{ user['familyName'] }} {% endif %}
+                            readonly="readonly"/>
+                <br />
+                Email:<input type="text" class="form-control" name="email" id="txtEmail"
+                            value = {{ user['email'] }} readonly="readonly"/>
+                <br />
+                Display Name:<input type="text" class="form-control" name="displayName" id="txtDisplayName"
+                             value = {% if user['displayName'] is not none %}  {{ user['displayName'] }} {% endif %}/>
+                <br />
+                Gender:
+                    <label class="radio-inline">
+                        <input type="radio" name="gender" id="rbMale"
+                        {% if user['gender'] == 'male' %} checked {% endif %}/>Male
+                    </label>
+                    <label class="radio-inline">
+                        <input type="radio" name="gender" id="rbFemale"
+                        {% if user['gender'] == 'female' %} checked {% endif %}/>Female
+                    </label><br />
+                <br />
+                Organization:<input type="text" class="form-control" name="organization" id="txtOrganization"
+                                value = {% if user['organization'] is not none %}  {{ user['organization'] }}
+                                {% endif %}/>
+                <br />
+                User Type: <select name="user_type" id="ddUserType">
+                    <option value="Subscriber"
+                    {% if user['user_type'] == 'Subscriber' %} selected {% endif %}>Subscriber</option>
+                    <option value="Farmer"
+                    {% if user['user_type'] == 'Farmer' %} selected {% endif %}>Farmer</option>
+                    <option value="Teacher"
+                    {% if user['user_type'] == 'Teacher' %} selected {% endif %}>Teacher</option>
+                    <option value="Student"
+                    {% if user['user_type'] == 'Student' %} selected {% endif %}>Student</option>
+                </select> <br /><br />
+                <!--retrieve dob and email from neo4j-->
+                Date of Birth:<input type="datetime" class="form-control" name="dob" id="dtDOB"
+                                value = {% if user['dob'] is not none %}  {{ user['dob'] }} {% endif %}/>
+                <br />
+                <button type="submit" class="btn btn-default">Save</button>
+            </form>
+        </div>
+
+    {% endif %}
+
+{% endblock %}
+

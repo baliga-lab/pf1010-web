@@ -1,0 +1,67 @@
+<!--<link rel="stylesheet" href="static/css/main.css">-->
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8/jquery.min.js"></script>
+    <!--<link href="static/css/bootstrap.css" rel="stylesheet" />-->
+    <script src="https://plus.google.com/js/client:plusone.js"></script>
+
+
+{% block body %}
+<!--
+ <div>
+     <div class="width200">
+        <img class="imgstyle" id="userImage" src="#" />
+    </div>
+
+    <br />
+    FamilyName:<input class="form-control width200" id="fdisplayName" />
+    GivenName:<input class="form-control width200" id="gdisplayName" />
+    ID:<input class="form-control width200" id="userId" /><br />
+
+    <a id="profileLink" class="btn mycolor width200" href="#">Go to My Profile</a><br /><br />
+    <a id="returnlogin" class="btn mycolor width200" href="index.html">Not&ensp;</a>
+ </div>-->
+{% endblock %}
+
+{% block script %}
+   <script>
+        $(function () {
+            var href = window.location.href;
+            var hash = window.location.hash;
+            hash = hash.substring(1);
+            hash = hash.split("&");
+            //console.log(hash);
+            var access_token = null;
+            for (h in hash) {
+                var param = hash[h];
+                param = param.split("=");
+                //console.log(param);
+                if (param[0] == "access_token") {
+                    access_token = param[1];
+                }
+                console.log(access_token);
+            }
+
+
+            var xhr = new XMLHttpRequest();
+            xhr.open('POST', '/social/signin');
+            xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+            xhr.send('access_token=' + access_token);
+            xhr.onload = function() {
+                if (xhr.responseText === 'ok') {
+                    console.log('Signed in !');
+                    localStorage.setItem('access_token',access_token);
+                 window.location = '/social/index';
+                } else {
+                 //   var auth2 = gapi.auth2.getAuthInstance();
+                   //auth2.signOut();
+                    //alert("This application is currently in the early testing phase. Only a few users are authorized to access.");
+                    //console.log('Error logging in');
+                }
+            };
+
+
+
+
+        });
+   </script>
+{% endblock %}
+
