@@ -11,7 +11,7 @@ aqxWeb
       -  
       -  
     - sc       project directory for social component  
-      - api    api developed by SC  
+      - api    api developed by social component team  
       -  
       -  
       -  
