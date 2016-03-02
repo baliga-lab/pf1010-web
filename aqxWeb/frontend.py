@@ -3,16 +3,16 @@ from flask import Blueprint, render_template, request
 frontend = Blueprint('frontend', __name__, template_folder='templates',static_folder='static')
 
 
-@frontend.route('/ui-index')
+@frontend.route('/')
 #######################################################################################
 # function : index
 # purpose : renders home page when user is not logged in
 # parameters : None
-# returns: index.html page
+# returns: aqx.index.html page
 #######################################################################################
 def index():
     user = request.cookies.get('user')
-    return render_template('index.html')
+    return render_template('aqx.index.html')
 
 
 @frontend.route('/newsfeed')
@@ -25,16 +25,6 @@ def index():
 def newsfeed():
     return render_template('newsfeed.html')
 
-
-@frontend.route('/explore')
-#######################################################################################
-# function : explore
-# purpose : renders explore page (not yet integrating DAV components)
-# parameters : None
-# returns: UI's explore page version currently -- dav.explore page eventually
-#######################################################################################
-def explore():
-    return render_template('explore.html')
 
 
 @frontend.route('/about')
@@ -73,9 +63,9 @@ def system():
 @frontend.route('/settings')
 #######################################################################################
 # function : settings
-# purpose : renders single system overview page (not yet integrating DAV components)
+# purpose : renders settings page
 # parameters : None
-# returns: system.html page currently -- DAV components integration eventually
+# returns: settings.html
 #######################################################################################
 def settings():
     return render_template('settings.html')
@@ -97,7 +87,7 @@ def login():
 @frontend.route('/coming')
 #######################################################################################
 # function : coming soon
-# purpose : placeholder for pages not yet designed -- will remove this link later
+# purpose : placeholder for pages not yet designed -- will remove later
 # parameters : None
 # returns: coming.html
 #######################################################################################
