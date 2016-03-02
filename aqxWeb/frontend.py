@@ -8,11 +8,11 @@ frontend = Blueprint('frontend', __name__, template_folder='templates',static_fo
 # function : index
 # purpose : renders home page when user is not logged in
 # parameters : None
-# returns: aqx.index.html page
+# returns: index.html page
 #######################################################################################
 def index():
     user = request.cookies.get('user')
-    return render_template('aqx.index.html')
+    return render_template('index.html')
 
 
 @frontend.route('/newsfeed')

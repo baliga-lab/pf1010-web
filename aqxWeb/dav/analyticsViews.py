@@ -63,6 +63,16 @@ def create_conn(app):
 #
 #     return "conf printed"
 
+@dav.route('/')
+#######################################################################################
+# function : index
+# purpose : renders home page when user is not logged in
+# parameters : None
+# returns: index.html page
+#######################################################################################
+def index():
+    return 'Index'
+
 
 @dav.route('/explore')
 def explore():

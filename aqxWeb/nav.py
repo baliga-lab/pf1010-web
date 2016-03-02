@@ -43,7 +43,7 @@ class SidedLink(Link):
 def navbar():
     return Navbar(
         SidedViewImage('https://aquaponics.systemsbiology.net/static/images/pflogo2.png', 'Project Feed 1010', True, '.index'),
-        SidedLink('Login', '#register-popup', False),
+        SidedLink('Login with Google+', 'https://accounts.google.com/o/oauth2/auth?response_type=token&client_id=757190606234-pnqru7tabom1p1hhvpm0d3c3lnjk2vv4.apps.googleusercontent.com&redirect_uri=http://127.0.0.1:5000/social/Home&scope=https://www.googleapis.com/auth/plus.login https://www.googleapis.com/auth/userinfo.email', False),
         View('Home', 'frontend.index'),
         View('About', 'frontend.about'),
         View('Explore', 'dav.explore'),
