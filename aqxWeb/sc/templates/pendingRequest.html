@@ -1,0 +1,30 @@
+
+{% extends "layout.html" %}
+{% block body %}
+
+<div class="container">
+  <h3>Friends</h3>
+  <ul class="nav nav-tabs">
+    <li><a href="{{ url_for('social.friends') }}">MyFriends</a></li>
+    <li><a href="#">Search Friends</a></li>
+    <li class="active"><a href="pendingRequest.html">Pending Requests</a></li>
+
+  </ul>
+  <br>
+
+ <IMG SRC="../static/face.png"><br>
+    Steve Borkee <button type="button" class="btn btn-primary">Add</button>
+    <button type="button" class="btn btn-primary">Delete</button>
+ <br>
+
+    <IMG SRC="../static/face.png"><br>
+    Jason Mraz <button type="button" class="btn btn-primary">Add</button>
+    <button type="button" class="btn btn-primary">Delete</button><br>
+<IMG SRC="../static/face.png"><br>
+    Pitt Bull <button type="button" class="btn btn-primary">Add</button>
+    <button type="button" class="btn btn-primary">Delete</button><br>
+<IMG SRC="../static/face.png"><br>
+    Salena Gomes <button type="button" class="btn btn-primary">Add</button>
+    <button type="button" class="btn btn-primary">Delete</button><br>
+
+{% endblock %}

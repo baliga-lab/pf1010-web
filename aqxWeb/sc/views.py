@@ -135,6 +135,42 @@ def updateprofile():
     session['displayName'] = displayName
     return "User Profile updated"
 
+
+
+@social.route('/friends', methods=['GET'])
+#######################################################################################
+# function : friends
+# purpose : renders friends.html
+# parameters : None
+# returns: friends.html
+# Exception : None
+#######################################################################################
+def friends():
+    if session.get('uid') is not None:
+        return render_template("friends.html")
+    else:
+        return render_template("/home.html")
+
+@social.route('/pendingRequest', methods=['GET'])
+#######################################################################################
+# function : pendingRequest
+# purpose : renders pendingRequests
+# parameters : None
+# returns: pendingRequest.html
+# Exception : None
+#######################################################################################
+def pendingRequest():
+    if session.get('uid') is not None:
+        return render_template("pendingRequest.html")
+    else:
+        return render_template("/home.html")
+
+
+
+
+
+
+
 @social.route('/add_comment', methods=['POST'])
 #######################################################################################
 # function : add_comment
