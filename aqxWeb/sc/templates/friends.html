@@ -5,7 +5,7 @@
   <h3>Friends</h3>
   <ul class="nav nav-tabs">
     <li class="active"><a href="#">MyFriends</a></li>
-    <li><a href="#">Search Friends</a></li>
+    <li><a href="{{ url_for('social.searchFriends') }}">Search Friends</a></li>
     <li><a href="{{ url_for('social.pendingRequest') }}">Pending Requests</a></li>
   </ul>
   <br>

@@ -1,0 +1,23 @@
+{% extends "layout.html" %}
+{% block body %}
+  <div class="container">
+    <h3>Friends</h3>
+    <ul class="nav nav-tabs">
+        <li><a href="{{ url_for('social.friends') }}">MyFriends</a></li>
+        <li class="active"><a href="searchFriends.html">Search Friends</a></li>
+        <li><a href="{{ url_for('social.pendingRequest') }}">Pending Requests</a></li>
+    </ul>
+  <br>
+
+    <div class="container">
+        <div class="input-group col-md-12">
+            <input type="text" class="form-control input-lg" placeholder="Search all Friends" />
+            <span class="input-group-btn">
+                <button class="btn btn-info btn-lg" type="button">
+                    <i class="glyphicon glyphicon-search"></i>
+                </button>
+            </span>
+        </div>
+    </div>
+  </div>
+{% endblock %}

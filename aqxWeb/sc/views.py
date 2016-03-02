@@ -166,6 +166,21 @@ def pendingRequest():
         return render_template("/home.html")
 
 
+@social.route('/searchFriends', methods=['GET'])
+#######################################################################################
+# function : searchFriends
+# purpose : renders searchFriends
+# parameters : None
+# returns: searchFriends.html
+# Exception : None
+#######################################################################################
+def searchFriends():
+    if session.get('uid') is not None:
+        return render_template("searchFriends.html")
+    else:
+        return render_template("/home.html")
+
+
 
 
 

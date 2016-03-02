@@ -6,7 +6,7 @@
   <h3>Friends</h3>
   <ul class="nav nav-tabs">
     <li><a href="{{ url_for('social.friends') }}">MyFriends</a></li>
-    <li><a href="#">Search Friends</a></li>
+    <li><a href="{{ url_for('social.searchFriends') }}">Search Friends</a></li>
     <li class="active"><a href="pendingRequest.html">Pending Requests</a></li>
 
   </ul>
@@ -26,5 +26,5 @@
 <IMG SRC="../static/face.png"><br>
     Salena Gomes <button type="button" class="btn btn-primary">Add</button>
     <button type="button" class="btn btn-primary">Delete</button><br>
-
+</div>
 {% endblock %}
