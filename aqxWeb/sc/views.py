@@ -1,6 +1,6 @@
 from flask import Blueprint, request, session, redirect, url_for, render_template, flash, Response
 from models import User, get_all_recent_posts, get_all_recent_comments
-from sc.models import get_app_instance
+from models import get_app_instance
 
 import mysql.connector
 import requests
