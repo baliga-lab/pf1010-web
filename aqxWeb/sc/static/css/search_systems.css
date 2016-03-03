@@ -1,0 +1,19 @@
+
+/* Center the search control */
+.systemSearchDiv {
+    margin: auto;
+    width: 60%;
+}
+
+
+/* Horizontal Rule Styling */
+hr{
+    display: block;
+    border-width: 1px;
+    border-top: 1px solid #001a00;
+}
+
+/* Border the divs */
+.systemSearchResults, .adminSystem, .particpatedSystem, .subscribedSystem, .recommendedSystem {
+    border: 1px solid #23434d;
+}

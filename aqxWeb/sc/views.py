@@ -1,5 +1,7 @@
 from flask import Blueprint, request, session, redirect, url_for, render_template, flash, Response
 from models import User, get_all_recent_posts, get_all_recent_comments
+from models import get_system, get_admin_systems, get_participated_systems, get_subscribed_systems, \
+    get_recommended_systems, get_all_systems
 from models import get_app_instance
 
 import mysql.connector
@@ -18,9 +20,11 @@ social = Blueprint('social', __name__, template_folder='templates', static_folde
 #######################################################################################
 def dbconn():
     return mysql.connector.connect(user=get_app_instance().config['USER'], password=get_app_instance().config['PASS'],
-                              host=get_app_instance().config['HOST'],
-                              database=get_app_instance().config['DB'])
+                                   host=get_app_instance().config['HOST'],
+                                   database=get_app_instance().config['DB'])
 
+
+@social.route('/')
 @social.route('/index')
 #######################################################################################
 # function : index
@@ -33,6 +37,7 @@ def index():
     comments = get_all_recent_comments()
     return render_template('home.html', posts=posts, comments=comments)
 
+
 @social.route('/login')
 #######################################################################################
 # function : login
@@ -43,6 +48,7 @@ def index():
 def login():
     return render_template('login.html')
 
+
 @social.route('/Home')
 #######################################################################################
 # function : home
@@ -52,6 +58,7 @@ def login():
 #######################################################################################
 def Home():
     return render_template('userData.html')
+
 
 @social.route('/signin', methods=['POST'])
 #######################################################################################
@@ -67,7 +74,7 @@ def signin():
         print(access_token)
         r = requests.get('https://www.googleapis.com/plus/v1/people/me?access_token=' + access_token)
         googleAPIResponse = r.json()
-        #print(googleAPIResponse)
+        # print(googleAPIResponse)
         logging.debug("signed in: %s", str(googleAPIResponse))
         google_id = googleAPIResponse['id']
         if 'picture' in googleAPIResponse:
@@ -82,6 +89,8 @@ def signin():
     except:
         logging.exception("Got an exception")
         raise
+
+
 #######################################################################################
 # function : get_user
 # purpose :
@@ -117,14 +126,15 @@ def editprofile():
     else:
         return render_template("/home.html")
 
-@social.route('/updateprofile', methods=['POST'])
+
 #######################################################################################
 # function : updateprofile
-# purpose : updates user profile in db
+# purpose : updates user profile information in db
 # parameters : None
-# returns: status
+# returns: None
 # Exception : None
 #######################################################################################
+@social.route('/updateprofile', methods=['POST'])
 def updateprofile():
     displayName = request.form['displayName']
     gender = request.form['gender']
@@ -133,8 +143,8 @@ def updateprofile():
     dateofbirth = request.form['dob']
     User(session['uid']).updateprofile(displayName, gender, organization, user_type, dateofbirth)
     session['displayName'] = displayName
-    return "User Profile updated"
-
+    flash("User Profile updated successfully")
+    return editprofile()
 
 
 @social.route('/friends', methods=['GET'])
@@ -150,6 +160,7 @@ def friends():
         return render_template("friends.html")
     else:
         return render_template("/home.html")
+
 
 @social.route('/pendingRequest', methods=['GET'])
 #######################################################################################
@@ -181,9 +192,44 @@ def searchFriends():
         return render_template("/home.html")
 
 
-
-
-
+#######################################################################################
+# function : search_systems
+# purpose : renders search_systems.html
+# parameters : None
+# returns: search_systems.html
+# Exception : None
+#######################################################################################
+@social.route('/search_systems', methods=['GET', 'POST'])
+def search_systems():
+    if request.method == 'POST':
+        if session.get('uid') is not None:
+            systemName = request.form['txtSystemName']
+            if systemName == "":
+                flash('System Name can not be empty.')
+            system_search_results = get_system(systemName)
+            admin_systems = get_admin_systems(session.get('uid'))
+            participated_systems = get_participated_systems(session.get('uid'))
+            subscribed_systems = get_subscribed_systems(session.get('uid'))
+            recommended_systems = get_recommended_systems(session.get('uid'))
+            all_systems = get_all_systems()
+            return render_template("search_systems.html", post_method="true", search_param=systemName,
+                                   system_search_results=system_search_results, admin_systems=admin_systems,
+                                   participated_systems=participated_systems, subscribed_systems=subscribed_systems,
+                                   recommended_systems=recommended_systems, all_systems=all_systems)
+        else:
+            return redirect(url_for('social.index'))
+    elif request.method == 'GET':
+        if session.get('uid') is not None:
+            admin_systems = get_admin_systems(session.get('uid'))
+            participated_systems = get_participated_systems(session.get('uid'))
+            subscribed_systems = get_subscribed_systems(session.get('uid'))
+            recommended_systems = get_recommended_systems(session.get('uid'))
+            all_systems = get_all_systems()
+            return render_template("search_systems.html", admin_systems=admin_systems,
+                                   participated_systems=participated_systems, subscribed_systems=subscribed_systems,
+                                   recommended_systems=recommended_systems, all_systems=all_systems)
+        else:
+            return redirect(url_for('social.index'))
 
 
 @social.route('/add_comment', methods=['POST'])
@@ -197,7 +243,7 @@ def searchFriends():
 def add_comment():
     comment = request.form['newcomment']
     logging.debug(comment)
-    postid =  request.form['postid']
+    postid = request.form['postid']
     if comment == "":
         flash('Comment can not be empty')
         redirect(url_for('social.index'))
@@ -205,6 +251,7 @@ def add_comment():
         User(session['uid']).add_comment(comment, postid)
         flash('Your comment has been posted')
     return redirect(url_for('social.index'))
+
 
 @social.route('/add_post', methods=['POST'])
 #######################################################################################
@@ -219,12 +266,13 @@ def add_post():
     text = request.form['text']
     link = request.form['link']
     if text == "":
-            flash('Post can not be empty.')
-            redirect(url_for('social.index'))
+        flash('Post can not be empty.')
+        redirect(url_for('social.index'))
     else:
         User(session['uid']).add_post(text, privacy, link)
         flash('Your post has been shared')
     return redirect(url_for('social.index'))
+
 
 @social.route('/like_post', methods=['POST'])
 #######################################################################################
@@ -239,6 +287,7 @@ def like_post():
     User(session['uid']).like_post(postid)
     flash('You liked the post')
     return redirect(url_for('social.index'))
+
 
 @social.route('/logout')
 #######################################################################################
@@ -266,13 +315,12 @@ def logout():
 #######################################################################################
 def testSignin():
     try:
-        GivenName=request.form['givenName']
-        familyName=request.form['familyName']
+        GivenName = request.form['givenName']
+        familyName = request.form['familyName']
         email = request.form['email']
         user_id = request.form['id']
-        user_id = get_user(user_id, email,GivenName,familyName)
+        user_id = get_user(user_id, email, GivenName, familyName)
         return Response("ok", mimetype='text/plain')
     except:
         logging.exception("Got an exception")
         raise
-
