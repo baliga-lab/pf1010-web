@@ -9,6 +9,7 @@
 {% endblock %}
 
 {% block content %}
+    {% if session.uid %}
     <div class="row">
         {# SIDEBAR #}
         <div class="col-sm-3">
@@ -29,7 +30,6 @@
 
         {# NEWSFEED #}
         <div class="main col-sm-9">
-        {% if session.uid %}
             <form action="{{ url_for('social.add_post') }}" method="post">
                 <textarea id="new_post" name="text" rows="3" class="form-control" placeholder="Share what you are doing.."></textarea>
                 <div class="share">
@@ -76,8 +76,8 @@
 
             <h3>Recent Posts</h3>
             {% include "display_posts.html" %}
-        {% endif %}
         </div>
+    {% endif %}
     </div>
 {% endblock %}
 

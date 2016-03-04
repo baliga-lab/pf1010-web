@@ -59,7 +59,7 @@ def navbar():
             View('Edit Profile', 'social.editprofile'),
             View('Settings', 'frontend.coming'),
             Separator(),
-            View('Logout', 'frontend.coming'),
+            View('Logout', 'social.logout'),
         )
     )
 
