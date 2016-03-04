@@ -49,7 +49,6 @@ def navbar():
         View('Explore', 'dav.explore'),
         View('Home', 'frontend.newsfeed'),
         View('Profile', 'frontend.coming'),
-        View('Analytics', 'frontend.coming'),
         View('Challenges', 'frontend.coming'),
         View('Documents', 'frontend.coming'),
         SidedSubgroup('Oddish', False,

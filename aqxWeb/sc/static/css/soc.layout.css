@@ -1,0 +1,24 @@
+body {
+    background-color: #EEE;
+}
+.attachedImg {
+    display: block;
+    max-width: 200px;
+    margin-left: auto;
+    margin-right: auto;
+}
+.post {
+    background-color: #FFF;
+    margin-bottom: 10px;
+    width: 60%;
+    padding: 20px;
+    border-radius: 15px;
+}
+.post .media {
+    width: 100%;
+    text-align: center;
+}
+.post .dttime {
+    float: right;
+    margin-right: 20px;
+}

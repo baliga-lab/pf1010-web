@@ -4,6 +4,7 @@ Fonts & Colours
 
 ***************/
 body {
+    padding-bottom: 100px;
     font-family: Circular, "Helvetica Neue", Helvetica, Arial, sans-serif;
     color: #474440;
 }
