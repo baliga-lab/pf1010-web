@@ -84,13 +84,14 @@ class DavAPI:
 
     def get_user(self, conn, user_id):
         u = UserDAO(conn)
-        result = u.get_user(user_id)
+        result_temp = u.get_user(user_id)
+        result = result_temp[0]
         user = {
             "id" : result[0],
-            "google_id" : result[1],
-            "email" : result[2],
-            "latitude" : str(result[3]),
-            "longitude" :str(result[4])
+            "google_id": result[1],
+            "email": result[2],
+            "latitude": str(result[3]),
+            "longitude":str(result[4])
         }
         return json.dumps({'user': user})
 
