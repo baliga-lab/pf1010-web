@@ -230,6 +230,7 @@ Newsfeed CSS
 
 .comment-box {
     border-top: 1px dotted #bbb;
+    text-align: left;
 }
 
 .comment-box .form-group:first-child, .actionBox .form-group:first-child {
@@ -286,10 +287,6 @@ i {
     padding: 5px;
 }
 
-pre {
-    width: 100%;
-}
-
 .media {
     padding: 8px;
 }
@@ -297,7 +294,6 @@ pre {
 .post .media-object {
     width: 50px;
     height: 50px;
-    border-radius: 25px;
 }
 
 .comment .media-object {

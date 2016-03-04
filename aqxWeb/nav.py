@@ -47,7 +47,7 @@ def navbar():
         View('Home', 'frontend.index'),
         View('About', 'frontend.about'),
         View('Explore', 'dav.explore'),
-        View('Home', 'frontend.newsfeed'),
+        View('Home', 'social.index'),
         View('Profile', 'frontend.coming'),
         View('Challenges', 'frontend.coming'),
         View('Documents', 'frontend.coming'),

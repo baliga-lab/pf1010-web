@@ -1,6 +1,3 @@
-body {
-    background-color: #EEE;
-}
 .attachedImg {
     display: block;
     max-width: 200px;
@@ -10,9 +7,8 @@ body {
 .post {
     background-color: #FFF;
     margin-bottom: 10px;
-    width: 60%;
     padding: 20px;
-    border-radius: 15px;
+    border-radius: 5px;
 }
 .post .media {
     width: 100%;

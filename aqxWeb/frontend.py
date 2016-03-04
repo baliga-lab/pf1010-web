@@ -15,18 +15,6 @@ def index():
     return render_template('index.html')
 
 
-@frontend.route('/newsfeed')
-#######################################################################################
-# function : newsfeed
-# purpose : renders newsfeed (not yet integrating Soc components)
-# parameters : None
-# returns: newsfeed.html page currently -- soc components integration eventually
-#######################################################################################
-def newsfeed():
-    return render_template('newsfeed.html')
-
-
-
 @frontend.route('/about')
 #######################################################################################
 # function : about
