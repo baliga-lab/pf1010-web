@@ -71,13 +71,6 @@ def explore():
     metadata_json = get_all_aqx_metadata()
     return render_template("explorePage.html", **locals())
 
-######################################################################
-# Interactive analytics of system measurement data
-######################################################################
-@dav.route('/analyze')
-def analyze():
-    return render_template("analyze.html")
-
 
 ######################################################################
 # API call to get metadata of a given system
