@@ -56,6 +56,7 @@ def navbar():
             View('Systems', 'frontend.coming'),
             View('Groups', 'frontend.coming'),
             Separator(),
+            View('Edit Profile', 'social.editprofile'),
             View('Settings', 'frontend.coming'),
             Separator(),
             View('Logout', 'frontend.coming'),
