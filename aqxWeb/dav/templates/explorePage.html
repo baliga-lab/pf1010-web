@@ -52,7 +52,11 @@
             <ul id="listOfMySystems" style="overflow-y: scroll; max-height: 120px;">
             </ul>
         </div>
-        <input class="btn btn-primary" type="submit" id="submitbtn" name="analyze" value="Analyze"/>
+{#        <input class="btn btn-primary" type="submit" id="submitbtn" name="analyze" value="Analyze"/>#}
+        <form id="analyzeOptions" action="analyzeGraph" method="POST">
+            <input  name="selectedSystems" id="selectedSystems" value="Guna"/>
+            <input class="btn btn-primary" type="submit" value="Analyze" id="analyzebtn"/>
+        </form>
     </div>
 </div>
 

@@ -392,3 +392,17 @@ var populate_dummy_user_systems_checklist = function(){
             + system.system_name + "</li>";
     });
 };
+
+
+$('#analyzeOptions').on('submit',function(e) {
+    var systemsSelectedToAnalyze = [];
+    _.each($('#listOfUserSystems input:checked'), function(checkedInput){
+        systemsSelectedToAnalyze.push(checkedInput.id);
+    });
+    if(systemsSelectedToAnalyze.length <= 0) {
+        alert("PLease select systems from checkbox to analyze");
+        return false;
+    }
+    console.log(systemsSelectedToAnalyze);
+    document.getElementById("selectedSystems").value = JSON.stringify("systems:" + systemsSelectedToAnalyze);
+});

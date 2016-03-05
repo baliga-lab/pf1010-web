@@ -19,6 +19,7 @@ davAPI = DavAPI()
 
 # Connect to the database
 def init_app(app):
+    app.debug = True
     app.config.from_envvar('AQUAPONICS_SETTINGS')
     create_conn(app)
 
@@ -71,11 +72,12 @@ def explore():
     metadata_json = get_all_aqx_metadata()
     return render_template("explorePage.html", **locals())
 
-@dav.route('/analyzeGraph')
+@dav.route('/analyzeGraph', methods=['POST'])
 def analyzeGraph():
     # get measurement information
-    # data = request.get_json()
-    # system = data['system']
+    # text = request.form['text']
+    content = request.json
+    data = json.dumps(request.form.get('selectedSystems'))
     return render_template("analyze.html", **locals())
 
 ######################################################################
