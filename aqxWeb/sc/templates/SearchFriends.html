@@ -1,4 +1,26 @@
 {% extends "layout.html" %}
+{% block script %}
+    <link href="http://code.jquery.com/ui/1.10.4/themes/ui-lightness/jquery-ui.css" rel="stylesheet">
+    <script src="http://code.jquery.com/jquery-1.10.2.js"></script>
+    <script src="http://code.jquery.com/ui/1.10.4/jquery-ui.js"></script>
+    <script type=text/javascript>
+        $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
+    </script>
+    <script>
+    //Script to search for users while typing a person's name, using autocompletion feature
+    $(function() {
+        $.ajax({
+            url: '{{ url_for("social.getfriends") }}'
+            }).done(function (data) {
+                $('#autocomplete').autocomplete({
+                    source: data.json_list,
+                    minLength: 1
+                });
+            });
+        });
+    </script>
+
+{% endblock %}
 {% block body %}
   <div class="container">
     <h3>Friends</h3>
@@ -10,14 +32,11 @@
   <br>
 
     <div class="container">
-        <div class="input-group col-md-12">
-            <input type="text" class="form-control input-lg" placeholder="Search all Friends" />
-            <span class="input-group-btn">
-                <button class="btn btn-info btn-lg" type="button">
-                    <i class="glyphicon glyphicon-search"></i>
-                </button>
-            </span>
-        </div>
+
+            <div class="input-group col-md-12">
+                <input type="text" id="autocomplete" class="form-control input-lg" placeholder="Search all Friends" />
+            </div>
+
     </div>
   </div>
 {% endblock %}

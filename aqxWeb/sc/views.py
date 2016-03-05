@@ -1,4 +1,4 @@
-from flask import Blueprint, request, session, redirect, url_for, render_template, flash, Response
+from flask import Blueprint, request, session, redirect, url_for, render_template, flash, Response, jsonify
 from models import User, get_all_recent_posts, get_all_recent_comments
 from models import System
 from models import get_app_instance
@@ -298,6 +298,26 @@ def like_post():
     User(session['uid']).like_post(postid)
     flash('You liked the post')
     return redirect(url_for('social.index'))
+
+#######################################################################################
+# function : getfriends
+# purpose : used in search friends to return a node in case a match is obtained
+# parameters : None
+# returns: json data of existing user names
+#######################################################################################
+@social.route('/getfriends',methods=['GET'])
+def getfriends():
+    users = User(session['uid']).get_search_friends()
+    user_names = []
+    for result in users:
+        first_name = result[0]
+        last_name = result[1]
+        full_name = first_name + " " + last_name
+        print full_name
+        if full_name is not None:
+            user_names.append(full_name)
+
+    return jsonify(json_list=user_names)
 
 
 @social.route('/logout')

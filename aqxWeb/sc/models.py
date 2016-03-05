@@ -169,6 +169,25 @@ class User:
         except cypher.CypherError, cypher.CypherTransactionError:
             raise "Exception occured in function like_post "
 
+    ############################################################################
+    # function : get_search_friends
+    # purpose : gets all the friends that is present in the Neo4J database
+    # params : None
+    # returns : Nodes labeled User
+    # Exceptions : cypher.CypherError, cypher.CypherTransactionError
+    ############################################################################
+    def get_search_friends(self):
+        query = """
+            MATCH (users:User)
+            RETURN users.givenName, users.familyName
+        """
+
+        try:
+            results = getGraphConnectionURI().cypher.execute(query);
+            return results;
+        except cypher.CypherError, cypher.CypherTransactionError:
+            raise "Exception occured in function get_search_friends"
+
     #END OF USER class
 
 ############################################################################
@@ -235,7 +254,6 @@ def timestamp():
 
 def date():
     return dt.now().strftime('%Y-%m-%d')
-
 
 
 
