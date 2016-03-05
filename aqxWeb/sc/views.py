@@ -1,7 +1,8 @@
 from flask import Blueprint, request, session, redirect, url_for, render_template, flash, Response, jsonify
 from models import User, get_all_recent_posts, get_all_recent_comments
 from models import System
-from models import get_app_instance
+from models import get_app_instance, getGraphConnectionURI
+from app.scAPI import ScAPI
 
 import mysql.connector
 import requests
@@ -203,7 +204,7 @@ def search_systems():
     if request.method == 'POST':
         if session.get('uid') is not None:
             systemName = request.form['txtSystemName']
-            system_search_results = System().get_system(systemName)
+            system_search_results = System().get_system_by_name(systemName)
             admin_systems = System().get_admin_systems(session.get('uid'))
             participated_systems = System().get_participated_systems(session.get('uid'))
             subscribed_systems = System().get_subscribed_systems(session.get('uid'))
@@ -355,3 +356,22 @@ def testSignin():
     except:
         logging.exception("Got an exception")
         raise
+
+
+
+
+######################################################################
+# API call to get logged in user data
+######################################################################
+@social.route('/aqxapi/get/user/logged_in_user/', methods=['GET'])
+def get_logged_in_user():
+    return ScAPI(getGraphConnectionURI()).get_logged_in_user()
+
+
+
+######################################################################
+# API call to get user data for the specified google_id
+######################################################################
+@social.route('/aqxapi/get/user/get_user_by_google_id/<google_id>', methods=['GET'])
+def get_user_by_google_id(google_id):
+    return ScAPI(getGraphConnectionURI()).get_user_by_google_id(google_id)

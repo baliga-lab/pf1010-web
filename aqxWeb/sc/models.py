@@ -2,14 +2,12 @@ from py2neo import Graph, Node, Relationship, cypher
 from datetime import datetime as dt
 import uuid
 
-
-# Global app instance
-app_instance = None
-
-# Initialize the app_instance
+# Initialize the app_instance and graph_instance
 def init_sc_app(app):
     global app_instance
+    global graph_instance
     app_instance = app
+    graph_instance = Graph(get_app_instance().config['CONNECTIONSETTING'])
 
 # Return the app_instance
 def get_app_instance():
@@ -17,8 +15,7 @@ def get_app_instance():
 
 # Create / Load graph with the connection settings
 def getGraphConnectionURI():
-    graph = Graph(get_app_instance().config['CONNECTIONSETTING'])
-    return graph
+    return graph_instance
 
 ################################################################################
 # Class : User
@@ -277,14 +274,14 @@ class System:
         self.system_uid = None
 
     ############################################################################
-    # function : get_system
+    # function : get_system_by_name
     # purpose : gets the system details for the matched system name
     # params : systemName
     # returns : system node(s)
     # Exceptions : cypher.CypherError, cypher.CypherTransactionError
     ############################################################################
 
-    def get_system(self, systemName):
+    def get_system_by_name(self, systemName):
         query = """
             MATCH (system:System)
             WHERE system.name =~ {systemName}
@@ -295,7 +292,7 @@ class System:
             system_details = getGraphConnectionURI().cypher.execute(query, systemName = regExPattern)
             return system_details
         except cypher.CypherError, cypher.CypherTransactionError:
-                raise "Exception occured in function get_system"
+                raise "Exception occured in function get_system_by_name"
 
 
 
