@@ -239,133 +239,152 @@ def date():
 
 
 
-############################################################################
-# function : get_system
-# purpose : gets the system details for the matched system name
-# params : systemName
-# returns : system node(s)
-# Exceptions : cypher.CypherError, cypher.CypherTransactionError
-############################################################################
 
-def get_system(systemName):
-    query = """
-        MATCH (system:System)
-        WHERE system.name =~ {systemName}
-        RETURN system
-    """
-    try:
-        regExPattern = '(?i).*' + systemName +'.*'
-        system_details = getGraphConnectionURI().cypher.execute(query, systemName = regExPattern)
-        return system_details
-    except cypher.CypherError, cypher.CypherTransactionError:
-            raise "Exception occured in function get_system"
+################################################################################
+# Class : System
+# Contains information related to the system
+################################################################################
 
+class System:
 
+    ############################################################################
+    # function : __init__
+    # purpose : main function sets system_uid
+    # params : None
+    # returns : None
+    # Exceptions : None
+    ############################################################################
 
-############################################################################
-# function : get_admin_systems
-# purpose : gets the system details where the specified user is admin for those systems
-# params : sql_id
-# returns : system node(s)
-# Exceptions : cypher.CypherError, cypher.CypherTransactionError
-############################################################################
+    def __init__(self):
+        self.system_uid = None
 
-def get_admin_systems(sql_id):
-    query = """
-        MATCH (user:User)-[:SYS_ADMIN]->(system:System)
-        WHERE user.sql_id = {sql_id}
-        RETURN system
-    """
-    try:
-        admin_systems = getGraphConnectionURI().cypher.execute(query, sql_id = sql_id)
-        return admin_systems
-    except cypher.CypherError, cypher.CypherTransactionError:
-            raise "Exception occured in function get_admin_systems"
+    ############################################################################
+    # function : get_system
+    # purpose : gets the system details for the matched system name
+    # params : systemName
+    # returns : system node(s)
+    # Exceptions : cypher.CypherError, cypher.CypherTransactionError
+    ############################################################################
+
+    def get_system(self, systemName):
+        query = """
+            MATCH (system:System)
+            WHERE system.name =~ {systemName}
+            RETURN system
+        """
+        try:
+            regExPattern = '(?i).*' + systemName +'.*'
+            system_details = getGraphConnectionURI().cypher.execute(query, systemName = regExPattern)
+            return system_details
+        except cypher.CypherError, cypher.CypherTransactionError:
+                raise "Exception occured in function get_system"
 
 
 
-############################################################################
-# function : get_participated_systems
-# purpose : gets the system details where the user has participated for
-# params : sql_id
-# returns : system node(s)
-# Exceptions : cypher.CypherError, cypher.CypherTransactionError
-############################################################################
+    ############################################################################
+    # function : get_admin_systems
+    # purpose : gets the system details where the specified user is admin for those systems
+    # params : sql_id
+    # returns : system node(s)
+    # Exceptions : cypher.CypherError, cypher.CypherTransactionError
+    ############################################################################
 
-def get_participated_systems(sql_id):
-    query = """
-        MATCH (user:User)-[:SYS_PARTICIPANT]->(system:System)
-        WHERE user.sql_id = {sql_id}
-        RETURN system
-    """
-    try:
-        participated_systems = getGraphConnectionURI().cypher.execute(query, sql_id = sql_id)
-        return participated_systems
-    except cypher.CypherError, cypher.CypherTransactionError:
-            raise "Exception occured in function get_participated_systems"
-
-
-############################################################################
-# function : subscribed_systems
-# purpose : gets the system details where the user has subscribed for
-# params : sql_id
-# returns : system node(s)
-# Exceptions : cypher.CypherError, cypher.CypherTransactionError
-############################################################################
-
-def get_subscribed_systems(sql_id):
-    query = """
-        MATCH (user:User)-[:SYS_SUBSCRIBER]->(system:System)
-        WHERE user.sql_id = {sql_id}
-        RETURN system
-    """
-    try:
-        subscribed_systems = getGraphConnectionURI().cypher.execute(query, sql_id = sql_id)
-        return subscribed_systems
-    except cypher.CypherError, cypher.CypherTransactionError:
-            raise "Exception occured in function get_subscribed_systems"
+    def get_admin_systems(self, sql_id):
+        query = """
+            MATCH (user:User)-[:SYS_ADMIN]->(system:System)
+            WHERE user.sql_id = {sql_id}
+            RETURN system
+        """
+        try:
+            admin_systems = getGraphConnectionURI().cypher.execute(query, sql_id = sql_id)
+            return admin_systems
+        except cypher.CypherError, cypher.CypherTransactionError:
+                raise "Exception occured in function get_admin_systems"
 
 
 
-############################################################################
-# function : get_recommended_systems
-# purpose : gets the recommended system details for the specified user
-# params : sql_id
-# returns : system node(s)
-# Exceptions : cypher.CypherError, cypher.CypherTransactionError
-############################################################################
+    ############################################################################
+    # function : get_participated_systems
+    # purpose : gets the system details where the user has participated for
+    # params : sql_id
+    # returns : system node(s)
+    # Exceptions : cypher.CypherError, cypher.CypherTransactionError
+    ############################################################################
 
-def get_recommended_systems(sql_id):
-    query = """
-        MATCH (user:User)-[:SYS_DUMMY]->(system:System)
-        WHERE user.sql_id = {sql_id}
-        RETURN system
-    """
-    try:
-        recommended_systems = getGraphConnectionURI().cypher.execute(query, sql_id = sql_id)
-        return recommended_systems
-    except cypher.CypherError, cypher.CypherTransactionError:
-            raise "Exception occured in function get_recommended_systems"
+    def get_participated_systems(self, sql_id):
+        query = """
+            MATCH (user:User)-[:SYS_PARTICIPANT]->(system:System)
+            WHERE user.sql_id = {sql_id}
+            RETURN system
+        """
+        try:
+            participated_systems = getGraphConnectionURI().cypher.execute(query, sql_id = sql_id)
+            return participated_systems
+        except cypher.CypherError, cypher.CypherTransactionError:
+                raise "Exception occured in function get_participated_systems"
+
+
+    ############################################################################
+    # function : subscribed_systems
+    # purpose : gets the system details where the user has subscribed for
+    # params : sql_id
+    # returns : system node(s)
+    # Exceptions : cypher.CypherError, cypher.CypherTransactionError
+    ############################################################################
+
+    def get_subscribed_systems(self, sql_id):
+        query = """
+            MATCH (user:User)-[:SYS_SUBSCRIBER]->(system:System)
+            WHERE user.sql_id = {sql_id}
+            RETURN system
+        """
+        try:
+            subscribed_systems = getGraphConnectionURI().cypher.execute(query, sql_id = sql_id)
+            return subscribed_systems
+        except cypher.CypherError, cypher.CypherTransactionError:
+                raise "Exception occured in function get_subscribed_systems"
 
 
 
-############################################################################
-# function : get_all_systems
-# purpose : gets all the system that is present in the Neo4J database
-# params : None
-# returns : system node(s)
-# Exceptions : cypher.CypherError, cypher.CypherTransactionError
-############################################################################
+    ############################################################################
+    # function : get_recommended_systems
+    # purpose : gets the recommended system details for the specified user
+    # params : sql_id
+    # returns : system node(s)
+    # Exceptions : cypher.CypherError, cypher.CypherTransactionError
+    ############################################################################
 
-def get_all_systems():
-    query = """
-        MATCH (system:System)
-        RETURN system
-        ORDER BY system.name
-    """
-    try:
-        recommended_systems = getGraphConnectionURI().cypher.execute(query)
-        return recommended_systems
-    except cypher.CypherError, cypher.CypherTransactionError:
-            raise "Exception occured in function get_all_systems"
+    def get_recommended_systems(self, sql_id):
+        query = """
+            MATCH (user:User)-[:SYS_DUMMY]->(system:System)
+            WHERE user.sql_id = {sql_id}
+            RETURN system
+        """
+        try:
+            recommended_systems = getGraphConnectionURI().cypher.execute(query, sql_id = sql_id)
+            return recommended_systems
+        except cypher.CypherError, cypher.CypherTransactionError:
+                raise "Exception occured in function get_recommended_systems"
+
+
+
+    ############################################################################
+    # function : get_all_systems
+    # purpose : gets all the system that is present in the Neo4J database
+    # params : None
+    # returns : system node(s)
+    # Exceptions : cypher.CypherError, cypher.CypherTransactionError
+    ############################################################################
+
+    def get_all_systems(self):
+        query = """
+            MATCH (system:System)
+            RETURN system
+            ORDER BY system.name
+        """
+        try:
+            recommended_systems = getGraphConnectionURI().cypher.execute(query)
+            return recommended_systems
+        except cypher.CypherError, cypher.CypherTransactionError:
+                raise "Exception occured in function get_all_systems"
 

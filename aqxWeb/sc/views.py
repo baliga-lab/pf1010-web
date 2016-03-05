@@ -1,7 +1,6 @@
 from flask import Blueprint, request, session, redirect, url_for, render_template, flash, Response
 from models import User, get_all_recent_posts, get_all_recent_comments
-from models import get_system, get_admin_systems, get_participated_systems, get_subscribed_systems, \
-    get_recommended_systems, get_all_systems
+from models import System
 from models import get_app_instance
 
 import mysql.connector
@@ -199,19 +198,17 @@ def searchFriends():
 # returns: search_systems.html
 # Exception : None
 #######################################################################################
-@social.route('/search_systems', methods=['GET', 'POST'])
+@social.route('/systems', methods=['GET', 'POST'])
 def search_systems():
     if request.method == 'POST':
         if session.get('uid') is not None:
             systemName = request.form['txtSystemName']
-            if systemName == "":
-                flash('System Name can not be empty.')
-            system_search_results = get_system(systemName)
-            admin_systems = get_admin_systems(session.get('uid'))
-            participated_systems = get_participated_systems(session.get('uid'))
-            subscribed_systems = get_subscribed_systems(session.get('uid'))
-            recommended_systems = get_recommended_systems(session.get('uid'))
-            all_systems = get_all_systems()
+            system_search_results = System().get_system(systemName)
+            admin_systems = System().get_admin_systems(session.get('uid'))
+            participated_systems = System().get_participated_systems(session.get('uid'))
+            subscribed_systems = System().get_subscribed_systems(session.get('uid'))
+            recommended_systems = System().get_recommended_systems(session.get('uid'))
+            all_systems = System().get_all_systems()
             return render_template("search_systems.html", post_method="true", search_param=systemName,
                                    system_search_results=system_search_results, admin_systems=admin_systems,
                                    participated_systems=participated_systems, subscribed_systems=subscribed_systems,
@@ -220,16 +217,30 @@ def search_systems():
             return redirect(url_for('social.index'))
     elif request.method == 'GET':
         if session.get('uid') is not None:
-            admin_systems = get_admin_systems(session.get('uid'))
-            participated_systems = get_participated_systems(session.get('uid'))
-            subscribed_systems = get_subscribed_systems(session.get('uid'))
-            recommended_systems = get_recommended_systems(session.get('uid'))
-            all_systems = get_all_systems()
+            admin_systems = System().get_admin_systems(session.get('uid'))
+            participated_systems = System().get_participated_systems(session.get('uid'))
+            subscribed_systems = System().get_subscribed_systems(session.get('uid'))
+            recommended_systems = System().get_recommended_systems(session.get('uid'))
+            all_systems = System().get_all_systems()
             return render_template("search_systems.html", admin_systems=admin_systems,
                                    participated_systems=participated_systems, subscribed_systems=subscribed_systems,
                                    recommended_systems=recommended_systems, all_systems=all_systems)
         else:
             return redirect(url_for('social.index'))
+
+
+#######################################################################################
+# function : view_system
+# purpose : renders view_system.html
+# parameters : None
+# returns: view_system.html
+# Exception : None
+#######################################################################################
+@social.route('/systems/<system_uid>', methods=['GET'])
+def view_system(system_uid):
+    return "Systems Page Under Construction: " + system_uid
+
+
 
 
 @social.route('/add_comment', methods=['POST'])

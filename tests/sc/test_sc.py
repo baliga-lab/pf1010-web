@@ -94,12 +94,12 @@ class FlaskTestCase(unittest.TestCase):
 
     def test_search_systems(self):
         with app.test_client() as client:
-            response = client.get('/social/search_systems')
+            response = client.get('/social/systems')
             # Page Load Negative Testing
             self.assert_("Gender" not in response.data, "Guest user will not be able to access the search systems page")
             with client.session_transaction() as session:
                 session['uid'] = 999
-            response = client.get('/social/search_systems')
+            response = client.get('/social/systems')
             # Page Load Positive Testing
             self.assertEquals(response.status_code, 200,
                               "Logged In User should be able to access the search systems page")
@@ -108,7 +108,7 @@ class FlaskTestCase(unittest.TestCase):
             # Search For System With System Name As Parameter
             searchParam = "&^$%"
             response = client.post(
-                "/social/search_systems",
+                "/social/systems",
                 data=dict(txtSystemName=searchParam)
             )
             self.assert_("Sorry, we are unable to find any system with name" in response.data,
@@ -116,7 +116,7 @@ class FlaskTestCase(unittest.TestCase):
             # Search For System With System Name As Parameter - Valid System Name &
             searchParam = "system"
             response = client.post(
-                "/social/search_systems",
+                "/social/systems",
                 data=dict(txtSystemName=searchParam)
             )
             self.assert_(searchParam in response.data,

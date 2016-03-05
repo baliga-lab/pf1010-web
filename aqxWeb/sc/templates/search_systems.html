@@ -27,6 +27,7 @@
                 <div class="row systemSearchDiv">
                     <div class="col-md-6">
                         <input type="text" class="form-control" name="txtSystemName"
+                               pattern=".{1,}" required title="System Name Cannot Be Empty"
                                placeholder="Enter System Name"
                                value= {% if post_method %} {{ search_param }} {% endif %}>
                         </input>
