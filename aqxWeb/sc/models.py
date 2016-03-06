@@ -176,7 +176,7 @@ class User:
     def get_search_friends(self):
         query = """
             MATCH (users:User)
-            RETURN users.givenName, users.familyName
+            RETURN users.givenName, users.familyName, users.organization
         """
 
         try:

@@ -309,17 +309,29 @@ def like_post():
 @social.route('/getfriends',methods=['GET'])
 def getfriends():
     users = User(session['uid']).get_search_friends()
-    user_names = []
+    user_list = []
     for result in users:
+        individual_user = {}
         first_name = result[0]
         last_name = result[1]
-        full_name = first_name + " " + last_name
-        print full_name
-        if full_name is not None:
-            user_names.append(full_name)
+        org = result[2]
+        if not first_name and not last_name:
+            full_name = None
+        elif not first_name:
+            full_name = last_name
+        elif not last_name:
+            full_name = first_name
+        else:
+            full_name = first_name + " " + last_name
+        if full_name:
+            individual_user['label'] = full_name
+        if org:
+            individual_user['org'] = org
+        if individual_user:
+            user_list.append(individual_user)
+    print user_list
 
-    return jsonify(json_list=user_names)
-
+    return jsonify(json_list=user_list)
 
 @social.route('/logout')
 #######################################################################################
