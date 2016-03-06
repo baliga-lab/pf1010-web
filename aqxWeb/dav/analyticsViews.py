@@ -75,8 +75,6 @@ def explore():
 @dav.route('/analyzeGraph', methods=['POST'])
 def analyzeGraph():
     # get measurement information
-    # text = request.form['text']
-    content = request.json
     data = json.dumps(request.form.get('selectedSystems'))
     return render_template("analyze.html", **locals())
 
