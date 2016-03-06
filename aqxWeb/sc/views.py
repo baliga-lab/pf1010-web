@@ -372,6 +372,14 @@ def get_logged_in_user():
 ######################################################################
 # API call to get user data for the specified google_id
 ######################################################################
-@social.route('/aqxapi/get/user/get_user_by_google_id/<google_id>', methods=['GET'])
+@social.route('/aqxapi/get/user/by_google_id/<google_id>', methods=['GET'])
 def get_user_by_google_id(google_id):
     return ScAPI(getGraphConnectionURI()).get_user_by_google_id(google_id)
+
+
+######################################################################
+# API call to get user data for the specified sql_id
+######################################################################
+@social.route('/aqxapi/get/user/by_sql_id/<sql_id>', methods=['GET'])
+def get_user_by_sql_id(sql_id):
+    return ScAPI(getGraphConnectionURI()).get_user_by_sql_id(sql_id)

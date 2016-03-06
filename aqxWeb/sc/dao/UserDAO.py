@@ -34,4 +34,19 @@ class UserDAO:
             return user
         except cypher.CypherError, cypher.CypherTransactionError:
             raise "Exception occured in function get_user_by_google_id"
+
+    ###############################################################################
+
+    ###############################################################################
+    # function : get_user_by_sql_id
+    # purpose : function used to find user based on sql_id
+    # params : self, sql_id
+    # returns : User node
+    # Exceptions : cypher.CypherError, cypher.CypherTransactionError
+    def get_user_by_sql_id(self, sql_id):
+        try:
+            user = self.graph.find_one("User", "sql_id", int(sql_id))
+            return user
+        except cypher.CypherError, cypher.CypherTransactionError:
+            raise "Exception occured in function get_user_by_sql_id"
             ###############################################################################
