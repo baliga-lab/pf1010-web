@@ -395,3 +395,20 @@ def get_user_by_google_id(google_id):
 @social.route('/aqxapi/get/user/by_sql_id/<sql_id>', methods=['GET'])
 def get_user_by_sql_id(sql_id):
     return ScAPI(getGraphConnectionURI()).get_user_by_sql_id(sql_id)
+
+######################################################################
+# API call to put user data
+######################################################################
+@social.route('/aqxapi/put/user', methods=['POST'])
+def create_user():
+    jsonObject = request.get_json()
+    return ScAPI(getGraphConnectionURI()).create_user(jsonObject)
+
+######################################################################
+# API call to put user data
+######################################################################
+@social.route('/aqxapi/delete/user/<sql_id>', methods=['DELETE'])
+def delete_user_by_sql_id(sql_id):
+    if session.get('siteadmin') is not None:
+        return ScAPI(getGraphConnectionURI()).delete_user_by_sql_id(sql_id)
+
