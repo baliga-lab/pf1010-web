@@ -6,50 +6,43 @@ var YAXISVALUE = "";
 var OPTION = 'option';
 var CHART = "";
 
-var addDataPointsToPlot = function(xType, yType, graphType){
+var getDataPointsForPlot = function(xType, yType, graphType){
     // Plots a graph for the given systems of type "graph_type" and with y-value "selected_measurement_type"
+    var dataPointsList = [];
     _.each(systems_and_measurements, function(system_and_measurements){
         var measurements = system_and_measurements.measurement;
         _.each(measurements, function(measurement){
-            if (measurement.type === selected_measurement_type){
+            if (measurement.type === yType){
                 var new_plot = {
-                    type : graph_type,
+                    type : graphType,
                     showInLegend : true,
                     name : system_and_measurements.name,
                     dataPoints : measurement.values
                 };
-                system_plot_data.push(new_plot);
+                dataPointsList.push(new_plot);
             }
         });
     });
+    return dataPointsList;
+};
+
+var buildTooltipContent = function(xType, yType){
+    if (xType === "time"){
+        xType = "Hours since creation";
+    }
+    return "<h4>Measured on: {date}</h4> <p>" + xType + ": {x}</p> <p>" + yType + ": {y}</p>"
 };
 
 window.onload = function () {
-    //data = request.get_json();
 
-    var system_plot_data = [];
+    //Grabs the default XAxis type, time, and the default YAxis type, pH
+    var selected_yvalue_type = document.getElementById("selectYAxis").value;
+    var selected_xvalue_type = document.getElementById("selectXAxis").value;
 
-    //TODO: Function to grab desired measurement type
-    var selected_measurement_type = "pH";
+    //Grabs the default graph type from the Graph Style selection dropdown
+    var graph_type = document.getElementById("selectGraphType").value;
 
-    //TODO: Function to grab graph type
-    var graph_type = "line";
-
-    // Plots a graph for the given systems of type "graph_type" and with y-value "selected_measurement_type"
-    _.each(systems_and_measurements, function(system_and_measurements){
-        var measurements = system_and_measurements.measurement;
-        _.each(measurements, function(measurement){
-            if (measurement.type === selected_measurement_type){
-                var new_plot = {
-                    type : graph_type,
-                    showInLegend : true,
-                    name : system_and_measurements.name,
-                    dataPoints : measurement.values
-                };
-                system_plot_data.push(new_plot);
-            }
-        });
-    });
+    var dataPoints = getDataPointsForPlot(selected_xvalue_type, selected_yvalue_type, graph_type);
 
     CHART = new CanvasJS.Chart("analyzeContainer", {
         title:{
@@ -68,43 +61,13 @@ window.onload = function () {
             }
         },
         toolTip: {
-            content: "<h4>Measured on: {date}</h4> <p>Hours since start: {x}</p> <p>" + selected_measurement_type + ": {y}</p>"
+            content: buildTooltipContent(selected_xvalue_type, selected_yvalue_type)
         },
         zoomEnabled: true,
-        data:system_plot_data
-
-        //data:
-        //[
-        //     {
-        //        type: "line",
-        //        showInLegend: true, name : 'System - 24',
-        //        dataPoints: [
-        //          { x:31, date:new Date(1970, 9, 29, 7), y:4},
-        //          { x:32, date:new Date(1970, 9, 29, 2), y:1.3},
-        //          { x:33, date:new Date(1970, 9, 29, 3), y:1.7},
-        //          { x:44, date:new Date(1970, 9, 29, 6), y:1.92},
-        //          { x:45, date:new Date(1970, 9, 29, 12), y:4.92},
-        //          { x:48, date:new Date(1971, 4, 14, 15), y:1.7}
-        //        ]
-        //     },
-        //
-        //]
+        data:dataPoints
     });
     CHART.render();
 };
-
-
-//$(function() {
-//
-////  Populate X axis dropdown
-//    populateDropdown(XAXIS, measurement_data_info);
-//
-////  Get selected values from dropdown
-//    $("#" +XAXIS).change(function () {
-//        XAXISVALUE  = $('option:selected', this).text();
-//        plotGraph(XAXISVALUE);
-//    });
-//});
 
 // Used to populate the x axis
 var populateDropdown = function(elementId, measurement_data_object){
@@ -124,11 +87,11 @@ var populateDropdown = function(elementId, measurement_data_object){
 var plotGraph = function(xAxisVal) {
     console.log(xAxisVal + "  ");
     //  Enter only if both the dropdowns are not null
-     if(!(_.isEmpty(XAXISVALUE))) {
+    if(!(_.isEmpty(XAXISVALUE))) {
         // To add new datapoint to graph
-         var dps = dataPointWrapper(metadataFromDB, 'system_1234', XAXISVALUE);
-         CHART.options.data.push(createDataPoint("line", "true", "system_1234", dps ));
-         CHART.render();
+        var dps = dataPointWrapper(metadataFromDB, 'system_1234', XAXISVALUE);
+        CHART.options.data.push(createDataPoint("line", "true", "system_1234", dps ));
+        CHART.render();
     }
 };
 
@@ -146,9 +109,9 @@ var createDataPoint = function(graphType, showLegend, systemName, dataPoints) {
         showInLegend: showLegend,
         name: systemName,
         dataPoints: dataPoints
-    }
+    };
     return dp;
-}
+};
 
 /**
  *
@@ -160,61 +123,86 @@ var createDataPoint = function(graphType, showLegend, systemName, dataPoints) {
 var dataPointWrapper = function(metaData, systemUID, measurementType) {
     var result = "";
     _.each(metaData, function(system) {
-       if(_.isEqual(system.name, systemUID)) {
-           var measurements = system.measurement;
-           _.each(measurements, function(measurement) {
-               if(_.isEqual(measurement.type, measurementType)) {
-                   result =  measurement.values;
-               }
-           })
-       }
+        if(_.isEqual(system.name, systemUID)) {
+            var measurements = system.measurement;
+            _.each(measurements, function(measurement) {
+                if(_.isEqual(measurement.type, measurementType)) {
+                    result =  measurement.values;
+                }
+            })
+        }
     });
     return result;
 };
 
-// TODO: Remove these dummy data
-var measurement_data_info = ['pH', "nitrate", "Ammo"];
+//var metadataFromDB = [
+//    { name: 'system_1234' ,
+//      measurement: [
+//          { type: 'pH',
+//            values:
+//             [{ x:2, date:new Date(1970, 10, 12, 2), y:1.33},
+//              { x:7, date:new Date(1970, 10, 13, 3), y:2.17},
+//              { x:11, date:new Date(1970, 10, 20, 6), y:1.92}]
+//          },
+//          { type: 'nitrate',
+//            values:
+//             [{ x:2, date:new Date(1970, 9, 29, 2), y:1.3},
+//              { x:3, date:new Date(1970, 9, 29, 3), y:1.7},
+//              { x:4, date:new Date(1970, 9, 29, 6), y:1.92},
+//              { x:23, date: new Date(1970, 9, 29, 1), y:0},
+//              ]
+//          },
+//          { type: 'Ammo',
+//             values:
+//             [{ x:1, date:new Date(1970, 9, 29, 7), y:4},
+//              { x:5, date:new Date(1970, 9, 29, 12), y:4.92},
+//              { x:10, date:new Date(1970, 9, 29, 15), y:3.92}]
+//          }
+//       ]
+//    },
+//    { name: 'system_5678',
+//      measurement:
+//      [
+//          { type: 'pH',
+//            values:
+//             [{ 'x' : 0, 'y' : 6.0, date: new Date(1970, 9, 29, 7) },
+//              { 'x' : 1, 'y' : 9.0, date: new Date(1970, 10, 29, 7) },
+//              { 'x' : 2, 'y' : 17.2, date: new Date(1970, 10,15, 7) }]
+//          },
+//          { type: 'nitrate',
+//            values:
+//             [{ 'x' : 360, 'y' : 6.5, date: new Date(1970, 04,15, 7) },
+//              { 'x' : 384, 'y' : 6.5, date: new Date(1970, 05,11, 7) }]
+//          }
+//       ]
+//    }
+//]
+
+//var mockdata =
+//    [
+//        {
+//            type: "line",
+//            showInLegend: true, name : 'System - 24',
+//            dataPoints: [
+//                { x:31, date:new Date(1970, 9, 29, 7), y:4},
+//                { x:32, date:new Date(1970, 9, 29, 2), y:1.3},
+//                { x:33, date:new Date(1970, 9, 29, 3), y:1.7},
+//                { x:44, date:new Date(1970, 9, 29, 6), y:1.92},
+//                { x:45, date:new Date(1970, 9, 29, 12), y:4.92},
+//                { x:48, date:new Date(1971, 4, 14, 15), y:1.7}
+//            ]
+//        }
+//    ];
 
 
-var metadataFromDB = [
-    { name: 'system_1234' ,
-      measurement: [
-          { type: 'pH',
-            values:
-             [{ x:2, date:new Date(1970, 10, 12, 2), y:1.33},
-              { x:7, date:new Date(1970, 10, 13, 3), y:2.17},
-              { x:11, date:new Date(1970, 10, 20, 6), y:1.92}]
-          },
-          { type: 'nitrate',
-            values:
-             [{ x:2, date:new Date(1970, 9, 29, 2), y:1.3},
-              { x:3, date:new Date(1970, 9, 29, 3), y:1.7},
-              { x:4, date:new Date(1970, 9, 29, 6), y:1.92},
-              { x:23, date: new Date(1970, 9, 29, 1), y:0},
-              ]
-          },
-          { type: 'Ammo',
-             values:
-             [{ x:1, date:new Date(1970, 9, 29, 7), y:4},
-              { x:5, date:new Date(1970, 9, 29, 12), y:4.92},
-              { x:10, date:new Date(1970, 9, 29, 15), y:3.92}]
-          }
-       ]
-    },
-    { name: 'system_5678',
-      measurement:
-      [
-          { type: 'pH',
-            values:
-             [{ 'x' : 0, 'y' : 6.0, date: new Date(1970, 9, 29, 7) },
-              { 'x' : 1, 'y' : 9.0, date: new Date(1970, 10, 29, 7) },
-              { 'x' : 2, 'y' : 17.2, date: new Date(1970, 10,15, 7) }]
-          },
-          { type: 'nitrate',
-            values:
-             [{ 'x' : 360, 'y' : 6.5, date: new Date(1970, 04,15, 7) },
-              { 'x' : 384, 'y' : 6.5, date: new Date(1970, 05,11, 7) }]
-          }
-       ]
-    }
-]
+//$(function() {
+//
+////  Populate X axis dropdown
+//    populateDropdown(XAXIS, measurement_data_info);
+//
+////  Get selected values from dropdown
+//    $("#" +XAXIS).change(function () {
+//        XAXISVALUE  = $('option:selected', this).text();
+//        plotGraph(XAXISVALUE);
+//    });
+//});
