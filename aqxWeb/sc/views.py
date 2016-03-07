@@ -19,7 +19,8 @@ social = Blueprint('social', __name__, template_folder='templates', static_folde
 # returns: DB connection
 #######################################################################################
 def dbconn():
-    return mysql.connector.connect(user=get_app_instance().config['USER'], password=get_app_instance().config['PASS'],
+    return mysql.connector.connect(user=get_app_instance().config['USER'],
+                                   password=get_app_instance().config['PASS'],
                                    host=get_app_instance().config['HOST'],
                                    database=get_app_instance().config['DB'])
 
@@ -241,9 +242,6 @@ def search_systems():
 def view_system(system_uid):
     return "Systems Page Under Construction: " + system_uid
 
-
-
-
 @social.route('/add_comment', methods=['POST'])
 #######################################################################################
 # function : add_comment
@@ -254,16 +252,84 @@ def view_system(system_uid):
 #######################################################################################
 def add_comment():
     comment = request.form['newcomment']
-    logging.debug(comment)
     postid = request.form['postid']
-    if comment == "":
+    if comment == "" or comment == None :
         flash('Comment can not be empty')
+        redirect(url_for('social.index'))
+    elif postid == "" or postid == None :
+        flash('Post not found to comment on')
         redirect(url_for('social.index'))
     else:
         User(session['uid']).add_comment(comment, postid)
         flash('Your comment has been posted')
     return redirect(url_for('social.index'))
 
+@social.route('/edit_comment', methods=['POST'])
+#######################################################################################
+# function : edit_comment
+# purpose : edits existing comments using unique comment id
+# parameters : None
+# returns: calls index function
+# Exception : None
+#######################################################################################
+def edit_comment():
+    comment = request.form['editedcomment']
+    commentid = request.form['commentid']
+
+    if comment == "" or comment == None:
+        flash('Comment can not be empty')
+        redirect(url_for('social.index'))
+    elif commentid == "" or commentid == None :
+        flash('Comment not found to edit')
+        redirect(url_for('social.index'))
+    else:
+        User(session['uid']).edit_comment(comment, commentid)
+        flash('Your comment has been updated')
+    return redirect(url_for('social.index'))
+
+
+@social.route('/edit_post', methods=['POST'])
+#######################################################################################
+# function : edit_post
+# purpose : edits existing comments using unique comment id
+# parameters : None
+# returns: calls index function
+# Exception : None
+#######################################################################################
+def edit_post():
+    newpost = request.form['editedpost']
+    postid = request.form['postid']
+
+    if newpost == "" or newpost == None:
+        flash('New post can not be empty')
+        redirect(url_for('social.index'))
+    elif postid == "" or postid == None :
+        flash('Post not found to edit')
+        redirect(url_for('social.index'))
+    else:
+        User(session['uid']).edit_post(newpost, postid)
+        flash('Your comment has been updated')
+    return redirect(url_for('social.index'))
+
+
+@social.route('/delete_comment', methods=['POST'])
+#######################################################################################
+# function : delete_comment
+# purpose : edits existing comments using unique comment id
+# parameters : None
+# returns: calls index function
+# Exception : None
+#######################################################################################
+def delete_comment():
+    commentid = request.form['commentid']
+
+    if commentid == "" or commentid == None :
+        flash('Comment not found to delete')
+        redirect(url_for('social.index'))
+    else:
+        User(session['uid']).delete_comment(commentid)
+        flash('Your comment has been updated')
+    return redirect(url_for('social.index'))
 
 @social.route('/add_post', methods=['POST'])
 #######################################################################################
@@ -274,17 +340,34 @@ def add_comment():
 # Exception : None
 #######################################################################################
 def add_post():
-    privacy = request.form['privacy']
-    text = request.form['text']
-    link = request.form['link']
-    if text == "":
-        flash('Post can not be empty.')
-        redirect(url_for('social.index'))
-    else:
-        User(session['uid']).add_post(text, privacy, link)
-        flash('Your post has been shared')
+    if session.get('uid') is not None:
+        privacy = request.form['privacy']
+        text = request.form['text']
+        link = request.form['link']
+        if text == "":
+            flash('Post cannot be empty.')
+        else:
+            User(session['uid']).add_post(text, privacy, link)
+            flash('Your post has been shared')
     return redirect(url_for('social.index'))
 
+@social.route('/delete_post', methods=['POST'])
+#######################################################################################
+# function : delete_post
+# purpose : removes post and it's related realtionships and comments
+# parameters : None
+# returns: calls index function
+# Exception : None
+#######################################################################################
+def delete_post():
+    if session.get('uid') is not None:
+        postid = request.form['postid']
+        if postid == "":
+            flash('Can not find the post to delete.')
+        else:
+            User(session['uid']).delete_post(postid)
+            flash('Your post has been deleted')
+    return redirect(url_for('social.index'))
 
 @social.route('/like_post', methods=['POST'])
 #######################################################################################
@@ -295,11 +378,30 @@ def add_post():
 # Exception : None
 #######################################################################################
 def like_post():
-    postid = request.form['postid']
-    User(session['uid']).like_post(postid)
-    flash('You liked the post')
-    return redirect(url_for('social.index'))
+    if session.get('uid') is not None:
+        postid = request.form['postid']
+        User(session['uid']).like_post(postid)
+        flash('You liked the post')
+        return redirect(url_for('social.index'))
+    else:
+        return render_template("/home.html")
 
+@social.route('/unlike_post', methods=['POST'])
+#######################################################################################
+# function : unlike_post
+# purpose : unlike post previously liked by user
+# parameters : None
+# returns: calls index function
+# Exception : None
+#######################################################################################
+def unlike_post():
+    if session.get('uid') is not None:
+        postid = request.form['postid']
+        User(session['uid']).unlike_post(postid)
+        flash('You unliked the post')
+        return redirect(url_for('social.index'))
+    else:
+        return render_template("/home.html")
 #######################################################################################
 # function : getfriends
 # purpose : used in search friends to return a node in case a match is obtained
@@ -368,8 +470,6 @@ def testSignin():
     except:
         logging.exception("Got an exception")
         raise
-
-
 
 
 ######################################################################
