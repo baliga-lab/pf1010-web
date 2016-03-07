@@ -4,17 +4,17 @@
 
 {% block styles %}
     {{ super() }}
-    <link rel="stylesheet" type="text/css" href="{{ url_for('frontend.static', filename='css/nav.css') }}">
-    <link rel="stylesheet" type="text/css" href="{{ url_for('social.static', filename='css/soc.layout.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('social.static', filename='css/layout.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('social.static', filename='css/newsfeed.css') }}">
 {% endblock %}
 
 {% block content %}
     {% if session.uid %}
-    <div class="row">
+        <div class="row">
         {# SIDEBAR #}
         <div class="col-sm-3">
             <h3 style="margin-top: 0">Weather
-    <button class="js-geolocation btn btn-blue btn-xs">Use Your Location</button>
+                <button class="js-geolocation btn btn-blue btn-xs">Use Your Location</button>
             </h3>
             <div id="weather"></div>
             <div id="systems">
@@ -31,15 +31,18 @@
         {# NEWSFEED #}
         <div class="main col-sm-9">
             <form action="{{ url_for('social.add_post') }}" method="post">
-                <textarea id="new_post" name="text" rows="3" class="form-control" placeholder="Share what you are doing.."></textarea>
+                <textarea id="new_post" name="text" rows="3" class="form-control"
+                          placeholder="Share what you are doing.."></textarea>
                 <div class="share">
                     <div class="links">
                         <input type="hidden" name="link" value=""/>
                     </div>
                     <div class="controls form-inline">
-                        <button type="button" class="btn btn-blue" data-toggle="modal" data-target="#linkModal" ><i class="fa fa-link"></i></button>
+                        <button type="button" class="btn btn-blue" data-toggle="modal" data-target="#linkModal"><i
+                                class="fa fa-link"></i></button>
                         |
-                        <button class="btn btn-blue"><i class="fa fa-file-text-o"></i></button> {# for docs? #}
+                        <button class="btn btn-blue"><i class="fa fa-file-text-o"></i></button>
+                        {# for docs? #}
 
                         <div class="form-group pull-right">
                             <i class="fa fa-lock"></i>
@@ -64,10 +67,11 @@
                             </div>
                             <div class="modal-body">
                                 <input id="new_link" type="url" class="form-control"
-                                       placeholder="Type an image/video url here.." />
+                                       placeholder="Type an image/video url here.."/>
                             </div>
                             <div class="modal-footer">
-                                <button id="addUrl" type="button" class="btn btn-green" data-dismiss="modal">Add Link</button>
+                                <button id="addUrl" type="button" class="btn btn-green" data-dismiss="modal">Add Link
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -78,7 +82,7 @@
             {% include "display_posts.html" %}
         </div>
     {% endif %}
-    </div>
+</div>
 {% endblock %}
 
 {% block scripts %}
@@ -86,9 +90,8 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.simpleWeather/3.1.0/jquery.simpleWeather.min.js"></script>
     <script src="{{ url_for('frontend.static', filename='js/weather.js') }}"></script>
     <script src="{{ url_for('frontend.static', filename='js/newsfeed.js') }}"></script>
-
     <script>
-        $("#addUrl").click(function() {
+        $("#addUrl").click(function () {
             var link = $("#new_link").val();
             if (link.length > 0) {
                 $(".links").empty();

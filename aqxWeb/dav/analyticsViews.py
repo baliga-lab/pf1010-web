@@ -79,7 +79,7 @@ def explore():
     systems_and_info_json = get_all_systems_info()
     systems = json.loads(systems_and_info_json)['systems']
     metadata_json = get_all_aqx_metadata()
-    return render_template("explorePage.html", **locals())
+    return render_template("explore.html", **locals())
 
 
 ######################################################################
