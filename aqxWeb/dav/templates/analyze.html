@@ -28,15 +28,18 @@
         <br><br>
 
     </div>
-{#    <div style="width: 50%" >#}
-{#         <div id="hcContainer" style="height: 300px; width: 100%;">#}
-{#                <label>Demo graphs</label>#}
-{#         </div>#}
-{#    </div>#}
+    {#    <div style="width: 50%" >#}
+    {#         <div id="hcContainer" style="height: 300px; width: 100%;">#}
+    {#                <label>Demo graphs</label>#}
+    {#         </div>#}
+    {#    </div>#}
 </div>
 <script>
-{#    var mo ={{ moooo|safe}};#}
-    var dat = {{ data | safe }};
+    {#    var mo ={{ moooo|safe}};#}
+    {#    var dat = {{ data | safe }};#}
+{#    var systems_and_measurements_object = {{ systems_and_measurements_json | safe }};#}
+    var systems_and_measurements = {{ systems_and_measurements_json | safe }};
+{#    var systems_and_measurements = systems_and_measurements_object.response;#}
 
 </script>
 </body>

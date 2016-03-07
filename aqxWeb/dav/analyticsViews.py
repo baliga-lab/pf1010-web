@@ -1,3 +1,4 @@
+
 from flask import Blueprint, render_template,request,url_for
 from mysql.connector.pooling import MySQLConnectionPool
 import os
@@ -41,29 +42,18 @@ def create_conn(app):
     global pool
     print("PID %d: initializing pool..." % os.getpid())
     dbconfig = {
-         "host":     app.config['HOST'],
-         "user":     app.config['USER'],
-         "passwd":   app.config['PASS'],
-         "db":       app.config['DB']
-         }
+        "host":     app.config['HOST'],
+        "user":     app.config['USER'],
+        "passwd":   app.config['PASS'],
+        "db":       app.config['DB']
+    }
 
     pool = MySQLConnectionPool(pool_name="mypool", pool_size = app.config['POOLSIZE'], **dbconfig)
-
 
 
 ######################################################################
 # Interactive map of all active systems
 ######################################################################
-# @dav.route('/conf')
-# def print_conf():
-#     Config = ConfigParser.ConfigParser()
-#     Config.read("./dav/system_db.ini")
-#     print Config.sections()
-#     print ConfigSectionMap("Aqx")['pass']
-#     print ConfigSectionMap("Aqx")['poolsize']
-#
-#     return "conf printed"
-
 
 @dav.route('/explore')
 def explore():
@@ -72,13 +62,85 @@ def explore():
     metadata_json = get_all_aqx_metadata()
     return render_template("explorePage.html", **locals())
 
+
+######################################################################
+# Interactive graph analysis of system measurements
+######################################################################
+
 @dav.route('/analyzeGraph', methods=['POST'])
 def analyzeGraph():
+
+    # systems_and_measurements_json = \
+    #     { 'response' :
+    #         [
+    #             { 'system_12345' :
+    #                   {'pH' :
+    #                        [{ 'x' : 0, 'y' : 7.0, 'date':'03:03:16:00' },
+    #                         { 'x' : 1, 'y' : 11.0, 'date':'03:03:16:01'},
+    #                         { 'x' : 2, 'y' : 9.2, 'date':'03:03:16:02' }],
+    #                    'nitrate' :
+    #                        [{ 'x' : 24, 'y' : 6.5, 'date':'03:01:16:12'},
+    #                         { 'x' : 48, 'y' : 6.5, 'date':'03:02:16:12'}]}
+    #               },
+    #             { 'system_54321' :
+    #                   { 'pH' :
+    #                         [{ 'x' : 10, 'y' : 3.0, 'date':'03:03:16:00' },
+    #                          { 'x' : 11, 'y' : 1.0, 'date':'03:03:16:01'},
+    #                          { 'x' : 12, 'y' : 4.2, 'date':'03:03:16:02' }],
+    #                     'nitrate' :
+    #                         [{ 'x' : 5, 'y' : 13.5, 'date':'03:01:16:12'},
+    #                          { 'x' : 29, 'y' : 13.5, 'date':'03:02:16:12'}]
+    #                     }
+    #               }
+    #         ]
+    #     }
+
+    systems_and_measurements_json = \
+        {'response':
+            [
+                { 'name': 'system_12345' ,
+                  'measurement': [
+                      { 'type': 'pH',
+                        'values':
+                            [{ 'x' : 0, 'y' : 7.0, 'date': '03:03:16:00' },
+                             { 'x' : 1, 'y' : 11.0, 'date': '03:03:16:01'},
+                             { 'x' : 2, 'y' : 9.2, 'date': '03:03:16:02' }]
+                        },
+                      { 'type': 'nitrate',
+                        'values':
+                            [{ 'x' : 360, 'y' : 6.5, 'date': '03:01:16:12'},
+                             { 'x' : 384, 'y' : 6.5, 'date': '03:02:16:12'}]
+                        }
+                  ]
+                  },
+                { 'name': 'system_23145',
+                  'measurement':
+                      [
+                          { 'type': 'pH',
+                            'values':
+                                [{ 'x' : 0, 'y' : 6.0, 'date': '03:03:16:00' },
+                                 { 'x' : 1, 'y' : 9.0, 'date': '03:03:16:01' },
+                                 { 'x' : 2, 'y' : 17.2, 'date': '03:03:16:02' }]
+                            },
+                          { 'type': 'nitrate',
+                            'values':
+                                [{ 'x' : 360, 'y' : 6.5, 'date': '03:01:16:12' },
+                                 { 'x' : 384, 'y' : 6.5, 'date': '03:02:16:12'}]
+                            }
+                      ]
+                  }
+            ]
+        }
+
+    systems_and_measurements_json = systems_and_measurements_json['response']
+    selected_systemID_list = ["system_12345", "system_54321"]
+
     # get measurement information
     # text = request.form['text']
-    content = request.json
-    data = json.dumps(request.form.get('selectedSystems'))
+    # content = request.json
+    # data = json.dumps(request.form.get('selectedSystems'))
     return render_template("analyze.html", **locals())
+
 
 ######################################################################
 # API call to get metadata of a given system
