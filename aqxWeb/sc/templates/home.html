@@ -9,8 +9,10 @@
 {% endblock %}
 
 {% block content %}
-    {% if session.uid %}
-        <div class="row">
+
+    <h1>Newsfeed</h1>
+
+    <div class="row">
         {# SIDEBAR #}
         <div class="col-sm-3">
             <h3 style="margin-top: 0">Weather
@@ -81,8 +83,9 @@
             <h3>Recent Posts</h3>
             {% include "display_posts.html" %}
         </div>
-    {% endif %}
-</div>
+
+    </div>
+
 {% endblock %}
 
 {% block scripts %}
