@@ -139,6 +139,7 @@ def analyzeGraph():
     # text = request.form['text']
     # content = request.json
     # data = json.dumps(request.form.get('selectedSystems'))
+
     return render_template("analyze.html", **locals())
 
 

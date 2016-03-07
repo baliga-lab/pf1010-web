@@ -400,9 +400,9 @@ $('#analyzeOptions').on('submit',function(e) {
         systemsSelectedToAnalyze.push(checkedInput.id);
     });
     if(systemsSelectedToAnalyze.length <= 0) {
-        alert("PLease select systems from checkbox to analyze");
+        alert("Please select systems from checkbox to analyze");
         return false;
     }
-    console.log(systemsSelectedToAnalyze);
-    document.getElementById("selectedSystems").value = JSON.stringify("systems:" + systemsSelectedToAnalyze);
+    var selectedSystems = systemsSelectedToAnalyze.join(",");
+    document.getElementById("selectedSystems").value = JSON.stringify(selectedSystems);
 });
