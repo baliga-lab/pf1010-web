@@ -6,6 +6,7 @@ var YAXISVALUE = "";
 var OPTION = 'option';
 var CHART = "";
 
+// TODO: This will need to be re-evaluated to incorporate non-time x-axis values. For now, stubbing xType for this.
 var getDataPointsForPlot = function(xType, yType, graphType){
     // Plots a graph for the given systems of type "graph_type" and with y-value "selected_measurement_type"
     var dataPointsList = [];
@@ -45,12 +46,15 @@ window.onload = function () {
     var dataPoints = getDataPointsForPlot(selected_xvalue_type, selected_yvalue_type, graph_type);
 
     CHART = new CanvasJS.Chart("analyzeContainer", {
-        title:{
-            text: "My CanvasJS"
+        title :{
+            text : "My CanvasJS"
         },
-        legend: {
-            cursor: "pointer",
-            itemclick: function (e)
+        axisX : {
+            minimum : 0
+        },
+        legend : {
+            cursor : "pointer",
+            itemclick : function (e)
             {
                 if (typeof (e.dataSeries.visible) === "undefined" || e.dataSeries.visible) {
                     e.dataSeries.visible = false;
@@ -60,13 +64,16 @@ window.onload = function () {
                 e.chart.render();
             }
         },
-        toolTip: {
-            content: buildTooltipContent(selected_xvalue_type, selected_yvalue_type)
+        toolTip : {
+            content : buildTooltipContent(selected_xvalue_type, selected_yvalue_type)
         },
-        zoomEnabled: true,
-        data:dataPoints
+        zoomEnabled : true,
+        data : dataPoints
     });
     CHART.render();
+
+    populateDropdown("selectXAxis", ["Time"].concat(dropdown_values));
+    populateDropdown("selectYAxis", dropdown_values);
 };
 
 // Used to populate the x axis
@@ -75,7 +82,7 @@ var populateDropdown = function(elementId, measurement_data_object){
     _.each(measurement_data_object, function(measurement_type){
         var el = document.createElement(OPTION);
         el.textContent = measurement_type;
-        el.value = measurement_type;
+        el.value = measurement_type.toLowerCase();
         select.appendChild(el);
     });
 };

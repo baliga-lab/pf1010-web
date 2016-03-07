@@ -29,7 +29,7 @@
         <div style="width: 50%;">
             <div class="form-group">
                 <select class="dropdown" id="selectYAxis">
-                    <option value="pH" selected="selected">Choose y axis</option>
+                    <option value="nitrate" selected="selected">Choose y axis</option>
                 </select>
             </div>
         </div>
@@ -38,8 +38,9 @@
             <div id="graphType" style="height: 300px; width: 100%;">
                 <select class="dropdown" id="selectGraphType">
                     <option value="line" selected="selected">Choose a Graph Style</option>
-                    <option value="line">Line Graph</option>
+                    <option value="line">Line Chart</option>
                     <option value="scatter">Scatter Plot</option>
+                    <option value="barchart">Bar Chart</option>
                 </select>
             </div>
         </div>
@@ -57,6 +58,7 @@
     {#    var dat = {{ data | safe }};#}
 {#    var systems_and_measurements_object = {{ systems_and_measurements_json | safe }};#}
     var systems_and_measurements = {{ systems_and_measurements_json | safe }};
+    var dropdown_values = {{ measurement_types | safe }};
 {#    var systems_and_measurements = systems_and_measurements_object.response;#}
 
 </script>

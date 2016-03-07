@@ -108,8 +108,8 @@ def analyzeGraph():
                         },
                       { 'type': 'nitrate',
                         'values':
-                            [{ 'x' : 360, 'y' : 6.5, 'date': '03:01:16:12'},
-                             { 'x' : 384, 'y' : 6.5, 'date': '03:02:16:12'}]
+                            [{ 'x' : 360, 'y' : 3.5, 'date': '03:01:16:12'},
+                             { 'x' : 384, 'y' : 0.5, 'date': '03:02:16:12'}]
                         }
                   ]
                   },
@@ -125,7 +125,7 @@ def analyzeGraph():
                           { 'type': 'nitrate',
                             'values':
                                 [{ 'x' : 360, 'y' : 6.5, 'date': '03:01:16:12' },
-                                 { 'x' : 384, 'y' : 6.5, 'date': '03:02:16:12'}]
+                                 { 'x' : 384, 'y' : 1.5, 'date': '03:02:16:12'}]
                             }
                       ]
                   }
@@ -134,6 +134,8 @@ def analyzeGraph():
 
     systems_and_measurements_json = systems_and_measurements_json['response']
     selected_systemID_list = ["system_12345", "system_54321"]
+    measurement_types = ["Nitrate", "Nitrite", "Hardness", "Chlorine", "Alkalinity", "pH", "Ammonia", "Water Temp", "Light intensity",
+                         "Light wavelength","Light intensity","DO","NO3","NH4","pH","Day length","Conductivity"]
 
     # get measurement information
     # text = request.form['text']
