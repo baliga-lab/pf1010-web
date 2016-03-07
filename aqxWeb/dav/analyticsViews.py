@@ -194,7 +194,18 @@ def get_user(uid):
 @dav.route('/aqxapi/put/user', methods=['POST'])
 def put_user():
     user = request.get_json()
-    return davAPI.put_user(get_conn(),user)
+    return davAPI.put_user(get_conn(), user)
+
+
+######################################################################
+# API call to get latest recorded values of all measurements of a
+# given system
+######################################################################
+
+@dav.route('/aqxapi/get/system/measurements/<system_uid>', methods=['GET'])
+def get_system_measurements(system_uid):
+    return davAPI.get_system_measurements(get_conn(), system_uid)
+
 
 if __name__ == '__main__':
     init_app()

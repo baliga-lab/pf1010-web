@@ -1,8 +1,10 @@
+from aqxWeb.dav.dao.MeasurementsDAO import MeasurementsDAO
 from aqxWeb.dav.dao.systemsDAO import SystemsDAO
 from aqxWeb.dav.dao.MetaDataDAO import MetadataDAO
 from aqxWeb.dav.dao.UserDAO import UserDAO
 from collections import defaultdict
 import json
+import re
 
 
 # data analysis and viz data access api
@@ -109,4 +111,46 @@ class DavAPI:
             "message" : result
         }
         return json.dumps({'status': message})
+
+    ###############################################################################
+    # fetch latest recorded values of measurements for a given system
+    ###############################################################################
+    # param conn : db connection
+    # param system_uid : system's unique ID
+    # get_system_measurements - It returns the latest recorded values of the
+    #                           given system.
+
+    def get_system_measurements(self, conn, system_uid):
+        m = MeasurementsDAO(conn)
+        # Fetch names of all the measurements
+        names = m.get_all_measurement_names()
+        # Create a list to store the latest values of all the measurements
+        latest_values = []
+        # For each measurement
+        for name in names:
+            # Fetch the name of the measurement using regular expression
+            measurement_name = (re.findall(r"\(u'(.*?)',\)", str(name))[0])
+            if measurement_name != 'time':
+                # As each measurement of a system has a table on it's own,
+                # we need to create the name of each table.
+                # Each measurement table is: aqxs_measurementName_systemUID
+                table_name = "aqxs_" + measurement_name + "_" + system_uid
+                # Get the latest value stored in the table
+                value = m.get_latest_value(table_name)
+                # Append the value to the latest_value[] list
+                latest_values.append(value)
+        obj = {
+            'system_uid': str(system_uid),
+            'alkalinity': str(latest_values[0]),
+            'ammonium': str(latest_values[1]),
+            'chlorine': str(latest_values[2]),
+            'hardness': str(latest_values[3]),
+            'light': str(latest_values[4]),
+            'nitrate': str(latest_values[5]),
+            'nitrite': str(latest_values[6]),
+            'o2': str(latest_values[7]),
+            'ph': str(latest_values[8]),
+            'temp': str(latest_values[9])
+        }
+        return json.dumps(obj)
 
