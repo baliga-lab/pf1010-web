@@ -232,15 +232,36 @@ def search_systems():
 
 
 #######################################################################################
-# function : view_system
-# purpose : renders view_system.html
-# parameters : None
-# returns: view_system.html
-# Exception : None
+# function : systems
+# purpose : renders systems.html
+# parameters : system_uid
+# returns: systems.html
+# Exception : General Exception
 #######################################################################################
-@social.route('/systems/<system_uid>', methods=['GET'])
-def view_system(system_uid):
-    return "Systems Page Under Construction: " + system_uid
+@social.route('/systems/<system_uid>', methods=['GET', 'POST'])
+def systems(system_uid):
+    try:
+        if request.method == 'GET':
+            system_neo4j = System().get_system_by_uid(system_uid)
+            # Invalid System_UID
+            if system_neo4j is None:
+                return redirect(url_for('social.search_systems'))
+            else:
+                # system_mysql = System().get_mysql_system_by_uid(system_uid)
+                system_mysql = system_neo4j
+                system_admins = System().get_system_admins(system_uid)
+                system_participants = System().get_system_participants(system_uid)
+                system_subscribers = System().get_system_subscribers(system_uid)
+                participants_pending_approval = System().get_participants_pending_approval(system_uid)
+                subscribers_pending_approval = System().get_subscribers_pending_approval(system_uid)
+                return render_template("systems.html", system_neo4j=system_neo4j, system_mysql=system_mysql,
+                                       system_admins=system_admins, system_participants=system_participants,
+                                       system_subscribers=system_subscribers,
+                                       participants_pending_approval=participants_pending_approval,
+                                       subscribers_pending_approval=subscribers_pending_approval)
+    except Exception as e:
+        logging.exception("Exception at view_system: " + str(e))
+
 
 @social.route('/add_comment', methods=['POST'])
 #######################################################################################
@@ -253,16 +274,17 @@ def view_system(system_uid):
 def add_comment():
     comment = request.form['newcomment']
     postid = request.form['postid']
-    if comment == "" or comment == None :
+    if comment == "" or comment == None:
         flash('Comment can not be empty')
         redirect(url_for('social.index'))
-    elif postid == "" or postid == None :
+    elif postid == "" or postid == None:
         flash('Post not found to comment on')
         redirect(url_for('social.index'))
     else:
         User(session['uid']).add_comment(comment, postid)
         flash('Your comment has been posted')
     return redirect(url_for('social.index'))
+
 
 @social.route('/edit_comment', methods=['POST'])
 #######################################################################################
@@ -279,7 +301,7 @@ def edit_comment():
     if comment == "" or comment == None:
         flash('Comment can not be empty')
         redirect(url_for('social.index'))
-    elif commentid == "" or commentid == None :
+    elif commentid == "" or commentid == None:
         flash('Comment not found to edit')
         redirect(url_for('social.index'))
     else:
@@ -303,7 +325,7 @@ def edit_post():
     if newpost == "" or newpost == None:
         flash('New post can not be empty')
         redirect(url_for('social.index'))
-    elif postid == "" or postid == None :
+    elif postid == "" or postid == None:
         flash('Post not found to edit')
         redirect(url_for('social.index'))
     else:
@@ -323,13 +345,14 @@ def edit_post():
 def delete_comment():
     commentid = request.form['commentid']
 
-    if commentid == "" or commentid == None :
+    if commentid == "" or commentid == None:
         flash('Comment not found to delete')
         redirect(url_for('social.index'))
     else:
         User(session['uid']).delete_comment(commentid)
         flash('Your comment has been updated')
     return redirect(url_for('social.index'))
+
 
 @social.route('/add_post', methods=['POST'])
 #######################################################################################
@@ -351,6 +374,7 @@ def add_post():
             flash('Your post has been shared')
     return redirect(url_for('social.index'))
 
+
 @social.route('/delete_post', methods=['POST'])
 #######################################################################################
 # function : delete_post
@@ -369,6 +393,7 @@ def delete_post():
             flash('Your post has been deleted')
     return redirect(url_for('social.index'))
 
+
 @social.route('/like_post', methods=['POST'])
 #######################################################################################
 # function : like_post
@@ -386,6 +411,7 @@ def like_post():
     else:
         return render_template("/home.html")
 
+
 @social.route('/unlike_post', methods=['POST'])
 #######################################################################################
 # function : unlike_post
@@ -402,13 +428,15 @@ def unlike_post():
         return redirect(url_for('social.index'))
     else:
         return render_template("/home.html")
+
+
 #######################################################################################
 # function : getfriends
 # purpose : used in search friends to return a node in case a match is obtained
 # parameters : None
 # returns: json data of existing user names
 #######################################################################################
-@social.route('/getfriends',methods=['GET'])
+@social.route('/getfriends', methods=['GET'])
 def getfriends():
     users = User(session['uid']).get_search_friends()
     user_list = []
@@ -434,6 +462,7 @@ def getfriends():
     print user_list
 
     return jsonify(json_list=user_list)
+
 
 @social.route('/logout')
 #######################################################################################
@@ -480,7 +509,6 @@ def get_logged_in_user():
     return ScAPI(getGraphConnectionURI()).get_logged_in_user()
 
 
-
 ######################################################################
 # API call to get user data for the specified google_id
 ######################################################################
@@ -496,6 +524,7 @@ def get_user_by_google_id(google_id):
 def get_user_by_sql_id(sql_id):
     return ScAPI(getGraphConnectionURI()).get_user_by_sql_id(sql_id)
 
+
 ######################################################################
 # API call to put user node in the Neo4J database
 ######################################################################
@@ -503,6 +532,7 @@ def get_user_by_sql_id(sql_id):
 def create_user():
     jsonObject = request.get_json()
     return ScAPI(getGraphConnectionURI()).create_user(jsonObject)
+
 
 ######################################################################
 # API call to delete user node in the Neo4J database

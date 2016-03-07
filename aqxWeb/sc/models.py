@@ -2,6 +2,7 @@ from py2neo import Graph, Node, Relationship, cypher
 from datetime import datetime as dt
 import uuid
 
+
 # Initialize the app_instance and graph_instance
 def init_sc_app(app):
     global app_instance
@@ -9,13 +10,16 @@ def init_sc_app(app):
     app_instance = app
     graph_instance = Graph(get_app_instance().config['CONNECTIONSETTING'])
 
+
 # Return the app_instance
 def get_app_instance():
     return app_instance
 
+
 # Create / Load graph with the connection settings
 def getGraphConnectionURI():
     return graph_instance
+
 
 ################################################################################
 # Class : User
@@ -23,7 +27,6 @@ def getGraphConnectionURI():
 ################################################################################
 
 class User:
-
     ############################################################################
     # function : __init__
     # purpose : main function sets sql_id
@@ -68,7 +71,9 @@ class User:
         SET x.displayName = {newdisplayname}, x.gender = {newGender}, x.organization = {newOrganization}, x.user_type={newUserType}, x.dob = {newDOB}
         """
         try:
-            return getGraphConnectionURI().cypher.execute(query, sql_id = self.sql_id, newdisplayname = displayname, newGender = gender, newOrganization = organization, newUserType=user_type, newDOB = dateofbirth)
+            return getGraphConnectionURI().cypher.execute(query, sql_id=self.sql_id, newdisplayname=displayname,
+                                                          newGender=gender, newOrganization=organization,
+                                                          newUserType=user_type, newDOB=dateofbirth)
         except Exception as e:
             print str(e)
             raise "Exception occured in function updateprofile()"
@@ -105,13 +110,13 @@ class User:
         user = self.find()
         post = Node(
             "Post",
-            id = str(uuid.uuid4()),
-            text = text,
-            link = link,
-            privacy = privacy,
-            creation_time = timestamp(),
-            modified_time = timestamp(),
-            date = date()
+            id=str(uuid.uuid4()),
+            text=text,
+            link=link,
+            privacy=privacy,
+            creation_time=timestamp(),
+            modified_time=timestamp(),
+            date=date()
         )
         rel = Relationship(user, "POSTED", post)
         try:
@@ -137,7 +142,7 @@ class User:
         RETURN post
         """
         try:
-            getGraphConnectionURI().cypher.execute(query, postid = postid, newcontent = newcontent );
+            getGraphConnectionURI().cypher.execute(query, postid=postid, newcontent=newcontent);
         except cypher.CypherError, cypher.CypherTransactionError:
             raise "Exception occured in function edit_post"
 
@@ -192,13 +197,13 @@ class User:
 
     def add_comment(self, newcomment, postid):
         user = self.find()
-        #print(user)
+        # print(user)
         comment = Node(
             "Comment",
             id=str(uuid.uuid4()),
             content=newcomment,
             user_sql_id=self.sql_id,
-            user_display_name = user['displayName'],
+            user_display_name=user['displayName'],
             creation_time=timestamp(),
             modified_time=timestamp())
         post = getGraphConnectionURI().find_one("Post", "id", postid)
@@ -228,7 +233,7 @@ class User:
         RETURN comment
         """
         try:
-            getGraphConnectionURI().cypher.execute(query,commentid= commentid, newcomment=newcomment );
+            getGraphConnectionURI().cypher.execute(query, commentid=commentid, newcomment=newcomment);
         except cypher.CypherError, cypher.CypherTransactionError:
             raise "Exception occured in function edit_comment"
 
@@ -313,7 +318,8 @@ class User:
         except cypher.CypherError, cypher.CypherTransactionError:
             raise "Exception occured in function get_search_friends"
 
-    #END OF USER class
+            # END OF USER class
+
 
 ############################################################################
 # function : get_all_recent_posts
@@ -335,6 +341,7 @@ def get_all_recent_posts():
     except cypher.CypherError, cypher.CypherTransactionError:
         raise "Exception occured in function get_all_recent_posts "
 
+
 ############################################################################
 # function : get_all_recent_comments
 # purpose : gets all comments from db
@@ -355,6 +362,7 @@ def get_all_recent_comments():
     except cypher.CypherError, cypher.CypherTransactionError:
         raise "Exception occured in function get_all_recent_comments "
 
+
 ############################################################################
 # function : timestamp
 # purpose : gets current timestamp value
@@ -369,6 +377,7 @@ def timestamp():
     delta = now - epoch
     return delta.total_seconds()
 
+
 ############################################################################
 # function : date
 # purpose : function to return current date with given format
@@ -381,15 +390,12 @@ def date():
     return dt.now().strftime('%Y-%m-%d')
 
 
-
-
 ################################################################################
 # Class : System
 # Contains information related to the system
 ################################################################################
 
 class System:
-
     ############################################################################
     # function : __init__
     # purpose : main function sets system_uid
@@ -403,7 +409,7 @@ class System:
 
     ############################################################################
     # function : get_system_by_name
-    # purpose : gets the system details for the matched system name
+    # purpose : gets the system details for the matched system name from neo4j database
     # params : systemName
     # returns : system node(s)
     # Exceptions : cypher.CypherError, cypher.CypherTransactionError
@@ -416,17 +422,53 @@ class System:
             RETURN system
         """
         try:
-            regExPattern = '(?i).*' + systemName +'.*'
-            system_details = getGraphConnectionURI().cypher.execute(query, systemName = regExPattern)
+            regExPattern = '(?i).*' + systemName + '.*'
+            system_details = getGraphConnectionURI().cypher.execute(query, systemName=regExPattern)
             return system_details
         except cypher.CypherError, cypher.CypherTransactionError:
-                raise "Exception occured in function get_system_by_name"
+            raise "Exception occured in function get_system_by_name"
 
+    ############################################################################
+    # function : get_system_by_uid
+    # purpose : gets the system details for the matched system_uid from neo4j database
+    # params : system_uid
+    # returns : system node
+    # Exceptions : cypher.CypherError, cypher.CypherTransactionError
+    ############################################################################
 
+    def get_system_by_uid(self, system_uid):
+        query = """
+            MATCH (system:System)
+            WHERE system.system_uid = {system_uid}
+            RETURN system
+        """
+        try:
+            system_neo4j = getGraphConnectionURI().cypher.execute(query, system_uid=system_uid)
+            return system_neo4j
+        except cypher.CypherError, cypher.CypherTransactionError:
+            raise "Exception occured in function get_system_by_uid"
+
+    ############################################################################
+    # function : get_mysql_system_by_uid
+    # purpose : gets the system details for the matched system_uid from mysql database
+    # params : system_uid
+    # returns : system node
+    # Exceptions : cypher.CypherError, cypher.CypherTransactionError
+    ############################################################################
+
+    def get_mysql_system_by_uid(self, system_uid):
+        try:
+            # system_mysql =  getGraphConnectionURI().cypher.execute(query, system_uid = system_uid)
+            # result = json.loads(response.data)
+            system_mysql = "hello"
+            return system_mysql
+        except Exception as e:
+            print str(e)
+            raise "Exception occured in function get_mysql_system_by_uid()"
 
     ############################################################################
     # function : get_admin_systems
-    # purpose : gets the system details where the specified user is admin for those systems
+    # purpose : gets the system details where the specified user is admin for those systems from neo4j database
     # params : sql_id
     # returns : system node(s)
     # Exceptions : cypher.CypherError, cypher.CypherTransactionError
@@ -439,16 +481,34 @@ class System:
             RETURN system
         """
         try:
-            admin_systems = getGraphConnectionURI().cypher.execute(query, sql_id = sql_id)
+            admin_systems = getGraphConnectionURI().cypher.execute(query, sql_id=sql_id)
             return admin_systems
         except cypher.CypherError, cypher.CypherTransactionError:
-                raise "Exception occured in function get_admin_systems"
+            raise "Exception occured in function get_admin_systems"
 
-
+    ############################################################################
+    # function : get_system_admins
+    # purpose : gets the admin detail for the provided system_uid from neo4j database
+    # params : system_uid
+    # returns : user node(s)
+    # Exceptions : cypher.CypherError, cypher.CypherTransactionError
+    ############################################################################
+    def get_system_admins(self, system_uid):
+        query = """
+            MATCH (user:User)-[rel:SYS_ADMIN]->(sys:System)
+            WHERE sys.system_uid = {system_uid}
+            return user, count(*) as total_admins
+            ORDER BY user.givenName
+        """
+        try:
+            system_admins = getGraphConnectionURI().cypher.execute(query, system_uid=system_uid)
+            return system_admins
+        except cypher.CypherError, cypher.CypherTransactionError:
+            raise "Exception occured in function get_system_admins"
 
     ############################################################################
     # function : get_participated_systems
-    # purpose : gets the system details where the user has participated for
+    # purpose : gets the system details where the user has participated for ; from neo4j database
     # params : sql_id
     # returns : system node(s)
     # Exceptions : cypher.CypherError, cypher.CypherTransactionError
@@ -461,15 +521,54 @@ class System:
             RETURN system
         """
         try:
-            participated_systems = getGraphConnectionURI().cypher.execute(query, sql_id = sql_id)
+            participated_systems = getGraphConnectionURI().cypher.execute(query, sql_id=sql_id)
             return participated_systems
         except cypher.CypherError, cypher.CypherTransactionError:
-                raise "Exception occured in function get_participated_systems"
+            raise "Exception occured in function get_participated_systems"
 
+    ############################################################################
+    # function : get_system_participants
+    # purpose : gets the participant detail for the provided system_uid from neo4j database
+    # params : system_uid
+    # returns : user node(s)
+    # Exceptions : cypher.CypherError, cypher.CypherTransactionError
+    ############################################################################
+    def get_system_participants(self, system_uid):
+        query = """
+            MATCH (user:User)-[rel:SYS_PARTICIPANT]->(sys:System)
+            WHERE sys.system_uid = {system_uid}
+            return user, count(*) as total_participants
+            ORDER BY user.givenName
+        """
+        try:
+            system_participants = getGraphConnectionURI().cypher.execute(query, system_uid=system_uid)
+            return system_participants
+        except cypher.CypherError, cypher.CypherTransactionError:
+            raise "Exception occured in function get_system_participants"
+
+    ############################################################################
+    # function : get_participants_pending_approval
+    # purpose : gets the participant details whose approval to join the system is pending by the administrator
+    # params : system_uid
+    # returns : user node(s)
+    # Exceptions : cypher.CypherError, cypher.CypherTransactionError
+    ############################################################################
+    def get_participants_pending_approval(self, system_uid):
+        query = """
+            MATCH (user:User)-[rel:SYS_PENDING_PARTICIPANT]->(sys:System)
+            WHERE sys.system_uid = {system_uid}
+            return user, count(*) as total_participants_pending_approval
+            ORDER BY user.givenName
+        """
+        try:
+            participants_pending_approval = getGraphConnectionURI().cypher.execute(query, system_uid=system_uid)
+            return participants_pending_approval
+        except cypher.CypherError, cypher.CypherTransactionError:
+            raise "Exception occured in function get_participants_pending_approval"
 
     ############################################################################
     # function : subscribed_systems
-    # purpose : gets the system details where the user has subscribed for
+    # purpose : gets the system details where the user has subscribed for ; from neo4j database
     # params : sql_id
     # returns : system node(s)
     # Exceptions : cypher.CypherError, cypher.CypherTransactionError
@@ -482,16 +581,54 @@ class System:
             RETURN system
         """
         try:
-            subscribed_systems = getGraphConnectionURI().cypher.execute(query, sql_id = sql_id)
+            subscribed_systems = getGraphConnectionURI().cypher.execute(query, sql_id=sql_id)
             return subscribed_systems
         except cypher.CypherError, cypher.CypherTransactionError:
-                raise "Exception occured in function get_subscribed_systems"
+            raise "Exception occured in function get_subscribed_systems"
 
+    ############################################################################
+    # function : get_system_subscribers
+    # purpose : gets the subscriber detail for the provided system_uid from neo4j database
+    # params : system_uid
+    # returns : user node(s)
+    # Exceptions : cypher.CypherError, cypher.CypherTransactionError
+    ############################################################################
+    def get_system_subscribers(self, system_uid):
+        query = """
+            MATCH (user:User)-[rel:SYS_SUBSCRIBER]->(sys:System)
+            WHERE sys.system_uid = {system_uid}
+            return user, count(*) as total_subscribers
+            ORDER BY user.givenName
+        """
+        try:
+            system_subscribers = getGraphConnectionURI().cypher.execute(query, system_uid=system_uid)
+            return system_subscribers
+        except cypher.CypherError, cypher.CypherTransactionError:
+            raise "Exception occured in function get_system_subscribers"
 
+    ############################################################################
+    # function : get_subscribers_pending_approval
+    # purpose : gets the subscriber details whose approval to join the system is pending by the administrator
+    # params : system_uid
+    # returns : user node(s)
+    # Exceptions : cypher.CypherError, cypher.CypherTransactionError
+    ############################################################################
+    def get_subscribers_pending_approval(self, system_uid):
+        query = """
+            MATCH (user:User)-[rel:SYS_PENDING_SUBSCRIBER]->(sys:System)
+            WHERE sys.system_uid = {system_uid}
+            return user, count(*) as total_subscriber_pending_approval
+            ORDER BY user.givenName
+        """
+        try:
+            subscribers_pending_approval = getGraphConnectionURI().cypher.execute(query, system_uid=system_uid)
+            return subscribers_pending_approval
+        except cypher.CypherError, cypher.CypherTransactionError:
+            raise "Exception occured in function get_subscribers_pending_approval"
 
     ############################################################################
     # function : get_recommended_systems
-    # purpose : gets the recommended system details for the specified user
+    # purpose : gets the recommended system details for the specified user from neo4j database
     # params : sql_id
     # returns : system node(s)
     # Exceptions : cypher.CypherError, cypher.CypherTransactionError
@@ -504,12 +641,10 @@ class System:
             RETURN system
         """
         try:
-            recommended_systems = getGraphConnectionURI().cypher.execute(query, sql_id = sql_id)
+            recommended_systems = getGraphConnectionURI().cypher.execute(query, sql_id=sql_id)
             return recommended_systems
         except cypher.CypherError, cypher.CypherTransactionError:
-                raise "Exception occured in function get_recommended_systems"
-
-
+            raise "Exception occured in function get_recommended_systems"
 
     ############################################################################
     # function : get_all_systems
@@ -529,5 +664,4 @@ class System:
             recommended_systems = getGraphConnectionURI().cypher.execute(query)
             return recommended_systems
         except cypher.CypherError, cypher.CypherTransactionError:
-                raise "Exception occured in function get_all_systems"
-
+            raise "Exception occured in function get_all_systems"
