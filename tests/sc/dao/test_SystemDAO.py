@@ -11,7 +11,7 @@ app.register_blueprint(social, url_prefix='/social')
 init_sc_app(app)
 
 
-class ScUserDAOTest(unittest.TestCase):
+class ScSystemDAOTest(unittest.TestCase):
 
 
     if __name__ == "__main__":

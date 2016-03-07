@@ -397,7 +397,7 @@ def get_user_by_sql_id(sql_id):
     return ScAPI(getGraphConnectionURI()).get_user_by_sql_id(sql_id)
 
 ######################################################################
-# API call to put user data
+# API call to put user node in the Neo4J database
 ######################################################################
 @social.route('/aqxapi/put/user', methods=['POST'])
 def create_user():
@@ -405,10 +405,27 @@ def create_user():
     return ScAPI(getGraphConnectionURI()).create_user(jsonObject)
 
 ######################################################################
-# API call to put user data
+# API call to delete user node in the Neo4J database
 ######################################################################
 @social.route('/aqxapi/delete/user/<sql_id>', methods=['DELETE'])
 def delete_user_by_sql_id(sql_id):
     if session.get('siteadmin') is not None:
         return ScAPI(getGraphConnectionURI()).delete_user_by_sql_id(sql_id)
 
+
+######################################################################
+# API call to create system node in the Neo4J database
+######################################################################
+@social.route('/aqxapi/put/system', methods=['POST'])
+def create_system():
+    jsonObject = request.get_json()
+    return ScAPI(getGraphConnectionURI()).create_system(jsonObject)
+
+
+######################################################################
+# API call to delete system node in the Neo4J database
+######################################################################
+@social.route('/aqxapi/delete/system/<system_id>', methods=['DELETE'])
+def delete_system_by_system_id(system_id):
+    if session.get('siteadmin') is not None:
+        return ScAPI(getGraphConnectionURI()).delete_system_by_system_id(system_id)

@@ -1,4 +1,5 @@
 from aqxWeb.sc.dao.UserDAO import UserDAO
+from aqxWeb.sc.dao.SystemDAO import SystemDAO
 import json
 
 
@@ -114,6 +115,7 @@ class ScAPI:
         except Exception as e:
             result = {'status': "Exception Occurred While Creating User Node in Neo4J Database: " + str(e)}
             return json.dumps({'error': result})
+
     ###############################################################################
 
     # function : delete_user_by_sql_id
@@ -131,4 +133,43 @@ class ScAPI:
         except ValueError:
             result = {"status": "sql_id should be integer value. Provided value: " + str(sql_id)}
             return json.dumps({'error': result})
+
     ###############################################################################
+    # function : create_system
+    # purpose : function used to create system node in the Neo4J database
+    # params : User jsonObject
+    # returns : Success/Error status
+    # Exceptions : General Exception
+    ###############################################################################
+    def create_system(self, jsonObject):
+        try:
+            sql_id = jsonObject.get('user')
+            system = jsonObject.get('system')
+            if sql_id is not None and system is not None:
+                SystemDAO(self.graph).create_system(jsonObject)
+                result = {'status': "System Node Successfully Created in Neo4J Database"}
+                return json.dumps({'success': result})
+            else:
+                result = {'status': "Invalid System JSON Object"}
+                return json.dumps({'error': result})
+        except Exception as e:
+            result = {'status': "Exception Occurred While Creating System Node in Neo4J Database: " + str(e)}
+            return json.dumps({'error': result})
+
+    ###############################################################################
+    # function : delete_system_by_system_id
+    # purpose : function used to delete system in the Neo4J database for the specified system_id
+    # params : system_id
+    # returns : Success/Error status
+    # Exceptions : ValueError
+    ###############################################################################
+    def delete_system_by_system_id(self, system_id):
+        try:
+            system_id = int(system_id)
+            SystemDAO(self.graph).delete_system_by_system_id(system_id)
+            result = {'status': "System Node Successfully Deleted in Neo4J Database"}
+            return json.dumps({'success': result})
+        except ValueError:
+            result = {"status": "system_id should be integer value. Provided value: " + str(system_id)}
+            return json.dumps({'error': result})
+            ###############################################################################

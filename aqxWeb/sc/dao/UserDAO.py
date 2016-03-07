@@ -1,12 +1,11 @@
 from py2neo import Node, cypher
 from flask import session
 from aqxWeb.sc.models import timestamp
-import json
 
 
 # DAO for User Node in the Neo4J database
 class UserDAO:
-    # constructor to get connection
+    # constructor to set connection
     def __init__(self, graph):
         self.graph = graph
 
@@ -56,9 +55,9 @@ class UserDAO:
 
 
     ###############################################################################
-    # function : _user_by_sql_id
-    # purpose : function used to delete the user from Neo4J Database based on sql_id
-    # params : self, sql_id
+    # function : create_user
+    # purpose : function used to create the user node in Neo4J Database
+    # params : self, user JSON Object
     # returns : None
     # Exceptions : cypher.CypherError, cypher.CypherTransactionError
     def create_user(self, jsonObject):
@@ -66,9 +65,9 @@ class UserDAO:
             user = jsonObject.get('user')
             sql_id = user.get('sql_id')
             sql_id = int(sql_id)
-            is_user_existing = self.graph.find_one("User", "sql_id", sql_id)
-            # Create User node in the Neo4J database, only when there is no existing user with the provided sql_id
-            if is_user_existing is None:
+            is_existing_user = self.graph.find_one("User", "sql_id", sql_id)
+            # Create User node in the Neo4J database, only when there is no user with the provided sql_id
+            if is_existing_user is None:
                 google_id = user.get('google_id')
                 email = user.get('email')
                 givenName = user.get('givenName')
@@ -84,6 +83,8 @@ class UserDAO:
                                 organization=organization, creation_time=timestamp(), modified_time=timestamp(),
                                 dob=dob, gender=gender, status=status)
                 self.graph.create(userNode)
+        except ValueError:
+            raise "sql_id should be integer value."
         except cypher.CypherError, cypher.CypherTransactionError:
             raise "Exception occured in function create_user"
 
