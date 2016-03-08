@@ -210,5 +210,14 @@ def get_system_measurements(system_uid):
     return davAPI.get_system_measurements(get_conn(), system_uid)
 
 
+######################################################################
+# API call to get light intensity measurement
+######################################################################
+
+@dav.route('/aqxapi/get/system/measurement/light/<system_uid>', methods=['GET'])
+def get_system_light(system_uid):
+    return
+
+
 if __name__ == '__main__':
     init_app()
