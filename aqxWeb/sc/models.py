@@ -370,6 +370,26 @@ class User:
         except cypher.CypherError, cypher.CypherTransactionError:
             raise "Exception occured in function send_friend_request "
 
+    ############################################################################
+    # function : get_user_by_email_id
+    # purpose : function used to find user name based on sql_id
+    # params : self (User), email_id
+    # returns : User node
+    # Exceptions : cypher.CypherError, cypher.CypherTransactionError
+    ############################################################################
+    def get_user_by_google_id(self, google_id):
+        query = """
+            MATCH (user:User)
+            WHERE user.google_id = {google_id}
+            RETURN user
+        """
+        try:
+            regExPattern = google_id
+            #user_profile = getGraphConnectionURI().find_one("User", "email", regExPattern)
+            user_profile = getGraphConnectionURI().cypher.execute(query, google_id=google_id)
+            return user_profile
+        except cypher.CypherError, cypher.CypherTransactionError:
+            raise "Exception occured in function get_user_by_google_id()"
 
     #END OF USER class
 

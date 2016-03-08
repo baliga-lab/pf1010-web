@@ -148,6 +148,28 @@ def updateprofile():
     return editprofile()
 
 
+#######################################################################################
+# function : profile
+# purpose :
+#           google_id : google id fetched from neo4j
+# parameters : user_id
+# returns: None
+# Exception : ?
+#######################################################################################
+@social.route('/profile/<google_id>', methods=['GET', 'POST'])
+def profile(google_id):
+    try:
+        user_profile = User(session['uid']).get_user_by_google_id(google_id)
+        # Invalid User ID
+        if user_profile is None:
+            return redirect(url_for('social.home'))
+        else:
+            print user_profile
+            return render_template("profile.html", user_profile=user_profile)
+    except Exception as e:
+        logging.exception("Exception at view_profile: " + str(e))
+
+
 @social.route('/friends', methods=['GET'])
 #######################################################################################
 # function : friends
