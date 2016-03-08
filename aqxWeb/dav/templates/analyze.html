@@ -44,7 +44,7 @@
         </div>
         <br>
         <div style="width: 50%;">
-            <div id="graphType" style="height: 300px; width: 100%;">
+            <div id="graphType" style="height: 100%; width: 100%;">
                 <select class="dropdown" id="selectGraphType">
                     <option value="line" selected="selected">Choose a Graph Style</option>
                     <option value="line">Line Chart</option>
@@ -52,8 +52,10 @@
                     <option value="barchart">Bar Chart</option>
                 </select>
             </div>
-            <input class="btn btn-primary" type="submit" id="submitbtn" name="newgraph" value="Submit"/>
-            <input class="btn btn-primary" type="button" id="resetbtn" name="reset" value="Reset"/>
+            <div id="buttons" style="padding-top: 3%">
+                <input class="btn btn-primary" type="submit" id="submitbtn" name="newgraph" value="Submit"/>
+                <input class="btn btn-primary" type="button" id="resetbtn" name="reset" value="Reset"/>
+            </div>
         </div>
     </div>
     {#    <div style="width: 50%" >#}
