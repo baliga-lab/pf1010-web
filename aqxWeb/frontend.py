@@ -30,10 +30,21 @@ def about():
 # function : system
 # purpose : renders single system overview page (not yet integrating DAV components)
 # parameters : None
-# returns: system.html page currently -- DAV components integration eventually
+# returns: system.html page currently
 #######################################################################################
 def system():
     return render_template('system.html')
+
+
+@frontend.route('/add_system')
+#######################################################################################
+# function : add system
+# purpose : renders form to add system
+# parameters : None
+# returns: add_system.html page
+#######################################################################################
+def add_system():
+    return render_template('add_system.html')
 
 
 @frontend.route('/settings')
@@ -45,7 +56,6 @@ def system():
 #######################################################################################
 def settings():
     return render_template('settings.html')
-
 
 
 @frontend.route('/coming')
