@@ -11,6 +11,10 @@ var CURSOR_TYPE = "pointer";
 var ZOOM_ENABLED = true;
 var TIME = "Time";
 var NITRATE = "Nitrate";
+var SELECTED = 'selected';
+var LINE = "line";
+var SCATTER = "scatter";
+var BAR_CHART = "barchart";
 
 /**
  *
@@ -116,6 +120,22 @@ window.onload = function () {
     populateDropdown(XAXIS, [TIME].concat(dropdown_values));
 };
 
+
+/**
+ *
+ * @param xType
+ * @param yTypes
+ * @param graphType
+ */
+var updateChartDataPoints = function(xType, yTypes, graphType){
+    var newDataSeries = [];
+    _.each(yTypes, function(type){
+        newDataSeries = newDataSeries.concat(getDataPointsForPlot(xType, type, graphType));
+    });
+    CHART.options.data = newDataSeries;
+};
+
+
 /**
  *
  */
@@ -133,13 +153,31 @@ var main = function(){
         });
 
         // Generate a data Series for each y-value type, and assign them all to the CHART
-        var newDataSeries = [];
-        _.each(yTypes, function(type){
-            newDataSeries = newDataSeries.concat(getDataPointsForPlot(xType, type, graphType));
-        });
-        CHART.options.data = newDataSeries;
+        updateChartDataPoints(xType, yTypes, graphType);
+
+        // TODO: What about the other chart characteristics? Symbols, ranges?
 
         // Render the new chart
+        CHART.render();
+    });
+
+    $('#resetbtn').click(function(){
+
+        // Reset X Axis selection to default
+        $('#selectXAxis option').prop(SELECTED, function() {
+            return this.defaultSelected;
+        });
+
+        // Reset Graph Type selection to default
+        $('#selectGraphType option').prop(SELECTED, function() {
+            return this.defaultSelected;
+        });
+
+        // Uncheck all Y Axis checkboxes
+        $('#listOfYAxisValues').find('input[type=checkbox]:checked').removeAttr('checked');
+
+        // Reset dataPoints to default nitrate vs. time and redraw chart
+        updateChartDataPoints(TIME, [NITRATE], LINE);
         CHART.render();
     });
 };
