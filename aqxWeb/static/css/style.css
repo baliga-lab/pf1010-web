@@ -9,6 +9,10 @@ body {
     color: #474440;
 }
 
+.page-header {
+    margin-top: 0;
+}
+
 .btn-blue {
     background-color: transparent;
     color: #6ab7b9;
@@ -50,7 +54,7 @@ Navigation
 #navbar-bottom {
     background-color: rgba(34, 34, 34, 0.9);
     border-color: rgba(8, 8, 8, 0.9);
-    margin-bottom: 0;
+    margin-bottom: 10px;
     border-radius: 0;
 }
 
