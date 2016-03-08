@@ -58,34 +58,12 @@
             </div>
         </div>
     </div>
-    {#    <div style="width: 50%" >#}
-    {#        <div id="hcContainer" style="height: 300px; width: 100%;">#}
-    {#            <label>Demo graphs</label>#}
-    {#        </div>#}
-    {#    </div>#}
 </div>
 <script>
-    var systems_and_measurements_object = {{ systems_and_measurements_json | safe }};
+    var systems_and_measurements = {{ systems_and_measurements_json | safe }};
     var dropdown_values = {{ measurement_types | safe }};
-    var systems_and_measurements = systems_and_measurements_object;
     $(document).ready(main());
+    window.onload(loadChart());
 </script>
 </body>
 </html>
-{##}
-{##}
-{#<div style="width: 50%;">#}
-{#    <div class="form-group">#}
-{#        <select class="dropdown" id="selectXAxis">#}
-{#            <option value="time" selected="selected">Choose x axis</option>#}
-{#        </select>#}
-{#    </div>#}
-{#</div>#}
-{#<br>#}
-{#<div style="width: 50%;">#}
-{#    <div class="form-group">#}
-{#        <select class="dropdown" id="selectYAxis">#}
-{#            <option value="nitrate" selected="selected">Choose y axis</option>#}
-{#        </select>#}
-{#    </div>#}
-{#</div>#}

@@ -1,4 +1,7 @@
-// Constants
+/* ##################################################################################################################
+   CONSTANTS
+   ################################################################################################################## */
+
 var XAXIS = "selectXAxis";
 var YAXIS = "selectYAxis";
 var XAXISVALUE = "";
@@ -16,14 +19,19 @@ var LINE = "line";
 var SCATTER = "scatter";
 var BAR_CHART = "barchart";
 
+
+/* ##################################################################################################################
+   HELPER FUNCTIONS
+   ################################################################################################################## */
+
 /**
  *
- * @param graphType - line or Splatter or bar
+ * @param graphType - Line or Scatter or Barchart
  * @param showLegend - boolean value (true or false)
  * @param systemName - name of system
  * @param dataPoints - array of values for graph; [{x:"", y: "", data: ""}]
- * @param content
- * @returns {{type: *, showInLegend: *, name: *, dataPoints: *}}
+ * @param content - HTML formatted String that populates dataPoint ToolTips
+ * @returns {{type: *, showInLegend: *, name: *, dataPoints: *, content: *}}
  */
 var getDataPoints = function(graphType, showLegend, systemName, dataPoints, content) {
     return {
@@ -31,9 +39,10 @@ var getDataPoints = function(graphType, showLegend, systemName, dataPoints, cont
         showInLegend: showLegend,
         name: systemName,
         dataPoints: dataPoints,
-        toolTipContent : content
+        toolTipContent: content
     };
 };
+
 
 // TODO: This will need to be re-evaluated to incorporate non-time x-axis values. For now, stubbing xType for this.
 /**
@@ -48,15 +57,21 @@ var getDataPointsForPlot = function(xType, yType, graphType){
     _.each(systems_and_measurements, function(systemMeasurements){
         _.each(systemMeasurements.measurement, function(measurement){
             if (_.isEqual(measurement.type.toLowerCase(), yType.toLowerCase())){
-                var content = buildTooltipContent(xType, yType);
                 dataPointsList.push(
-                    getDataPoints(graphType, SHOW_IN_LEGEND, systemMeasurements.name, measurement.values, content)
+                    getDataPoints(
+                        graphType,
+                        SHOW_IN_LEGEND,
+                        systemMeasurements.name,
+                        measurement.values,
+                        buildTooltipContent(xType, yType)
+                    )
                 );
             }
         });
     });
     return dataPointsList;
 };
+
 
 /**
  *
@@ -69,56 +84,6 @@ var buildTooltipContent = function(xType, yType){
         xType = "Hours since creation";
     }
     return "<h4>Measured on: {date}</h4> <p>" + xType + ": {x}</p> <p>" + yType + ": {y}</p>"
-};
-
-window.onload = function () {
-
-    //Grabs the default XAxis type, time, and the default YAxis type, pH
-    //var selected_yvalue_type = document.getElementById("selectYAxis").value;
-    //var selected_xvalue_type = document.getElementById("selectXAxis").value;
-
-    var selectedYType = NITRATE.toLowerCase();
-    var selectedXType = TIME.toLowerCase();
-
-    //Grabs the default graph type from the Graph Style selection dropdown
-    var graphType = document.getElementById(GRAPH_TYPE).value;
-
-    // Get the default nitrate vs. time dataPoints
-    var content = buildTooltipContent(selectedXType, selectedYType);
-    var dataPoints = getDataPointsForPlot(selectedXType, selectedYType, graphType, content);
-
-    // Create our default chart which plots nitrate vs. time
-    CHART = new CanvasJS.Chart("analyzeContainer", {
-        title :{
-            text : "My CanvasJS"
-        },
-        axisX : {
-            minimum : 0
-        },
-        legend : {
-            cursor : CURSOR_TYPE,
-            itemclick : function (e)
-            {
-                if (typeof (e.dataSeries.visible) === "undefined" || e.dataSeries.visible) {
-                    e.dataSeries.visible = false;
-                } else {
-                    e.dataSeries.visible = true;
-                }
-                e.chart.render();
-            }
-        },
-        toolTip : {
-            content : buildTooltipContent(selectedXType, selectedYType)
-        },
-        zoomEnabled : ZOOM_ENABLED,
-        data : dataPoints
-    });
-
-    // Render the default chart
-    CHART.render();
-
-    // Fill x-value dropdown with all measurement types, plus time
-    populateDropdown(XAXIS, [TIME].concat(dropdown_values));
 };
 
 
@@ -139,7 +104,28 @@ var updateChartDataPoints = function(chart, xType, yTypes, graphType){
 
 
 /**
+ * Populates dropdown menus for each metadata category
  *
+ * @param elementId - Id of the dropdown to populate
+ * @param measurement_data_object - Object containing unique measurement types. Ex: pH, nitrate, time
+ */
+var populateDropdown = function(elementId, measurement_data_object){
+    var select = document.getElementById(elementId);
+    _.each(measurement_data_object, function(measurement_type){
+        var el = document.createElement(OPTION);
+        el.textContent = measurement_type;
+        el.value = measurement_type.toLowerCase();
+        select.appendChild(el);
+    });
+};
+
+
+/* ##################################################################################################################
+   PAGE-DRIVING FUNCTIONS
+   ################################################################################################################## */
+
+/**
+ *  main - Sets behaviors for Submit and Reset buttons
  */
 var main = function(){
 
@@ -185,18 +171,55 @@ var main = function(){
     });
 };
 
+
 /**
- * Populates dropdown menus for each metadata category
  *
- * @param elementId - Id of the dropdown to populate
- * @param measurement_data_object - Object containing unique measurement types. Ex: pH, nitrate, time
+ * loadChart - On window load, populates the Chart, dropdowns, and checklist
  */
-var populateDropdown = function(elementId, measurement_data_object){
-    var select = document.getElementById(elementId);
-    _.each(measurement_data_object, function(measurement_type){
-        var el = document.createElement(OPTION);
-        el.textContent = measurement_type;
-        el.value = measurement_type.toLowerCase();
-        select.appendChild(el);
+var loadChart = function() {
+    //Grabs the default XAxis type, time, and the default YAxis type, pH
+    //var selected_yvalue_type = document.getElementById("selectYAxis").value;
+    //var selected_xvalue_type = document.getElementById("selectXAxis").value;
+
+    var selectedYType = NITRATE.toLowerCase();
+    var selectedXType = TIME.toLowerCase();
+
+    //Grabs the default graph type from the Graph Style selection dropdown
+    var graphType = document.getElementById(GRAPH_TYPE).value;
+
+    // Get the default nitrate vs. time dataPoints
+    var content = buildTooltipContent(selectedXType, selectedYType);
+    var dataPoints = getDataPointsForPlot(selectedXType, selectedYType, graphType, content);
+
+    // Create our default chart which plots nitrate vs. time
+    CHART = new CanvasJS.Chart("analyzeContainer", {
+        title :{
+            text : "My CanvasJS"
+        },
+        // TODO: This will change, we need a procedure for setting min/max ranges based on XType
+        // TODO: Also need to take into consideration ranges for YType
+        axisX : {
+            minimum : 0
+        },
+        legend : {
+            cursor : CURSOR_TYPE,
+            itemclick : function (e)
+            {
+                if (typeof (e.dataSeries.visible) === "undefined" || e.dataSeries.visible) {
+                    e.dataSeries.visible = false;
+                } else {
+                    e.dataSeries.visible = true;
+                }
+                e.chart.render();
+            }
+        },
+        zoomEnabled : ZOOM_ENABLED,
+        data : dataPoints
     });
+
+    // Render the default chart
+    CHART.render();
+
+    // Fill x-value dropdown with all measurement types, plus time
+    populateDropdown(XAXIS, [TIME].concat(dropdown_values));
 };
