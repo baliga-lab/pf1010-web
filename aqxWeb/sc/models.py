@@ -165,6 +165,26 @@ class User:
             getGraphConnectionURI().create_unique(rel)
         except cypher.CypherError, cypher.CypherTransactionError:
             raise "Exception occured in function like_post "
+    def add_post(self, text, privacy, link):
+        user = self.find()
+        post = Node(
+            "Post",
+            id = str(uuid.uuid4()),
+            text = text,
+            link = link,
+            privacy = privacy,
+            creation_time = timestamp(),
+            modified_time = timestamp(),
+            date = date()
+        )
+        rel = Relationship(user, "POSTED", post)
+        try:
+            getGraphConnectionURI().create(rel)
+        except cypher.CypherError, cypher.CypherTransactionError:
+            raise "Exception occured in function add_post "
+
+
+
 
     ############################################################################
     # function : get_search_friends
@@ -184,6 +204,38 @@ class User:
             return results;
         except cypher.CypherError, cypher.CypherTransactionError:
             raise "Exception occured in function get_search_friends"
+
+
+############################################################################
+    # function : send_friend_request
+    # purpose : Adds new post node in neo4j with the given information and creates
+    #            POSTED relationship between Post and User node
+    # params :
+    #        text : contains the data shared in post
+    #        privacy : privacy level of the post
+    #        link : contains the link information
+    # returns : None
+    # Exceptions : cypher.CypherError, cypher.CypherTransactionError
+    ############################################################################
+
+    def send_friend_request(self):
+        user = self.find()
+        print(user)
+        print(user.properties["email"])
+        sender_email= user.properties["email"];
+
+        receiver_email = "bvenkatesh.tec@gmail.com";
+        query = """
+            MATCH  (n:User),(n1:User)
+            Where n.email = {sender_email} AND n1.email = {receiver_email}
+            CREATE (n)- [r:SentRequest{senderid:{sender_email},receiverid:{receiver_email}}] ->(n1)
+            RETURN r
+        """
+        try:
+            results = getGraphConnectionURI().cypher.execute(query,sender_email= user.properties["email"],receiver_email = "bvenkatesh.tec@gmail.com");
+        except cypher.CypherError, cypher.CypherTransactionError:
+            raise "Exception occured in function send_friend_request "
+
 
     #END OF USER class
 
@@ -402,4 +454,5 @@ class System:
             return recommended_systems
         except cypher.CypherError, cypher.CypherTransactionError:
                 raise "Exception occured in function get_all_systems"
+
 

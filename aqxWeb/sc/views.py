@@ -241,7 +241,19 @@ def search_systems():
 def view_system(system_uid):
     return "Systems Page Under Construction: " + system_uid
 
-
+@social.route('/send_friend_request', methods=['POST'])
+#######################################################################################
+# function : send_friend_request
+# purpose : adds comments to the post
+# parameters : None
+# returns: calls index function
+# Exception : None
+#######################################################################################
+def send_friend_request():
+    sender_email = User(session['email'])
+    User(session['uid']).send_friend_request()
+    flash('Your request has been sent')
+    return redirect(url_for('social.index'))
 
 
 @social.route('/add_comment', methods=['POST'])
