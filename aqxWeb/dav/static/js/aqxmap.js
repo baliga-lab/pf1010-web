@@ -366,7 +366,6 @@ $('#listOfUserSystems').change(function() {
 });
 
 
-
 var populate_dummy_user_systems_checklist = function(){
     var user_systems_and_info = {
         "systems":

@@ -7,6 +7,14 @@
     <script type="text/javascript" src="{{ url_for('dav.static', filename='js/underscore-min.js') }}"></script>
     <script src="{{ url_for('dav.static', filename='js/aqxGraph.js') }}"></script>
     <link rel="stylesheet" href="{{ url_for('dav.static', filename='css/styles.css')}}">
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+
+    <!-- Optional theme -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap-theme.min.css" integrity="sha384-fLW2N01lMqjakBkx3l/M9EahuwpSfeNvV63J5ezn3uZzapT0u7EYsXMjQV+0En5r" crossorigin="anonymous">
+
+    <!-- Latest compiled and minified JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
     <title>Title</title>
 </head>
 <body>
@@ -26,12 +34,13 @@
             </div>
         </div>
         <br>
-        <div style="width: 50%;">
-            <div class="form-group">
-                <select class="dropdown" id="selectYAxis">
-                    <option value="nitrate" selected="selected">Choose y axis</option>
-                </select>
-            </div>
+        <div class="form-group" style="width: 50%; padding-top:2%;">
+            <label class="control-label">Select Y Axis</label>
+            <ul id="listOfYAxisValues" style="overflow-y: scroll; max-height: 110px;">
+                {% for type in measurement_types %}
+                    <li><input type="checkbox" value="{{type.lower()}}">{{ type }}</li>
+                {% endfor %}
+            </ul>
         </div>
         <br>
         <div style="width: 50%;">
@@ -43,24 +52,37 @@
                     <option value="barchart">Bar Chart</option>
                 </select>
             </div>
+            <input class="btn btn-primary" type="submit" id="submitbtn" name="newgraph" value="Submit"/>
         </div>
-        <br><br>
-
     </div>
     {#    <div style="width: 50%" >#}
-    {#         <div id="hcContainer" style="height: 300px; width: 100%;">#}
-    {#                <label>Demo graphs</label>#}
-    {#         </div>#}
+    {#        <div id="hcContainer" style="height: 300px; width: 100%;">#}
+    {#            <label>Demo graphs</label>#}
+    {#        </div>#}
     {#    </div>#}
 </div>
 <script>
-    {#    var mo ={{ moooo|safe}};#}
-    {#    var dat = {{ data | safe }};#}
-{#    var systems_and_measurements_object = {{ systems_and_measurements_json | safe }};#}
-    var systems_and_measurements = {{ systems_and_measurements_json | safe }};
+    var systems_and_measurements_object = {{ systems_and_measurements_json | safe }};
     var dropdown_values = {{ measurement_types | safe }};
-{#    var systems_and_measurements = systems_and_measurements_object.response;#}
-
+    var systems_and_measurements = systems_and_measurements_object;
+    $(document).ready(main());
 </script>
 </body>
 </html>
+{##}
+{##}
+{#<div style="width: 50%;">#}
+{#    <div class="form-group">#}
+{#        <select class="dropdown" id="selectXAxis">#}
+{#            <option value="time" selected="selected">Choose x axis</option>#}
+{#        </select>#}
+{#    </div>#}
+{#</div>#}
+{#<br>#}
+{#<div style="width: 50%;">#}
+{#    <div class="form-group">#}
+{#        <select class="dropdown" id="selectYAxis">#}
+{#            <option value="nitrate" selected="selected">Choose y axis</option>#}
+{#        </select>#}
+{#    </div>#}
+{#</div>#}
