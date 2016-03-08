@@ -22,22 +22,22 @@ var BAR_CHART = "barchart";
  * @param showLegend - boolean value (true or false)
  * @param systemName - name of system
  * @param dataPoints - array of values for graph; [{x:"", y: "", data: ""}]
+ * @param content
  * @returns {{type: *, showInLegend: *, name: *, dataPoints: *}}
  */
-var getDataPoints = function(graphType, showLegend, systemName, dataPoints) {
-    var canvasDataPoints = {
+var getDataPoints = function(graphType, showLegend, systemName, dataPoints, content) {
+    return {
         type: graphType,
         showInLegend: showLegend,
         name: systemName,
-        dataPoints: dataPoints
+        dataPoints: dataPoints,
+        toolTipContent : content
     };
-    return canvasDataPoints;
 };
 
 // TODO: This will need to be re-evaluated to incorporate non-time x-axis values. For now, stubbing xType for this.
 /**
  *
- * @returns
  * @param xType - X-axis values. Ex: Time, pH, Hardness
  * @param yType - Y-axis values. Ex: pH, Nitrate
  * @param graphType - Type of graph to display. Ex: line, scatter
@@ -46,11 +46,11 @@ var getDataPoints = function(graphType, showLegend, systemName, dataPoints) {
 var getDataPointsForPlot = function(xType, yType, graphType){
     var dataPointsList = [];
     _.each(systems_and_measurements, function(systemMeasurements){
-        var measurements = systemMeasurements.measurement;
-        _.each(measurements, function(measurement){
+        _.each(systemMeasurements.measurement, function(measurement){
             if (_.isEqual(measurement.type.toLowerCase(), yType.toLowerCase())){
+                var content = buildTooltipContent(xType, yType);
                 dataPointsList.push(
-                    getDataPoints(graphType, SHOW_IN_LEGEND, systemMeasurements.name, measurement.values)
+                    getDataPoints(graphType, SHOW_IN_LEGEND, systemMeasurements.name, measurement.values, content)
                 );
             }
         });
@@ -65,7 +65,7 @@ var getDataPointsForPlot = function(xType, yType, graphType){
  * @returns HTML that populates dataPoint ToolTips with the specifics of a measurement
  */
 var buildTooltipContent = function(xType, yType){
-    if (xType === TIME){
+    if (xType === TIME.toLowerCase()){
         xType = "Hours since creation";
     }
     return "<h4>Measured on: {date}</h4> <p>" + xType + ": {x}</p> <p>" + yType + ": {y}</p>"
@@ -77,14 +77,15 @@ window.onload = function () {
     //var selected_yvalue_type = document.getElementById("selectYAxis").value;
     //var selected_xvalue_type = document.getElementById("selectXAxis").value;
 
-    var selected_yvalue_type = NITRATE.toLowerCase();
-    var selected_xvalue_type = TIME.toLowerCase();
+    var selectedYType = NITRATE.toLowerCase();
+    var selectedXType = TIME.toLowerCase();
 
     //Grabs the default graph type from the Graph Style selection dropdown
-    var graph_type = document.getElementById(GRAPH_TYPE).value;
+    var graphType = document.getElementById(GRAPH_TYPE).value;
 
     // Get the default nitrate vs. time dataPoints
-    var dataPoints = getDataPointsForPlot(selected_xvalue_type, selected_yvalue_type, graph_type);
+    var content = buildTooltipContent(selectedXType, selectedYType);
+    var dataPoints = getDataPointsForPlot(selectedXType, selectedYType, graphType, content);
 
     // Create our default chart which plots nitrate vs. time
     CHART = new CanvasJS.Chart("analyzeContainer", {
@@ -107,7 +108,7 @@ window.onload = function () {
             }
         },
         toolTip : {
-            content : buildTooltipContent(selected_xvalue_type, selected_yvalue_type)
+            content : buildTooltipContent(selectedXType, selectedYType)
         },
         zoomEnabled : ZOOM_ENABLED,
         data : dataPoints
@@ -123,16 +124,17 @@ window.onload = function () {
 
 /**
  *
+ * @param chart
  * @param xType
  * @param yTypes
  * @param graphType
  */
-var updateChartDataPoints = function(xType, yTypes, graphType){
+var updateChartDataPoints = function(chart, xType, yTypes, graphType){
     var newDataSeries = [];
     _.each(yTypes, function(type){
         newDataSeries = newDataSeries.concat(getDataPointsForPlot(xType, type, graphType));
     });
-    CHART.options.data = newDataSeries;
+    chart.options.data = newDataSeries;
 };
 
 
@@ -153,14 +155,15 @@ var main = function(){
         });
 
         // Generate a data Series for each y-value type, and assign them all to the CHART
-        updateChartDataPoints(xType, yTypes, graphType);
+        updateChartDataPoints(CHART, xType, yTypes, graphType);
 
-        // TODO: What about the other chart characteristics? Symbols, ranges?
+        // TODO: What about the other chart characteristics? Symbols, ranges, different scales, different y-axes?
 
         // Render the new chart
         CHART.render();
     });
 
+    // Reset button, returns dropdowns to default, clears checklist, and displays defuault nitrate vs time graph
     $('#resetbtn').click(function(){
 
         // Reset X Axis selection to default
@@ -174,10 +177,10 @@ var main = function(){
         });
 
         // Uncheck all Y Axis checkboxes
-        $('#listOfYAxisValues').find('input[type=checkbox]:checked').removeAttr('checked');
+        $('#listOfYAxisValues').find('input[type=checkbox]:checked').removeProp('checked');
 
         // Reset dataPoints to default nitrate vs. time and redraw chart
-        updateChartDataPoints(TIME, [NITRATE], LINE);
+        updateChartDataPoints(CHART, TIME, [NITRATE], LINE);
         CHART.render();
     });
 };
