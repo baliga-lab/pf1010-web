@@ -193,6 +193,21 @@ def searchFriends():
         return render_template("/home.html")
 
 
+@social.route('/send_friend_request', methods=['POST'])
+#######################################################################################
+# function : send_friend_request
+# purpose : adds comments to the post
+# parameters : None
+# returns: calls index function
+# Exception : None
+#######################################################################################
+def send_friend_request():
+    sender_email = User(session['email'])
+    User(session['uid']).send_friend_request()
+    flash('Your request has been sent')
+    return redirect(url_for('social.index'))
+
+
 #######################################################################################
 # function : search_systems
 # purpose : renders search_systems.html
@@ -230,7 +245,6 @@ def search_systems():
         else:
             return redirect(url_for('social.index'))
 
-
 #######################################################################################
 # function : systems
 # purpose : renders systems.html
@@ -239,26 +253,8 @@ def search_systems():
 # Exception : General Exception
 #######################################################################################
 
-@social.route('/systems/<system_uid>', methods=['GET'])
-def view_system(system_uid):
-    return "Systems Page Under Construction: " + system_uid
-
-@social.route('/send_friend_request', methods=['POST'])
-#######################################################################################
-# function : send_friend_request
-# purpose : adds comments to the post
-# parameters : None
-# returns: calls index function
-# Exception : None
-#######################################################################################
-def send_friend_request():
-    sender_email = User(session['email'])
-    User(session['uid']).send_friend_request()
-    flash('Your request has been sent')
-    return redirect(url_for('social.index'))
-
 @social.route('/systems/<system_uid>', methods=['GET', 'POST'])
-def systems(system_uid):
+def view_system(system_uid):
     try:
         if request.method == 'GET':
             system_neo4j = System().get_system_by_uid(system_uid)
