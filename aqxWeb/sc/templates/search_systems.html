@@ -58,7 +58,7 @@
                                 </ul>
                                 <br/>
                                 <ul>
-                                    <a href="#">{{ row.system.name }}</a>
+                                    <a href="{{ url_for('social.systems', system_uid=row.system.system_uid) }}">{{ row.system.name }}</a>
                                 </ul>
                             </div>
                         {% endfor %}
@@ -97,7 +97,7 @@
                                 </ul>
                                 <br/>
                                 <ul>
-                                    <a href="#">{{ row.system.name }}</a>
+                                    <a href="{{ url_for('social.systems', system_uid=row.system.system_uid) }}">{{ row.system.name }}</a>
                                 </ul>
                             </div>
                         {% endfor %}
@@ -130,7 +130,7 @@
                                 </ul>
                                 <br/>
                                 <ul>
-                                    <a href="#"> {{ row.system.name }} </a>
+                                    <a href="{{ url_for('social.systems', system_uid=row.system.system_uid) }}"> {{ row.system.name }} </a>
                                 </ul>
                             </div>
                         {% endfor %}
@@ -173,7 +173,7 @@
                                 </ul>
                                 <br/>
                                 <ul>
-                                    <a href="#">{{ row.system.name }}</a>
+                                    <a href="{{ url_for('social.systems', system_uid=row.system.system_uid) }}">{{ row.system.name }}</a>
                                 </ul>
                             </div>
                         {% endfor %}
@@ -208,7 +208,7 @@
                                 </ul>
                                 <br/>
                                 <ul>
-                                    <a href="#">{{ row.system.name }}</a>
+                                    <a href="{{ url_for('social.systems', system_uid=row.system.system_uid) }}">{{ row.system.name }}</a>
                                 </ul>
                             </div>
                         {% endfor %}
@@ -240,37 +240,37 @@
 
         <!-- All Systems Div -->
         <div class="container" id="allSystemsTab">
-           <!-- Search Results Div -->
-                <div class="row systemSearchResults">
-                    <h4>All Systems:</h4>
-                    <hr>
-                    {% if all_systems %}
-                        {% for row in all_systems %}
-                            <div class="row">
-                                <ul class="pull-left">
-                                    <img src="static/images/default_system_thumbnail.png" alt="System" height="32"
-                                         width="32">
-                                </ul>
-                                <br/>
-                                <ul>
-                                    <a href="#">{{ row.system.name }}</a>
-                                </ul>
-                            </div>
-                        {% endfor %}
-                    {% else %}
+            <!-- Search Results Div -->
+            <div class="row systemSearchResults">
+                <h4>All Systems:</h4>
+                <hr>
+                {% if all_systems %}
+                    {% for row in all_systems %}
                         <div class="row">
                             <ul class="pull-left">
-                                <img src="static/images/sad_smiley.png" alt="System" height="32"
+                                <img src="static/images/default_system_thumbnail.png" alt="System" height="32"
                                      width="32">
                             </ul>
                             <br/>
                             <ul>
-                                Sorry, there is no system present in the database.
+                                <a href="{{ url_for('social.systems', system_uid=row.system.system_uid) }}">{{ row.system.name }}</a>
                             </ul>
                         </div>
-                    {% endif %}
-                </div>
-                <!-- End of Search Results Div -->
+                    {% endfor %}
+                {% else %}
+                    <div class="row">
+                        <ul class="pull-left">
+                            <img src="static/images/sad_smiley.png" alt="System" height="32"
+                                 width="32">
+                        </ul>
+                        <br/>
+                        <ul>
+                            Sorry, there is no system present in the database.
+                        </ul>
+                    </div>
+                {% endif %}
+            </div>
+            <!-- End of Search Results Div -->
         </div>
         <!-- End of All Systems Div -->
 
