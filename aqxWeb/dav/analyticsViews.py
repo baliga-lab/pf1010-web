@@ -136,7 +136,7 @@ def analyzeGraph():
     systems_and_measurements_json = systems_and_measurements_json['response']
     selected_systemID_list = ["system_12345", "system_54321"]
     measurement_types = ["Nitrate", "Nitrite", "Hardness", "Chlorine", "Alkalinity", "pH", "Ammonia", "Water Temp", "Light intensity",
-                         "Light wavelength","Light intensity","DO","NO3","NH4","pH","Day length","Conductivity"]
+                         "Light wavelength","Light intensity","DO","NO3","NH4","Day length","Conductivity"]
 
     # get measurement information
     # text = request.form['text']

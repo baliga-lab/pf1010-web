@@ -20,6 +20,7 @@ var UNCHECKED = "unchecked";
 var LINE = "line";
 var SCATTER = "scatter";
 var BAR_CHART = "barchart";
+var DEFAULT_Y = "ph";
 
 
 /* ##################################################################################################################
@@ -129,23 +130,6 @@ var updateChartDataPoints = function(chart, xType, yTypeList, graphType){
 };
 
 
-/**
- * Populates dropdown menus for each metadata category
- *
- * @param elementId - Id of the dropdown to populate
- * @param measurement_data_object - Object containing unique measurement types. Ex: pH, nitrate, time
- */
-var populateDropdown = function(elementId, measurement_data_object){
-    var select = document.getElementById(elementId);
-    _.each(measurement_data_object, function(measurement_type){
-        var el = document.createElement(OPTION);
-        el.textContent = measurement_type;
-        el.value = measurement_type.toLowerCase();
-        select.appendChild(el);
-    });
-};
-
-
 /* ##################################################################################################################
  PAGE-DRIVING FUNCTIONS
  ################################################################################################################### */
@@ -156,10 +140,7 @@ var populateDropdown = function(elementId, measurement_data_object){
 var main = function(){
 
     // Check nitrate as the default y-axis value
-    $('input[type=checkbox][value="nitrate"]').prop('checked', true);
-
-    // Fill x-value dropdown with all measurement types, plus time
-    //populateDropdown(XAXIS, [TIME].concat(dropdown_values));
+    $('input[type=checkbox][value='+DEFAULT_Y+']').prop('checked', true);
 
     // When the submit button is clicked, redraw the graph based on user selections
     $('#submitbtn').click(function() {
@@ -193,12 +174,24 @@ var main = function(){
         $('#selectGraphType option').prop(SELECTED, function() {
             return this.defaultSelected;
         });
-
-        // Uncheck all Y Axis checkboxes
+        
+        // Uncheck all Y Axis checkboxes except nitrate
         $('#listOfYAxisValues').find('input[type=checkbox]:checked').removeProp(CHECKED);
-        $('input[type=checkbox][value="nitrate"]').prop('checked', true);
+        $('input[type=checkbox][value='+DEFAULT_Y+']').prop('checked', true);
+
+        var yTypes = [];
+        _.each($('#listOfYAxisValues input:checked'), function(checkedInput){
+            yTypes.push(checkedInput.value.toLowerCase());
+        });
+
+        // Grab x-axis selection from dropdown
+        var xType = document.getElementById(XAXIS).value;
+
+        //Grabs the default graph type from the Graph Style selection dropdown
+        var graphType = document.getElementById(GRAPH_TYPE).value;
+
         // Reset dataPoints to default nitrate vs. time and redraw chart
-        updateChartDataPoints(CHART, TIME, [NITRATE], LINE);
+        updateChartDataPoints(CHART, xType, yTypes, graphType);
         CHART.render();
     });
 };
