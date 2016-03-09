@@ -15,6 +15,10 @@
 
     <!-- Latest compiled and minified JavaScript -->
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
+
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
+    <script src="{{ url_for('dav.static', filename='js/jquery.tokenize.js') }}"></script>
+    <link rel="stylesheet" href="{{ url_for('dav.static', filename='css/jquery.tokenize.css')}}">
     <title>Title</title>
 </head>
 <body>
@@ -29,7 +33,7 @@
         <div style="width: 50%;">
             <div class="form-group">
                 <label class="control-label">Select X Axis</label>
-                <select class="dropdown" id="selectXAxis">
+                 <select class="dropdown" id="selectXAxis">
                     <option name="xAxisTypes" value="time" selected="selected">Time</option>
                     {% for type in measurement_types %}
                         <option name="xAxisTypes" value="{{type.lower()}}">{{ type }}</option>
@@ -39,11 +43,16 @@
         </div>
         <div class="form-group" style="width: 50%; padding-top:2%;">
             <label class="control-label">Select Y Axis</label>
-            <ul id="listOfYAxisValues" style="overflow-y: scroll; max-height: 110px;">
+            <select id="tokenize" multiple="multiple" class="tokenize-sample">
                 {% for type in measurement_types %}
-                    <li><input name="measurementTypes" type="checkbox" value="{{type.lower()}}">{{ type }}</li>
-                {% endfor %}
-            </ul>
+                    <option value="{{type.lower()}}">{{ type }}</option>
+                                {% endfor %}
+            </select>
+            <script type="text/javascript">
+            $('#tokenize').tokenize({
+            displayDropdownOnFocus: true
+            });
+            </script>
         </div>
         <br>
         <div style="width: 50%;">
