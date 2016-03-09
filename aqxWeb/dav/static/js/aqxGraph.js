@@ -1,6 +1,6 @@
 /* ##################################################################################################################
-   CONSTANTS
-   ################################################################################################################## */
+ CONSTANTS
+ ################################################################################################################### */
 
 var XAXIS = "selectXAxis";
 var YAXIS = "selectYAxis";
@@ -12,17 +12,19 @@ var SHOW_IN_LEGEND = true;
 var GRAPH_TYPE = "selectGraphType";
 var CURSOR_TYPE = "pointer";
 var ZOOM_ENABLED = true;
-var TIME = "Time";
-var NITRATE = "Nitrate";
+var TIME = "time";
+var NITRATE = "nitrate";
 var SELECTED = 'selected';
+var CHECKED = "checked";
+var UNCHECKED = "unchecked";
 var LINE = "line";
 var SCATTER = "scatter";
 var BAR_CHART = "barchart";
 
 
 /* ##################################################################################################################
-   HELPER FUNCTIONS
-   ################################################################################################################## */
+ HELPER FUNCTIONS
+ #################################################################################################################### */
 
 /**
  *
@@ -54,14 +56,15 @@ var getDataPoints = function(graphType, showLegend, systemName, dataPoints, cont
  */
 var getDataPointsForPlot = function(xType, yType, graphType){
     var dataPointsList = [];
-    _.each(systems_and_measurements, function(systemMeasurements){
-        _.each(systemMeasurements.measurement, function(measurement){
+    _.each(systems_and_measurements, function(system){
+        var measurements = system.measurement;
+        _.each(measurements, function(measurement){
             if (_.isEqual(measurement.type.toLowerCase(), yType.toLowerCase())){
                 dataPointsList.push(
                     getDataPoints(
                         graphType,
                         SHOW_IN_LEGEND,
-                        systemMeasurements.name,
+                        system.name,
                         measurement.values,
                         buildTooltipContent(xType, yType)
                     )
@@ -89,15 +92,38 @@ var buildTooltipContent = function(xType, yType){
 
 /**
  *
- * @param chart
- * @param xType
- * @param yTypes
- * @param graphType
+ * @returns {Array} - An array of all measurement types currently being stored
  */
-var updateChartDataPoints = function(chart, xType, yTypes, graphType){
+var getActiveMeasurements = function() {
+    // Grab all measurement types in the checklist
+    var activeMeasurements = [];
+    var systemMeasurements = _.first(systems_and_measurements).measurement;
+    _.each(systemMeasurements, function(measurement){
+        activeMeasurements.push(measurement.type.toLowerCase());
+    });
+    return activeMeasurements;
+};
+
+
+/**
+ *
+ * @param chart - A CanvasJS chart
+ * @param xType - X-axis value chosen from dropdown
+ * @param yTypeList - List of y-axis values selected from the checklist
+ * @param graphType - The graph type chosen from dropdown
+ */
+var updateChartDataPoints = function(chart, xType, yTypeList, graphType){
     var newDataSeries = [];
-    _.each(yTypes, function(type){
-        newDataSeries = newDataSeries.concat(getDataPointsForPlot(xType, type, graphType));
+    var activeMeasurements = getActiveMeasurements();
+    var measurementsToFetch = _.difference(yTypeList, activeMeasurements);
+    if (measurementsToFetch.length > 0) {
+        console.log("Call API for " + measurementsToFetch);
+        // Some AJAX function that grabs data from API or DB, then updates systems_and_measurements with the response
+        // selectedSystemIDs is a global carried over from the view fxn
+        // updateSystemsAndMeasurementsObject(selectedSystemIDs, measurementsToFetch);
+    }
+    _.each(yTypeList, function(yType){
+        newDataSeries = newDataSeries.concat(getDataPointsForPlot(xType, yType, graphType));
     });
     chart.options.data = newDataSeries;
 };
@@ -121,13 +147,19 @@ var populateDropdown = function(elementId, measurement_data_object){
 
 
 /* ##################################################################################################################
-   PAGE-DRIVING FUNCTIONS
-   ################################################################################################################## */
+ PAGE-DRIVING FUNCTIONS
+ ################################################################################################################### */
 
 /**
- *  main - Sets behaviors for Submit and Reset buttons
+ *  main - Sets behaviors for Submit and Reset buttons, populates x-axis dropdown, and checks nitrate as default y-axis
  */
 var main = function(){
+
+    // Check nitrate as the default y-axis value
+    $('input[type=checkbox][value="nitrate"]').prop('checked', true);
+
+    // Fill x-value dropdown with all measurement types, plus time
+    //populateDropdown(XAXIS, [TIME].concat(dropdown_values));
 
     // When the submit button is clicked, redraw the graph based on user selections
     $('#submitbtn').click(function() {
@@ -163,8 +195,8 @@ var main = function(){
         });
 
         // Uncheck all Y Axis checkboxes
-        $('#listOfYAxisValues').find('input[type=checkbox]:checked').removeProp('checked');
-
+        $('#listOfYAxisValues').find('input[type=checkbox]:checked').removeProp(CHECKED);
+        $('input[type=checkbox][value="nitrate"]').prop('checked', true);
         // Reset dataPoints to default nitrate vs. time and redraw chart
         updateChartDataPoints(CHART, TIME, [NITRATE], LINE);
         CHART.render();
@@ -174,22 +206,21 @@ var main = function(){
 
 /**
  *
- * loadChart - On window load, populates the Chart, dropdowns, and checklist
+ * loadChart - On window load, populates the Chart
  */
-var loadChart = function() {
-    //Grabs the default XAxis type, time, and the default YAxis type, pH
-    //var selected_yvalue_type = document.getElementById("selectYAxis").value;
-    //var selected_xvalue_type = document.getElementById("selectXAxis").value;
+window.onload = function() {
 
-    var selectedYType = NITRATE.toLowerCase();
-    var selectedXType = TIME.toLowerCase();
+    // Grab all selected y-axis types. On page-load, this is just "nitrate"
+    var yTypes = [];
+    _.each($('#listOfYAxisValues input:checked'), function(checkedInput){
+        yTypes.push(checkedInput.value.toLowerCase());
+    });
+
+    // Grab x-axis selection from dropdown
+    var selectedXType = document.getElementById(XAXIS).value;
 
     //Grabs the default graph type from the Graph Style selection dropdown
     var graphType = document.getElementById(GRAPH_TYPE).value;
-
-    // Get the default nitrate vs. time dataPoints
-    var content = buildTooltipContent(selectedXType, selectedYType);
-    var dataPoints = getDataPointsForPlot(selectedXType, selectedYType, graphType, content);
 
     // Create our default chart which plots nitrate vs. time
     CHART = new CanvasJS.Chart("analyzeContainer", {
@@ -214,12 +245,13 @@ var loadChart = function() {
             }
         },
         zoomEnabled : ZOOM_ENABLED,
-        data : dataPoints
+        data : []
     });
 
-    // Render the default chart
-    CHART.render();
+    // Now, update this chart by adding the dataPoints for all y-axis types whose checkboxes
+    // were selected by default on page-load
+    updateChartDataPoints(CHART, selectedXType, yTypes, graphType);
 
-    // Fill x-value dropdown with all measurement types, plus time
-    populateDropdown(XAXIS, [TIME].concat(dropdown_values));
+    // Render this default chart
+    CHART.render();
 };
