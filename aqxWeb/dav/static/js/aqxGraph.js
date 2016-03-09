@@ -132,7 +132,7 @@ var getAllActiveMeasurements = function() {
 
 /**
  *
- * @returns {Array}
+ * @returns {Array} - An array of all selected checkbox values
  */
 var getAllYAxisSelections = function(){
     var yTypes = [];
@@ -140,6 +140,26 @@ var getAllYAxisSelections = function(){
         yTypes.push(checkedInput.value.toLowerCase());
     });
     return yTypes;
+};
+
+
+/**
+ *
+ */
+var drawChart = function(){
+    var graphType = document.getElementById(GRAPH_TYPE).value;
+    var xType = document.getElementById(XAXIS).value;
+
+    // Get measurement types to display on the y-axis
+    var yTypes = getAllYAxisSelections();
+
+    // Generate a data Series for each y-value type, and assign them all to the CHART
+    updateChartDataPoints(CHART, xType, yTypes, graphType);
+
+    // TODO: What about the other chart characteristics? Symbols, ranges, different scales, different y-axes?
+
+    // Render the new chart
+    CHART.render();
 };
 
 
@@ -152,24 +172,12 @@ var getAllYAxisSelections = function(){
  */
 var main = function(){
 
-    // Check nitrate as the default y-axis value
+    // Check the default y-axis value
     $('input[type=checkbox][value='+DEFAULT_Y+']').prop('checked', true);
 
     // When the submit button is clicked, redraw the graph based on user selections
     $('#submitbtn').click(function() {
-        var graphType = document.getElementById(GRAPH_TYPE).value;
-        var xType = document.getElementById(XAXIS).value;
-
-        // Get measurement types to display on the y-axis
-        var yTypes = getAllYAxisSelections();
-
-        // Generate a data Series for each y-value type, and assign them all to the CHART
-        updateChartDataPoints(CHART, xType, yTypes, graphType);
-
-        // TODO: What about the other chart characteristics? Symbols, ranges, different scales, different y-axes?
-
-        // Render the new chart
-        CHART.render();
+        drawChart();
     });
 
     // Reset button, returns dropdowns to default, clears checklist, and displays defuault nitrate vs time graph
@@ -185,21 +193,11 @@ var main = function(){
             return this.defaultSelected;
         });
 
-        // Uncheck all Y Axis checkboxes except nitrate
+        // Uncheck all Y Axis checkboxes except DEFAULT_Y
         $('#listOfYAxisValues').find('input[type=checkbox]:checked').removeProp(CHECKED);
         $('input[type=checkbox][value='+DEFAULT_Y+']').prop('checked', true);
 
-        var yTypes = getAllYAxisSelections();
-
-        // Grab x-axis selection from dropdown
-        var xType = document.getElementById(XAXIS).value;
-
-        //Grabs the default graph type from the Graph Style selection dropdown
-        var graphType = document.getElementById(GRAPH_TYPE).value;
-
-        // Reset dataPoints to default nitrate vs. time and redraw chart
-        updateChartDataPoints(CHART, xType, yTypes, graphType);
-        CHART.render();
+        drawChart();
     });
 };
 
@@ -210,16 +208,7 @@ var main = function(){
  */
 window.onload = function() {
 
-    // Grab all selected y-axis types. On page-load, this is just "nitrate"
-    var yTypes = getAllYAxisSelections();
-
-    // Grab x-axis selection from dropdown
-    var selectedXType = document.getElementById(XAXIS).value;
-
-    //Grabs the default graph type from the Graph Style selection dropdown
-    var graphType = document.getElementById(GRAPH_TYPE).value;
-
-    // Create our default chart which plots nitrate vs. time
+    // Create our default chart
     CHART = new CanvasJS.Chart("analyzeContainer", {
         title :{
             text : "My CanvasJS"
@@ -245,10 +234,6 @@ window.onload = function() {
         data : []
     });
 
-    // Now, update this chart by adding the dataPoints for all y-axis types whose checkboxes
-    // were selected by default on page-load
-    updateChartDataPoints(CHART, selectedXType, yTypes, graphType);
-
-    // Render this default chart
-    CHART.render();
+    // Render chart based on default page setting. I.e. x-axis & graph-type dropdowns, and the y-axis checklist
+    drawChart();
 };
