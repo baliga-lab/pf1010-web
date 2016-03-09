@@ -79,6 +79,30 @@ var getDataPointsForPlot = function(xType, yType, graphType){
 
 /**
  *
+ * @param chart - A CanvasJS chart
+ * @param xType - X-axis value chosen from dropdown
+ * @param yTypeList - List of y-axis values selected from the checklist
+ * @param graphType - The graph type chosen from dropdown
+ */
+var updateChartDataPoints = function(chart, xType, yTypeList, graphType){
+    var newDataSeries = [];
+    var activeMeasurements = getAllActiveMeasurements();
+    var measurementsToFetch = _.difference(yTypeList, activeMeasurements);
+    if (measurementsToFetch.length > 0) {
+        console.log("Call API for " + measurementsToFetch);
+        // Some AJAX function that grabs data from API or DB, then updates systems_and_measurements with the response
+        // selectedSystemIDs is a global carried over from the view fxn
+        // updateSystemsAndMeasurementsObject(selectedSystemIDs, measurementsToFetch);
+    }
+    _.each(yTypeList, function(yType){
+        newDataSeries = newDataSeries.concat(getDataPointsForPlot(xType, yType, graphType));
+    });
+    chart.options.data = newDataSeries;
+};
+
+
+/**
+ *
  * @param xType - X-axis values. Ex: Time, pH, Hardness
  * @param yType - Y-axis values. Ex: pH, Nitrate
  * @returns HTML that populates dataPoint ToolTips with the specifics of a measurement
@@ -95,7 +119,7 @@ var buildTooltipContent = function(xType, yType){
  *
  * @returns {Array} - An array of all measurement types currently being stored
  */
-var getActiveMeasurements = function() {
+var getAllActiveMeasurements = function() {
     // Grab all measurement types in the checklist
     var activeMeasurements = [];
     var systemMeasurements = _.first(systems_and_measurements).measurement;
@@ -108,25 +132,14 @@ var getActiveMeasurements = function() {
 
 /**
  *
- * @param chart - A CanvasJS chart
- * @param xType - X-axis value chosen from dropdown
- * @param yTypeList - List of y-axis values selected from the checklist
- * @param graphType - The graph type chosen from dropdown
+ * @returns {Array}
  */
-var updateChartDataPoints = function(chart, xType, yTypeList, graphType){
-    var newDataSeries = [];
-    var activeMeasurements = getActiveMeasurements();
-    var measurementsToFetch = _.difference(yTypeList, activeMeasurements);
-    if (measurementsToFetch.length > 0) {
-        console.log("Call API for " + measurementsToFetch);
-        // Some AJAX function that grabs data from API or DB, then updates systems_and_measurements with the response
-        // selectedSystemIDs is a global carried over from the view fxn
-        // updateSystemsAndMeasurementsObject(selectedSystemIDs, measurementsToFetch);
-    }
-    _.each(yTypeList, function(yType){
-        newDataSeries = newDataSeries.concat(getDataPointsForPlot(xType, yType, graphType));
+var getAllYAxisSelections = function(){
+    var yTypes = [];
+    _.each($('#listOfYAxisValues input:checked'), function(checkedInput){
+        yTypes.push(checkedInput.value.toLowerCase());
     });
-    chart.options.data = newDataSeries;
+    return yTypes;
 };
 
 
@@ -148,10 +161,7 @@ var main = function(){
         var xType = document.getElementById(XAXIS).value;
 
         // Get measurement types to display on the y-axis
-        var yTypes = [];
-        _.each($('#listOfYAxisValues input:checked'), function(checkedInput){
-            yTypes.push(checkedInput.value.toLowerCase());
-        });
+        var yTypes = getAllYAxisSelections();
 
         // Generate a data Series for each y-value type, and assign them all to the CHART
         updateChartDataPoints(CHART, xType, yTypes, graphType);
@@ -174,15 +184,12 @@ var main = function(){
         $('#selectGraphType option').prop(SELECTED, function() {
             return this.defaultSelected;
         });
-        
+
         // Uncheck all Y Axis checkboxes except nitrate
         $('#listOfYAxisValues').find('input[type=checkbox]:checked').removeProp(CHECKED);
         $('input[type=checkbox][value='+DEFAULT_Y+']').prop('checked', true);
 
-        var yTypes = [];
-        _.each($('#listOfYAxisValues input:checked'), function(checkedInput){
-            yTypes.push(checkedInput.value.toLowerCase());
-        });
+        var yTypes = getAllYAxisSelections();
 
         // Grab x-axis selection from dropdown
         var xType = document.getElementById(XAXIS).value;
@@ -204,10 +211,7 @@ var main = function(){
 window.onload = function() {
 
     // Grab all selected y-axis types. On page-load, this is just "nitrate"
-    var yTypes = [];
-    _.each($('#listOfYAxisValues input:checked'), function(checkedInput){
-        yTypes.push(checkedInput.value.toLowerCase());
-    });
+    var yTypes = getAllYAxisSelections();
 
     // Grab x-axis selection from dropdown
     var selectedXType = document.getElementById(XAXIS).value;
