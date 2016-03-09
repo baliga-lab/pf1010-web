@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+
+{% block styles %}
+    {{ super() }}
+    <link rel="stylesheet" href="{{ url_for('dav.static', filename='css/explore.css') }}">
+{% endblock %}
+
+{% block title %}Explore{% endblock %}
+
+{% block content %}
+    <h1 class="page-header">Explore</h1>
+    <h3>Current Aquaponics Systems</h3>
+    <div class="container" style="width: 100%; margin-top: 2%; margin-left: 2%">
+        <div style="width: 70%; float: left; position: relative; overflow: hidden; background-color: rgb(229, 227, 223);" id="map"></div>
+        <div style="width: 30%; padding-left:2%; float:left;">
+            <div style="width: 75%;" class="form-group">
+                <label class="control-label">Select filtering criteria</label>
+                <br>
+                <select class="explore-dropdown" id="selectTechnique">
+                    <option value="" selected="selected">Choose an Aquaponics Technique</option>
+                </select>
+                <br><br>
+                <select class="explore-dropdown" id="selectOrganism">
+                    <option value="" selected="selected">Choose an Aquatic Organism</option>
+                </select>
+                <br><br>
+                <select class="explore-dropdown" id="selectCrop">
+                    <option value="" selected="selected">Choose a Crop</option>
+                </select>
+                <br><br>
+                <select class="explore-dropdown" id="selectGrowbedMedium">
+                    <option value="" selected="selected">Choose a Growbed Medium</option>
+                </select>
+
+                <br><br>
+
+                <input class="btn btn-green" type="submit" id="submitbtn" name="mysubmit" value="Submit" onclick="filterSystemsBasedOnDropdownValues()"/>
+                <input class="btn btn-blue" type="button" id="resetbtn" name="reset" value="Reset" onclick="reset()"/>
+            </div>
+            <div class="form-group" style="width: 75%; padding-top:2%;">
+                <label class="control-label">Select public systems</label>
+                <ul id="listOfUserSystems" style="overflow-y: scroll; max-height: 110px;">
+                    {#        {% for sys in systems %}#}
+                    {#            <li><input type="checkbox" value="{{sys['system_name']}}">{{sys['system_name']}}</li>#}
+                    {#        {% endfor %}#}
+                </ul>
+            </div>
+
+            {% if session.uid %}
+                <div class="form-group" style="width: 75%; padding-top:2%;">
+                    <label class="control-label">Select from your systems</label>
+                    <ul id="listOfMySystems" style="overflow-y: scroll; max-height: 120px;">
+                    </ul>
+                </div>
+                <input class="btn btn-green" type="submit" id="submitbtn" name="analyze" value="Analyze"/>
+            {% endif %}
+        </div>
+    </div>
+
+{% endblock %}
+
+{% block scripts %}
+    {{ super() }}
+    <script type="text/javascript" src="http://maps.googleapis.com/maps/api/js"></script>
+    <script type="text/javascript" src="{{ url_for('dav.static', filename='js/underscore-min.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('dav.static',filename='js/markerclusterer-min.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('dav.static',filename='js/oms-min.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('dav.static', filename='js/aqxmap.js') }}"></script>
+
+    <script>
+        var system_and_info_object = {{ systems_and_info_json|safe }};
+        system_and_info_object = system_and_info_object.systems;
+        var meta_data_object = {{ metadata_json|safe }};
+        meta_data_object = meta_data_object.filters;
+        $(document).ready(main(system_and_info_object, meta_data_object));
+    </script>
+{% endblock %}

@@ -14,6 +14,11 @@ aqxWeb
       - api    api developed by SC  
       -  
       -  
+      -
+    - ui       project directory for UI 
+      -  
+      -  
+      -  
       -  
 |+ bin         for command-line interface stuff  
 |+ docs        documents  

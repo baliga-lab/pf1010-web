@@ -1,61 +1,83 @@
-<div class="posts">
+{% block content %}
+
 {% if posts %}
     {% for row in posts %}
-        <div class="post">
-    	    <b>{{ row.displayName }}</b> shared:
-            <div class="dttime">on {{ row.post.date }}</div>
-    	    <br>
-    	    {{ row.post.text }}
-            {% if row.post.link %}
-                <div class="media">
-                {%  if row.post.link.endswith(".jpg") or row.post.link.endswith(".png") or row.post.link.endswith(".gif") %}
+        <div class="post detail-box">
+            <div class="media-left">
+                <a href="#">
+                    <img class="media-object" src="{{ url_for('frontend.static', filename='images/users/oddish.png') }}" alt=""> {# PLACEHOLDER FOR USER'S PROFILE PIC #}
+                </a>
+            </div>
+            <div class="media-body">
+                <h4>
+                    {{ row.displayName }}
+                    <span class="date sub-text">on {{ row.post.date }}</span>
+                </h4>
+                {{ row.post.text }}
+                {% if row.post.link %}
+                    <div class="media-left">
+                    {%  if row.post.link.endswith(".jpg") or row.post.link.endswith(".png") or row.post.link.endswith(".gif") %}
 
-                    <img class="attachedImg" src="{{ row.post.link }}"
-                     onclick="window.open('{{ row.post.link }}', '_blank');"/>
+                        <img class="attachedImg" src="{{ row.post.link }}"
+                         onclick="window.open('{{ row.post.link }}', '_blank');"/>
 
-                {% else %}
-                    <iframe width="560" height="315" src="{{ row.post.link.replace("/watch?v=", "/embed/") }}"
-                        frameborder="0" allowfullscreen>
-                    [Your browser does not support frames or is currently configured not to display frames.
-                    Please use an up-to-date browser that is capable of displaying frames.]</iframe>
+                    {% else %}
+                        <iframe width="560" height="315" src="{{ row.post.link.replace("/watch?v=", "/embed/") }}"
+                            frameborder="0" allowfullscreen>
+                        [Your browser does not support frames or is currently configured not to display frames.
+                        Please use an up-to-date browser that is capable of displaying frames.]</iframe>
+                    {% endif %}
+                    </div>
                 {% endif %}
-                </div>
-            {% endif %}
+            </div>
 
-            <div class="details" style="width: 100%; text-align: center;">
+            <div class="comment">
 
                 <form action="{{ url_for('social.like_post') }}" method="post">
                     <div class="form-controls" style=" text-align: right;" >
                         <input type="hidden" name="postid" value="{{ row.post.id }}">
-                        <input type="submit" class="btn btn-primary" value="Like">
+                        <input type="submit" class="btn btn-blue" value="Like">
                     </div>
                 </form>
 
-                <br>
-                {% for cmt in comments %}
-                    <div class="comments" style="text-align: left;">
-                        {% if cmt.postid == row.post.id %}
-                            <div class="form-controls" >
-                                <b>{{ cmt.comment.user_display_name }}</b>:
-                                {{ cmt.comment.content }}
-                            </div>
-                        {% endif %}
-                    </div>
-                {% endfor %}
+                <div class="comment-box">
+                    <ul class="comment-list">
+                        {% for cmt in comments %}
+                            {% if cmt.postid == row.post.id %}
+                                <li>
+                                    <div class="media-left">
+                                        <img class="media-object" src="{{ url_for('frontend.static', filename='images/users/gloom.png') }}" alt=""> {# PLACEHOLDER FOR USER'S PROFILE PIC #}
+                                    </div>
 
-                <form action="{{ url_for('social.add_comment') }}" method="post">
-                    <div class="form-controls" style="width: 100% ; text-align:left">
-                        <input type="hidden" name="postid" value="{{ row.post.id }}">
-                        <input id="newcomment" name="newcomment" cols="60" style="width: 100%"
-                                  placeholder="Share comment">
-                        <input type="submit" class="btn btn-primary" value="Comment">
-                    </div>
-                </form>
+                                    <div class="media-body">
+                                        <h5>
+                                            <b>{{ cmt.comment.user_display_name }}</b>
+                                            <span class="date sub-text">replied with</span>
+                                        </h5>
+                                        {{ cmt.comment.content }}
+                                    </div>
+                                </li>
+                            {% endif %}
+                        {% endfor %}
+                    </ul>
+
+                    <form action="{{ url_for('social.add_comment') }}" method="post">
+                        <div class="input-group col-md-12">
+                            <input type="hidden" name="postid" value="{{ row.post.id }}">
+                            <input id="newcomment" name="newcomment" class="form-control" placeholder="Share comment">
+                            <span class="input-group-btn">
+                                <input type="submit" class="btn btn-green" value="Comment">
+                            </span>
+                        </div>
+                    </form>
+                </div>
             </div>
         </div>
     {% endfor %}
-    {% endif %}
-{% if not posts %}
-<p>There are no posts yet!</p>
 {% endif %}
-</div>
+
+{% if not posts %}
+    <p>There are no posts yet!</p>
+{% endif %}
+
+{% endblock %}

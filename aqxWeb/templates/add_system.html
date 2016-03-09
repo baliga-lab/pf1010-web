@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+
+{% block title %}Add System{% endblock %}
+
+{% block content %}
+    <form method="post" action="#">
+        <div class="form_description">
+            <h2>Add a System</h2>
+            <p>Add a system by filling in the information and then hit 'Submit'</p>
+        </div>
+        <div class="form-group">
+            <label for="sys.id">System ID</label>
+            <input type="text" class="form-control" id="sys.id">
+        </div>
+        <div class="form-group">
+            <label for="sys.uid">User ID</label>
+            <input type="text" class="form-control" id="sys.uid">
+        </div>
+        <div class="form-group">
+            <label for="sys.name">Name</label>
+            <input type="text" class="form-control" id="sys.name">
+        </div>
+        <div class="form-group">
+            <label for="sys.date">Start Date</label>
+            <input type="date" class="form-control" id="sys.date">
+        </div>
+        <div class="form-group">
+            <label for="sys.status">Status</label>
+            <input type="text" class="form-control" id="sys.status">
+        </div>
+        <div class="form-group">
+            <label for="sys.tech">Technique</label>
+            <select class="form-control" id="selectTechnique">
+                <option value="" selected="selected">--</option>
+                <option value="Ebb and Flow (Media-based)">Ebb and Flow (Media-based)</option>
+                <option value="Floating Raft">Floating Raft</option>
+                <option value="Nutrient Film Technique (NFT)">Nutrient Film Technique (NFT)</option>
+                <option value="Vertical Flow Through">Vertical Flow Through</option>
+            </select>
+        </div>
+            <input type="hidden" name="form_id" value="1109934" />
+            <input id="saveForm" class="btn btn-green" type="submit" name="submit" value="Submit" />
+    </form>
+{% endblock %}
+
+{% block scripts %}
+    {{ super() }}
+    <script type="text/javascript" src="{{ url_for('dav.static', filename='js/aqxmap.js') }}"></script>
+{% endblock %}
