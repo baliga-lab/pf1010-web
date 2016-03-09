@@ -1,18 +1,10 @@
-{% extends "layout.html" %}
+{% extends "base.html" %}
 
-{% block script %}
-
-    <!-- jQuery Script For DOM Manipulation In Search Systems Page -->
-    <script type="text/javascript" src="{{ url_for('social.static', filename='js/search_systems.js') }}"></script>
-
-{% endblock %}
-
-{% block body %}
+{% block content %}
 
     <!-- Entire Page Div Container -->
     <div class="container" id="searchSystemsTab">
-
-        <h3>Systems</h3>
+        <h1 class="page-header">Systems</h1>
         <ul class="nav nav-tabs" id="tab-headers">
             <li><a href="#mySystemsTab">My Systems</a></li>
             <li><a href="#allSystemsTab">All Systems</a></li>
@@ -25,18 +17,18 @@
             <form action="{{ url_for('social.search_systems') }}" method="post">
                 <!-- Search Box and Button Control Div -->
                 <div class="row systemSearchDiv">
-                    <div class="col-md-6">
+                    <div class="input-group col-md-6">
                         <input type="text" class="form-control" name="txtSystemName"
                                pattern=".{1,}" required title="System Name Cannot Be Empty"
                                placeholder="Enter System Name"
                                value= {% if post_method %} {{ search_param }} {% endif %}>
-                        </input>
-                    </div>
 
-                    <div class="col-md-6">
-                        <input type="submit" class="btn btn-primary" value="Search Systems"/>
+                        <span class="input-group-btn">
+                            <button class="btn btn-green" type="submit">
+                                <i class="fa fa-search"></i>
+                            </button>
+                        </span>
                     </div>
-
                 </div>
                 <!-- End of Search Box and Button Control Div -->
             </form>
@@ -47,8 +39,7 @@
             {% if post_method %}
                 <!-- Search Results Div -->
                 <div class="row systemSearchResults">
-                    <h4>Search Results:</h4>
-                    <hr>
+                    <h4 class="page-header">Search Results:</h4>
                     {% if system_search_results %}
                         {% for row in system_search_results %}
                             <div class="row">
@@ -279,5 +270,12 @@
 
     <br/><br/>
 
+
+{% endblock %}
+
+{% block scripts %}
+
+    <!-- jQuery Script For DOM Manipulation In Search Systems Page -->
+    <script type="text/javascript" src="{{ url_for('social.static', filename='js/search_systems.js') }}"></script>
 
 {% endblock %}

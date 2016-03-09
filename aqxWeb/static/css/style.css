@@ -10,7 +10,7 @@ body {
 }
 
 .page-header {
-    margin-top: 0;
+    margin-top: 5px;
 }
 
 .btn-blue {
@@ -54,7 +54,7 @@ Navigation
 #navbar-bottom {
     background-color: rgba(34, 34, 34, 0.9);
     border-color: rgba(8, 8, 8, 0.9);
-    margin-bottom: 10px;
+    margin-bottom: 15px;
     border-radius: 0;
 }
 
