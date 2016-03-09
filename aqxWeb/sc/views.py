@@ -1,15 +1,37 @@
-from flask import Blueprint, request, session, redirect, url_for, render_template, flash, Response, jsonify
+from flask import Blueprint, request, session, redirect, url_for, render_template, flash, Response, jsonify,json
 from models import User, get_all_recent_posts, get_all_recent_comments
 from models import System
 from models import get_app_instance, getGraphConnectionURI
-from app.scAPI import ScAPI
 
+from app.scAPI import ScAPI
+from flask_login import login_required
+from flask_googlelogin import LoginManager, make_secure_token,GoogleLogin
 import mysql.connector
 import requests
 import aqxdb
 import logging
+import json
+from flask_oauth import OAuth
+oauth = OAuth()
+#GOOGLE_CLIENT_ID='757190606234-pnqru7tabom1p1hhvpm0d3c3lnjk2vv4.apps.googleusercontent.com',
+#GOOGLE_CLIENT_SECRET='wklqAsOoVtn44AP-EIePEGmQ',
+
+google = oauth.remote_app('google',
+                          base_url='https://www.google.com/accounts/',
+                          authorize_url='https://accounts.google.com/o/oauth2/auth',
+                          request_token_url=None,
+                          request_token_params={'scope': 'https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/plus.login',
+                                                'response_type': 'code'},
+                          access_token_url='https://accounts.google.com/o/oauth2/token',
+                          access_token_method='POST',
+                          access_token_params={'grant_type': 'authorization_code'},
+                          consumer_key='757190606234-pnqru7tabom1p1hhvpm0d3c3lnjk2vv4.apps.googleusercontent.com',
+                          consumer_secret='wklqAsOoVtn44AP-EIePEGmQ')
+
+
 
 social = Blueprint('social', __name__, template_folder='templates', static_folder="static")
+
 
 
 #######################################################################################
@@ -24,8 +46,26 @@ def dbconn():
                                    host=get_app_instance().config['HOST'],
                                    database=get_app_instance().config['DB'])
 
+@social.route('/getToken')
+def getToken():
+    callback=url_for('social.authorized', _external=True)
+    return google.authorize(callback=callback)
 
-@social.route('/')
+
+@social.route('/oauth2callback')
+@google.authorized_handler
+def authorized(resp):
+    access_token = resp['access_token']
+    print(access_token)
+    session['access_token'] = access_token, ''
+    session['token']=access_token
+    return redirect(url_for('social.Home'))
+
+
+@google.tokengetter
+def get_access_token():
+    return session.get('access_token')
+
 @social.route('/index')
 #######################################################################################
 # function : index
@@ -58,10 +98,28 @@ def login():
 # returns: userData.html page
 #######################################################################################
 def Home():
-    return render_template('userData.html')
+    access_token = session.get('access_token')
+    if access_token is None:
+        return redirect(url_for('social.getToken'))
+
+    access_token = access_token[0]
+    from urllib2 import Request, urlopen, URLError
+
+    headers = {'Authorization': 'OAuth '+access_token}
+    req = Request('https://www.googleapis.com/oauth2/v1/userinfo',
+                  None, headers)
+    try:
+        res = urlopen(req)
+    except URLError, e:
+        if e.code == 401:
+            # Unauthorized - bad token
+            session.pop('access_token', None)
+            return redirect(url_for('social.getToken'))
+    return redirect(url_for('social.signin'))
 
 
-@social.route('/signin', methods=['POST'])
+
+@social.route('/signin')
 #######################################################################################
 # function : signin
 # purpose : signs in with POST and takes data from the request
@@ -70,24 +128,29 @@ def Home():
 # Exception : app.logger.exception
 #######################################################################################
 def signin():
-    try:
-        access_token = request.form['access_token']
-        print(access_token)
+
+   try:
+        access_token = session.get('access_token')
+        access_token = access_token[0]
         r = requests.get('https://www.googleapis.com/plus/v1/people/me?access_token=' + access_token)
-        googleAPIResponse = r.json()
-        # print(googleAPIResponse)
+       # content=r.content
+        print(r.content)
+        googleAPIResponse = json.loads(r.content)
+        #googleAPIResponsev=json.loads(googleAPIResponse)
+        print(googleAPIResponse)
         logging.debug("signed in: %s", str(googleAPIResponse))
         google_id = googleAPIResponse['id']
-        if 'picture' in googleAPIResponse:
-            imgurl = googleAPIResponse['picture']
+        if 'image' in googleAPIResponse:
+            image=googleAPIResponse['image']
+            imgurl = image['url']
         else:
             imgurl = "/static/images/default_profile.png"
         user_id = get_user(google_id, googleAPIResponse)
         emails = googleAPIResponse['emails']
         email = emails[0]['value']
         logging.debug("user: %s img: %s", user_id, imgurl)
-        return Response("ok", mimetype='text/plain')
-    except:
+        return redirect(url_for('social.index'))
+   except:
         logging.exception("Got an exception")
         raise
 
