@@ -26,16 +26,17 @@ app.config.from_pyfile("sc/settings.cfg")
 app.config['BOOTSTRAP_SERVE_LOCAL'] = True
 Bootstrap(app)
 
+
 @app.route('/')
 def index():
-   return render_template('index.html')
+    return render_template('index.html')
 
 # Common init method for application
 if __name__ == "__main__":
-   # Initialize the aquaponics db connection
-   analyticsViews.init_app(app)
-   # Intialize the social component global app instance
-   init_sc_app(app)
-   # Initialise UI's nav routing
-   nav.init_app(app)
-   app.run(debug=True)
+    # Initialize the aquaponics db connection
+    analyticsViews.init_app(app)
+    # Intialize the social component global app instance
+    init_sc_app(app)
+    # Initialise UI's nav routing
+    nav.init_app(app)
+    app.run(debug=True)

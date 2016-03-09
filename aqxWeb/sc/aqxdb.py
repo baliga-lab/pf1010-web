@@ -34,14 +34,14 @@ def get_or_create_user(conn, cursor, google_id, googleAPIResponse):
         cursor.execute('insert into users (google_id, email) values (%s,%s)', [google_id, email])
         result = cursor.lastrowid
         conn.commit()
-        user = Node("User", sql_id=result, google_id=google_id, email=email, givenName=givenName, familyName=familyName, displayName=displayName, user_type="Subscriber", organization=organization, creation_time=timestamp(), modified_time=timestamp(), dob="", gender=gender, status=0)
+        user = Node("User", sql_id=result, google_id=google_id, email=email, givenName=givenName, familyName=familyName, displayName=displayName, user_type="subscriber", organization=organization, creation_time=timestamp(), modified_time=timestamp(), dob="", gender=gender, status=0)
         getGraphConnectionURI().create(user)
     else:
         result = row[0]
         user = User(result).find()
         # There might be cases where the Neo4J does not have the corressponding User node
         if user is None:
-            missing_user_neo4j = Node("User", sql_id=result, google_id=google_id, email=email, givenName=givenName, familyName=familyName, displayName=displayName, user_type="Subscriber", organization=organization, creation_time=timestamp(), modified_time=timestamp(), dob="", gender=gender, status=0)
+            missing_user_neo4j = Node("User", sql_id=result, google_id=google_id, email=email, givenName=givenName, familyName=familyName, displayName=displayName, user_type="subscriber", organization=organization, creation_time=timestamp(), modified_time=timestamp(), dob="", gender=gender, status=0)
             getGraphConnectionURI().create(missing_user_neo4j)
         else:
             displayName = user['displayName']
@@ -51,13 +51,3 @@ def get_or_create_user(conn, cursor, google_id, googleAPIResponse):
         displayName = ""
     session['displayName'] = displayName
     return result
-
-'''
-def insertIntoNeo(neoDb,google_id,email,result,GivenName,familyName):
-    Users = neoDb.labels.create("Users")
-    print(google_id)	
-    u1 = neoDb.nodes.create(email=email,status="1",user_type="Subscriber",name=GivenName,modified_time="1455466583873",dob="1455466583873",creation_time="1455466583873",google_id=google_id,gender="male",sql_id=result)
-    Users.add(u1)'''
-	
- 
-	

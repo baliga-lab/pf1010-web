@@ -1,0 +1,29 @@
+{% extends "layout.html" %}
+{% block body %}
+
+<div class="container">
+  <h3>Friends</h3>
+  <ul class="nav nav-tabs">
+    <li class="active"><a href="#">MyFriends</a></li>
+    <li><a href="{{ url_for('social.searchFriends') }}">Search Friends</a></li>
+    <li><a href="{{ url_for('social.pendingRequest') }}">Pending Requests</a></li>
+  </ul>
+  <br>
+           <!-- <form action="{{ url_for('social.send_friend_request')}}" method="post">
+            <div>
+                 <input type="submit" class="btn btn-primary" value="Send Request">
+            </div>
+            </form>-->
+    <IMG SRC="../static/face.png"><br>
+    Steve Borkee <button type="button" class="btn btn-primary">Delete</button><br>
+    <IMG SRC="../static/face.png"><br>
+    Jason Mraz <button type="button" class="btn btn-primary">Delete</button><br>
+<IMG SRC="../static/face.png"><br>
+    Pitt Bull <button type="button" class="btn btn-primary">Delete</button><br>
+<IMG SRC="../static/face.png"><br>
+    Salena Gomes <button type="button" class="btn btn-primary">Delete</button><br>
+
+
+</div>
+
+{% endblock %}

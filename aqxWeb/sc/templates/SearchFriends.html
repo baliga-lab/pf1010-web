@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+
+{% block script %}
+    <link href="http://code.jquery.com/ui/1.10.4/themes/smoothness/jquery-ui.css" rel="stylesheet">
+    <script src="http://code.jquery.com/jquery-1.10.2.js"></script>
+    <script src="http://code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
+    <script type=text/javascript>
+        $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
+    </script>
+    <script>
+    //Script to search for users while typing a person's name, using autocompletion feature
+    $(function() {
+        $.ajax({
+            url: '{{ url_for("social.getfriends") }}'
+        }).done(function (data) {
+            $("#autocomplete").autocomplete({
+                        minLength: 1,
+                        source: data.json_list,
+                        focus: function (event, ui) {
+                            $("#autocomplete").val(ui.item.label);
+                            return false;
+                        },
+                        select: function (event, ui) {
+                            $("#autocomplete").val(ui.item.label);
+                            $("#autocomplete-org").html(ui.item.org);
+                            return false;
+                        }
+                    })
+                    .autocomplete("instance")._renderItem = function (ul, item) {
+                        if ('undefined' === typeof item.org){
+                            return $("<li>")
+                                .append("<a>" + item.label + "</a>")
+                                .appendTo(ul);
+                        }
+                        else
+                        {
+                            return $("<li>")
+                                .append("<a>" + item.label + "<br>" + item.org + "</a>")
+                                .appendTo(ul);
+                        }
+                    };
+            });
+    });
+    </script>
+
+{% endblock %}
+{% block content %}
+  <div class="container">
+    <h3>Friends</h3>
+    <ul class="nav nav-tabs">
+        <li><a href="{{ url_for('social.friends') }}">MyFriends</a></li>
+        <li class="active"><a href="searchFriends.html">Search Friends</a></li>
+        <li><a href="{{ url_for('social.pendingRequest') }}">Pending Requests</a></li>
+    </ul>
+  <br>
+
+    <div class="container">
+            <div class="input-group col-md-12">
+                <input type="text" id="autocomplete" class="form-control input-lg" placeholder="Search all Friends" />
+                <p hidden id="autocomplete-org"></p>
+            </div>
+    </div>
+  </div>
+{% endblock %}

@@ -37,16 +37,16 @@
                     <div class="form-group">
                         <b>Gender: &nbsp;</b>
                         <label class="radio-inline">
-                            <input type="radio" name="gender" id="rbMale"
+                            <input type="radio" name="gender" id="rbMale" value="male"
                             {% if user['gender'] == 'male' %} checked {% endif %}/>Male
                         </label>
                         <label class="radio-inline">
-                            <input type="radio" name="gender" id="rbFemale"
+                            <input type="radio" name="gender" id="rbFemale" value="female"
                             {% if user['gender'] == 'female' %} checked {% endif %}/>Female
                         </label>
                     </div>
                     <div class="form-group">
-                        <label for="txtOrganization">Organisation:</label>
+                        <label for="txtOrganization">Organization:</label>
                         <input type="text" class="form-control" name="organization" id="txtOrganization"
                             value = {% if user['organization'] is not none %}  {{ user['organization'] }}
                             {% endif %}/>
@@ -55,14 +55,18 @@
                         <label for="ddUserType">User Type:</label>
                         <select class="form-control" name="user_type" id="ddUserType">
                             <option value="--">--</option>
-                            <option value="Subscriber"
-                            {% if user['user_type'] == 'Subscriber' %} selected {% endif %}>Subscriber</option>
-                            <option value="Farmer"
-                            {% if user['user_type'] == 'Farmer' %} selected {% endif %}>Farmer</option>
-                            <option value="Teacher"
-                            {% if user['user_type'] == 'Teacher' %} selected {% endif %}>Teacher</option>
-                            <option value="Student"
-                            {% if user['user_type'] == 'Student' %} selected {% endif %}>Student</option>
+                            <option value="subscriber"
+                                    {% if user['user_type'] == 'subscriber' %} selected {% endif %}>Subscriber
+                            </option>
+                            <option value="farmer"
+                                    {% if user['user_type'] == 'farmer' %} selected {% endif %}>Farmer
+                            </option>
+                            <option value="teacher"
+                                    {% if user['user_type'] == 'teacher' %} selected {% endif %}>Teacher
+                            </option>
+                            <option value="student"
+                                    {% if user['user_type'] == 'student' %} selected {% endif %}>Student
+                            </option>
                         </select>
                     </div>
                     <div class="form-group">
