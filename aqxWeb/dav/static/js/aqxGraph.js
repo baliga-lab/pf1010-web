@@ -13,14 +13,14 @@ var GRAPH_TYPE = "selectGraphType";
 var CURSOR_TYPE = "pointer";
 var ZOOM_ENABLED = true;
 var TIME = "time";
-var NITRATE = "nitrate";
 var SELECTED = 'selected';
 var CHECKED = "checked";
 var UNCHECKED = "unchecked";
 var LINE = "line";
 var SCATTER = "scatter";
 var BAR_CHART = "barchart";
-var DEFAULT_Y = "ph";
+var DEFAULT_Y_TEXT = "Nitrate";
+var DEFAULT_Y_VALUE = DEFAULT_Y_TEXT.toLowerCase();
 
 
 /* ##################################################################################################################
@@ -135,11 +135,7 @@ var getAllActiveMeasurements = function() {
  * @returns {Array} - An array of all selected checkbox values
  */
 var getAllYAxisSelections = function(){
-    var yTypes = [];
-    _.each($('#listOfYAxisValues input:checked'), function(checkedInput){
-        yTypes.push(checkedInput.value.toLowerCase());
-    });
-    return yTypes;
+    return $('#tokenize').tokenize().toArray();
 };
 
 
@@ -172,8 +168,8 @@ var drawChart = function(){
  */
 var main = function(){
 
-    // Check the default y-axis value
-    $('input[type=checkbox][value='+DEFAULT_Y+']').prop('checked', true);
+    // Select the default y-axis value
+    $('#tokenize').tokenize().tokenAdd(DEFAULT_Y_VALUE, DEFAULT_Y_TEXT);
 
     // When the submit button is clicked, redraw the graph based on user selections
     $('#submitbtn').click(function() {
@@ -193,9 +189,10 @@ var main = function(){
             return this.defaultSelected;
         });
 
+        // TODO: Change for new dropdown thingy
         // Uncheck all Y Axis checkboxes except DEFAULT_Y
-        $('#listOfYAxisValues').find('input[type=checkbox]:checked').removeProp(CHECKED);
-        $('input[type=checkbox][value='+DEFAULT_Y+']').prop('checked', true);
+        $('#tokenize').tokenize().clear();
+        $('#tokenize').tokenize().tokenAdd(DEFAULT_Y_VALUE, DEFAULT_Y_TEXT);
 
         drawChart();
     });
