@@ -47,6 +47,14 @@ var getDataPoints = function(graphType, showLegend, systemName, dataPoints, cont
     };
 };
 
+var getDataPointsHC = function(systemName, dataPoints, color) {
+    return {
+        name: systemName,
+        data: dataPoints,
+        color: color
+    };
+};
+
 
 // TODO: This will need to be re-evaluated to incorporate non-time x-axis values. For now, stubbing xType for this.
 /**
@@ -77,6 +85,25 @@ var getDataPointsForPlot = function(xType, yType, graphType){
     return dataPointsList;
 };
 
+var getDataPointsForPlotHC = function(xType, yType, color){
+    var dataPointsList = [];
+    _.each(systems_and_measurements, function(system){
+        var measurements = system.measurement;
+        _.each(measurements, function(measurement){
+            if (_.isEqual(measurement.type.toLowerCase(), yType.toLowerCase())){
+                dataPointsList.push(
+                    getDataPointsHC(
+                        system.name,
+                        measurement.values,
+                        color
+                    )
+                );
+            }
+        });
+    });
+    return dataPointsList;
+};
+
 
 /**
  *
@@ -97,6 +124,22 @@ var updateChartDataPoints = function(chart, xType, yTypeList, graphType){
     }
     _.each(yTypeList, function(yType){
         newDataSeries = newDataSeries.concat(getDataPointsForPlot(xType, yType, graphType));
+    });
+    chart.options.data = newDataSeries;
+};
+
+var updateChartDataPointsHC = function(chart, xType, yTypeList, color){
+    var newDataSeries = [];
+    var activeMeasurements = getAllActiveMeasurements();
+    var measurementsToFetch = _.difference(yTypeList, activeMeasurements);
+    if (measurementsToFetch.length > 0) {
+        console.log("Call API for " + measurementsToFetch);
+        // Some AJAX function that grabs data from API or DB, then updates systems_and_measurements with the response
+        // selectedSystemIDs is a global carried over from the view fxn
+        // updateSystemsAndMeasurementsObject(selectedSystemIDs, measurementsToFetch);
+    }
+    _.each(yTypeList, function(yType){
+        newDataSeries = newDataSeries.concat(getDataPointsForPlot(xType, yType, color));
     });
     chart.options.data = newDataSeries;
 };
@@ -149,9 +192,11 @@ var drawChart = function(){
 
     // Get measurement types to display on the y-axis
     var yTypes = getAllYAxisSelections();
+    var color = "blue";
 
     // Generate a data Series for each y-value type, and assign them all to the CHART
     updateChartDataPoints(CHART, xType, yTypes, graphType);
+    //updateChartDataPointsHC(CHART, xType, yTypes, color);
 
     // TODO: What about the other chart characteristics? Symbols, ranges, different scales, different y-axes?
 
