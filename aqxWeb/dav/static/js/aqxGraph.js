@@ -196,7 +196,7 @@ var drawChart = function(){
 
     // Generate a data Series for each y-value type, and assign them all to the CHART
     updateChartDataPoints(CHART, xType, yTypes, graphType);
-    updateChartDataPointsHC(CHART, xType, yTypes, color);
+    //updateChartDataPointsHC(CHART, xType, yTypes, color);
 
     // TODO: What about the other chart characteristics? Symbols, ranges, different scales, different y-axes?
 
