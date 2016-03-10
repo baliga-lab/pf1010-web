@@ -178,15 +178,16 @@ def get_user(google_id, googleAPIResponse):
 @social.route('/editprofile')
 #######################################################################################
 # function : editprofile
-# purpose : renders editProfile.html
+# purpose : renders profile_edit.html
 # parameters : None
-# returns: editProfile.html
+# returns: profile_edit.html
 # Exception : None
 #######################################################################################
 def editprofile():
     if session.get('uid') is not None:
         user = User(session['uid']).find()
-        return render_template("editProfile.html", user=user)
+        print user
+        return render_template("profile_edit.html", user=user)
     else:
         return render_template("/home.html")
 
@@ -200,14 +201,18 @@ def editprofile():
 #######################################################################################
 @social.route('/updateprofile', methods=['POST'])
 def updateprofile():
-    displayName = request.form['displayName']
-    gender = request.form['gender']
-    organization = request.form['organization']
-    user_type = request.form['user_type']
-    dateofbirth = request.form['dob']
-    User(session['uid']).updateprofile(displayName, gender, organization, user_type, dateofbirth)
+    givenName = request.form.get('givenName', None)
+    familyName = request.form.get('familyName', None)
+    displayName = request.form.get('displayName', None)
+    gender = request.form.get('gender', None)
+    print "gender is"
+    print gender
+    organization = request.form.get('organization', None)
+    user_type = request.form.get('user_type', None)
+    dateofbirth = request.form.get('dob', None)
+    User(session['uid']).updateprofile(givenName, familyName, displayName, gender, organization, user_type, dateofbirth)
     session['displayName'] = displayName
-    flash("User Profile updated successfully")
+    flash("User Profile Updated successfully!")
     return editprofile()
 
 
@@ -295,12 +300,13 @@ def send_friend_request():
 
 #######################################################################################
 # function : search_systems
-# purpose : renders search_systems.html
+# purpose : renders system_search.html
 # parameters : None
-# returns: search_systems.html
+# returns: system_search.html
 # Exception : None
 #######################################################################################
 @social.route('/systems', methods=['GET', 'POST'])
+@social.route('/systems/', methods=['GET', 'POST'])
 def search_systems():
     if request.method == 'POST':
         if session.get('uid') is not None:
@@ -311,7 +317,7 @@ def search_systems():
             subscribed_systems = System().get_subscribed_systems(session.get('uid'))
             recommended_systems = System().get_recommended_systems(session.get('uid'))
             all_systems = System().get_all_systems()
-            return render_template("search_systems.html", post_method="true", search_param=systemName,
+            return render_template("system_search.html", post_method="true", search_param=systemName,
                                    system_search_results=system_search_results, admin_systems=admin_systems,
                                    participated_systems=participated_systems, subscribed_systems=subscribed_systems,
                                    recommended_systems=recommended_systems, all_systems=all_systems)
@@ -324,17 +330,17 @@ def search_systems():
             subscribed_systems = System().get_subscribed_systems(session.get('uid'))
             recommended_systems = System().get_recommended_systems(session.get('uid'))
             all_systems = System().get_all_systems()
-            return render_template("search_systems.html", admin_systems=admin_systems,
+            return render_template("system_search.html", admin_systems=admin_systems,
                                    participated_systems=participated_systems, subscribed_systems=subscribed_systems,
                                    recommended_systems=recommended_systems, all_systems=all_systems)
         else:
             return redirect(url_for('social.index'))
 
 #######################################################################################
-# function : systems
-# purpose : renders systems.html
+# function : view_system
+# purpose : renders system_social.html
 # parameters : system_uid
-# returns: systems.html
+# returns: system_social.html
 # Exception : General Exception
 #######################################################################################
 
@@ -354,7 +360,7 @@ def view_system(system_uid):
                 system_subscribers = System().get_system_subscribers(system_uid)
                 participants_pending_approval = System().get_participants_pending_approval(system_uid)
                 subscribers_pending_approval = System().get_subscribers_pending_approval(system_uid)
-                return render_template("systems.html", system_neo4j=system_neo4j, system_mysql=system_mysql,
+                return render_template("system_social.html", system_neo4j=system_neo4j, system_mysql=system_mysql,
                                        system_admins=system_admins, system_participants=system_participants,
                                        system_subscribers=system_subscribers,
                                        participants_pending_approval=participants_pending_approval,

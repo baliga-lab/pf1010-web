@@ -64,14 +64,17 @@ class User:
     # Exceptions : General Exception
     ############################################################################
 
-    def updateprofile(self, displayname, gender, organization, user_type, dateofbirth):
+    def updateprofile(self, givenName, familyName, displayname, gender, organization, user_type, dateofbirth):
         query = """
         MATCH(x:User)
         WHERE x.sql_id = {sql_id}
-        SET x.displayName = {newdisplayname}, x.gender = {newGender}, x.organization = {newOrganization}, x.user_type={newUserType}, x.dob = {newDOB}
+        SET x.givenName = {newGivenName}, x.familyName = {newFamilyName},
+         x.displayName = {newdisplayname}, x.gender = {newGender}, x.organization = {newOrganization}, x.user_type={newUserType}, x.dob = {newDOB}
         """
         try:
-            return getGraphConnectionURI().cypher.execute(query, sql_id=self.sql_id, newdisplayname=displayname,
+            return getGraphConnectionURI().cypher.execute(query, sql_id=self.sql_id, newGivenName = givenName,
+                                                          newFamilyName = familyName,
+                                                          newdisplayname=displayname,
                                                           newGender=gender, newOrganization=organization,
                                                           newUserType=user_type, newDOB=dateofbirth)
         except Exception as e:
