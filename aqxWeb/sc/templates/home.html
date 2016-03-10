@@ -1,56 +1,102 @@
-{% extends "layout.html" %}
-{% block body %}
-    {% if session.uid %}
-        <form action="{{ url_for('social.add_post') }}" method="post">
-            <div class="form-controls" style="width: 60%">
-                <textarea id="new_post" name="text" rows="3" cols="60" style="width: 100%"
-                          placeholder="Share what you are doing.."></textarea>
-                <div class="links">
-                    <input type="hidden" name="link" value=""/>
-                </div>
-                <div class="controls form-inline">
-                    <button type="button" class="btn" data-toggle="modal" data-target="#linkModal"
-                        id="add_link">Add Link
-                    </button>
-                    <select name="privacy" style="height: 30px; width: 100px; margin-left: 200px; margin-right: 100px">
-                        <option value="public">Public</option>
-                    </select>
-                    <input type="submit" class="btn btn-primary" value="Share">
-                </div>
-            </div>
-            <!-- Modal -->
-            <div class="modal fade" id="linkModal" role="dialog">
-                <div class="modal-dialog">
+{% extends "base.html" %}
 
-                    <!-- Modal content-->
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <button type="button" class="close" data-dismiss="modal">&times;</button>
-                            <h4 class="modal-title">Add Link</h4>
-                        </div>
-                        <div class="modal-body">
-                            <input id="new_link" type="url" class="form-control"
-                                   placeholder="Type an image/video url here.." />
-                        </div>
-                        <div class="modal-footer">
-                            <button id="addUrl" type="button" class="btn btn-default" data-dismiss="modal">Add Link</button>
+{% block title %}Newsfeed{% endblock %}
+
+{% block styles %}
+    {{ super() }}
+    <link rel="stylesheet" type="text/css" href="{{ url_for('social.static', filename='css/layout.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('social.static', filename='css/newsfeed.css') }}">
+{% endblock %}
+
+{% block content %}
+    {% if session.uid %}
+    <div class="row">
+        {# SIDEBAR #}
+        <div class="col-sm-3">
+            <h3 style="margin-top: 0">Weather
+                <button class="js-geolocation btn btn-blue btn-xs">Use Your Location</button>
+            </h3>
+            <div id="weather"></div>
+            <div id="systems">
+                <h3>Update Systems</h3>
+                <ul class="nav nav-pills nav-stacked">
+                    <li><a href="{{ url_for('frontend.system') }}">System A</a></li>
+                    <li><a href="{{ url_for('frontend.add_system') }}">+ Add system...</a></li>
+
+                </ul>
+                <a href="{{ url_for('frontend.coming') }}" class="pull-right">See all systems</a>
+            </div>
+            <div id="badges">
+                <h3>Badges</h3>
+                <p>Sorry, looks like you haven't earned any badges yet!</p>
+            </div>
+        </div>
+
+        {# NEWSFEED #}
+        <div class="main col-sm-9">
+            <form action="{{ url_for('social.add_post') }}" method="post">
+                <textarea id="new_post" name="text" rows="3" class="form-control"
+                          placeholder="Share what you are doing.."></textarea>
+                <div class="share">
+                    <div class="links">
+                        <input type="hidden" name="link" value=""/>
+                    </div>
+                    <div class="controls form-inline">
+                        <button type="button" class="btn btn-blue" data-toggle="modal" data-target="#linkModal"><i
+                                class="fa fa-link"></i></button>
+                        |
+                        <button class="btn btn-blue"><i class="fa fa-file-text-o"></i></button>
+                        {# for docs? #}
+
+                        <div class="form-group pull-right">
+                            <i class="fa fa-lock"></i>
+                            <select name="privacy" class="form-control">
+                                <option value="public">Public</option>
+                                <option value="private">Private</option>
+                            </select>
+                            <input type="submit" class="btn btn-green" value="Share">
                         </div>
                     </div>
                 </div>
-            </div>
-        </form>
 
-    <br>
+                <!-- Modal -->
+                <div class="modal fade" id="linkModal" role="dialog">
+                    <div class="modal-dialog">
 
-    <h3>Today's Recent Posts</h3>
-    {% include "display_posts.html" %}
+                        <!-- Modal content-->
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                <h4 class="modal-title">Add Link</h4>
+                            </div>
+                            <div class="modal-body">
+                                <input id="new_link" type="url" class="form-control"
+                                       placeholder="Type an image/video url here.."/>
+                            </div>
+                            <div class="modal-footer">
+                                <button id="addUrl" type="button" class="btn btn-green" data-dismiss="modal">Add Link
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
 
+            <h3>Recent Posts</h3>
+            {% include "display_posts.html" %}
+        </div>
     {% endif %}
+    </div>
 
 {% endblock %}
-{% block script %}
+
+{% block scripts %}
+    {{ super() }}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.simpleWeather/3.1.0/jquery.simpleWeather.min.js"></script>
+    <script src="{{ url_for('frontend.static', filename='js/weather.js') }}"></script>
+    <script src="{{ url_for('frontend.static', filename='js/newsfeed.js') }}"></script>
     <script>
-        $("#addUrl").click(function() {
+        $("#addUrl").click(function () {
             var link = $("#new_link").val();
             if (link.length > 0) {
                 $(".links").empty();

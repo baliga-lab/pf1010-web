@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block content %}
+
+    <div class="container">
+        <h1 class="page-header">Friends</h1>
+        <ul class="nav nav-tabs">
+            <li><a href="{{ url_for('social.friends') }}">MyFriends</a></li>
+            <li><a href="{{ url_for('social.searchFriends') }}">Search Friends</a></li>
+            <li class="active"><a href="pendingRequest.html">Pending Requests</a></li>
+
+        </ul>
+
+        <table class="table">
+            <thead>
+            <tr>
+                <th class="col-sm-1"></th>
+                <th>Username</th>
+                <th>Option</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td><img src="{{ url_for('frontend.static', filename='images/users/vileplume.png') }}"></td>
+                <td>Steve Borkee</td>
+                <td>
+                    <button type="button" class="btn btn-primary">Confirm</button>
+                    <button type="button" class="btn btn-primary">Delete</button>
+                </td>
+            </tr>
+            <tr>
+                <td><img src="{{ url_for('frontend.static', filename='images/users/vileplume.png') }}"></td>
+                <td>Jason Mraz</td>
+                <td>
+                    <button type="button" class="btn btn-primary">Confirm</button>
+                    <button type="button" class="btn btn-primary">Delete</button>
+                </td>
+            </tr>
+            <tr>
+                <td><img src="{{ url_for('frontend.static', filename='images/users/vileplume.png') }}"></td>
+                <td>Pit Bull</td>
+                <td>
+                    <button type="button" class="btn btn-primary">Confirm</button>
+                    <button type="button" class="btn btn-primary">Delete</button>
+                </td>
+            </tr>
+            <tr>
+                <td><img src="{{ url_for('frontend.static', filename='images/users/vileplume.png') }}"></td>
+                <td>Selena Gomez</td>
+                <td>
+                    <button type="button" class="btn btn-primary">Confirm</button>
+                    <button type="button" class="btn btn-primary">Delete</button>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+{% endblock %}

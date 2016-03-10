@@ -1,0 +1,178 @@
+/***************
+
+Fonts & Colours
+
+***************/
+body {
+    padding-bottom: 100px;
+    font-family: Circular, "Helvetica Neue", Helvetica, Arial, sans-serif;
+    color: #474440;
+}
+
+.page-header {
+    margin-top: 5px;
+}
+
+.btn-blue {
+    background-color: transparent;
+    color: #6ab7b9;
+}
+
+.btn-green {
+    background-color: #8ac226;
+    color: #fff;
+}
+
+@font-face {
+    font-family: Circular;
+    src: url(../fonts/CircularStd-Book.otf)
+}
+
+
+/***************
+
+Navigation
+
+***************/
+.navbar-brand {
+    padding: 5px 15px;
+}
+
+.navbar-brand img {
+    height: 40px;
+}
+
+#navbar-top {
+    margin-bottom: 0;
+}
+
+#navbar-spacer {
+    height: 8px;
+    background-color: #5cb85c;
+}
+
+#navbar-bottom {
+    background-color: rgba(34, 34, 34, 0.9);
+    border-color: rgba(8, 8, 8, 0.9);
+    margin-bottom: 15px;
+    border-radius: 0;
+}
+
+
+/***************
+
+Footer
+
+***************/
+.footer {
+    background-color: #e7e7e7;
+    height: 50px;
+    line-height: 50px;
+}
+
+.footer > div > ul {
+    display: inline-block;
+    float: none;
+}
+
+.footer > div {
+    text-align: center;
+}
+
+
+/***************
+
+Pop-up Dialog (for first-time users)
+
+***************/
+.overlay {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: rgba(0, 0, 0, 0.7);
+    transition: opacity 500ms;
+    visibility: hidden;
+    opacity: 0;
+    z-index: 100;
+}
+
+.overlay:target {
+    visibility: visible;
+    opacity: 1;
+}
+
+.popup {
+    background: #ffffff no-repeat right top;
+    margin-right: 200px;
+
+    /* background-position: right top; */
+    margin-left: 700px;
+    margin-top: 45px;
+    padding: 20px;
+    /* background: #acc8ac; */
+    border-radius: 5px;
+    width: 40%;
+    position: relative;
+    transition: all 5s ease-in-out;
+    z-index: 100;
+}
+
+.popup h2 {
+    margin-top: 0;
+    color: #333;
+    font-family: Tahoma, Arial, sans-serif;
+}
+
+.popup .close {
+    position: absolute;
+    top: 20px;
+    right: 30px;
+    transition: all 200ms;
+    font-size: 30px;
+    font-weight: bold;
+    text-decoration: none;
+    color: #333;
+}
+
+.popup .close:hover {
+    color: #6ab7b9;
+}
+
+.popup .content {
+    max-height: 30%;
+    overflow: auto;
+}
+
+
+/***************
+
+Responsive CSS
+
+***************/
+@media screen and (max-width: 700px) {
+    .box {
+        width: 70%;
+    }
+
+    .popup {
+        width: 70%;
+    }
+}
+
+@media (min-width: 768px) {
+    .carousel-caption p {
+        margin-bottom: 20px;
+        font-size: 21px;
+        line-height: 1.4;
+    }
+
+    .featurette-heading {
+        font-size: 30px;
+    }
+
+    .main-title {
+        font-size: 65px;
+    }
+}

@@ -1,0 +1,31 @@
+#navbar-bottom {
+    margin-bottom: 0;
+}
+
+#wrapper {
+    position: relative;
+}
+
+#slider {
+    display: none;
+    width: 100%;
+}
+
+.foreground {
+    position: relative;
+    z-index: auto;
+}
+
+.background {
+    position: absolute;
+    width: 100%;
+    z-index: -100;
+}
+
+#systems-list {
+    padding: 15px;
+}
+
+.graph-caption {
+    text-align: center;
+}

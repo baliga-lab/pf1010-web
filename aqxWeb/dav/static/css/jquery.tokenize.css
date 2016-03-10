@@ -5,8 +5,7 @@ div.Tokenize ul.TokensContainer li.TokenSearch input {
     font-size: 12px;
 }
 
-.tokenize-sample { width: 100% }
-
+.tokenize-sample { width: 100%; height: 30px}
 
 div.Tokenize {
     position: relative;

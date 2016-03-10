@@ -208,7 +208,7 @@ window.onload = function() {
     // Create our default chart
     CHART = new CanvasJS.Chart("analyzeContainer", {
         title :{
-            text : CHART_TITLE
+            text : "My CanvasJS"
         },
         // TODO: This will change, we need a procedure for setting min/max ranges based on XType
         // TODO: Also need to take into consideration ranges for YType
@@ -230,7 +230,6 @@ window.onload = function() {
         zoomEnabled : ZOOM_ENABLED,
         data : []
     });
-
-    // Render chart based on default page setting. i.e. x-axis & graph-type dropdowns, and the y-axis checklist
+    // Render chart based on default page setting. I.e. x-axis & graph-type dropdowns, and the y-axis checklist
     drawChart();
 };

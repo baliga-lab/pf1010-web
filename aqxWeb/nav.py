@@ -39,27 +39,36 @@ class SidedLink(Link):
         self.left = left
 
 
-@nav.navigation('navbar')
-def navbar():
+@nav.navigation('guest')
+def guest():
     return Navbar(
         SidedViewImage('https://aquaponics.systemsbiology.net/static/images/pflogo2.png', 'Project Feed 1010', True, '.index'),
-        SidedLink('Login', '#register-popup', False),
-        View('Home', '.index'),
-        View('About', '.about'),
-        View('Explore', '.explore'),
-        View('Home', '.newsfeed'),
-        View('Profile', '.coming'),
-        View('Analytics', '.coming'),
-        View('Challenges', '.coming'),
-        View('Documents', '.coming'),
+        SidedLink('Login with Google+', 'https://accounts.google.com/o/oauth2/auth?response_type=token&client_id=757190606234-pnqru7tabom1p1hhvpm0d3c3lnjk2vv4.apps.googleusercontent.com&redirect_uri=http://127.0.0.1:5000/social/Home&scope=https://www.googleapis.com/auth/plus.login https://www.googleapis.com/auth/userinfo.email', False),
+        View('Home', 'frontend.index'),
+        View('About', 'frontend.about'),
+        View('Explore', 'dav.explore')
+    )
+
+
+@nav.navigation('member')
+def member():
+    return Navbar(
+        SidedViewImage('https://aquaponics.systemsbiology.net/static/images/pflogo2.png', 'Project Feed 1010', True, '.index'),
+        View('Home', 'social.index'),
+        View('Profile', 'frontend.coming'),
+        View('Explore', 'dav.explore'),
+        Subgroup('Collaborate',
+            View('Friends', 'social.friends'),
+            View('Systems', 'social.search_systems'),
+            View('Groups', 'frontend.coming'),
+            View('Challenges', 'frontend.coming'),
+            View('Documents', 'frontend.coming')
+        ),
         SidedSubgroup('Oddish', False,
-            View('Friends', '.coming'),
-            View('Systems', '.coming'),
-            View('Groups', '.coming'),
+            View('Edit Profile', 'social.editprofile'),
+            View('Settings', 'frontend.settings'),
             Separator(),
-            View('Settings', '.coming'),
-            Separator(),
-            View('Logout', '.coming'),
+            View('Logout', 'social.logout'),
         )
     )
 

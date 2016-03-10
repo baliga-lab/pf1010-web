@@ -1,0 +1,99 @@
+/***************
+
+Newsfeed CSS
+
+***************/
+.like {
+    float:right;
+    margin-right: 2%;
+    background-color: #fff;
+    color: #6ab7b9;
+}
+
+.unlike {
+    float:right;
+    margin-right: 2%;
+    background-color: #6ab7b9;
+    color: #fff;
+}
+
+.detail-box {
+    background-color: #fff;
+    border: 1px solid #bbb;
+    margin-top: 20px;
+    margin-bottom: 10px;
+}
+
+.comment-box {
+    border-top: 1px dotted #bbb;
+    text-align: left;
+}
+
+.comment-box .form-group:first-child, .actionBox .form-group:first-child {
+    width: 80%;
+}
+
+.comment-box .form-group:nth-child(2), .actionBox .form-group:nth-child(2) {
+    width: 18%;
+}
+
+.taskDescription {
+    margin-top: 10px 0;
+}
+
+.comment-list {
+    padding: 0;
+    list-style: none;
+    max-height: 200px;
+    overflow: auto;
+}
+
+.comment-list li {
+    margin: 0;
+    margin-top: 10px;
+    margin-left: 10px;
+}
+
+.commenterImage {
+    width: 30px;
+    margin-right: 5px;
+    height: 100%;
+    float: left;
+}
+
+.commenterImage img {
+    width: 100%;
+    border-radius: 50%;
+}
+
+.commentText p {
+    margin: 0;
+}
+
+.sub-text {
+    color: #aaa;
+    font-size: 11px;
+}
+
+.share {
+    margin: 5px 0;
+}
+
+i {
+    padding: 5px;
+}
+
+.media {
+    padding: 8px;
+}
+
+.post .media-object {
+    width: 50px;
+    height: 50px;
+}
+
+.comment .media-object {
+    width: 30px;
+    height: 30px;
+    border-radius: 15px;
+}

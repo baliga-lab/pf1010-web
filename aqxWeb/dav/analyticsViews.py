@@ -54,13 +54,23 @@ def create_conn(app):
 ######################################################################
 # Interactive map of all active systems
 ######################################################################
-
 @dav.route('/explore')
 def explore():
     systems_and_info_json = get_all_systems_info()
     systems = json.loads(systems_and_info_json)['systems']
     metadata_json = get_all_aqx_metadata()
-    return render_template("explorePage.html", **locals())
+    return render_template("explore.html", **locals())
+
+
+#######################################################################################
+# function : index
+# purpose : placeholder for dav.index
+# parameters : None
+# returns: Index string... no purpose
+#######################################################################################
+@dav.route('/')
+def index():
+    return 'Index'
 
 
 ######################################################################
@@ -69,32 +79,6 @@ def explore():
 
 @dav.route('/analyzeGraph', methods=['POST'])
 def analyzeGraph():
-
-    # systems_and_measurements_json = \
-    #     { 'response' :
-    #         [
-    #             { 'system_12345' :
-    #                   {'pH' :
-    #                        [{ 'x' : 0, 'y' : 7.0, 'date':'03:03:16:00' },
-    #                         { 'x' : 1, 'y' : 11.0, 'date':'03:03:16:01'},
-    #                         { 'x' : 2, 'y' : 9.2, 'date':'03:03:16:02' }],
-    #                    'nitrate' :
-    #                        [{ 'x' : 24, 'y' : 6.5, 'date':'03:01:16:12'},
-    #                         { 'x' : 48, 'y' : 6.5, 'date':'03:02:16:12'}]}
-    #               },
-    #             { 'system_54321' :
-    #                   { 'pH' :
-    #                         [{ 'x' : 10, 'y' : 3.0, 'date':'03:03:16:00' },
-    #                          { 'x' : 11, 'y' : 1.0, 'date':'03:03:16:01'},
-    #                          { 'x' : 12, 'y' : 4.2, 'date':'03:03:16:02' }],
-    #                     'nitrate' :
-    #                         [{ 'x' : 5, 'y' : 13.5, 'date':'03:01:16:12'},
-    #                          { 'x' : 29, 'y' : 13.5, 'date':'03:02:16:12'}]
-    #                     }
-    #               }
-    #         ]
-    #     }
-
     systems_and_measurements_json = \
         {'response':
             [
@@ -208,16 +192,6 @@ def put_user():
 @dav.route('/aqxapi/get/system/measurements/<system_uid>', methods=['GET'])
 def get_system_measurements(system_uid):
     return davAPI.get_system_measurements(get_conn(), system_uid)
-
-
-######################################################################
-# API call to get light intensity measurement
-######################################################################
-
-@dav.route('/aqxapi/get/system/measurement/light/<system_uid>', methods=['GET'])
-def get_system_light(system_uid):
-    return
-
 
 if __name__ == '__main__':
     init_app()

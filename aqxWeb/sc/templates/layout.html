@@ -1,28 +1,42 @@
+{# THIS HTML PAGE IS NO LONGER NEEDED. #}
+
 <!DOCTYPE html>
 <meta charset="UTF-8">
 <title>Feed1010-SocialNetwork</title>
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css"
       integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+
+<!-- Search Systems Page Custom CSS -->
+<link rel="stylesheet" type="text/css" href="{{ url_for('social.static', filename='css/system_search.css') }}">
+
+<!-- Systems Page Custom CSS -->
+<link rel="stylesheet" type="text/css" href="{{ url_for('social.static', filename='css/system_social.css') }}">
+
+<link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/themes/smoothness/jquery-ui.css">
+
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/jquery-ui.min.js"></script>
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"
         integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous">
 </script>
-<!--<link rel="stylesheet" href="static/css/main.css">-->
-    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8/jquery.min.js"></script>
-    <!--<link href="static/css/bootstrap.css" rel="stylesheet" />-->
-    <script src="https://plus.google.com/js/client:plusone.js"></script>
+<!--<link rel="stylesheet" href="static/css/main.css">
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8/jquery.min.js"></script>
+<link href="static/css/bootstrap.css" rel="stylesheet" />-->
+<script src="https://plus.google.com/js/client:plusone.js"></script>
 
 
 <style>
     body {
         background-color: #EEE;
     }
+
     .attachedImg {
         display: block;
         max-width: 200px;
         margin-left: auto;
         margin-right: auto;
     }
+
     .post {
         background-color: #FFF;
         margin-bottom: 10px;
@@ -30,10 +44,12 @@
         padding: 20px;
         border-radius: 15px;
     }
+
     .post .media {
         width: 100%;
         text-align: center;
     }
+
     .post .dttime {
         float: right;
         margin-right: 20px;
@@ -61,9 +77,12 @@
                 <br>
                 <ul id="main_menu" class="nav navbar-nav">
 
-                    <li><a id="index" class="active" href="{{ url_for('social.index') }}">Home <span class="sr-only">(current)</span></a></li>
+                    <li><a id="index" class="active" href="{{ url_for('social.index') }}">Home <span class="sr-only">(current)</span></a>
+                    </li>
 
                     <li><a id="profile" href="{{ url_for('social.editprofile') }}">Profile</a></li>
+                    <li><a id="friends" href="{{ url_for('social.friends') }}">Friends</a></li>
+                    <li><a id="systems" href="{{ url_for('social.search_systems') }}">Systems</a></li>
 
                 </ul>
                 <form class="navbar-form navbar-left" role="search">
@@ -74,18 +93,20 @@
                 </form>
 
                 <ul class="nav navbar-nav navbar-right">
-                    <li> Welcome {{ session.displayName }}! </li>
+                    <li> Welcome {{ session.displayName }}!</li>
                     <br>
-                    <li><a href="{{ url_for('social.logout') }}"> Logout </a> </li>
+                    <li><a href="{{ url_for('social.logout') }}"> Logout </a></li>
                 </ul>
 
             {% endif %}
             <ul class="nav navbar-nav navbar-right">
                 {% if not session.uid %}
-                <br>
-                <li>Welcome Guest User!</li>
-                <br>
-                <li><a class="btn" href="https://accounts.google.com/o/oauth2/auth?response_type=token&client_id=757190606234-pnqru7tabom1p1hhvpm0d3c3lnjk2vv4.apps.googleusercontent.com&redirect_uri=http://127.0.0.1:5000/social/Home&scope=https://www.googleapis.com/auth/plus.login https://www.googleapis.com/auth/userinfo.email">Login with Google+</a></li>
+                    <br>
+                    <li>Welcome Guest User!</li>
+                    <br>
+                    <li><a class="btn"
+                           href="{{ url_for('social.Home') }}">Login
+                        with Google+</a></li>
                 {% endif %}
             </ul>
 
@@ -94,19 +115,19 @@
 </nav>
 
 <div class="container">
-{% for message in get_flashed_messages() %}
-    <div class="flash">{{ message }}</div>
-{% endfor %}
+    {% for message in get_flashed_messages() %}
+        <div class="flash">{{ message }}</div>
+    {% endfor %}
     {% block body %}{% endblock %}
 </div>
 <script>
-$(function() {
-     var current_page = window.location.href.substr(window.location.href.lastIndexOf("/")+1);
-     $("#main_menu").each(function(){
-          if($(this).attr("href") == current_page || $(this).attr("href") == '' )
-            $(this).addClass("active");
-     })
-});
+    $(function () {
+        var current_page = window.location.href.substr(window.location.href.lastIndexOf("/") + 1);
+        $("#main_menu").each(function () {
+            if ($(this).attr("href") == current_page || $(this).attr("href") == '')
+                $(this).addClass("active");
+        })
+    });
 </script>
 {% block script %}{% endblock %}
 

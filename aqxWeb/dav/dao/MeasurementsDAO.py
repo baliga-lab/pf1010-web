@@ -35,6 +35,23 @@ class MeasurementsDAO:
         return value
 
     ###############################################################################
+    def put_measurement_light(self, light, table_name):
+        cursor = self.conn.cursor()
+        query = ("INSERT INTO %s (time, value) "
+                 "values(%s, %s)" % table_name)
+        data = (light.get('time'), light.get('value'))
+        try:
+            cursor.execute(query, data)
+            self.conn.commit()
+        except:
+            self.conn.rollback()
+            cursor.close
+            return "Insert error"
+        finally:
+            cursor.close
+        return "Light measurement inserted"
+
+    ###############################################################################
     # Destructor to close the self connection
     def __del__(self):
         self.conn.close()
