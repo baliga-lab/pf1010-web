@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+
+{% block styles %}
+    {{ super() }}
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+    <link rel="stylesheet" href="{{ url_for('dav.static', filename='css/jquery.tokenize.css')}}">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap-theme.min.css" integrity="sha384-fLW2N01lMqjakBkx3l/M9EahuwpSfeNvV63J5ezn3uZzapT0u7EYsXMjQV+0En5r" crossorigin="anonymous">
+    <link rel="stylesheet" href="{{ url_for('dav.static', filename='css/explore.css') }}">
+{% endblock %}
+
+{% block title %}Analyze{% endblock %}
+
+{% block content %}
+    <div class="container" style="width: 100%; margin-top: 2%; margin-left: 2%">
+        <div style="width: 100%">
+            <div style="width: 50%;">
+                <div id="analyzeContainer" style="height: 300px; width: 100%;">
+                    <label>Demo graphs</label>
+                </div>
+            </div>
+            <br>
+            <div style="width: 50%;">
+                <div class="form-group">
+                    <label class="control-label">Select X Axis</label>
+                    <select class="dropdown" id="selectXAxis">
+                        <option name="xAxisTypes" value="time" selected="selected">Time</option>
+                        {% for type in measurement_types %}
+                            <option name="xAxisTypes" value="{{type.lower()}}">{{ type }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            <div style="width: 50%;">
+                <div id="dd" style="height: 100%; width: 100%;">
+                    <label class="control-label">Select Y Axis</label>
+                    <select id="tokenize" multiple="multiple" class="tokenize-sample">
+                        {% for type in measurement_types %}
+                            <option value="{{type.lower()}}">{{ type }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            <div style="width: 50%;">
+                <div id="graphType" style="height: 100%; width: 100%;">
+                    <label class="control-label">Select Graph Type</label>
+                    <select class="dropdown" id="selectGraphType">
+                        <option value="line">Line Chart</option>
+                        <option value="scatter">Scatter Plot</option>
+                        <option value="barchart">Bar Chart</option>
+                    </select>
+                </div>
+                <div id="buttons" style="padding-top: 3%">
+                    <input class="btn btn-green" type="submit" id="submitbtn" name="newgraph" value="Submit"/>
+                    <input class="btn btn-green" type="button" id="resetbtn" name="reset" value="Reset"/>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block scripts %}
+    {{ super() }}
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    <script src="http://canvasjs.com/assets/script/canvasjs.min.js"></script>
+    <script type="text/javascript" src="{{ url_for('dav.static', filename='js/underscore-min.js') }}"></script>
+    <script src="{{ url_for('dav.static', filename='js/aqxGraph.js') }}"></script>
+    <script src="{{ url_for('dav.static', filename='js/jquery.tokenize.js') }}"></script>
+    <script type="text/javascript">
+        $('#tokenize').tokenize({
+            displayDropdownOnFocus: true
+        });
+    </script>
+    <script>
+        var systems_and_measurements = {{ systems_and_measurements_json | safe }};
+        var dropdown_values = {{ measurement_types | safe }};
+        var selectedSystemIDs = {{ selected_systemID_list|safe }};
+        $(document).ready(main());
+    </script>
+{% endblock %}

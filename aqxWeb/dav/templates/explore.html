@@ -9,7 +9,6 @@
 
 {% block content %}
     <h1 class="page-header">Explore</h1>
-    <h3>Current Aquaponics Systems</h3>
     <div class="container" style="width: 100%; margin-top: 2%; margin-left: 2%">
         <div style="width: 70%; float: left; position: relative; overflow: hidden; background-color: rgb(229, 227, 223);" id="map"></div>
         <div style="width: 30%; padding-left:2%; float:left;">
@@ -45,15 +44,17 @@
                     {#        {% endfor %}#}
                 </ul>
             </div>
-
             {% if session.uid %}
                 <div class="form-group" style="width: 75%; padding-top:2%;">
                     <label class="control-label">Select from your systems</label>
                     <ul id="listOfMySystems" style="overflow-y: scroll; max-height: 120px;">
                     </ul>
                 </div>
-                <input class="btn btn-green" type="submit" id="submitbtn" name="analyze" value="Analyze"/>
             {% endif %}
+            <form id="analyzeOptions" action="analyzeGraph" method="POST">
+                <input  name="selectedSystems" type="hidden" id="selectedSystems" value="Guna"/>
+                <input class="btn btn-green" type="submit" value="Analyze" id="analyzebtn"/>
+            </form>
         </div>
     </div>
 

@@ -52,23 +52,13 @@ def create_conn(app):
 ######################################################################
 # Interactive map of all active systems
 ######################################################################
+
 @dav.route('/explore')
 def explore():
     systems_and_info_json = get_all_systems_info()
     systems = json.loads(systems_and_info_json)['systems']
     metadata_json = get_all_aqx_metadata()
-    return render_template("explore.html", **locals())
-
-
-#######################################################################################
-# function : index
-# purpose : placeholder for dav.index
-# parameters : None
-# returns: Index string... no purpose
-#######################################################################################
-@dav.route('/')
-def index():
-    return 'Index'
+    return render_template("explorePage.html", **locals())
 
 
 ######################################################################
@@ -180,7 +170,27 @@ def get_user(uid):
 @dav.route('/aqxapi/put/user', methods=['POST'])
 def put_user():
     user = request.get_json()
-    return davAPI.put_user(get_conn(),user)
+    return davAPI.put_user(get_conn(), user)
+
+
+######################################################################
+# API call to get latest recorded values of all measurements of a
+# given system
+######################################################################
+
+@dav.route('/aqxapi/get/system/measurements/<system_uid>', methods=['GET'])
+def get_system_measurements(system_uid):
+    return davAPI.get_system_measurements(get_conn(), system_uid)
+
+
+######################################################################
+# API call to get light intensity measurement
+######################################################################
+
+@dav.route('/aqxapi/get/system/measurement/light/<system_uid>', methods=['GET'])
+def get_system_light(system_uid):
+    return
+
 
 if __name__ == '__main__':
     init_app()
