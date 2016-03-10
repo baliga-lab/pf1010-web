@@ -12,8 +12,10 @@
 
     <!-- Optional theme -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap-theme.min.css" integrity="sha384-fLW2N01lMqjakBkx3l/M9EahuwpSfeNvV63J5ezn3uZzapT0u7EYsXMjQV+0En5r" crossorigin="anonymous">
-
-   <title>Title</title>
+    {#    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>#}
+    <script src="{{ url_for('dav.static', filename='js/jquery.tokenize.js') }}"></script>
+    <link rel="stylesheet" href="{{ url_for('dav.static', filename='css/jquery.tokenize.css')}}">
+    <title>Title</title>
 </head>
 <body>
 <div class="container" style="width: 100%; margin-top: 2%; margin-left: 2%">
@@ -37,11 +39,16 @@
         </div>
         <div class="form-group" style="width: 50%; padding-top:2%;">
             <label class="control-label">Select Y Axis</label>
-            <ul id="listOfYAxisValues" style="overflow-y: scroll; max-height: 110px;">
+            <select id="tokenize" multiple="multiple" class="tokenize-sample">
                 {% for type in measurement_types %}
-                    <li><input name="measurementTypes" type="checkbox" value="{{type.lower()}}">{{ type }}</li>
+                    <option value="{{type.lower()}}">{{ type }}</option>
                 {% endfor %}
-            </ul>
+            </select>
+            <script type="text/javascript">
+                $('#tokenize').tokenize({
+                    displayDropdownOnFocus: true
+                });
+            </script>
         </div>
         <br>
         <div style="width: 50%;">
@@ -63,8 +70,8 @@
 <script>
     var systems_and_measurements = {{ systems_and_measurements_json | safe }};
     var dropdown_values = {{ measurement_types | safe }};
-    var selectedSystemIDs = {{ selected_systemID_list|safe }}
-            $(document).ready(main());
+    var selectedSystemIDs = {{ selected_systemID_list|safe }};
+    $(document).ready(main());
     {#    window.onload(loadChart());#}
 </script>
 </body>
