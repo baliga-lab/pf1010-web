@@ -21,6 +21,7 @@ var SCATTER = "scatter";
 var BAR_CHART = "barchart";
 var DEFAULT_Y_TEXT = "Nitrate";
 var DEFAULT_Y_VALUE = DEFAULT_Y_TEXT.toLowerCase();
+var CHART_TITLE = "System Analyzer";
 
 
 /* ##################################################################################################################
@@ -189,7 +190,6 @@ var main = function(){
             return this.defaultSelected;
         });
 
-        // TODO: Change for new dropdown thingy
         // Uncheck all Y Axis checkboxes except DEFAULT_Y
         $('#tokenize').tokenize().clear();
         $('#tokenize').tokenize().tokenAdd(DEFAULT_Y_VALUE, DEFAULT_Y_TEXT);
@@ -208,7 +208,7 @@ window.onload = function() {
     // Create our default chart
     CHART = new CanvasJS.Chart("analyzeContainer", {
         title :{
-            text : "My CanvasJS"
+            text : CHART_TITLE
         },
         // TODO: This will change, we need a procedure for setting min/max ranges based on XType
         // TODO: Also need to take into consideration ranges for YType
@@ -231,6 +231,6 @@ window.onload = function() {
         data : []
     });
 
-    // Render chart based on default page setting. I.e. x-axis & graph-type dropdowns, and the y-axis checklist
+    // Render chart based on default page setting. i.e. x-axis & graph-type dropdowns, and the y-axis checklist
     drawChart();
 };
