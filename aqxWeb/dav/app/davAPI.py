@@ -1,3 +1,6 @@
+import re
+
+from aqxWeb.dav.dao.MeasurementsDAO import MeasurementsDAO
 from aqxWeb.dav.dao.systemsDAO import SystemsDAO
 from aqxWeb.dav.dao.MetaDataDAO import MetadataDAO
 from aqxWeb.dav.dao.UserDAO import UserDAO
@@ -84,13 +87,14 @@ class DavAPI:
 
     def get_user(self, conn, user_id):
         u = UserDAO(conn)
-        result = u.get_user(user_id)
+        result_temp = u.get_user(user_id)
+        result = result_temp[0]
         user = {
             "id" : result[0],
-            "google_id" : result[1],
-            "email" : result[2],
-            "latitude" : str(result[3]),
-            "longitude" :str(result[4])
+            "google_id": result[1],
+            "email": result[2],
+            "latitude": str(result[3]),
+            "longitude":str(result[4])
         }
         return json.dumps({'user': user})
 
@@ -105,7 +109,71 @@ class DavAPI:
         u = UserDAO(conn)
         result = u.put_user(user)
         message = {
-            "message" : result
+            "message": result
         }
         return json.dumps({'status': message})
+
+    ###############################################################################
+    # fetch latest recorded values of measurements for a given system
+    ###############################################################################
+    # param conn : db connection
+    # param system_uid : system's unique ID
+    # get_system_measurements - It returns the latest recorded values of the
+    #                           given system.
+
+    def get_system_measurements(self, conn, system_uid):
+        m = MeasurementsDAO(conn)
+        # Fetch names of all the measurements
+        names = m.get_all_measurement_names()
+        # Create a list to store the latest values of all the measurements
+        latest_values = []
+        # For each measurement
+        for name in names:
+            # Fetch the name of the measurement using regular expression
+            measurement_name = self.get_measurement_name(name)
+            if measurement_name != 'time':
+                # As each measurement of a system has a table on it's own,
+                # we need to create the name of each table.
+                # Each measurement table is: aqxs_measurementName_systemUID
+                table_name = self.get_measurement_table_name(measurement_name, system_uid)
+                # Get the latest value stored in the table
+                value = m.get_latest_value(table_name)
+                # Append the value to the latest_value[] list
+                latest_values.append(value)
+        obj = {
+            'system_uid': str(system_uid),
+            'alkalinity': str(latest_values[0]),
+            'ammonium': str(latest_values[1]),
+            'chlorine': str(latest_values[2]),
+            'hardness': str(latest_values[3]),
+            'light': str(latest_values[4]),
+            'nitrate': str(latest_values[5]),
+            'nitrite': str(latest_values[6]),
+            'o2': str(latest_values[7]),
+            'ph': str(latest_values[8]),
+            'temp': str(latest_values[9])
+        }
+        return json.dumps(obj)
+
+    ###############################################################################
+    # Get name of the measurement
+    ###############################################################################
+    # Fetch the name of the measurement using regular expression
+    # param: 'name' retrieved from the measurement_types table
+    @staticmethod
+    def get_measurement_name(name):
+        return re.findall(r"\(u'(.*?)',\)", str(name))[0]
+
+    ###############################################################################
+    # Get name of the measurement table for a given system
+    ###############################################################################
+    # As each measurement of a system has a table on it's own,
+    # we need to create the name of each table.
+    # Each measurement table is: aqxs_measurementName_systemUID
+    # param: measurement_name: name of the measurement
+    # param: system_uid: system's unique ID
+    @staticmethod
+    def get_measurement_table_name(measurement_name, system_uid):
+        table_name = "aqxs_" + measurement_name + "_" + system_uid
+        return table_name
 
