@@ -24,7 +24,7 @@ class MeasurementsDAO:
     # get_latest_value: get latest value from the given table
     def get_latest_value(self, table_name):
         cursor = self.conn.cursor()
-        query = "SELECT value FROM %s " \
+        query = "SELECT * FROM %s " \
                 "ORDER BY time DESC " \
                 "LIMIT 1" % table_name
         try:
@@ -52,6 +52,23 @@ class MeasurementsDAO:
         return "Light measurement inserted"
 
     ###############################################################################
+
+    # get_measurement_name: method to fetch the name of the measurements of the
+    # given measurement_id
+    def get_measurement_name(self, measurement_id):
+        cursor = self.conn.cursor()
+        query_name = ("SELECT name "
+                      "FROM measurement_types "
+                      "WHERE id = %s;")
+        try:
+            cursor.execute(query_name, (measurement_id, ))
+            measurement_name, = cursor.fetchall()
+        finally:
+            cursor.close()
+        return measurement_name
+
+    ###############################################################################
+
     # Destructor to close the self connection
     def __del__(self):
         self.conn.close()

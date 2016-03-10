@@ -124,8 +124,8 @@ class DavAPI:
         m = MeasurementsDAO(conn)
         # Fetch names of all the measurements
         names = m.get_all_measurement_names()
-        # Create a list to store the latest values of all the measurements
-        latest_values = []
+        # Create a list to store the name, latest time and value of all the measurements
+        x = []
         # For each measurement
         for name in names:
             # Fetch the name of the measurement using regular expression
@@ -138,19 +138,25 @@ class DavAPI:
                 # Get the latest value stored in the table
                 value = m.get_latest_value(table_name)
                 # Append the value to the latest_value[] list
-                latest_values.append(value)
+                if len(value) == 1:
+                    value_temp = value[0]
+                    temp = {
+                        'name': measurement_name,
+                        'time': str(value_temp[0]),
+                        'value': str(value_temp[1])
+                    }
+                else:
+                    temp = {
+                        'name': measurement_name,
+                        'time': None,
+                        'value': None
+                    }
+
+                x.append(temp)
+
         obj = {
             'system_uid': str(system_uid),
-            'alkalinity': str(latest_values[0]),
-            'ammonium': str(latest_values[1]),
-            'chlorine': str(latest_values[2]),
-            'hardness': str(latest_values[3]),
-            'light': str(latest_values[4]),
-            'nitrate': str(latest_values[5]),
-            'nitrite': str(latest_values[6]),
-            'o2': str(latest_values[7]),
-            'ph': str(latest_values[8]),
-            'temp': str(latest_values[9])
+            'measurements': x
         }
         return json.dumps(obj)
 
@@ -176,3 +182,28 @@ class DavAPI:
     def get_measurement_table_name(measurement_name, system_uid):
         table_name = "aqxs_" + measurement_name + "_" + system_uid
         return table_name
+
+    ###############################################################################
+    # fetch latest recorded values of given measurement for a given system
+    ###############################################################################
+    # param conn : db connection
+    # param system_uid : system's unique ID
+    # param measurement_id: ID of a measurement
+    # get_system_measurement - It returns the latest recorded values of the
+    #                           given system.
+    def get_system_measurement(self, conn, system_uid, measurement_id):
+        m = MeasurementsDAO(conn)
+        # Fetch the name of the measurement
+        measurement = m.get_measurement_name(measurement_id)
+        measurement_name = self.get_measurement_name(measurement)
+        # Create the name of the table
+        table_name = self.get_measurement_table_name(measurement_name, system_uid)
+        # Get the latest value recorded in that table
+        result = m.get_latest_value(table_name)
+        result_temp = result[0]
+        obj = {
+            'system_uid': system_uid,
+            'time': str(result_temp[0]),
+            'value': str(result_temp[1])
+        }
+        return json.dumps(obj)
