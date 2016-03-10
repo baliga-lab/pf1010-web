@@ -392,10 +392,6 @@ var populate_dummy_user_systems_checklist = function(){
     });
 };
 
-<<<<<<< HEAD
-
-=======
->>>>>>> refs/remotes/origin/release_sprint2
 $('#analyzeOptions').on('submit',function(e) {
     var systemsSelectedToAnalyze = [];
     _.each($('#listOfUserSystems input:checked'), function(checkedInput){
