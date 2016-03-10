@@ -47,7 +47,8 @@
                         {% for row in system_search_results %}
                             <div class="row">
                                 <ul class="pull-left">
-                                    <img src="static/images/default_system_thumbnail.png" alt="System" height="32"
+                                    <img src="{{ url_for('social.static', filename='images/default_system_thumbnail.png') }}"
+                                         alt="System" height="32"
                                          width="32">
                                 </ul>
                                 <br/>
@@ -59,7 +60,7 @@
                     {% else %}
                         <div class="row">
                             <ul class="pull-left">
-                                <img src="static/images/sad_smiley.png" alt="System" height="32"
+                                <img src="{{ url_for('social.static', filename='images/sad_smiley.png') }}" alt="System" height="32"
                                      width="32">
                             </ul>
                             <br/>
