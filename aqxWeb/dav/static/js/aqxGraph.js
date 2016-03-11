@@ -24,7 +24,8 @@ var DEFAULT_Y_VALUE = DEFAULT_Y_TEXT.toLowerCase();
 var CHART_TITLE = "System Analyzer";
 var HC_OPTIONS;
 var COLORS = ['#058DC7', '#50B432', '#ED561B', '#DDDF00', '#24CBE5', '#64E572', '#FF9655', '#FFF263', '#6AF9C4'];
-var MARKERS = []
+var MARKERS = {'nitrate': 'circle', 'ph': 'url(https://www.highcharts.com/samples/graphics/snow.png)', 'Ammonia': 'triangle-down', 'Nitrite': 'square'}
+    //'triangle','diamond' ,'url(https://www.highcharts.com/samples/graphics/sun.png']
 
 
 /* ##################################################################################################################
@@ -53,6 +54,14 @@ var getDataPointsHC = function(systemName, dataPoints, color, graphType, id, lin
     return series;
 };
 
+// TODO: This can be done before plotting graph
+var addMarker = function(dataPoints, type) {
+    var symbolType =  MARKERS[type];
+    _.each(dataPoints, function(data) {
+        data.marker = {'symbol': symbolType};
+    })
+    return dataPoints;
+}
 
 // TODO: This will need to be re-evaluated to incorporate non-time x-axis values. For now, stubbing xType for this.
 /**
@@ -68,15 +77,16 @@ var getDataPointsForPlotHC = function(xType, yTypeList, color, graphType){
     // Every system should be represented by unique color
     // Each measurementType should have a unique marker type
     var colorCounter = 0;
-
     _.each(systems_and_measurements, function(system){
         var measurements = system.measurement;
         var linkedTo = false;
         _.each(measurements, function(measurement){
             _.each(yTypeList, function(yType) {
                 if (_.isEqual(measurement.type.toLowerCase(), yType.toLowerCase())){
+                    datawithMarkers = addMarker(measurement.values, yType);
                     dataPointsList.push(
-                        getDataPointsHC(system.name, measurement.values, COLORS[colorCounter],
+                        // TODO: Discuss about outOfBoundExceptions while using COLORS and MARKERS
+                        getDataPointsHC(system.name, datawithMarkers, COLORS[colorCounter],
                                         graphType, system.system_uid,linkedTo));
                     linkedTo = true;
                 }
