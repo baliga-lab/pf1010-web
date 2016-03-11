@@ -34,12 +34,13 @@ var MARKERS = {'nitrate': 'circle', 'ph': 'url(https://www.highcharts.com/sample
 
 /**
  *
- * @param graphType - Line or Scatter or Barchart
- * @param showLegend - boolean value (true or false)
  * @param systemName - name of system
- * @param dataPoints - array of values for graph; [{x:"", y: "", data: ""}]
- * @param content - HTML formatted String that populates dataPoint ToolTips
- * @returns {{type: *, showInLegend: *, name: *, dataPoints: *, content: *}}
+ * @param dataPoints - array of values for graph; [{x:"", y: "", date: "", marker: ""}]
+ * @param color - color of the series
+ * @param graphType - Line or Scatter or Barchart
+ * @param id - systemId
+ * @param linkedTo - used to group series to a system
+ * @returns {{name: *, type: *, data: *, color: *, id: *}|*}
  */
 var getDataPointsHC = function(systemName, dataPoints, color, graphType, id, linkedTo) {
     series = { name: systemName,
@@ -55,6 +56,12 @@ var getDataPointsHC = function(systemName, dataPoints, color, graphType, id, lin
 };
 
 // TODO: This can be done before plotting graph
+/**
+ *
+ * @param dataPoints - array of values for graph; [{x:"", y: "", date: ""}]
+ * @param type - measurementType. Ex: nitrate, ph
+ * @returns datapoints with new 'marker' attribute [{x:"", y: "", date: "", marker: ""}]
+ */
 var addMarker = function(dataPoints, type) {
     var symbolType =  MARKERS[type];
     _.each(dataPoints, function(data) {
@@ -76,13 +83,12 @@ var getDataPointsForPlotHC = function(xType, yTypeList, color, graphType){
     var dataPointsList = [];
     // Every system should be represented by unique color
     // Each measurementType should have a unique marker type
-
     var colorCounter = 0, markerCounter = 0;
     _.each(systems_and_measurements, function(system){
         var measurements = system.measurement;
         var linkedTo = false;
-        _.each(measurements, function(measurement){
-            _.each(yTypeList, function(yType) {
+        _.each(yTypeList, function(yType) {
+            _.each(measurements, function(measurement){
                 if (_.isEqual(measurement.type.toLowerCase(), yType.toLowerCase())){
                     datawithMarkers = addMarker(measurement.values, yType);
                     dataPointsList.push(
@@ -116,9 +122,6 @@ var updateChartDataPointsHC = function(chart, xType, yTypeList, color, graphType
         // selectedSystemIDs is a global carried over from the view fxn
         // updateSystemsAndMeasurementsObject(selectedSystemIDs, measurementsToFetch);
     }
-    //_.each(yTypeList, function(yType){
-    //    newDataSeries = newDataSeries.concat(getDataPointsForPlotHC(xType, yType, color, graphType));
-    //});
     newDataSeries = getDataPointsForPlotHC(xType, yTypeList, color, graphType);
     while(chart.series.length > 0)
         chart.series[0].remove(true);
