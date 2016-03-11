@@ -130,14 +130,12 @@ var getAllActiveMeasurements = function() {
     return activeMeasurements;
 };
 
-
-/**
- *
- * @returns {Array} - An array of all selected checkbox values
- */
-var getAllYAxisSelections = function(){
-    return $('#tokenize').tokenize().toArray();
+var setDefaultYAxis = function() {
+    $(".js-example-basic-multiple").val(DEFAULT_Y_VALUE).select2({
+        maximumSelectionLength: 4
+    });
 };
+
 
 
 /**
@@ -148,10 +146,10 @@ var drawChart = function(){
     var xType = document.getElementById(XAXIS).value;
 
     // Get measurement types to display on the y-axis
-    var yTypes = getAllYAxisSelections();
+    var yAxis = $(".js-example-basic-multiple").select2().val();
 
     // Generate a data Series for each y-value type, and assign them all to the CHART
-    updateChartDataPoints(CHART, xType, yTypes, graphType);
+    updateChartDataPoints(CHART, xType, yAxis, graphType);
 
     // TODO: What about the other chart characteristics? Symbols, ranges, different scales, different y-axes?
 
@@ -169,13 +167,13 @@ var drawChart = function(){
  */
 var main = function(){
 
-    // Select the default y-axis value
-    $('#tokenize').tokenize().tokenAdd(DEFAULT_Y_VALUE, DEFAULT_Y_TEXT);
-
     // When the submit button is clicked, redraw the graph based on user selections
     $('#submitbtn').click(function() {
         drawChart();
     });
+
+    // Select the default y-axis value
+    setDefaultYAxis();
 
     // Reset button, returns dropdowns to default, clears checklist, and displays defuault nitrate vs time graph
     $('#resetbtn').click(function(){
@@ -191,8 +189,7 @@ var main = function(){
         });
 
         // Uncheck all Y Axis checkboxes except DEFAULT_Y
-        $('#tokenize').tokenize().clear();
-        $('#tokenize').tokenize().tokenAdd(DEFAULT_Y_VALUE, DEFAULT_Y_TEXT);
+        setDefaultYAxis();
 
         drawChart();
     });
@@ -208,7 +205,7 @@ window.onload = function() {
     // Create our default chart
     CHART = new CanvasJS.Chart("analyzeContainer", {
         title :{
-            text : "My CanvasJS"
+            text : CHART_TITLE
         },
         // TODO: This will change, we need a procedure for setting min/max ranges based on XType
         // TODO: Also need to take into consideration ranges for YType
@@ -230,6 +227,7 @@ window.onload = function() {
         zoomEnabled : ZOOM_ENABLED,
         data : []
     });
-    // Render chart based on default page setting. I.e. x-axis & graph-type dropdowns, and the y-axis checklist
+
+    // Render chart based on default page setting. i.e. x-axis & graph-type dropdowns, and the y-axis checklist
     drawChart();
 };
