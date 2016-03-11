@@ -38,10 +38,11 @@ var HC_OPTIONS;
  * @param content - HTML formatted String that populates dataPoint ToolTips
  * @returns {{type: *, showInLegend: *, name: *, dataPoints: *, content: *}}
  */
-var getDataPointsHC = function(systemName, dataPoints, color) {
+var getDataPointsHC = function(systemName, dataPoints, color, graphType) {
     return {
         name: systemName,
-        data: dataPoints,
+        type: graphType,
+        data: dataPoints
     };
 };
 
@@ -54,7 +55,7 @@ var getDataPointsHC = function(systemName, dataPoints, color) {
  * @param graphType - Type of graph to display. Ex: line, scatter
  * @returns {Array} - An array of CanvasJS dataPoints of yType measurement data for all systems
  */
-var getDataPointsForPlotHC = function(xType, yType, color){
+var getDataPointsForPlotHC = function(xType, yType, color, graphType){
     var dataPointsList = [];
     _.each(systems_and_measurements, function(system){
         var measurements = system.measurement;
@@ -64,7 +65,8 @@ var getDataPointsForPlotHC = function(xType, yType, color){
                     getDataPointsHC(
                         system.name,
                         measurement.values,
-                        color
+                        color,
+                        graphType
                     )
                 );
             }
@@ -81,7 +83,7 @@ var getDataPointsForPlotHC = function(xType, yType, color){
  * @param yTypeList - List of y-axis values selected from the checklist
  * @param graphType - The graph type chosen from dropdown
  */
-var updateChartDataPointsHC = function(chart, xType, yTypeList, color){
+var updateChartDataPointsHC = function(chart, xType, yTypeList, color, graphType){
     var newDataSeries = [];
     var activeMeasurements = getAllActiveMeasurements();
     var measurementsToFetch = _.difference(yTypeList, activeMeasurements);
@@ -92,14 +94,14 @@ var updateChartDataPointsHC = function(chart, xType, yTypeList, color){
         // updateSystemsAndMeasurementsObject(selectedSystemIDs, measurementsToFetch);
     }
     _.each(yTypeList, function(yType){
-        newDataSeries = newDataSeries.concat(getDataPointsForPlotHC(xType, yType, color));
+        newDataSeries = newDataSeries.concat(getDataPointsForPlotHC(xType, yType, color, graphType));
     });
     while(chart.series.length > 0)
         chart.series[0].remove(true);
 
     _.each(newDataSeries, function(series) {
         chart.addSeries(series);
-    })
+    });
     return chart;
 };
 
@@ -139,7 +141,6 @@ var setDefaultYAxis = function() {
 };
 
 
-
 /**
  *
  */
@@ -152,7 +153,7 @@ var drawChart = function(){
     var color = "blue";
 
     // Generate a data Series for each y-value type, and assign them all to the CHART
-    updateChartDataPointsHC(CHART, xType, yTypes, color).redraw();
+    updateChartDataPointsHC(CHART, xType, yTypes, color, graphType).redraw();
 
     // TODO: What about the other chart characteristics? Symbols, ranges, different scales, different y-axes?
 
