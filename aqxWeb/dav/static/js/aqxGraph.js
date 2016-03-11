@@ -181,10 +181,35 @@ var drawChart = function(){
 
     // TODO: What about the other chart characteristics? Symbols, ranges, different scales, different y-axes?
 
-    // Render the new chart
-    //CHART.redraw();
+    addMeasurementLegend();
 };
 
+var addMeasurementLegend = function() {
+    var selectedMeasurements = $(".js-example-basic-multiple").select2().val();
+    $('#legendTypes').remove();
+    $('#measurementLegend').append('<div id="legendTypes"></div>');
+    _.each(selectedMeasurements, function (measurement) {
+        var symbol;
+        switch (measurement.toLowerCase()) {
+            case 'nitrate':
+                symbol = '●';
+                break;
+            case 'ph':
+                symbol = '<img src="https://www.highcharts.com/samples/graphics/snow.png" alt="Marker" />';
+                break;
+            case 'square':
+                symbol = '■';
+                break;
+            case 'triangle':
+                symbol = '▲';
+                break;
+            case 'triangle-down':
+                symbol = '▼';
+                break;
+        }
+        $('#legendTypes').append('<div>' + measurement+ '<span>' + symbol +'</span></div>');
+    });
+};
 
 /* ##################################################################################################################
  PAGE-DRIVING FUNCTIONS
@@ -236,6 +261,13 @@ window.onload = function() {
            type: 'line',
            zoomType: 'xy'
        },
+       legend: {
+            align: 'right',
+            verticalAlign: 'top',
+            layout: 'vertical',
+            x: 0,
+            y: 100
+        },
        xAxis: {
            minPadding: 0.05,
            maxPadding: 0.05
