@@ -185,6 +185,7 @@ var drawChart = function(){
     // TODO: What about the other chart characteristics? Symbols, ranges, different scales, different y-axes?
 
     addMeasurementLegend();
+    //REMOVELEGENDSYMBOL(CHART);
 };
 
 var addMeasurementLegend = function() {
@@ -269,7 +270,10 @@ window.onload = function() {
             verticalAlign: 'top',
             layout: 'vertical',
             x: 0,
-            y: 100
+            y: 100,
+            labelFormatter: function() {
+                return '<span style="color: '+this.color+'">'+ this.name + '</span>';
+            }
         },
        xAxis: {
            minPadding: 0.05,
@@ -277,9 +281,20 @@ window.onload = function() {
        },
        showInLegend: true,
        series: []
-    };
-    CHART = new Highcharts.Chart(HC_OPTIONS);
+     };
+     CHART = new Highcharts.Chart(HC_OPTIONS);
+
 
     // Render chart based on default page setting. i.e. x-axis & graph-type dropdowns, and the y-axis checklist
     drawChart();
 };
+
+ var REMOVELEGENDSYMBOL = function(chart){
+    var series = chart.series;
+    $(series).each(function(i, s){
+        if (s.legendSymbol)
+            s.legendSymbol.destroy();
+        if (s.legendLine)
+            s.legendLine.destroy();
+    });
+ }
