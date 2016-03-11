@@ -22,6 +22,7 @@ var BAR_CHART = "barchart";
 var DEFAULT_Y_TEXT = "Nitrate";
 var DEFAULT_Y_VALUE = DEFAULT_Y_TEXT.toLowerCase();
 var CHART_TITLE = "System Analyzer";
+var HC_OPTIONS;
 
 
 /* ##################################################################################################################
@@ -37,21 +38,10 @@ var CHART_TITLE = "System Analyzer";
  * @param content - HTML formatted String that populates dataPoint ToolTips
  * @returns {{type: *, showInLegend: *, name: *, dataPoints: *, content: *}}
  */
-var getDataPoints = function(graphType, showLegend, systemName, dataPoints, content) {
-    return {
-        type: graphType,
-        showInLegend: showLegend,
-        name: systemName,
-        dataPoints: dataPoints,
-        toolTipContent: content
-    };
-};
-
 var getDataPointsHC = function(systemName, dataPoints, color) {
     return {
         name: systemName,
         data: dataPoints,
-        color: color
     };
 };
 
@@ -64,27 +54,6 @@ var getDataPointsHC = function(systemName, dataPoints, color) {
  * @param graphType - Type of graph to display. Ex: line, scatter
  * @returns {Array} - An array of CanvasJS dataPoints of yType measurement data for all systems
  */
-var getDataPointsForPlot = function(xType, yType, graphType){
-    var dataPointsList = [];
-    _.each(systems_and_measurements, function(system){
-        var measurements = system.measurement;
-        _.each(measurements, function(measurement){
-            if (_.isEqual(measurement.type.toLowerCase(), yType.toLowerCase())){
-                dataPointsList.push(
-                    getDataPoints(
-                        graphType,
-                        SHOW_IN_LEGEND,
-                        system.name,
-                        measurement.values,
-                        buildTooltipContent(xType, yType)
-                    )
-                );
-            }
-        });
-    });
-    return dataPointsList;
-};
-
 var getDataPointsForPlotHC = function(xType, yType, color){
     var dataPointsList = [];
     _.each(systems_and_measurements, function(system){
@@ -112,22 +81,6 @@ var getDataPointsForPlotHC = function(xType, yType, color){
  * @param yTypeList - List of y-axis values selected from the checklist
  * @param graphType - The graph type chosen from dropdown
  */
-var updateChartDataPoints = function(chart, xType, yTypeList, graphType){
-    var newDataSeries = [];
-    var activeMeasurements = getAllActiveMeasurements();
-    var measurementsToFetch = _.difference(yTypeList, activeMeasurements);
-    if (measurementsToFetch.length > 0) {
-        console.log("Call API for " + measurementsToFetch);
-        // Some AJAX function that grabs data from API or DB, then updates systems_and_measurements with the response
-        // selectedSystemIDs is a global carried over from the view fxn
-        // updateSystemsAndMeasurementsObject(selectedSystemIDs, measurementsToFetch);
-    }
-    _.each(yTypeList, function(yType){
-        newDataSeries = newDataSeries.concat(getDataPointsForPlot(xType, yType, graphType));
-    });
-    chart.options.data = newDataSeries;
-};
-
 var updateChartDataPointsHC = function(chart, xType, yTypeList, color){
     var newDataSeries = [];
     var activeMeasurements = getAllActiveMeasurements();
@@ -139,9 +92,15 @@ var updateChartDataPointsHC = function(chart, xType, yTypeList, color){
         // updateSystemsAndMeasurementsObject(selectedSystemIDs, measurementsToFetch);
     }
     _.each(yTypeList, function(yType){
-        newDataSeries = newDataSeries.concat(getDataPointsForPlot(xType, yType, color));
+        newDataSeries = newDataSeries.concat(getDataPointsForPlotHC(xType, yType, color));
     });
-    chart.options.data = newDataSeries;
+    while(chart.series.length > 0)
+        chart.series[0].remove(true);
+
+    _.each(newDataSeries, function(series) {
+        chart.addSeries(series);
+    })
+    return chart;
 };
 
 
@@ -193,13 +152,12 @@ var drawChart = function(){
     var color = "blue";
 
     // Generate a data Series for each y-value type, and assign them all to the CHART
-    updateChartDataPoints(CHART, xType, yTypes, graphType);
-    //updateChartDataPointsHC(CHART, xType, yTypes, color);
+    updateChartDataPointsHC(CHART, xType, yTypes, color).redraw();
 
     // TODO: What about the other chart characteristics? Symbols, ranges, different scales, different y-axes?
 
     // Render the new chart
-    CHART.render();
+    //CHART.redraw();
 };
 
 
@@ -247,32 +205,21 @@ var main = function(){
  */
 window.onload = function() {
 
-    // Create our default chart
-    CHART = new CanvasJS.Chart("analyzeContainer", {
-        title :{
-            text : CHART_TITLE
-        },
-        // TODO: This will change, we need a procedure for setting min/max ranges based on XType
-        // TODO: Also need to take into consideration ranges for YType
-        axisX : {
-            minimum : 0
-        },
-        legend : {
-            cursor : CURSOR_TYPE,
-            itemclick : function (e)
-            {
-                if (typeof (e.dataSeries.visible) === "undefined" || e.dataSeries.visible) {
-                    e.dataSeries.visible = false;
-                } else {
-                    e.dataSeries.visible = true;
-                }
-                e.chart.render();
-            }
-        },
-        zoomEnabled : ZOOM_ENABLED,
-        data : []
-    });
+     HC_OPTIONS = {
+       chart: {
+           renderTo: 'analyzeContainer',
+           type: 'line',
+           zoomType: 'xy'
+       },
+       xAxis: {
+           minPadding: 0.05,
+           maxPadding: 0.05
+       },
+       series: []
+    };
+    CHART = new Highcharts.Chart(HC_OPTIONS);
 
     // Render chart based on default page setting. i.e. x-axis & graph-type dropdowns, and the y-axis checklist
     drawChart();
+
 };
