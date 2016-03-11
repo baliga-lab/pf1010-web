@@ -332,7 +332,7 @@ class User:
     def get_search_friends(self):
         query = """
             MATCH (users:User)
-            RETURN users.givenName, users.familyName, users.organization
+            RETURN users.givenName, users.familyName, users.organization, users.sql_id, users.email
         """
 
         try:
@@ -342,34 +342,52 @@ class User:
             raise "Exception occured in function get_search_friends"
 
 
+    ############################################################################
+    # function : get_friends_and_sentreq
+    # purpose : used when adding friends to return list of friends and list of users
+    #           of currently logged in user
+    # params : None
+    # returns :
+    # Exceptions : cypher.CypherError, cypher.CypherTransactionError
+    ############################################################################
+    def get_friends_and_sentreq(self):
+        my_sql_id = self.sql_id
+        my_sentreq_query = "MATCH (sentrequests { sql_id:{sql_id} })-[:SentRequest]->(res) RETURN res.sql_id"
+        my_friends_query = "MATCH (friends { sql_id:{sql_id} })-[:FRIENDS]->(res) RETURN res.sql_id"
 
-############################################################################
+        try:
+            sentreq_res = getGraphConnectionURI().cypher.execute(my_sentreq_query, sql_id = my_sql_id);
+            frnds_res = getGraphConnectionURI().cypher.execute(my_friends_query, sql_id = my_sql_id);
+            return sentreq_res, frnds_res
+        except cypher.CypherError, cypher.CypherTransactionError:
+            raise "Exception occured in function get_search_friends"
+
+    def find_user(receiver_id):
+        try:
+            user = getGraphConnectionURI().find_one("User", "sql_id", receiver_id)
+            return user
+        except cypher.CypherError, cypher.CypherTransactionError:
+            raise "Exception occured in function User.find()"
+
+    ############################################################################
     # function : send_friend_request
-    # purpose : Adds new post node in neo4j with the given information and creates
-    #            POSTED relationship between Post and User node
-    # params :
-    #        text : contains the data shared in post
-    #        privacy : privacy level of the post
-    #        link : contains the link information
+    # purpose : sends friend request to intended user in the system
+    # params : None
     # returns : None
     # Exceptions : cypher.CypherError, cypher.CypherTransactionError
     ############################################################################
-
-    def send_friend_request(self):
+    def send_friend_request(self, receiver_sql_id):
         user = self.find()
-        print(user)
-        print(user.properties["email"])
-        sender_email= user.properties["email"];
+        user2 = User(int(receiver_sql_id)).find()
 
-        receiver_email = "bvenkatesh.tec@gmail.com";
         query = """
             MATCH  (n:User),(n1:User)
-            Where n.email = {sender_email} AND n1.email = {receiver_email}
-            CREATE (n)- [r:SentRequest{senderid:{sender_email},receiverid:{receiver_email}}] ->(n1)
+            Where n.sql_id = {sender_sid} AND n1.sql_id = {receiver_sid}
+            CREATE (n)- [r:SentRequest] ->(n1)
             RETURN r
         """
         try:
-            results = getGraphConnectionURI().cypher.execute(query,sender_email= user.properties["email"],receiver_email = "bvenkatesh.tec@gmail.com");
+            results = getGraphConnectionURI().cypher.execute(query,sender_sid= user.properties["sql_id"],receiver_sid = user2.properties["sql_id"]);
         except cypher.CypherError, cypher.CypherTransactionError:
             raise "Exception occured in function send_friend_request "
 

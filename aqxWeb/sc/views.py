@@ -282,21 +282,18 @@ def searchFriends():
     else:
         return render_template("/home.html")
 
-
-@social.route('/send_friend_request', methods=['POST'])
+@social.route('/send_friend_request/<u_sql_id>', methods=['POST'])
 #######################################################################################
 # function : send_friend_request
-# purpose : adds comments to the post
+# purpose : send a friend request to a user clicked on the UI
 # parameters : None
 # returns: calls index function
 # Exception : None
 #######################################################################################
-def send_friend_request():
-    sender_email = User(session['email'])
-    User(session['uid']).send_friend_request()
-    flash('Your request has been sent')
-    return redirect(url_for('social.index'))
-
+def send_friend_request(u_sql_id):
+    receiver_sql_id = u_sql_id
+    User(session['uid']).send_friend_request(receiver_sql_id)
+    return redirect(url_for('social.friends'))
 
 #######################################################################################
 # function : search_systems
@@ -539,19 +536,34 @@ def unlike_post():
 
 #######################################################################################
 # function : getfriends
-# purpose : used in search friends to return a node in case a match is obtained
+# purpose : used in search friends to return a node in case a match is obtained corresponding
+#           to the name that the logged in user has typed
 # parameters : None
-# returns: json data of existing user names
+# returns: json data of existing user's name, organization and friend status
 #######################################################################################
 @social.route('/getfriends', methods=['GET'])
 def getfriends():
     users = User(session['uid']).get_search_friends()
     user_list = []
+    sentreq_res, frnds_res = User(session['uid']).get_friends_and_sentreq()
+
     for result in users:
         individual_user = {}
         first_name = result[0]
         last_name = result[1]
         org = result[2]
+        user_sql_id = result[3]
+        email = result[4]
+        friend_status = "Add Friend"
+        for sf in sentreq_res:
+            sf_id = sf[0]
+            if (user_sql_id == sf_id):
+                friend_status = "Sent Friend Request"
+        for fr in frnds_res:
+            fr_id = fr[0]
+            if (user_sql_id == fr_id):
+                friend_status = "Friends"
+
         if not first_name and not last_name:
             full_name = None
         elif not first_name:
@@ -564,6 +576,10 @@ def getfriends():
             individual_user['label'] = full_name
         if org:
             individual_user['org'] = org
+        individual_user['friend_status'] = friend_status
+        individual_user['user_sql_id'] = user_sql_id
+        if email:
+            individual_user['email'] = email
         if individual_user:
             user_list.append(individual_user)
     print user_list
