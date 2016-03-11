@@ -23,7 +23,7 @@ var DEFAULT_Y_TEXT = "Nitrate";
 var DEFAULT_Y_VALUE = DEFAULT_Y_TEXT.toLowerCase();
 var CHART_TITLE = "System Analyzer";
 var HC_OPTIONS;
-var COLORS = ['#058DC7', '#50B432', '#ED561B', '#DDDF00', '#24CBE5', '#64E572', '#FF9655', '#FFF263', '#6AF9C4'];
+var COLORS = Highcharts.getOptions().colors; // Contains 10 different colors; .symbols contains 5 symbols
 var MARKERS = {'nitrate': 'circle', 'ph': 'url(https://www.highcharts.com/samples/graphics/snow.png)', 'Ammonia': 'triangle-down', 'Nitrite': 'square'}
     //'triangle','diamond' ,'url(https://www.highcharts.com/samples/graphics/sun.png']
 
@@ -76,7 +76,8 @@ var getDataPointsForPlotHC = function(xType, yTypeList, color, graphType){
     var dataPointsList = [];
     // Every system should be represented by unique color
     // Each measurementType should have a unique marker type
-    var colorCounter = 0;
+
+    var colorCounter = 0, markerCounter = 0;
     _.each(systems_and_measurements, function(system){
         var measurements = system.measurement;
         var linkedTo = false;
