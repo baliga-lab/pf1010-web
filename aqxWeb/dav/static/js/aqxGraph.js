@@ -23,6 +23,8 @@ var DEFAULT_Y_TEXT = "Nitrate";
 var DEFAULT_Y_VALUE = DEFAULT_Y_TEXT.toLowerCase();
 var CHART_TITLE = "System Analyzer";
 var HC_OPTIONS;
+var COLORS = ['#058DC7', '#50B432', '#ED561B', '#DDDF00', '#24CBE5', '#64E572', '#FF9655', '#FFF263', '#6AF9C4'];
+var MARKERS = []
 
 
 /* ##################################################################################################################
@@ -38,12 +40,17 @@ var HC_OPTIONS;
  * @param content - HTML formatted String that populates dataPoint ToolTips
  * @returns {{type: *, showInLegend: *, name: *, dataPoints: *, content: *}}
  */
-var getDataPointsHC = function(systemName, dataPoints, color, graphType) {
-    return {
-        name: systemName,
-        type: graphType,
-        data: dataPoints
+var getDataPointsHC = function(systemName, dataPoints, color, graphType, id, linkedTo) {
+    series = { name: systemName,
+               type: graphType,
+               data: dataPoints,
+               color: color,
+               id: id
     };
+    if(linkedTo) {
+        series.linkedTo = id;
+    }
+    return series;
 };
 
 
@@ -55,22 +62,27 @@ var getDataPointsHC = function(systemName, dataPoints, color, graphType) {
  * @param graphType - Type of graph to display. Ex: line, scatter
  * @returns {Array} - An array of CanvasJS dataPoints of yType measurement data for all systems
  */
-var getDataPointsForPlotHC = function(xType, yType, color, graphType){
+var getDataPointsForPlotHC = function(xType, yTypeList, color, graphType){
+
     var dataPointsList = [];
+    // Every system should be represented by unique color
+    // Each measurementType should have a unique marker type
+    var colorCounter = 0;
+
     _.each(systems_and_measurements, function(system){
         var measurements = system.measurement;
+        var linkedTo = false;
         _.each(measurements, function(measurement){
-            if (_.isEqual(measurement.type.toLowerCase(), yType.toLowerCase())){
-                dataPointsList.push(
-                    getDataPointsHC(
-                        system.name,
-                        measurement.values,
-                        color,
-                        graphType
-                    )
-                );
-            }
+            _.each(yTypeList, function(yType) {
+                if (_.isEqual(measurement.type.toLowerCase(), yType.toLowerCase())){
+                    dataPointsList.push(
+                        getDataPointsHC(system.name, measurement.values, COLORS[colorCounter],
+                                        graphType, system.system_uid,linkedTo));
+                    linkedTo = true;
+                }
+            });
         });
+        colorCounter++;
     });
     return dataPointsList;
 };
@@ -93,9 +105,10 @@ var updateChartDataPointsHC = function(chart, xType, yTypeList, color, graphType
         // selectedSystemIDs is a global carried over from the view fxn
         // updateSystemsAndMeasurementsObject(selectedSystemIDs, measurementsToFetch);
     }
-    _.each(yTypeList, function(yType){
-        newDataSeries = newDataSeries.concat(getDataPointsForPlotHC(xType, yType, color, graphType));
-    });
+    //_.each(yTypeList, function(yType){
+    //    newDataSeries = newDataSeries.concat(getDataPointsForPlotHC(xType, yType, color, graphType));
+    //});
+    newDataSeries = getDataPointsForPlotHC(xType, yTypeList, color, graphType);
     while(chart.series.length > 0)
         chart.series[0].remove(true);
 
@@ -216,11 +229,11 @@ window.onload = function() {
            minPadding: 0.05,
            maxPadding: 0.05
        },
+       showInLegend: true,
        series: []
     };
     CHART = new Highcharts.Chart(HC_OPTIONS);
 
     // Render chart based on default page setting. i.e. x-axis & graph-type dropdowns, and the y-axis checklist
     drawChart();
-
 };

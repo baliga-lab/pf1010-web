@@ -83,6 +83,7 @@ def analyzeGraph():
         {'response':
             [
                 { 'name': 'system_12345' ,
+                  'system_uid': '12344',
                   'measurement': [
                       { 'type': 'pH',
                         'values':
@@ -98,6 +99,7 @@ def analyzeGraph():
                   ]
                   },
                 { 'name': 'system_23145',
+                  'system_uid': '23145',
                   'measurement':
                       [
                           { 'type': 'pH',
