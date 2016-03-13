@@ -69,6 +69,54 @@ class MeasurementsDAO:
 
     ###############################################################################
 
+    # get_measurements: method to fetch measurements for multiple systems
+    # param system list of system_id
+    # param measurements list of measurements
+    # return dictionary with system_id as key and list of measurements[timestamp,m1,m2,...]
+    def get_measurements(self, systems, measurements):
+        values = {}
+        cursor = self.conn.cursor()
+        try:
+            for system in systems:
+                query = self.create_query(system,measurements)
+                cursor.execute(query)
+                values[system] = cursor.fetchall()
+        finally:
+            cursor.close()
+        return values
+
+    ###############################################################################
+
+    # create_query: method to create query to fetch measurements from a system
+    # param system system_id
+    # param measurements list of measurements
+    # return query
+    def create_query(self, system, measurements):
+        fields = "select " + measurements[0] + ".time," + measurements[0] + ".value as " + measurements[0] + ","
+        tables = " from aqxs_" + measurements[0] + "_" + system + " " + measurements[0] + ","
+        where = " where HOUR(" + measurements[0] + ".time) ="
+        for i in range(1, len(measurements)):
+            if i == len(measurements)-1:
+                fields += measurements[i] + ".value as " + measurements[i]
+                tables += "aqxs_" + measurements[i] + "_" + system + " " + measurements[i]
+                where += " HOUR(" + measurements[i] + ".time) "
+            else:
+                fields += measurements[i] + ".value as " + measurements[i] + ","
+                tables += "aqxs_" + measurements[i] + "_" + system + " " + measurements[i] + ","
+                where += " HOUR(" + measurements[i] + ".time) and HOUR(" + measurements[i] + ".time) = "
+
+        q = fields + tables + where + "group by " + measurements[0] + ".time " + "order by " + measurements[0] + ".time"
+        return q
+
+    ###############################################################################
+
     # Destructor to close the self connection
     def __del__(self):
         self.conn.close()
+
+
+if __name__ == "__main__":
+    m = MeasurementsDAO("")
+    ml = ["o2","ph","light"];
+    query = m.create_query("555d0cfe9ebc11e58153000c29b92d09",ml)
+    print query
