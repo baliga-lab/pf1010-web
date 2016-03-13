@@ -11,47 +11,53 @@
         </ul>
 
         <table class="table">
-            <thead>
-            <tr>
-                <th class="col-sm-1"></th>
-                <th>Username</th>
-                <th>Option</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr>
-                <td><img src="{{ url_for('frontend.static', filename='images/users/vileplume.png') }}"></td>
-                <td>Steve Borkee</td>
-                <td>
-                    <button type="button" class="btn btn-primary">Confirm</button>
-                    <button type="button" class="btn btn-primary">Delete</button>
-                </td>
-            </tr>
-            <tr>
-                <td><img src="{{ url_for('frontend.static', filename='images/users/vileplume.png') }}"></td>
-                <td>Jason Mraz</td>
-                <td>
-                    <button type="button" class="btn btn-primary">Confirm</button>
-                    <button type="button" class="btn btn-primary">Delete</button>
-                </td>
-            </tr>
-            <tr>
-                <td><img src="{{ url_for('frontend.static', filename='images/users/vileplume.png') }}"></td>
-                <td>Pit Bull</td>
-                <td>
-                    <button type="button" class="btn btn-primary">Confirm</button>
-                    <button type="button" class="btn btn-primary">Delete</button>
-                </td>
-            </tr>
-            <tr>
-                <td><img src="{{ url_for('frontend.static', filename='images/users/vileplume.png') }}"></td>
-                <td>Selena Gomez</td>
-                <td>
-                    <button type="button" class="btn btn-primary">Confirm</button>
-                    <button type="button" class="btn btn-primary">Delete</button>
-                </td>
-            </tr>
-            </tbody>
-        </table>
-    </div>
+
+            <!-- Search Results Div -->
+            <div class="row">
+                <h4>Pending Friend Requests:</h4>
+                <hr>
+                {% if pendingRequests %}
+                    <thead>
+                      <tr>
+                       <th class="col-sm-1"></th>
+                       <th>Username</th>
+                       <th>Option</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                    {% for row in pendingRequests %}
+                        <tr>
+                         <td><img src="{{ url_for('frontend.static', filename='images/users/vileplume.png') }}"></td>
+                         <td>{{ row.n.displayName}}</td>
+                         <td>
+                            <button type="button" class="btn btn-primary">Confirm</button>
+                            <button type="button" class="btn btn-primary">Delete</button>
+                         </td>
+                        </tr>
+
+                    {% endfor %}
+                    </tbody>
+
+                {% else %}
+                    <div class="row">
+                        <ul class="pull-left">
+                            <img src="{{ url_for('social.static', filename='images/sad_smiley.png') }}" alt="FriendRequest"
+                                 height="32"
+                                 width="32">
+                        </ul>
+                        <br/>
+                        <ul>
+                             Oops! No Pending Friend Requests!
+                        </ul>
+                    </div>
+                {% endif %}
+            </div>
+            </table>
+
+        </div>
+
+
+
+
+
 {% endblock %}

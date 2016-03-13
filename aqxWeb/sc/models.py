@@ -149,6 +149,21 @@ class User:
         except cypher.CypherError, cypher.CypherTransactionError:
             raise "Exception occured in function edit_post"
 
+
+        ############################################################################
+    # function : get_user_sql_id
+    # purpose : get users sql id
+    # params :
+    #
+    # Exceptions : cypher.CypherError, cypher.CypherTransactionError
+    # returns : user_sql_id
+    ############################################################################
+
+    def get_user_sql_id(self):
+        user=self.find()
+        return self.sql_id
+
+
     ############################################################################
     # function : delete_post
     # purpose : deletes comments and all related relationships first
@@ -390,6 +405,31 @@ class User:
             results = getGraphConnectionURI().cypher.execute(query,sender_sid= user.properties["sql_id"],receiver_sid = user2.properties["sql_id"]);
         except cypher.CypherError, cypher.CypherTransactionError:
             raise "Exception occured in function send_friend_request "
+
+        ############################################################################
+    # function : get_pending_friend_request
+    # purpose : gets the list of friends whose requests are pending
+    # params : user_id
+    # returns : user node(s)
+    # Exceptions : cypher.CypherError, cypher.CypherTransactionError
+    ############################################################################
+    def get_pending_friend_request(self, u_sql_id):
+        query = """
+            MATCH (n:User)-[r:SentRequest]->(n1:User)
+            WHERE n1.sql_id = {u_sql_id}
+            return n
+            ORDER BY n.givenName
+
+
+        """
+        try:
+            pending_friends_request = getGraphConnectionURI().cypher.execute(query, u_sql_id=u_sql_id)
+            return pending_friends_request
+        except cypher.CypherError, cypher.CypherTransactionError:
+            raise "Exception occured in function get_pending_friend_request"
+
+
+
 
     ############################################################################
     # function : get_user_by_email_id

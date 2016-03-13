@@ -253,7 +253,7 @@ def friends():
         return render_template("/home.html")
 
 
-@social.route('/pendingRequest', methods=['GET'])
+@social.route('/pendingRequest', methods=['GET', 'POST'])
 #######################################################################################
 # function : pendingRequest
 # purpose : renders pendingRequests
@@ -262,8 +262,13 @@ def friends():
 # Exception : None
 #######################################################################################
 def pendingRequest():
-    if session.get('uid') is not None:
-        return render_template("pendingRequest.html")
+    if request.method == 'GET':
+        if session.get('uid') is not None:
+            u_sql_id = User(session['uid']).get_user_sql_id()
+            print("sqlid")
+            print (u_sql_id)
+            pendingRequests = User(session['uid']).get_pending_friend_request(u_sql_id);
+            return render_template("/pendingRequest.html",pendingRequests = pendingRequests)
     else:
         return render_template("/home.html")
 
