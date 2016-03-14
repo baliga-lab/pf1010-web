@@ -1,12 +1,5 @@
 {% extends "layout.html" %}
 
-{% block script %}
-
-    <!-- jQuery Script For DOM Manipulation In Profile Page -->
-    <script type="text/javascript" src="{{ url_for('social.static', filename='js/profile.js') }}"></script>
-
-{% endblock %}
-
 {% block body %}
 
     <div class="container profileDiv">
@@ -14,9 +7,10 @@
         <div class="col-md-3 leftPaneDiv">
 
             <div class="row">
-                <img class="imgstyle" id="userImage" src="" width="200"/> <br/>
-                <h3 class="username">  {{ user_profile[0][0]['displayName'] }} </h3>
-                <a id="profileLink" class="btn mycolor" target="_blank" href="#">Google Plus Profile</a>
+                <img class="imgstyle" id="userImage" src="{{ google_profile['img_url'] }}" width="200"/> <br/>
+                <h3 class="username">  {{ google_profile['displayName'] }} </h3>
+                <a id="profileLink" class="btn mycolor" target="_blank"
+                   href="{{ google_profile['plus_url'] }}">Google Plus Profile</a>
                 <input id="googleId" type="hidden" value="{{ user_profile[0][0]['google_id'] }}"/>
                 <br/>
             </div>
@@ -41,11 +35,7 @@
 
             </div>
 
-
         </div>
 
-
     </div>
-
-
 {% endblock %}

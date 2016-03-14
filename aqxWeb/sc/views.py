@@ -128,7 +128,6 @@ def Home():
 # Exception : app.logger.exception
 #######################################################################################
 def signin():
-
    try:
         access_token = session.get('access_token')
         access_token = access_token[0]
@@ -175,6 +174,41 @@ def get_user(google_id, googleAPIResponse):
     print(userID);
 
 
+#######################################################################################
+# function : get_google_profile
+# purpose : returns user profile data using Google API
+# parameters:
+#           google_id : google id for google+ login
+# returns: google API response
+# Exception : ?
+#######################################################################################
+def get_google_profile(google_id):
+    try:
+        access_token = session.get('access_token')
+        access_token = access_token[0]
+        r = requests.get('https://www.googleapis.com/plus/v1/people/' + google_id + '?access_token=' + access_token)
+        print(r.content)
+
+        google_response = json.loads(r.content)
+        print(google_response)
+        logging.debug("profile of: %s", str(google_response))
+
+        # getting image url
+        if 'image' in google_response:
+            image=google_response['image']
+            img_url = image['url'].replace('?sz=50', '')
+
+        google_profile = {
+            "displayName": google_response['displayName'],
+            "plus_url": google_response['url'],
+            "img_url": img_url
+        }
+
+        return google_profile
+    except Exception as e:
+        logging.exception("Exception at get_google_profile: " + str(e))
+
+
 @social.route('/editprofile')
 #######################################################################################
 # function : editprofile
@@ -187,7 +221,8 @@ def editprofile():
     if session.get('uid') is not None:
         user = User(session['uid']).find()
         print user
-        return render_template("profile_edit.html", user=user)
+        google_profile = get_google_profile('me')
+        return render_template("profile_edit.html", user=user, google_profile=google_profile)
     else:
         return render_template("/home.html")
 
@@ -227,13 +262,18 @@ def updateprofile():
 @social.route('/profile/<google_id>', methods=['GET', 'POST'])
 def profile(google_id):
     try:
+        # accessing google API to retrieve profile data
+        google_profile = get_google_profile(google_id)
+
+        # getting data from neo4j
         user_profile = User(session['uid']).get_user_by_google_id(google_id)
+
         # Invalid User ID
         if user_profile is None:
             return redirect(url_for('social.home'))
         else:
             print user_profile
-            return render_template("profile.html", user_profile=user_profile)
+            return render_template("profile.html", user_profile=user_profile, google_profile=google_profile)
     except Exception as e:
         logging.exception("Exception at view_profile: " + str(e))
 
