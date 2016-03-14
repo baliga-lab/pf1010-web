@@ -78,7 +78,7 @@ class MeasurementsDAO:
         cursor = self.conn.cursor()
         try:
             for system in systems:
-                query = self.create_query(system,measurements)
+                query = self.create_query1(system,measurements)
                 cursor.execute(query)
                 values[system] = cursor.fetchall()
         finally:
@@ -87,11 +87,11 @@ class MeasurementsDAO:
 
     ###############################################################################
 
-    # create_query: method to create query to fetch measurements from a system
+    # create_query2: method to create query to fetch measurements from a system with matching time
     # param system system_id
     # param measurements list of measurements
     # return query
-    def create_query(self, system, measurements):
+    def create_query2(self, system, measurements):
         fields = "select " + measurements[0] + ".time," + measurements[0] + ".value as " + measurements[0] + ","
         tables = " from aqxs_" + measurements[0] + "_" + system + " " + measurements[0] + ","
         where = " where HOUR(" + measurements[0] + ".time) ="
@@ -108,6 +108,26 @@ class MeasurementsDAO:
         q = fields + tables + where + "group by " + measurements[0] + ".time " + "order by " + measurements[0] + ".time"
         return q
 
+
+    ###############################################################################
+
+    # create_query1: method to create query to fetch measurements from a system
+    # param system system_id
+    # param measurements list of measurements
+    # return query
+    def create_query1(self, system, measurements):
+        query= ""
+        for i in range(1, len(measurements)):
+            if i == len(measurements)-1:
+                query += "select \'"+ measurements[i] + "\'," + measurements[i] + ".time as time," \
+                 + measurements[i] + ".value as value from aqxs_" + measurements[i] + "_" + system \
+                     + " " + measurements[i]
+            else:
+                query += "select \'"+ measurements[i] + "\'," + measurements[i] + ".time as time," \
+                 + measurements[i] + ".value as value from aqxs_" + measurements[i] + "_" + system \
+                     + " " + measurements[i] + " union "
+        return query
+
     ###############################################################################
 
     # Destructor to close the self connection
@@ -118,5 +138,5 @@ class MeasurementsDAO:
 if __name__ == "__main__":
     m = MeasurementsDAO("")
     ml = ["o2","ph","light"];
-    query = m.create_query("555d0cfe9ebc11e58153000c29b92d09",ml)
+    query = m.create_query1("555d0cfe9ebc11e58153000c29b92d09",ml)
     print query
