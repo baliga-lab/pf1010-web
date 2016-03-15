@@ -58,13 +58,14 @@ def authorized(resp):
     access_token = resp['access_token']
     print(access_token)
     session['access_token'] = access_token, ''
-    session['token']=access_token
+    session['token'] = access_token
     return redirect(url_for('social.Home'))
 
 
 @google.tokengetter
 def get_access_token():
     return session.get('access_token')
+
 
 @social.route('/index')
 #######################################################################################
@@ -76,7 +77,8 @@ def get_access_token():
 def index():
     posts = get_all_recent_posts()
     comments = get_all_recent_comments()
-    return render_template('home.html', posts=posts, comments=comments)
+    privacy = {"Friends", "Public"}
+    return render_template('home.html', posts=posts, comments=comments, privacy_options=privacy)
 
 
 @social.route('/login')
@@ -105,7 +107,7 @@ def Home():
     access_token = access_token[0]
     from urllib2 import Request, urlopen, URLError
 
-    headers = {'Authorization': 'OAuth '+access_token}
+    headers = {'Authorization': 'OAuth ' + access_token}
     req = Request('https://www.googleapis.com/oauth2/v1/userinfo',
                   None, headers)
     try:
@@ -116,7 +118,6 @@ def Home():
             session.pop('access_token', None)
             return redirect(url_for('social.getToken'))
     return redirect(url_for('social.signin'))
-
 
 
 @social.route('/signin')
@@ -195,11 +196,12 @@ def get_google_profile(google_id):
 
         # getting image url
         if 'image' in google_response:
-            image=google_response['image']
+            image = google_response['image']
             img_url = image['url'].replace('?sz=50', '')
 
         google_profile = {
             "displayName": google_response['displayName'],
+            "google_id": google_response['id'],
             "plus_url": google_response['url'],
             "img_url": img_url
         }
@@ -253,27 +255,45 @@ def updateprofile():
 
 #######################################################################################
 # function : profile
-# purpose :
-#           google_id : google id fetched from neo4j
-# parameters : user_id
-# returns: None
+# purpose : Load the pages for user given its google id
+# parameters : google_id : google id fetched from neo4j
+# returns: profile.html
 # Exception : ?
 #######################################################################################
-@social.route('/profile/<google_id>', methods=['GET', 'POST'])
+@social.route('/profile/<google_id>', methods=['GET'])
 def profile(google_id):
     try:
         # accessing google API to retrieve profile data
         google_profile = get_google_profile(google_id)
 
         # getting data from neo4j
-        user_profile = User(session['uid']).get_user_by_google_id(google_id)
+        if google_id == "me":
+            user_profile = User(session['uid']).find()
+            privacy = {"Friends", "Public"}
+        else:
+            user_profile = User(session['uid']).get_user_by_google_id(google_id)
+            privacy = {"Friends", "Private", "Public"}
 
         # Invalid User ID
         if user_profile is None:
             return redirect(url_for('social.home'))
         else:
-            print user_profile
-            return render_template("profile.html", user_profile=user_profile, google_profile=google_profile)
+            if google_profile is None:
+                display_name = user_profile[0]['user']['displayName']
+                if display_name is None or len(display_name) < 3:
+                    display_name = user_profile[0]['user']['email']
+                    display_name = display_name.split('@', 1)[0]
+                google_profile = {
+                    "display_name": display_name,
+                    "google_id": user_profile[0]['user']['google_id'],
+                    "plus_url": "#",
+                    "img_url": ""
+                }
+            posts = get_all_recent_posts()
+            comments = get_all_recent_comments()
+
+            return render_template("profile.html", user_profile=user_profile, google_profile=google_profile,
+                                   posts=posts, comments=comments, privacy_options=privacy)
     except Exception as e:
         logging.exception("Exception at view_profile: " + str(e))
 
@@ -327,6 +347,7 @@ def searchFriends():
     else:
         return render_template("/home.html")
 
+
 @social.route('/send_friend_request/<u_sql_id>', methods=['POST'])
 #######################################################################################
 # function : send_friend_request
@@ -339,6 +360,7 @@ def send_friend_request(u_sql_id):
     receiver_sql_id = u_sql_id
     User(session['uid']).send_friend_request(receiver_sql_id)
     return redirect(url_for('social.friends'))
+
 
 #######################################################################################
 # function : search_systems
@@ -378,6 +400,7 @@ def search_systems():
         else:
             return redirect(url_for('social.index'))
 
+
 #######################################################################################
 # function : view_system
 # purpose : renders system_social.html
@@ -409,7 +432,6 @@ def view_system(system_uid):
                                        subscribers_pending_approval=subscribers_pending_approval)
     except Exception as e:
         logging.exception("Exception at view_system: " + str(e))
-
 
 
 @social.route('/add_comment', methods=['POST'])

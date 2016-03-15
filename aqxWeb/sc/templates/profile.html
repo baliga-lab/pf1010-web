@@ -1,40 +1,36 @@
-{% extends "layout.html" %}
+{% extends "base.html" %}
 
-{% block body %}
+{% block title %}User Profile{% endblock %}
 
-    <div class="container profileDiv">
+{% block styles %}
+    {{ super() }}
+    <link rel="stylesheet" type="text/css" href="{{ url_for('social.static', filename='css/layout.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('social.static', filename='css/newsfeed.css') }}">
+{% endblock %}
 
-        <div class="col-md-3 leftPaneDiv">
 
+{% block content %}
+    <div class="row">
+        {# SIDEBAR #}
+        <div class="col-sm-3">
             <div class="row">
                 <img class="imgstyle" id="userImage" src="{{ google_profile['img_url'] }}" width="200"/> <br/>
-                <h3 class="username">  {{ google_profile['displayName'] }} </h3>
+                <h3 class="username">  {{ google_profile['display_name'] }} </h3>
                 <a id="profileLink" class="btn mycolor" target="_blank"
                    href="{{ google_profile['plus_url'] }}">Google Plus Profile</a>
-                <input id="googleId" type="hidden" value="{{ user_profile[0][0]['google_id'] }}"/>
+                <input id="googleId" type="hidden" value="{{ google_profile['google_id'] }}"/>
                 <br/>
             </div>
 
             <br/>
-
         </div>
 
-        <!-- You could work on this centerPaneDiv for user posts -->
-        <div class="col-md-6 centerPaneDiv">
+        {# NEWSFEED #}
+        <div class="main col-sm-9">
+            {% include "post_form.html" %}
 
-            <div class="row">
-
-                <p>Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas.
-                    Vestibulum tortor quam, feugiat vitae, ultricies eget, tempor sit amet, ante. Donec eu libero sit
-                    amet quam egestas semper. Aenean ultricies mi vitae est. Mauris placerat eleifend leo. Quisque sit
-                    amet est et sapien ullamcorper pharetra. Vestibulum erat wisi, condimentum sed, commodo vitae,
-                    ornare sit amet, wisi. Aenean fermentum, elit eget tincidunt condimentum, eros ipsum rutrum orci,
-                    sagittis tempus lacus enim ac dui. Donec non enim in turpis pulvinar facilisis. Ut felis. Praesent
-                    dapibus, neque id cursus faucibus, tortor neque egestas augue, eu vulputate magna eros eu erat.
-                    Aliquam erat volutpat. Nam dui mi, tincidunt quis, accumsan porttitor, facilisis luctus, metus</p>
-
-            </div>
-
+            <h3>Recent Posts</h3>
+            {% include "display_posts.html" %}
         </div>
 
     </div>
