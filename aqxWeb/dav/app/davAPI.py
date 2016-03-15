@@ -207,3 +207,67 @@ class DavAPI:
             'value': str(result_temp[1])
         }
         return json.dumps(obj)
+
+    ###############################################################################
+    # Retrieve the readings for input system and type of measurements
+    ###############################################################################
+    # param conn : db connection
+    # param system_uid_list : List of system unique IDs
+    # param measurement_type_list: List of measurement_IDs
+    # get_system_measurement - It returns the readings of all the input system uids
+    #                          for all input measurement ids
+    def get_readings_for_plot(self,conn, system_uid_list, measurement_type_list):
+        m = MeasurementsDAO(conn)
+
+        system_uid_list = ["555d0cfe9ebc11e58153000c29b92d09"]
+        measurement_type_list = ["o2","ph","light"]
+        response = m.get_measurements(system_uid_list,measurement_type_list)
+
+        system_measurement_list = []
+
+        for system_uid in system_uid_list:
+            readings = response[system_uid]
+            system_measuremnt_json = self.form_system_measuremnt_json(self,system_uid,readings,measurement_type_list)
+            system_measurement_list.append(system_measuremnt_json)
+
+        return json.dumps({'response': system_measurement_list})
+
+    ###############################################################################
+    # form the system's measurement reading
+    ###############################################################################
+    @staticmethod
+    def form_system_measuremnt_json(self,system_uid,readings,measurement_type_list):
+        measurement_list = []
+        valueList = []
+        for measurement_type in measurement_type_list:
+            valueList = self.form_values_list(measurement_type,readings)
+
+            measurement = {
+                "type" : measurement_type,
+                "values": valueList
+            }
+            measurement_list.append(measurement)
+
+        system_measurement = {
+            "system_uid" : system_uid,
+            "measurement": measurement_list
+        }
+        return system_measurement
+
+    ###############################################################################
+    # form the list of values
+    ###############################################################################
+    @staticmethod
+    def form_values_list(measurement_type,readings):
+        valuesList=[]
+        for reading in readings:
+            if reading[0] == measurement_type:
+                print reading[1]
+                print reading[2]
+                values={
+                    "y": str(reading[2]),
+                    "date": str(reading[1])
+                }
+                valuesList.append(values)
+
+        return valuesList

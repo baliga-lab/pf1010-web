@@ -1,6 +1,8 @@
 import unittest
 from aqxWeb import run
 from aqxWeb.dav import analyticsViews
+from aqxWeb.dav.app.davAPI import DavAPI
+
 import json
 from aqxWeb.dav.dao.UserDAO import UserDAO
 
@@ -13,10 +15,10 @@ class DavApiTest(unittest.TestCase):
         analyticsViews.init_app(run.app)
         self.conn = analyticsViews.get_conn()
 
-    def tearDown(self):
-        u = UserDAO(self.conn)
-        u.delete_user("98763454054654")
-        pass
+    # def tearDown(self):
+    #     u = UserDAO(self.conn)
+    #     u.delete_user("98763454054654")
+    #     pass
 
     #get all systems
     def test_get_all_systems_info(self):
@@ -35,6 +37,11 @@ class DavApiTest(unittest.TestCase):
                        content_type = 'application/json')
         result = json.loads(response.data)
         self.assertNotEqual(len(result), 0, 'systems exist')
+
+    #get the readings for plot
+    def test_get_readings_for_plot(self):
+        davapi = DavAPI()
+        print davapi.get_readings_for_plot(self.conn,[],[])
 
 
 if __name__ == '__main__':
