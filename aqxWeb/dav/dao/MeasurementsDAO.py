@@ -73,17 +73,23 @@ class MeasurementsDAO:
     # param system list of system_id
     # param measurements list of measurements
     # return dictionary with system_id as key and list of measurements[timestamp,m1,m2,...]
+    # with key as the measurement
     def get_measurements(self, systems, measurements):
+        payload = {}
         values = {}
         cursor = self.conn.cursor()
         try:
             for system in systems:
                 query = self.create_query1(system,measurements)
                 cursor.execute(query)
-                values[system] = cursor.fetchall()
+                payload[system] = cursor.fetchall()
         finally:
             cursor.close()
-        return values
+        for s in systems:
+            v = payload[s]
+            values[v[0][0]] = v
+            payload[s] = values
+        return payload
 
     ###############################################################################
 
@@ -117,7 +123,7 @@ class MeasurementsDAO:
     # return query
     def create_query1(self, system, measurements):
         query= ""
-        for i in range(1, len(measurements)):
+        for i in range(0, len(measurements)):
             if i == len(measurements)-1:
                 query += "select \'"+ measurements[i] + "\'," + measurements[i] + ".time as time," \
                  + measurements[i] + ".value as value from aqxs_" + measurements[i] + "_" + system \
