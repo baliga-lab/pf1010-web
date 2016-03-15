@@ -59,3 +59,31 @@ class SystemsDAO:
         return rows
 
     ###############################################################################
+     ###############################################################################
+    # get_system_name() - It returns the system names of all the input system_uid
+    def get_system_name(self,system_id_list):
+        cursor = self.conn.cursor()
+
+        system_id_list_str = "("
+        for i in range(1, len(system_id_list)):
+            system_id_list_str = system_id_list_str + system_id_list[i] + ","
+
+        system_id_list_str[len(system_id_list_str) -1 ] = ")"
+
+
+        query = ("select s.system_uid,s.name "
+                 "from systems s "
+                 "where s.system_uid  in " +
+                  system_id_list_str)
+
+        print query
+
+        try:
+            cursor.execute(query)
+            rows = cursor.fetchall()
+
+        finally:
+            cursor.close()
+            self.conn.close()
+
+        return rows
