@@ -22,7 +22,7 @@ class MeasurementsDAOTest(unittest.TestCase):
         m = MeasurementsDAO(self.conn)
         response = m.get_measurements(["555d0cfe9ebc11e58153000c29b92d09"],["o2","ph","light"])
         print response
-        print response['555d0cfe9ebc11e58153000c29b92d09'][1][0]
+        print response['555d0cfe9ebc11e58153000c29b92d09']['o2']
         self.assertNotEqual(len(response), 0, 'filters exist')
 
 if __name__ == '__main__':
