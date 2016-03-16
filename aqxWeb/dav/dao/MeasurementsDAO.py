@@ -104,9 +104,16 @@ class MeasurementsDAO:
                 payload[system] = cursor.fetchall()
         finally:
             cursor.close()
+
+        #create new list for each measurement
+        for mea in measurements:
+            values[mea] = []
+
+        #add all measurements in a dict
         for s in systems:
             v = payload[s]
-            values[v[0][0]] = v
+            for m in v:
+                values[m[0]].append(m)
             payload[s] = values
         return payload
 
