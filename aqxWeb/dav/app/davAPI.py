@@ -210,6 +210,31 @@ class DavAPI:
         return json.dumps(obj)
 
     ###############################################################################
+    # insert records values of given measurement for a given system
+    ###############################################################################
+    # param conn : db connection
+    # param system_uid : system's unique ID
+    # param measurement_id: ID of a measurement
+    # get_system_measurement - It returns the latest recorded values of the
+    #                           given system.
+    def put_system_measurement(self, conn, data):
+        m = MeasurementsDAO(conn)
+        # Fetch the name of the measurement
+        system_uid = data.get('system_uid')
+        measurement_id = data.get('measurement_id')
+        time = data.get('time')
+        value = data.get('value')
+        measurement = m.get_measurement_name(measurement_id)
+        measurement_name = self.get_measurement_name(measurement)
+        # Create the name of the table
+        table_name = self.get_measurement_table_name(measurement_name, system_uid)
+        result = m.put_system_measurement(table_name, time, value)
+        message = {
+            "message": result
+        }
+        return json.dumps({'status': message})
+
+    ###############################################################################
     # Retrieve the readings for input system and type of measurements
     ###############################################################################
     # param conn : db connection

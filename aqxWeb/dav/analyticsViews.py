@@ -197,12 +197,25 @@ def get_system_measurements(system_uid):
 
 
 ######################################################################
-# API call to get light intensity measurement
+# API call to get latest record of a given measurement of a given
+# system
 ######################################################################
 
 @dav.route('/aqxapi/system/<system_uid>/measurement/<measurement_id>', methods=['GET'])
 def get_system_light_measurement(system_uid, measurement_id):
     return davAPI.get_system_measurement(get_conn(), system_uid, measurement_id)
+
+
+######################################################################
+# API call to put a record of a given measurement of a given system
+######################################################################
+
+@dav.route('/aqxapi/put/system/measurement', methods=['POST'])
+def put_system_measurement():
+    data = request.get_json()
+    return davAPI.put_system_measurement(get_conn(), data)
+
+
 
 
 if __name__ == '__main__':
