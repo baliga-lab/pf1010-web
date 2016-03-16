@@ -24,32 +24,51 @@ class MeasurementsDAO:
     # get_latest_value: get latest value from the given table
     def get_latest_value(self, table_name):
         cursor = self.conn.cursor()
-        query = "SELECT * FROM %s " \
-                "ORDER BY time DESC " \
-                "LIMIT 1" % table_name
+        query_get = "SELECT * FROM %s " \
+                    "ORDER BY time DESC " \
+                    "LIMIT 1" % table_name
         try:
-            cursor.execute(query)
+            cursor.execute(query_get)
             value = cursor.fetchall()
         finally:
             cursor.close()
         return value
 
     ###############################################################################
-    def put_measurement_light(self, light, table_name):
+    def put_system_measurement(self, table_name, time, value):
+        time_already_recorded = self.get_recorded_time(table_name, time)
+        if len(time_already_recorded) != 0:
+            return "Value at the given time already recorded"
         cursor = self.conn.cursor()
-        query = ("INSERT INTO %s (time, value) "
-                 "values(%s, %s)" % table_name)
-        data = (light.get('time'), light.get('value'))
+        query_put = "INSERT INTO %s " \
+                    "(time, value) " \
+                    "VALUES (%%s, %%s)" % table_name
+        record = (time, value)
         try:
-            cursor.execute(query, data)
+            cursor.execute(query_put, record)
             self.conn.commit()
         except:
             self.conn.rollback()
-            cursor.close
+            cursor.close()
             return "Insert error"
         finally:
-            cursor.close
-        return "Light measurement inserted"
+            cursor.close()
+        return "Record successfully inserted"
+
+    ###############################################################################
+
+    def get_recorded_time(self, table_name, time):
+        cursor = self.conn.cursor()
+        query_time = "SELECT time " \
+                     "FROM %s " \
+                     "WHERE time = %%s" % table_name
+        try:
+            cursor.execute(query_time, (time, ))
+            recorded_time = cursor.fetchall()
+        finally:
+            cursor.close()
+        return recorded_time
+
 
     ###############################################################################
 

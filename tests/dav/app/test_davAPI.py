@@ -1,4 +1,6 @@
 import unittest
+from datetime import datetime
+
 from aqxWeb import run
 from aqxWeb.dav import analyticsViews
 from aqxWeb.dav.app.davAPI import DavAPI
@@ -42,6 +44,30 @@ class DavApiTest(unittest.TestCase):
     def test_get_readings_for_plot(self):
         davapi = DavAPI()
         print davapi.get_readings_for_plot(self.conn,[],[])
+
+    # insert system measurement - current time
+    def test_put_system_measurement_new(self):
+        time_now = datetime.now()
+        print time_now
+        response = self.app.post('dav/aqxapi/put/system/measurement',
+                                 data=json.dumps(dict(system_uid='555d0cfe9ebc11e58153000c29b92d09',
+                                                        measurement_id='5',
+                                                        time=str(time_now),
+                                                        value='111')),
+                                 content_type = 'application/json')
+        result = json.loads(response.data)
+        print result
+
+        # insert system measurement - already present time
+    def test_put_system_measurement_already_recorded(self):
+        response = self.app.post('dav/aqxapi/put/system/measurement',
+                                 data=json.dumps(dict(system_uid='555d0cfe9ebc11e58153000c29b92d09',
+                                                        measurement_id='5',
+                                                        time='2018-03-19 23:28:57',
+                                                        value='111')),
+                                 content_type = 'application/json')
+        result = json.loads(response.data)
+        print result
 
 
 if __name__ == '__main__':
