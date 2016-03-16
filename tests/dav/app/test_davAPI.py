@@ -56,7 +56,9 @@ class DavApiTest(unittest.TestCase):
                                                         value='111')),
                                  content_type = 'application/json')
         result = json.loads(response.data)
-        print result
+        status = result['status']
+        message = str(status['message'])
+        self.assertEqual(message, "Record successfully inserted", "Test fail")
 
         # insert system measurement - already present time
     def test_put_system_measurement_already_recorded(self):
@@ -67,7 +69,9 @@ class DavApiTest(unittest.TestCase):
                                                         value='111')),
                                  content_type = 'application/json')
         result = json.loads(response.data)
-        print result
+        status = result['status']
+        message = str(status['message'])
+        self.assertEqual(message, "Value at the given time already recorded", "Test fail")
 
 
 if __name__ == '__main__':
