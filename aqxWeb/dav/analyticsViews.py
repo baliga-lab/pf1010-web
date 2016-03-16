@@ -217,7 +217,7 @@ def put_system_measurement():
 
 
 ######################################################################
-#
+# API to get the readings of the time series plot
 ######################################################################
 
 @dav.route('/aqxapi/get/readings/time_series_plot', methods=['POST'])
