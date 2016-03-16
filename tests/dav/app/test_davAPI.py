@@ -41,10 +41,7 @@ class DavApiTest(unittest.TestCase):
     #get the readings for plot
     def test_get_readings_for_plot(self):
         davapi = DavAPI()
-        #print davapi.get_readings_for_plot(self.conn,[],[])
-
-        system_uid = "555d0cfe9ebc11e58153000c29b92d09"
-        print davapi.get_system_name(self.conn,system_uid)
+        print davapi.get_readings_for_plot(self.conn,[],[])
 
 if __name__ == '__main__':
     unittest.main()

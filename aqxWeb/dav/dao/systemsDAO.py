@@ -25,7 +25,7 @@ class SystemsDAO:
             cursor.close()
             self.conn.close()
 
-        return result
+        return result[0]
 
     ###############################################################################
     # get_all_systems_info() - It returns the system information as a JSON

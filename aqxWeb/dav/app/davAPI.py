@@ -5,6 +5,7 @@ from aqxWeb.dav.dao.UserDAO import UserDAO
 from collections import defaultdict
 import json
 import re
+import datetime
 
 
 # data analysis and viz data access api
@@ -227,7 +228,7 @@ class DavAPI:
 
         for system_uid in system_uid_list:
             readings = response[system_uid]
-            system_measuremnt_json = self.form_system_measuremnt_json(self,system_uid,readings,measurement_type_list)
+            system_measuremnt_json = self.form_system_measuremnt_json(self,conn,system_uid,readings,measurement_type_list)
             system_measurement_list.append(system_measuremnt_json)
 
         return json.dumps({'response': system_measurement_list})
@@ -236,11 +237,11 @@ class DavAPI:
     # form the system's measurement reading
     ###############################################################################
     @staticmethod
-    def form_system_measuremnt_json(self,system_uid,readings,measurement_type_list):
+    def form_system_measuremnt_json(self,conn,system_uid,readings,measurement_type_list):
         measurement_list = []
         valueList = []
         for measurement_type in measurement_type_list:
-            valueList = self.form_values_list(measurement_type,readings)
+            valueList = self.form_values_list(self,measurement_type,readings)
 
             measurement = {
                 "type" : measurement_type,
@@ -250,28 +251,43 @@ class DavAPI:
 
         system_measurement = {
             "system_uid" : system_uid,
-            "name" : self.get_system_name(self.conn,system_uid),
+            "name" : self.get_system_name(conn,system_uid),
             "measurement": measurement_list
         }
+
         return system_measurement
 
     ###############################################################################
     # form the list of values
     ###############################################################################
     @staticmethod
-    def form_values_list(measurement_type,readings):
+    def form_values_list(self,measurement_type,readings):
         valuesList=[]
         type_readings = readings[measurement_type]
-
+        startDate = type_readings[0][1]
+        prevX = -1
         for reading in type_readings:
-            if reading[0] == measurement_type:
-                print reading[1]
+            try:
                 print reading[2]
+                curDate = reading[1]
+                xValue = self.calcDiffInHours(curDate,startDate)
                 values={
+                    "x": str(xValue),
                     "y": str(reading[2]),
-                    "date": str(reading[1])
+                    "date": str(curDate)
                 }
-                valuesList.append(values)
+
+                if xValue > prevX:
+                    valuesList.append(values)
+                    prevX = xValue
+                else:
+                    print("Skipped Value for ",measurement_type,curDate)
+
+
+
+            except ValueError as err:
+                raise ValueError('Error in preparing values list',measurement_type,reading)
+                print(err.args)
 
         return valuesList
 
@@ -280,3 +296,14 @@ class DavAPI:
         s = SystemsDAO(conn)
         return s.get_system_name(system_id)
 
+    @staticmethod
+    def calcDiffInHours(curDate,startDate):
+        #format = '%Y-%m-%d %H:%M:%S'
+        #date1 = datetime.datetime.strptime(curDate, format)
+        #date2 = datetime.datetime.strptime(prevDate, format)
+        if(curDate < startDate ):
+            #raise ValueError('Current date is lesser than previous date',curDate,prevDate)
+            return -1
+        else:
+            diff = curDate - startDate
+            return diff.days*24 + diff.seconds/3600
