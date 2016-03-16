@@ -197,7 +197,7 @@ class DavAPI:
         measurement = m.get_measurement_name(measurement_id)
         measurement_name = self.get_measurement_name(measurement)
         # Create the name of the table
-        table_name = self.get_measurement_table_name(measurement_name, system_uid)
+        table_name = self.get_measurement_table_name(measurement_name,conn, system_uid)
         # Get the latest value recorded in that table
         result = m.get_latest_value(table_name)
         result_temp = result[0]
@@ -250,6 +250,7 @@ class DavAPI:
 
         system_measurement = {
             "system_uid" : system_uid,
+            "name" : self.get_system_name(self.conn,system_uid),
             "measurement": measurement_list
         }
         return system_measurement
@@ -260,7 +261,9 @@ class DavAPI:
     @staticmethod
     def form_values_list(measurement_type,readings):
         valuesList=[]
-        for reading in readings:
+        type_readings = readings[measurement_type]
+
+        for reading in type_readings:
             if reading[0] == measurement_type:
                 print reading[1]
                 print reading[2]
@@ -271,3 +274,9 @@ class DavAPI:
                 valuesList.append(values)
 
         return valuesList
+
+    @staticmethod
+    def get_system_name(conn,system_id):
+        s = SystemsDAO(conn)
+        return s.get_system_name(system_id)
+

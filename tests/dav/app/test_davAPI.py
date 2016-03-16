@@ -15,10 +15,10 @@ class DavApiTest(unittest.TestCase):
         analyticsViews.init_app(run.app)
         self.conn = analyticsViews.get_conn()
 
-    # def tearDown(self):
-    #     u = UserDAO(self.conn)
-    #     u.delete_user("98763454054654")
-    #     pass
+    def tearDown(self):
+        u = UserDAO(self.conn)
+        u.delete_user("98763454054654")
+        pass
 
     #get all systems
     def test_get_all_systems_info(self):
@@ -41,8 +41,10 @@ class DavApiTest(unittest.TestCase):
     #get the readings for plot
     def test_get_readings_for_plot(self):
         davapi = DavAPI()
-        print davapi.get_readings_for_plot(self.conn,[],[])
+        #print davapi.get_readings_for_plot(self.conn,[],[])
 
+        system_uid = "555d0cfe9ebc11e58153000c29b92d09"
+        print davapi.get_system_name(self.conn,system_uid)
 
 if __name__ == '__main__':
     unittest.main()
