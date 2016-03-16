@@ -181,14 +181,14 @@ class MeasurementsDAO:
             if i == len(measurements)-1:
                 query += "select \'"+ measurements[i] + "\'," + measurements[i] + ".time as time," \
                  + measurements[i] + ".value as value from aqxs_" + measurements[i] + "_" + system \
-                     + " " + measurements[i]
+                     + " " + measurements[i] + " order by time "
             else:
                 query += "select \'"+ measurements[i] + "\'," + measurements[i] + ".time as time," \
                  + measurements[i] + ".value as value from aqxs_" + measurements[i] + "_" + system \
                      + " " + measurements[i] + " union "
+
         return query
-        #" order by time
-    ###############################################################################
+     ###############################################################################
 
     # Destructor to close the self connection
     def __del__(self):

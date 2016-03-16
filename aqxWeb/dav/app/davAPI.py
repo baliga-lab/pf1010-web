@@ -242,10 +242,13 @@ class DavAPI:
     # param measurement_type_list: List of measurement_IDs
     # get_system_measurement - It returns the readings of all the input system uids
     #                          for all input measurement ids
-    def get_readings_for_plot(self,conn, system_uid_list, measurement_id_list):
+    def get_readings_for_plot(self,conn,data):
 
-        system_uid_list = ["555d0cfe9ebc11e58153000c29b92d09"]
-        measurement_id_list = [8,9,5]
+        system_uid_list = data.get('system_uid_list')
+        measurement_id_list = data.get('measurement_id_list')
+
+        #system_uid_list = ["555d0cfe9ebc11e58153000c29b92d09"]
+        #measurement_id_list = [8,9,5]
 
         m = MeasurementsDAO(conn)
 
@@ -267,7 +270,9 @@ class DavAPI:
             system_measuremnt_json = self.form_system_measuremnt_json(self,conn,system_uid,readings,measurement_name_list)
             system_measurement_list.append(system_measuremnt_json)
 
+        print json.dumps({'response': system_measurement_list})
         return json.dumps({'response': system_measurement_list})
+
 
     ###############################################################################
     # form the system's measurement reading
@@ -303,6 +308,7 @@ class DavAPI:
         startDate = type_readings[0][1]
         prevX = -1
         for reading in type_readings:
+            print reading
             try:
                 curDate = reading[1]
                 xValue = self.calcDiffInHours(curDate,startDate)
@@ -316,7 +322,8 @@ class DavAPI:
                     valuesList.append(values)
                     prevX = xValue
                 else:
-                    print("Skipped Value for ",measurement_type,curDate)
+                     if xValue < prevX:
+                         print("Skipped Value for ",measurement_type,curDate)
 
 
 
