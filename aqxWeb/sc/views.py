@@ -621,6 +621,7 @@ def getfriends():
         org = result[2]
         user_sql_id = result[3]
         email = result[4]
+        gid = result[5]
         friend_status = "Add Friend"
         for sf in sentreq_res:
             sf_id = sf[0]
@@ -645,6 +646,7 @@ def getfriends():
             individual_user['org'] = org
         individual_user['friend_status'] = friend_status
         individual_user['user_sql_id'] = user_sql_id
+        individual_user['gid'] = gid
         if email:
             individual_user['email'] = email
         if individual_user:
