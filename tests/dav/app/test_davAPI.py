@@ -18,8 +18,8 @@ class DavApiTest(unittest.TestCase):
         self.conn = analyticsViews.get_conn()
 
     def tearDown(self):
-        u = UserDAO(self.conn)
-        u.delete_user("98763454054654")
+        #u = UserDAO(self.conn)
+        #u.delete_user("98763454054654")
         pass
 
     #get all systems
@@ -39,11 +39,6 @@ class DavApiTest(unittest.TestCase):
                        content_type = 'application/json')
         result = json.loads(response.data)
         self.assertNotEqual(len(result), 0, 'systems exist')
-
-    #get the readings for plot
-    def test_get_readings_for_plot(self):
-        davapi = DavAPI()
-        print davapi.get_readings_for_plot(self.conn,[],[])
 
 
     # insert system measurement - current time
@@ -73,6 +68,11 @@ class DavApiTest(unittest.TestCase):
         status = result['status']
         message = str(status['message'])
         self.assertEqual(message, "Value at the given time already recorded", "Test fail")
+
+     #get the readings for plot
+    def test_get_readings_for_plot(self):
+        davapi = DavAPI()
+        print davapi.get_readings_for_plot(self.conn,[],[])
 
 
 if __name__ == '__main__':

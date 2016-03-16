@@ -69,6 +69,34 @@ class MeasurementsDAO:
             cursor.close()
         return recorded_time
 
+    ###############################################################################
+    # get_all_measurement_names: method to fetch the names of all the measurements
+    def get_measurement_name_list(self,id_list):
+        cursor = self.conn.cursor()
+
+        id_list_str = "("
+        for i in range(0, len(id_list)):
+            id_list_str = id_list_str + str(id_list[i]) + ","
+
+        id_list_str = list(id_list_str)
+        id_list_str[len(id_list_str) - 1] = ")"
+
+        id_list_str = ''.join(id_list_str)
+
+        print id_list_str
+
+        query_names = ("SELECT name "
+                       "FROM measurement_types "
+                       "where id in " +
+                       id_list_str)
+        print query_names
+        try:
+            cursor.execute(query_names,id_list_str)
+            measurement_names = cursor.fetchall()
+        finally:
+            cursor.close()
+
+        return measurement_names
 
     ###############################################################################
 
@@ -159,7 +187,7 @@ class MeasurementsDAO:
                  + measurements[i] + ".value as value from aqxs_" + measurements[i] + "_" + system \
                      + " " + measurements[i] + " union "
         return query
-
+        #" order by time
     ###############################################################################
 
     # Destructor to close the self connection
