@@ -5,6 +5,7 @@ from aqxWeb.dav.dao.UserDAO import UserDAO
 from collections import defaultdict
 import json
 import re
+import random
 import datetime
 
 
@@ -136,8 +137,9 @@ class DavAPI:
                 # we need to create the name of each table.
                 # Each measurement table is: aqxs_measurementName_systemUID
                 table_name = self.get_measurement_table_name(measurement_name, system_uid)
+                num_of_records = 1
                 # Get the latest value stored in the table
-                value = m.get_latest_value(table_name)
+                value = m.get_latest_value(table_name, num_of_records)
                 # Append the value to the latest_value[] list
                 if len(value) == 1:
                     value_temp = value[0]
@@ -197,15 +199,24 @@ class DavAPI:
         # Fetch the name of the measurement
         measurement = m.get_measurement_name(measurement_id)
         measurement_name = self.get_measurement_name(measurement)
+        if measurement_name == 'light':
+            num_of_records = 7
+        else:
+            num_of_records = 1
         # Create the name of the table
-        table_name = self.get_measurement_table_name(measurement_name,conn, system_uid)
+        table_name = self.get_measurement_table_name(measurement_name, system_uid)
         # Get the latest value recorded in that table
-        result = m.get_latest_value(table_name)
-        result_temp = result[0]
+        result = m.get_latest_value(table_name, num_of_records)
+        values = []
+        for result_temp in result:
+            values_temp = {
+                'time': str(result_temp[0]),
+                'value': str(result_temp[1])
+            }
+            values.append(values_temp)
         obj = {
             'system_uid': system_uid,
-            'time': str(result_temp[0]),
-            'value': str(result_temp[1])
+            'records': values
         }
         return json.dumps(obj)
 
@@ -397,3 +408,27 @@ class DavAPI:
             diff = curDate - startDate
             return diff.days*24 + diff.seconds/3600
 
+
+    ################################################################################
+    # method to generate test data
+    # param conn - connection to db
+    # param minrange - minimum value u want to insert
+    # param maxrange - maximum value u want to insert
+    # systems - list of systems
+    # meas - list of measurements
+    ################################################################################
+
+    def generate_data(self,conn,minrange,maxrange,systems,meas):
+        mdoa = MeasurementsDAO(conn)
+        for s in systems:
+            d = datetime.datetime(2015,1,1,0,0,0)
+            for i in range(1,6,1):
+                for j in range(0,24,1):
+                    d = datetime.datetime(2015,1,i,j,0,0)
+                    for m in meas:
+                        d = datetime.datetime(2015,1,i,j,0,0)
+                        table_name = self.get_measurement_table_name(m, s)
+                        time = d.strftime('%Y-%m-%d %H:%M:%S')
+                        val = random.uniform(minrange,maxrange)
+                        mdoa.put_system_measurement(table_name,time,val)
+    

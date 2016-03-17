@@ -22,13 +22,13 @@ class MeasurementsDAO:
 
     ###############################################################################
     # get_latest_value: get latest value from the given table
-    def get_latest_value(self, table_name):
+    def get_latest_value(self, table_name, num_of_records):
         cursor = self.conn.cursor()
         query_get = "SELECT * FROM %s " \
                     "ORDER BY time DESC " \
-                    "LIMIT 1" % table_name
+                    "LIMIT %%s" % table_name
         try:
-            cursor.execute(query_get)
+            cursor.execute(query_get, (num_of_records, ))
             value = cursor.fetchall()
         finally:
             cursor.close()
