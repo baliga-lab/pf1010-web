@@ -5,6 +5,7 @@ from aqxWeb.dav.dao.UserDAO import UserDAO
 from collections import defaultdict
 import json
 import re
+import random
 import datetime
 
 
@@ -332,3 +333,27 @@ class DavAPI:
         else:
             diff = curDate - startDate
             return diff.days*24 + diff.seconds/3600
+
+
+    ################################################################################
+    # method to generate test data
+    # param conn - connection to db
+    # param minrange - minimum value u want to insert
+    # param maxrange - maximum value u want to insert
+    # systems - list of systems
+    # meas - list of measurements
+    ################################################################################
+
+    def generate_data(self,conn,minrange,maxrange,systems,meas):
+        mdoa = MeasurementsDAO(conn)
+        for s in systems:
+            d = datetime.datetime(2015,1,1,0,0,0)
+            for i in range(1,6,1):
+                for j in range(0,24,1):
+                    d = datetime.datetime(2015,1,i,j,0,0)
+                    for m in meas:
+                        d = datetime.datetime(2015,1,i,j,0,0)
+                        table_name = self.get_measurement_table_name(m, s)
+                        time = d.strftime('%Y-%m-%d %H:%M:%S')
+                        val = random.uniform(minrange,maxrange)
+                        mdoa.put_system_measurement(table_name,time,val)

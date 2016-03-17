@@ -18,8 +18,6 @@ class DavApiTest(unittest.TestCase):
         self.conn = analyticsViews.get_conn()
 
     def tearDown(self):
-        u = UserDAO(self.conn)
-        u.delete_user("98763454054654")
         pass
 
     #get all systems
@@ -30,7 +28,7 @@ class DavApiTest(unittest.TestCase):
         self.assertNotEqual(len(result), 0, 'systems exist')
 
     #insert user data
-    def test_put_user(self):
+    '''def test_put_user(self):
         response=self.app.post('/dav/aqxapi/put/user',
                        data=json.dumps(dict(googleid='98763454054654',
                                             email='test@test.com',
@@ -38,7 +36,7 @@ class DavApiTest(unittest.TestCase):
                                             long=0)),
                        content_type = 'application/json')
         result = json.loads(response.data)
-        self.assertNotEqual(len(result), 0, 'systems exist')
+        self.assertNotEqual(len(result), 0, 'systems exist')'''
 
     #get the readings for plot
     def test_get_readings_for_plot(self):
@@ -74,6 +72,13 @@ class DavApiTest(unittest.TestCase):
         message = str(status['message'])
         self.assertEqual(message, "Value at the given time already recorded", "Test fail")
 
+    # method to insert test data
+    def test_generate_data(self):
+        davAPI = DavAPI()
+        davAPI.generate_data(self.conn,0,10,
+                  ['555d0cfe9ebc11e58153000c29b92d09'],
+                  ['o2','ph','temp','alkalinity','ammonium','chlorine','hardness','light','nitrate'])
+        self.assertEqual("", "", "Test fail")
 
 if __name__ == '__main__':
     unittest.main()
