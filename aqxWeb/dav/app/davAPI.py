@@ -199,7 +199,7 @@ class DavAPI:
         measurement = m.get_measurement_name(measurement_id)
         measurement_name = self.get_measurement_name(measurement)
         # Create the name of the table
-        table_name = self.get_measurement_table_name(measurement_name,conn, system_uid)
+        table_name = self.get_measurement_table_name(measurement_name, system_uid)
         # Get the latest value recorded in that table
         result = m.get_latest_value(table_name)
         result_temp = result[0]
@@ -243,21 +243,37 @@ class DavAPI:
     # param measurement_type_list: List of measurement_IDs
     # get_system_measurement - It returns the readings of all the input system uids
     #                          for all input measurement ids
-    def get_readings_for_plot(self,conn, system_uid_list, measurement_type_list):
+    def get_readings_for_plot(self,conn,data):
+
+        system_uid_list = data.get('system_uid_list')
+        measurement_id_list = data.get('measurement_id_list')
+
+        #system_uid_list = ["555d0cfe9ebc11e58153000c29b92d09"]
+        #measurement_id_list = [8,9,5]
+
         m = MeasurementsDAO(conn)
 
-        system_uid_list = ["555d0cfe9ebc11e58153000c29b92d09"]
-        measurement_type_list = ["o2","ph","light"]
-        response = m.get_measurements(system_uid_list,measurement_type_list)
+        measurement_type_list = m.get_measurement_name_list(measurement_id_list)
+        measurement_name_list  = []
+        print measurement_type_list
+
+        for name in measurement_type_list:
+            measurement_name_list.append(str(name[0]))
+
+
+
+        response = m.get_measurements(system_uid_list,measurement_name_list)
 
         system_measurement_list = []
 
         for system_uid in system_uid_list:
             readings = response[system_uid]
-            system_measuremnt_json = self.form_system_measuremnt_json(self,conn,system_uid,readings,measurement_type_list)
+            system_measuremnt_json = self.form_system_measuremnt_json(self,conn,system_uid,readings,measurement_name_list)
             system_measurement_list.append(system_measuremnt_json)
 
+        print json.dumps({'response': system_measurement_list})
         return json.dumps({'response': system_measurement_list})
+
 
     ###############################################################################
     # form the system's measurement reading
@@ -265,7 +281,7 @@ class DavAPI:
     @staticmethod
     def form_system_measuremnt_json(self,conn,system_uid,readings,measurement_type_list):
         measurement_list = []
-        valueList = []
+
         for measurement_type in measurement_type_list:
             valueList = self.form_values_list(self,measurement_type,readings)
 
@@ -293,8 +309,8 @@ class DavAPI:
         startDate = type_readings[0][1]
         prevX = -1
         for reading in type_readings:
+            print reading
             try:
-                print reading[2]
                 curDate = reading[1]
                 xValue = self.calcDiffInHours(curDate,startDate)
                 values={
@@ -307,7 +323,8 @@ class DavAPI:
                     valuesList.append(values)
                     prevX = xValue
                 else:
-                    print("Skipped Value for ",measurement_type,curDate)
+                     if xValue < prevX:
+                         print("Skipped Value for ",measurement_type,curDate)
 
 
 
@@ -324,9 +341,6 @@ class DavAPI:
 
     @staticmethod
     def calcDiffInHours(curDate,startDate):
-        #format = '%Y-%m-%d %H:%M:%S'
-        #date1 = datetime.datetime.strptime(curDate, format)
-        #date2 = datetime.datetime.strptime(prevDate, format)
         if(curDate < startDate ):
             #raise ValueError('Current date is lesser than previous date',curDate,prevDate)
             return -1

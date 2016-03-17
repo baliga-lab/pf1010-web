@@ -216,6 +216,14 @@ def put_system_measurement():
     return davAPI.put_system_measurement(get_conn(), data)
 
 
+######################################################################
+# API to get the readings of the time series plot
+######################################################################
+
+@dav.route('/aqxapi/get/readings/time_series_plot', methods=['POST'])
+def get_readings_for_plot():
+    data = request.get_json()
+    return davAPI.get_readings_for_plot(get_conn(), data)
 
 
 if __name__ == '__main__':

@@ -18,6 +18,8 @@ class DavApiTest(unittest.TestCase):
         self.conn = analyticsViews.get_conn()
 
     def tearDown(self):
+        #u = UserDAO(self.conn)
+        #u.delete_user("98763454054654")
         pass
 
     #get all systems
@@ -37,11 +39,6 @@ class DavApiTest(unittest.TestCase):
                        content_type = 'application/json')
         result = json.loads(response.data)
         self.assertNotEqual(len(result), 0, 'systems exist')'''
-
-    #get the readings for plot
-    def test_get_readings_for_plot(self):
-        davapi = DavAPI()
-        print davapi.get_readings_for_plot(self.conn,[],[])
 
 
     # insert system measurement - current time
@@ -79,6 +76,19 @@ class DavApiTest(unittest.TestCase):
                   ['555d0cfe9ebc11e58153000c29b92d09'],
                   ['o2','ph','temp','alkalinity','ammonium','chlorine','hardness','light','nitrate'])
         self.assertEqual("", "", "Test fail")
+     #get the readings for plot
+    def test_get_readings_for_plot(self):
+        #davapi = DavAPI()
+        #print davapi.get_readings_for_plot(self.conn,[],[])
+        data ={}
+        data["system_uid_list"] = ["555d0cfe9ebc11e58153000c29b92d09"]
+        data["measurement_id_list"] = ['8','9','5']
+        response = self.app.post('dav/aqxapi/get/readings/time_series_plot',
+                                 data=json.dumps(data), content_type = 'application/json')
+        result = json.loads(response.data)
+
+        print result
+
 
 if __name__ == '__main__':
     unittest.main()
