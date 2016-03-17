@@ -198,7 +198,7 @@ class DavAPI:
         measurement = m.get_measurement_name(measurement_id)
         measurement_name = self.get_measurement_name(measurement)
         # Create the name of the table
-        table_name = self.get_measurement_table_name(measurement_name,conn, system_uid)
+        table_name = self.get_measurement_table_name(measurement_name, system_uid)
         # Get the latest value recorded in that table
         result = m.get_latest_value(table_name)
         result_temp = result[0]
