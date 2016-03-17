@@ -631,6 +631,8 @@ def getfriends():
             fr_id = fr[0]
             if (user_sql_id == fr_id):
                 friend_status = "Friends"
+        if(user_sql_id == session['uid']):
+            friend_status = ""
 
         if not first_name and not last_name:
             full_name = None
