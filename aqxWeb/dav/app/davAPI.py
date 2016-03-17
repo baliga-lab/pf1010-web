@@ -137,8 +137,9 @@ class DavAPI:
                 # we need to create the name of each table.
                 # Each measurement table is: aqxs_measurementName_systemUID
                 table_name = self.get_measurement_table_name(measurement_name, system_uid)
+                num_of_records = 1
                 # Get the latest value stored in the table
-                value = m.get_latest_value(table_name)
+                value = m.get_latest_value(table_name, num_of_records)
                 # Append the value to the latest_value[] list
                 if len(value) == 1:
                     value_temp = value[0]
@@ -198,15 +199,24 @@ class DavAPI:
         # Fetch the name of the measurement
         measurement = m.get_measurement_name(measurement_id)
         measurement_name = self.get_measurement_name(measurement)
+        if measurement_name == 'light':
+            num_of_records = 7
+        else:
+            num_of_records = 1
         # Create the name of the table
         table_name = self.get_measurement_table_name(measurement_name, system_uid)
         # Get the latest value recorded in that table
-        result = m.get_latest_value(table_name)
-        result_temp = result[0]
+        result = m.get_latest_value(table_name, num_of_records)
+        values = []
+        for result_temp in result:
+            values_temp = {
+                'time': str(result_temp[0]),
+                'value': str(result_temp[1])
+            }
+            values.append(values_temp)
         obj = {
             'system_uid': system_uid,
-            'time': str(result_temp[0]),
-            'value': str(result_temp[1])
+            'records': values
         }
         return json.dumps(obj)
 
