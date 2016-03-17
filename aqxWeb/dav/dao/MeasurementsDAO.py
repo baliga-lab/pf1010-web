@@ -83,13 +83,12 @@ class MeasurementsDAO:
 
         id_list_str = ''.join(id_list_str)
 
-        print id_list_str
 
         query_names = ("SELECT name "
                        "FROM measurement_types "
                        "where id in " +
                        id_list_str)
-        print query_names
+
         try:
             cursor.execute(query_names,id_list_str)
             measurement_names = cursor.fetchall()

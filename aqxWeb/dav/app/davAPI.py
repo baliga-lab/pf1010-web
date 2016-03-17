@@ -302,36 +302,87 @@ class DavAPI:
     # form the list of values
     ###############################################################################
     @staticmethod
-    def form_values_list(self,measurement_type,readings):
+    def form_values_list(self,measurement_type,all_type_readings):
         valuesList=[]
-        type_readings = readings[measurement_type]
-        startDate = type_readings[0][1]
-        prevX = -1
-        for reading in type_readings:
-            print reading
+        all_readings = all_type_readings[measurement_type]
+
+        startDate = all_readings[0][1]
+        prev_reading = all_readings[0]
+        prevX = 0
+        sum = 0
+        counter = 0
+
+        for i in range (1,len(all_readings) + 1):
             try:
-                curDate = reading[1]
-                xValue = self.calcDiffInHours(curDate,startDate)
-                values={
-                    "x": str(xValue),
-                    "y": str(reading[2]),
-                    "date": str(curDate)
-                }
-
-                if xValue > prevX:
-                    valuesList.append(values)
-                    prevX = xValue
+                if(i == len(all_readings)):
+                    x = prevX + 1
                 else:
-                     if xValue < prevX:
+                    reading = all_readings[i]
+                    curDate = reading[1]
+                    # Calculate the difference in hours from previous reading
+                    x = self.calcDiffInHours(curDate,startDate)
+
+
+                # If x Prevx, build the values object and append to the values list
+                if x > prevX:
+
+                    # If counter > 0, there were readings from 1-hour bucket and values should be averaged
+                    if(counter > 0):
+                        sum =  sum + prev_reading[2]
+                        counter = counter + 1
+
+                        avg= sum / counter
+                        lastValDate = prev_reading[1]
+
+                        values= self.build_values(prevX,avg,lastValDate)
+
+                        print "avg_values" + str(values)
+
+                        # Reset Bucket params
+                        sum = 0
+                        counter = 0
+                        prevDate = -1
+                    # Otherwise, simply build values from previous reading
+                    else:
+                        y = prev_reading[2]
+                        values = self.build_values(prevX,y, prev_reading[1])
+
+                    #   Append the current values to valuelist
+                    valuesList.append(values)
+
+                    prev_reading = reading
+                    prevX = x
+
+                else:
+
+                     if x == prevX:
+                        print reading
+                        sum =  sum + prev_reading[2]
+                        counter = counter + 1
+                        prevDate = curDate
+                        prevX = x
+                        prev_reading = reading
+
+                        print x
+                        print reading[2]
+
+                     else:
                          print("Skipped Value for ",measurement_type,curDate)
-
-
 
             except ValueError as err:
                 raise ValueError('Error in preparing values list',measurement_type,reading)
                 print(err.args)
 
         return valuesList
+
+    @staticmethod
+    def build_values(x,y,reading_date):
+        values={
+                    "x": str(x),
+                    "y": str(round(y,2)),
+                    "date": str(reading_date)
+                }
+        return values
 
     @staticmethod
     def get_system_name(conn,system_id):
@@ -341,8 +392,8 @@ class DavAPI:
     @staticmethod
     def calcDiffInHours(curDate,startDate):
         if(curDate < startDate ):
-            #raise ValueError('Current date is lesser than previous date',curDate,prevDate)
-            return -1
+            raise ValueError('Current date is lesser than previous date',curDate,startDate)
         else:
             diff = curDate - startDate
             return diff.days*24 + diff.seconds/3600
+

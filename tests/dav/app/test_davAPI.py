@@ -75,12 +75,13 @@ class DavApiTest(unittest.TestCase):
         #print davapi.get_readings_for_plot(self.conn,[],[])
         data ={}
         data["system_uid_list"] = ["555d0cfe9ebc11e58153000c29b92d09"]
-        data["measurement_id_list"] = ['8','9','5']
+        #data["measurement_id_list"] = ['8','9','5']
+        data["measurement_id_list"] = ['5']
         response = self.app.post('dav/aqxapi/get/readings/time_series_plot',
                                  data=json.dumps(data), content_type = 'application/json')
         result = json.loads(response.data)
 
-        print result
+        #print result
 
 
 if __name__ == '__main__':
