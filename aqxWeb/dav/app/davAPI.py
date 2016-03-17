@@ -221,7 +221,7 @@ class DavAPI:
         return json.dumps(obj)
 
     ###############################################################################
-    # insert records values of given measurement for a given system
+    # Insert records values of given measurement for a given system
     ###############################################################################
     # param conn : db connection
     # param system_uid : system's unique ID
@@ -251,49 +251,53 @@ class DavAPI:
     # param conn : db connection
     # param system_uid_list : List of system unique IDs
     # param measurement_type_list: List of measurement_IDs
-    # get_system_measurement - It returns the readings of all the input system uids
-    #                          for all input measurement ids
+    # get_readings_for_plot - It returns the readings of all the input system uids
+    #                         for all input measurement ids
     def get_readings_for_plot(self,conn,data):
-
+        # Retrieve lists from input request data
         system_uid_list = data.get('system_uid_list')
         measurement_id_list = data.get('measurement_id_list')
 
-        #system_uid_list = ["555d0cfe9ebc11e58153000c29b92d09"]
-        #measurement_id_list = [8,9,5]
-
         m = MeasurementsDAO(conn)
 
+        # Form a list of names from the list of ids
         measurement_type_list = m.get_measurement_name_list(measurement_id_list)
         measurement_name_list  = []
-        print measurement_type_list
 
         for name in measurement_type_list:
             measurement_name_list.append(str(name[0]))
 
-
-
-        response = m.get_measurements(system_uid_list,measurement_name_list)
+        # Retrieve the measurements calling DAO
+        data_retrieved = m.get_measurements(system_uid_list,measurement_name_list)
 
         system_measurement_list = []
 
         for system_uid in system_uid_list:
-            readings = response[system_uid]
-            system_measuremnt_json = self.form_system_measuremnt_json(self,conn,system_uid,readings,measurement_name_list)
-            system_measurement_list.append(system_measuremnt_json)
+            readings = data_retrieved[system_uid]
+            system_measurement_json = self.form_system_measurement_json(self,conn,system_uid,readings,measurement_name_list)
+            system_measurement_list.append(system_measurement_json)
 
         print json.dumps({'response': system_measurement_list})
         return json.dumps({'response': system_measurement_list})
 
 
     ###############################################################################
-    # form the system's measurement reading
+    # Form the system's measurement reading json
     ###############################################################################
+    # param conn : db connection
+    # param system_uid  : Unique id of system
+    # param readings  : all readings for the input system_uid
+    # param measurement_type_list : list of measurement types in the request
+    # form_system_measurement_json  - It returns the json for all information needed
+    # for the plot for the input system_uid
+    #
     @staticmethod
-    def form_system_measuremnt_json(self,conn,system_uid,readings,measurement_type_list):
+    def form_system_measurement_json(self,conn,system_uid,readings,measurement_type_list):
         measurement_list = []
 
+        # For each measurement type, form the list of readings
         for measurement_type in measurement_type_list:
-            valueList = self.form_values_list(self,measurement_type,readings)
+            valueList = self.form_values_list(self,measurement_type,readings[measurement_type])
 
             measurement = {
                 "type" : measurement_type,
@@ -310,23 +314,35 @@ class DavAPI:
         return system_measurement
 
     ###############################################################################
-    # form the list of values
+    # Form the list of values
     ###############################################################################
+    # param measurement_type : name of the type of measurement
+    # param all_readings : readings associated with input measurement_type
+    # form_values_list   : It returns the list of readings formed from input
+    # readings. ALl the readings that fall in 1-hour bucket from time of first reading
+    # are averaged and readings is timestamped with latest timestamp in the bucket.
     @staticmethod
-    def form_values_list(self,measurement_type,all_type_readings):
+    def form_values_list(self,measurement_type,all_readings):
         valuesList=[]
-        all_readings = all_type_readings[measurement_type]
 
+        # Initialize the variables
         startDate = all_readings[0][1]
         prev_reading = all_readings[0]
         prevX = 0
+        # Required variable for averaging
         sum = 0
         counter = 0
 
+        # Every time  'values' is formed for previous reading if it falls outside the bucket, otherwise averaging is
+        # done, over the bucket
+
         for i in range (1,len(all_readings) + 1):
             try:
+                # This condition takes care of the last reading, which gets left out
                 if(i == len(all_readings)):
+                    # By incrementing x deliberately, we enforce the 'values' formation for the very last reading
                     x = prevX + 1
+                # This condition takes care of all but the last reading
                 else:
                     reading = all_readings[i]
                     curDate = reading[1]
@@ -334,7 +350,7 @@ class DavAPI:
                     x = self.calcDiffInHours(curDate,startDate)
 
 
-                # If x Prevx, build the values object and append to the values list
+                # If x >  prevX, build the values object and append to the values list
                 if x > prevX:
 
                     # If counter > 0, there were readings from 1-hour bucket and values should be averaged
@@ -347,12 +363,9 @@ class DavAPI:
 
                         values= self.build_values(prevX,avg,lastValDate)
 
-                        print "avg_values" + str(values)
-
-                        # Reset Bucket params
+                        # Reset Average in a 1-hour bucket params
                         sum = 0
                         counter = 0
-                        prevDate = -1
                     # Otherwise, simply build values from previous reading
                     else:
                         y = prev_reading[2]
@@ -365,18 +378,13 @@ class DavAPI:
                     prevX = x
 
                 else:
-
+                     # if reading falls in same bucket, accumulate the reading value to average later
                      if x == prevX:
-                        print reading
                         sum =  sum + prev_reading[2]
                         counter = counter + 1
-                        prevDate = curDate
                         prevX = x
                         prev_reading = reading
-
-                        print x
-                        print reading[2]
-
+                     # Skip the reading if the readings are not in order. This is unlikely to occur.
                      else:
                          print("Skipped Value for ",measurement_type,curDate)
 
@@ -385,7 +393,13 @@ class DavAPI:
                 print(err.args)
 
         return valuesList
-
+    ###############################################################################
+    # Build the values object
+    ###############################################################################
+    # param x : x value of reading
+    # param y  : y value of reading
+    # param reading_date  : date of reading
+    #  build_values - It returns the values object formed from x,y and reading date
     @staticmethod
     def build_values(x,y,reading_date):
         values={
@@ -395,11 +409,24 @@ class DavAPI:
                 }
         return values
 
+    ###############################################################################
+    # Get the system name
+    ###############################################################################
+    # param conn : db connection
+    # param  system_id : Unique id of the system
+    # get_system_name  - It returns the name of the system
+    #
     @staticmethod
     def get_system_name(conn,system_id):
         s = SystemsDAO(conn)
         return s.get_system_name(system_id)
 
+    ###############################################################################
+    # Calculate the difference in hours
+    ###############################################################################
+    # param curDate    : date of current reading
+    # param  startDate : date of first reading
+    # calcDiffInHours  : It returns the difference in hours between two input dates
     @staticmethod
     def calcDiffInHours(curDate,startDate):
         if(curDate < startDate ):
@@ -407,7 +434,6 @@ class DavAPI:
         else:
             diff = curDate - startDate
             return diff.days*24 + diff.seconds/3600
-
 
     ################################################################################
     # method to generate test data
@@ -431,4 +457,3 @@ class DavAPI:
                         time = d.strftime('%Y-%m-%d %H:%M:%S')
                         val = random.uniform(minrange,maxrange)
                         mdoa.put_system_measurement(table_name,time,val)
-    

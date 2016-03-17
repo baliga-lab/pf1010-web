@@ -78,18 +78,46 @@ class DavApiTest(unittest.TestCase):
         self.assertEqual("", "", "Test fail")
      #get the readings for plot
     def test_get_readings_for_plot(self):
-        #davapi = DavAPI()
-        #print davapi.get_readings_for_plot(self.conn,[],[])
         data ={}
         data["system_uid_list"] = ["555d0cfe9ebc11e58153000c29b92d09"]
-        #data["measurement_id_list"] = ['8','9','5']
-        data["measurement_id_list"] = ['5']
+        data["measurement_id_list"] = ['8']
         response = self.app.post('dav/aqxapi/get/readings/time_series_plot',
                                  data=json.dumps(data), content_type = 'application/json')
-        result = json.loads(response.data)
+        actual_result = json.loads(response.data)
 
-        #print result
+        expected_result = {
+        "response": [
+                {
+                    "system_uid": "555d0cfe9ebc11e58153000c29b92d09",
+                    "name": "P1 AQX",
+                    "measurement": [
+                        {
+                            "values": [
+                                {
+                                    "y": "100.0",
+                                    "x": "0",
+                                    "date": "2016-03-16 18:00:00"
+                                },
+                                {
+                                    "y": "100.0",
+                                    "x": "24",
+                                    "date": "2016-03-17 18:00:00"
+                                },
+                                {
+                                    "y": "133.33",
+                                    "x": "48",
+                                    "date": "2016-03-18 18:45:00"
+                                }
+                            ],
+                            "type": "o2"
+                        }
+                    ]
+                }
+            ]
+        }
 
+        print actual_result
+        self.assertEqual(actual_result,expected_result)
 
 if __name__ == '__main__':
     unittest.main()
