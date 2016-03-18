@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+
 {% block content %}
 
     <div class="container">
@@ -18,18 +19,28 @@
                     <thead>
                       <tr>
                        <th class="col-sm-1"></th>
-                       <th>Name</th>
-                       <th>Number of Mutual Friends</th>
+                       <th><b>Recommended Friend Name</b></th>
+                       <th><b>Mutual Friends</b></th>
                       </tr>
                     </thead>
                     <tbody>
                     {% for row in recolist %}
                         <tr>
                             <td><img src="{{ url_for('frontend.static', filename='images/users/vileplume.png') }}"></td>
-                            <td>{{ row.FriendName}}</td>
-                            <td>{{ row.Num_Mutual_Friends}}</td>
+                            <td>
+                                <a href="profile/{{ row['r_friend'].gid }}">{{ row['r_friend'].FriendName}}</a>
+                                <p>{{ row['r_friend'].Num_Mutual_Friends }} Mutual Friends</p>
+                            </td>
+                            <td>
+                                {% for m_row in row['m_info'] %}
+                                    <ul>
+                                        <li>
+                                            <a href="profile/{{ m_row.mf_gid }}">{{ m_row.mf_name}}</a>
+                                        </li>
+                                    </ul>
+                                {% endfor %}
+                            </td>
                         </tr>
-
                     {% endfor %}
                     </tbody>
 
@@ -42,7 +53,7 @@
                         </ul>
                         <br/>
                         <ul>
-                             Oops! Your friends have no friends!
+                             Oops! Your friends have no recommended friends!
                         </ul>
                     </div>
                 {% endif %}
@@ -50,8 +61,5 @@
             </table>
 
         </div>
-
-
-    </div>
 
 {% endblock %}

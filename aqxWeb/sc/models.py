@@ -444,14 +444,41 @@ class User:
             MATCH (me { sql_id: {sql_id} })-[:FRIENDS*2..2]-(friend_of_friend)
             WHERE NOT (me)-[:FRIENDS]-(friend_of_friend) AND
             NOT (me)-[:SentRequest]-(friend_of_friend)
-            RETURN friend_of_friend.givenName+ " " + friend_of_friend.familyName AS FriendName, COUNT(*) AS Num_Mutual_Friends
+            RETURN friend_of_friend.givenName+ " " + friend_of_friend.familyName AS FriendName,
+            COUNT(*) AS Num_Mutual_Friends, friend_of_friend.google_id AS gid,
+            friend_of_friend.sql_id AS sid
             ORDER BY COUNT(*) DESC , FriendName
             """
+
         try:
             reco_list = getGraphConnectionURI().cypher.execute(reco_friends_query, sql_id=my_sql_id)
             return reco_list
         except cypher.CypherError, cypher.CypherTransactionError:
             raise "Exception occured in function get_recommended_frnds"
+
+    ############################################################################
+    # function : get_mutual_friends
+    # purpose : get mutual friend information between currently loggedin user and
+    #           user who sql_id is passed
+    # params : other user sql_id
+    # returns : name, sql_id and google_id of recommended friend
+    # Exceptions : cypher.CypherError, cypher.CypherTransactionError
+    ############################################################################
+    def get_mutual_friends(self, other_sid):
+        my_sql_id = self.sql_id
+        mutual_query = """
+        MATCH (me { sql_id: {my_sid} }),(other)
+            WHERE other.sql_id = {oth_sid}
+            OPTIONAL MATCH pMutualFriends=(me)-[:FRIENDS]-(mf)-[:FRIENDS]-(other)
+            RETURN mf.sql_id AS mf_sid, mf.givenName+" "+mf.familyName AS mf_name, mf.google_id AS mf_gid
+            """
+
+        try:
+            mutual_list = getGraphConnectionURI().cypher.execute(mutual_query, my_sid=my_sql_id, oth_sid=other_sid)
+            return mutual_list
+        except cypher.CypherError, cypher.CypherTransactionError:
+            raise "Exception occured in function get_recommended_frnds"
+
 
     ############################################################################
     # function : get_user_by_email_id

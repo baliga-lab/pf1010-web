@@ -372,7 +372,14 @@ def pendingRequest():
 def recofriends():
     if session.get('uid') is not None:
         reco_friends = User(session['uid']).get_recommended_frnds()
-        return render_template("recofriends.html", recolist = reco_friends)
+        return_list = []
+        for row in reco_friends:
+            reco_user = {}
+            mutual_row = User(session['uid']).get_mutual_friends(row.sid)
+            reco_user['r_friend'] = row
+            reco_user['m_info'] = mutual_row
+            return_list.append(reco_user)
+        return render_template("recofriends.html", recolist = return_list)
     else:
         return render_template("/home.html")
 
