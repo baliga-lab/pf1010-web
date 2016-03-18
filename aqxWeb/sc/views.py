@@ -461,13 +461,13 @@ def view_system(system_uid):
 
 
 #######################################################################################
-@social.route('/system/approve_reject_participant', methods=['POST'])
-# function : approve_reject_participant
+@social.route('/systems/approve_reject_participant', methods=['POST'])
+# function : approve_reject_participant for a system
 # purpose : approve/reject the participant request made for the particular system
 # parameters : None
 # Exception : None
 #######################################################################################
-def approve_reject_participant():
+def approve_reject_system_participant():
     if request.method == 'POST':
         system_uid = request.form["system_uid"]
         google_id = request.form["google_id"]
@@ -487,7 +487,7 @@ def approve_reject_participant():
 
 
 #######################################################################################
-@social.route('/system/participate_subscribe_leave_system', methods=['POST'])
+@social.route('/systems/participate_subscribe_leave', methods=['POST'])
 # function : join_system
 # purpose : Subscribe/Request To Join the system by an User for the particular system
 # parameters : None
@@ -516,8 +516,116 @@ def participate_subscribe_leave_system():
     else:
         return redirect(url_for('social.search_systems'))
 
-#######################################################################################
 
+#######################################################################################
+# function : search_systems
+# purpose : renders system_search.html
+# parameters : None
+# returns: system_search.html
+# Exception : None
+#######################################################################################
+@social.route('/manage/systems/<system_uid>', methods=['GET', 'POST'])
+def manage_system(system_uid):
+    sql_id = session.get('uid')
+    #sql_id = 29
+    #system_uid = "416f3f2e3fe411e597b1000c29b92e09"
+    if sql_id is None:
+        return redirect(url_for('social.index'))
+    system = System()
+    logged_in_user = User(sql_id).find()
+    system_neo4j = system.get_system_by_uid(system_uid)
+    # InValid System_UID
+    if not system_neo4j:
+        return redirect(url_for('social.search_systems'))
+    user_privilege = system.get_user_privilege_for_system(sql_id, system_uid)
+    # Only Admin of The System Has Privileges To Access The Settings Page
+    if user_privilege != "SYS_ADMIN":
+        return redirect(url_for('social.search_systems'))
+    if request.method == 'GET' :
+        system_admins = system.get_system_admins(system_uid)
+        system_participants = system.get_system_participants(system_uid)
+        system_subscribers = system.get_system_subscribers(system_uid)
+        return render_template("system_manage.html", system_neo4j=system_neo4j, logged_in_user=logged_in_user,
+                               system_admins=system_admins, system_participants=system_participants,
+                               system_subscribers=system_subscribers)
+    elif request.method == 'POST':
+        return render_template("system_manage.html")
+
+#######################################################################################
+@social.route('/manage/systems/delete_system_participant_or_make_admin', methods=['POST'])
+# function : delete_or_make_admin_system_participant
+# purpose : Delete the participant from the system or make him/her as admin of the system
+# parameters : None
+# Exception : None
+#######################################################################################
+def delete_system_participant_or_make_admin():
+    if request.method == 'POST':
+        system_uid = request.form["system_uid"]
+        google_id = request.form["google_id"]
+        system = System()
+        sql_id = session.get('uid')
+        #sql_id = 29;
+        if sql_id is not None:
+            user_privilege = system.get_user_privilege_for_system(sql_id, system_uid)
+            if user_privilege == "SYS_ADMIN":
+                if request.form['submit'] == 'DeleteParticipant':
+                    system.delete_system_participant(google_id, system_uid)
+                elif request.form['submit'] == "MakeAdmin":
+                    system.make_admin_for_system(google_id, system_uid)
+        return redirect(url_for('social.manage_system', system_uid=system_uid ))
+    else:
+        return redirect(url_for('social.search_systems'))
+
+
+#######################################################################################
+@social.route('/manage/systems/delete_admin', methods=['POST'])
+# function : make_or_delete_system_admin
+# purpose : Makes the participant admin for the system
+# parameters : None
+# Exception : None
+#######################################################################################
+def delete_system_admin():
+    if request.method == 'POST':
+        system_uid = request.form["system_uid"]
+        google_id = request.form["google_id"]
+        system = System()
+        sql_id = session.get('uid')
+        #sql_id = 29;
+        if sql_id is not None:
+            user_privilege = system.get_user_privilege_for_system(sql_id, system_uid)
+            if user_privilege == "SYS_ADMIN":
+                if request.form['submit'] == 'DeleteAdmin':
+                    system.delete_system_admin(google_id, system_uid)
+        return redirect(url_for('social.manage_system', system_uid=system_uid ))
+    else:
+        return redirect(url_for('social.search_systems'))
+
+#######################################################################################
+@social.route('/manage/systems/delete_system_subscriber_or_make_admin', methods=['POST'])
+# function : delete_system_subscriber_or_make_admin
+# purpose : Delete the Subscriber from the System or make him/her as admin of the System
+# parameters : None
+# Exception : None
+#######################################################################################
+def delete_system_subscriber_or_make_admin():
+    if request.method == 'POST':
+        system_uid = request.form["system_uid"]
+        google_id = request.form["google_id"]
+        system = System()
+        sql_id = session.get('uid')
+        #sql_id = 29;
+        if sql_id is not None:
+            user_privilege = system.get_user_privilege_for_system(sql_id, system_uid)
+            if user_privilege == "SYS_ADMIN":
+                if request.form['submit'] == 'DeleteSubscriber':
+                    system.delete_system_subscriber(google_id, system_uid)
+                elif request.form['submit'] == "MakeAdmin":
+                    system.make_admin_for_system(google_id, system_uid)
+        return redirect(url_for('social.manage_system', system_uid=system_uid ))
+    else:
+        return redirect(url_for('social.search_systems'))
+
+#######################################################################################
 
 @social.route('/add_comment', methods=['POST'])
 #######################################################################################

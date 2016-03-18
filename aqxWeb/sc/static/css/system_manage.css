@@ -1,0 +1,20 @@
+
+.page-header, h4, .adminTableHeader, .participantTableHeader, .subscriberTableHeader{
+    color: #449d44;
+}
+
+.adminImage, .participantImage, .subscriberImage  {
+    height: 40px;
+    width: 40px;
+}
+
+.adminResults, .participantResults, .subscriberResults {
+    overflow-y: auto;
+    overflow-x: hidden;
+    height:300px;
+}
+
+.cogWheelIcon{
+    height: 45px;
+    width: 45px;
+}

@@ -775,6 +775,11 @@ class System:
     # Exceptions : cypher.CypherError, cypher.CypherTransactionError
     ############################################################################
     def pending_subscribe_to_system(self, google_id, system_uid):
+        removeRelationshipQuery = """
+                MATCH (u:User)-[rel]->(s:System)
+                WHERE u.google_id = {google_id} and s.system_uid={system_uid}
+                DETACH DELETE rel
+        """
         createPendingSubscribeRelationshipQuery = """
                 MATCH (u:User), (s:System)
                 WHERE u.google_id = {google_id} and s.system_uid={system_uid}
@@ -782,7 +787,10 @@ class System:
                 RETURN rel
         """
         try:
-            relationship_status = getGraphConnectionURI().cypher.execute(createPendingSubscribeRelationshipQuery,
+            remove_relationship_status = getGraphConnectionURI().cypher.execute(removeRelationshipQuery,
+                                                                         google_id=google_id,
+                                                                         system_uid=system_uid)
+            create_relationship_status = getGraphConnectionURI().cypher.execute(createPendingSubscribeRelationshipQuery,
                                                                          google_id=google_id,
                                                                          system_uid=system_uid)
         except cypher.CypherError, cypher.CypherTransactionError:
@@ -797,6 +805,11 @@ class System:
     # Exceptions : cypher.CypherError, cypher.CypherTransactionError
     ############################################################################
     def subscribe_to_system(self, google_id, system_uid):
+        removeRelationshipQuery = """
+                MATCH (u:User)-[rel]->(s:System)
+                WHERE u.google_id = {google_id} and s.system_uid={system_uid}
+                DETACH DELETE rel
+        """
         createSubscribeRelationshipQuery = """
                 MATCH (u:User), (s:System)
                 WHERE u.google_id = {google_id} and s.system_uid={system_uid}
@@ -804,7 +817,10 @@ class System:
                 RETURN rel
         """
         try:
-            relationship_status = getGraphConnectionURI().cypher.execute(createSubscribeRelationshipQuery,
+            remove_relationship_status = getGraphConnectionURI().cypher.execute(removeRelationshipQuery,
+                                                                         google_id=google_id,
+                                                                         system_uid=system_uid)
+            create_relationship_status = getGraphConnectionURI().cypher.execute(createSubscribeRelationshipQuery,
                                                                          google_id=google_id,
                                                                          system_uid=system_uid)
         except cypher.CypherError, cypher.CypherTransactionError:
@@ -819,6 +835,11 @@ class System:
     # Exceptions : cypher.CypherError, cypher.CypherTransactionError
     ############################################################################
     def pending_participate_to_system(self, google_id, system_uid):
+        removeRelationshipQuery = """
+                MATCH (u:User)-[rel]->(s:System)
+                WHERE u.google_id = {google_id} and s.system_uid={system_uid}
+                DETACH DELETE rel
+        """
         createPendingParticipateRelationshipQuery = """
                 MATCH (u:User), (s:System)
                 WHERE u.google_id = {google_id} and s.system_uid={system_uid}
@@ -826,7 +847,10 @@ class System:
                 RETURN rel
         """
         try:
-            relationship_status = getGraphConnectionURI().cypher.execute(createPendingParticipateRelationshipQuery,
+            remove_relationship_status = getGraphConnectionURI().cypher.execute(removeRelationshipQuery,
+                                                                         google_id=google_id,
+                                                                         system_uid=system_uid)
+            create_relationship_status = getGraphConnectionURI().cypher.execute(createPendingParticipateRelationshipQuery,
                                                                          google_id=google_id,
                                                                          system_uid=system_uid)
         except cypher.CypherError, cypher.CypherTransactionError:
@@ -851,6 +875,95 @@ class System:
                                                                                 system_uid=system_uid)
         except cypher.CypherError, cypher.CypherTransactionError:
             raise "Exception occured in function leave_system"
+
+    ############################################################################
+    # function : delete_system_participant
+    # purpose : Delete the relationship of the specified participant with the system node (SYS_PARTICIPANT)
+    # params : google_id, system_uid
+    # returns : None
+    # Exceptions : cypher.CypherError, cypher.CypherTransactionError
+    ############################################################################
+    def delete_system_participant(self, google_id, system_uid):
+        removeRelationshipQuery = """
+                MATCH (u:User)-[rel:SYS_PARTICIPANT]->(s:System)
+                WHERE u.google_id = {google_id} and s.system_uid={system_uid}
+                DETACH DELETE rel
+        """
+        try:
+            remove_relationship_status = getGraphConnectionURI().cypher.execute(removeRelationshipQuery,
+                                                                                google_id=google_id,
+                                                                                system_uid=system_uid)
+        except cypher.CypherError, cypher.CypherTransactionError:
+            raise "Exception occured in function delete_system_participant"
+
+    ############################################################################
+    # function : make_admin_for_system
+    # purpose : Add the user as admin of the specified system (SYS_ADMIN)
+    # params : google_id, system_uid
+    # returns : None
+    # Exceptions : cypher.CypherError, cypher.CypherTransactionError
+    ############################################################################
+    def make_admin_for_system(self, google_id, system_uid):
+        removeRelationshipQuery = """
+                MATCH (u:User)-[rel]->(s:System)
+                WHERE u.google_id = {google_id} and s.system_uid={system_uid}
+                DETACH DELETE rel
+        """
+        createAdminRelationshipQuery = """
+                MATCH (u:User), (s:System)
+                WHERE u.google_id = {google_id} and s.system_uid={system_uid}
+                CREATE UNIQUE (u)-[rel:SYS_ADMIN]->(s)
+                RETURN rel
+        """
+        try:
+            remove_relationship_status = getGraphConnectionURI().cypher.execute(removeRelationshipQuery,
+                                                                                google_id=google_id,
+                                                                                system_uid=system_uid)
+            create_relationship_status = getGraphConnectionURI().cypher.execute(createAdminRelationshipQuery,
+                                                                                google_id=google_id,
+                                                                                system_uid=system_uid)
+        except cypher.CypherError, cypher.CypherTransactionError:
+            raise "Exception occured in function make_admin_for_system"
+
+    ############################################################################
+    # function : delete_system_admin
+    # purpose : Delete the relationship of the specified participant with the system node (SYS_ADMIN)
+    # params : google_id, system_uid
+    # returns : None
+    # Exceptions : cypher.CypherError, cypher.CypherTransactionError
+    ############################################################################
+    def delete_system_admin(self, google_id, system_uid):
+        removeRelationshipQuery = """
+                MATCH (u:User)-[rel:SYS_ADMIN]->(s:System)
+                WHERE u.google_id = {google_id} and s.system_uid={system_uid}
+                DETACH DELETE rel
+        """
+        try:
+            remove_relationship_status = getGraphConnectionURI().cypher.execute(removeRelationshipQuery,
+                                                                                google_id=google_id,
+                                                                                system_uid=system_uid)
+        except cypher.CypherError, cypher.CypherTransactionError:
+            raise "Exception occured in function delete_system_admin"
+
+    ############################################################################
+    # function : delete_system_subscriber
+    # purpose : Delete the relationship of the specified participant with the system node (SYS_SUBSCRIBER)
+    # params : google_id, system_uid
+    # returns : None
+    # Exceptions : cypher.CypherError, cypher.CypherTransactionError
+    ############################################################################
+    def delete_system_subscriber(self, google_id, system_uid):
+        removeRelationshipQuery = """
+                MATCH (u:User)-[rel:SYS_SUBSCRIBER]->(s:System)
+                WHERE u.google_id = {google_id} and s.system_uid={system_uid}
+                DETACH DELETE rel
+        """
+        try:
+            remove_relationship_status = getGraphConnectionURI().cypher.execute(removeRelationshipQuery,
+                                                                                google_id=google_id,
+                                                                                system_uid=system_uid)
+        except cypher.CypherError, cypher.CypherTransactionError:
+            raise "Exception occured in function delete_system_subscriber"
 
     ############################################################################
     # function : get_system_participants

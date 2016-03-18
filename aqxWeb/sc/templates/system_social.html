@@ -99,16 +99,18 @@
             <!-- End of Div for Subscribers (List of Subscribers) -->
 
 
-            <!-- Div for Managing Pending Requests (Approve/Reject) Button -->
+            <!-- Div for Managing Pending Requests (Approve/Reject) Button. Manage System Settings Too -->
             {% if user_privilege == "SYS_ADMIN" %}
+
                 <div class="row pendingRequestsTitleDiv">
                     <h4>Participants Request ({{ participants_pending_approval | length }})</h4>
                 </div>
+
                 <div class="row pendingRequests">
                     <!-- Iterate Over Pending Approval Participants -->
                     {% if participants_pending_approval %}
                         {% for pending_participants in participants_pending_approval %}
-                            <form action="{{ url_for('social.approve_reject_participant') }}" method="post">
+                            <form action="{{ url_for('social.approve_reject_system_participant') }}" method="post">
                                 <div class="pendingRequestElements">
                                     <input type="hidden" name="google_id"
                                            value="{{ pending_participants[0]["google_id"] }}">
@@ -132,15 +134,27 @@
                                 </div>
                             </form>
                         {% endfor %}
-                    <!-- There exists No Pending Approval Participants -->
+                        <!-- There exists No Pending Approval Participants -->
                     {% else %}
                         <span>
                                 <h5>Currently, there are no pending participants for the system</h5>
                             </span>
                     {% endif %}
                 </div>
+
+                <!-- Div for Manage Settings/Adding Admin(s) To The Systems -->
+                <div class="row">
+                    <span>
+                        <a href="{{ url_for('social.manage_system', system_uid= system_neo4j[0][0]["system_uid"]) }}">
+                            <img class="cogWheelIcon" src="{{ url_for('social.static', filename='images/system_settings.png') }}">
+                            Manage System
+                        </a>
+                    </span>
+                </div>
+                <!-- End Of Div for Manage Settings/Adding Admin(s) To The Systems -->
+
             {% endif %}
-            <!-- End of Div for Managing Pending Requests (Approve/Reject) Button -->
+            <!-- End of Div for Managing Pending Requests (Approve/Reject) Button. Manage System Settings Too -->
 
             <br/>
 

@@ -7,7 +7,7 @@ $(document).ready(function () {
 
 
 /* function : getUserConsent
- # purpose : When the user clicked "Leave" button in the systems page, confirmation pop up appears and only when
+ # purpose : When the user clicks "Leave" button in the Systems page, confirmation pop up appears. Only when
   the user hits ok button, the user shall be removed from the system
  # params : None
  # returns : None

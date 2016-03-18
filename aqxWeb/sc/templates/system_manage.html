@@ -1,0 +1,253 @@
+{% extends "base.html" %}
+
+{% block styles %}
+    {{ super() }}
+    <link rel="stylesheet" href="{{ url_for('social.static', filename='css/system_manage.css') }}">
+{% endblock %}
+
+{% block content %}
+
+    <!-- Entire Page Div Container -->
+    <div class="container" id="manageSystemsTab">
+        <span>
+            <img class="cogWheelIcon" src="{{ url_for('social.static', filename='images/system_settings.png') }}">
+            <h3 class="page-header">Manage System</h3>
+        </span>
+        <ul class="nav nav-tabs" id="tab-headers">
+            <li><a href="#settingsTab">Settings</a></li>
+            <li><a href="#adminTab">Admin(s)</a></li>
+            <li><a href="#participantTab">Participant(s)</a></li>
+            <li><a href="#subscriberTab">Subscriber(s)</a></li>
+        </ul>
+        <br>
+
+        <!-- Settings Tab -->
+        <div class="row" id="settingsTab">
+            <!-- Settings Results Div -->
+            <div class="row settingsResults">
+
+            </div>
+            <!-- End of Settings Results Div -->
+        </div>
+        <!-- End of Settings Tab -->
+
+
+        <!-- Manage Participants Div -->
+        <div class="row" id="participantTab">
+            <!-- Participant Results Div -->
+            <div class="row participantResults">
+                <!-- Iterate Over The List Of Participants -->
+                {% if system_participants %}
+                    <table class="table">
+                        <thead>
+                        <tr class="participantTableHeader">
+                            <th>Profile Picture</th>
+                            <th>Display Name</th>
+                            <th>Option(s)</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <!-- Form Post For Delete Of Participant(s) and Make Admin For The System -->
+                        {% for participant in system_participants %}
+                            <tr>
+                                <td>
+                                    <a href="{{ url_for('social.profile', google_id=participant[0]["google_id"]) }}">
+                                        <img class="participantImage" src="{{ participant[0]["image_url"] }}">
+                                    </a>
+                                </td>
+                                <td>
+                                    {% if participant[0]["displayName"] is not none %}
+                                        {{ participant[0]["displayName"] }}
+                                    {% else %}
+                                        No Display Name
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <form action="{{ url_for('social.delete_system_participant_or_make_admin') }}"
+                                          method="post">
+                                        <input type="hidden" name="google_id"
+                                               value="{{ participant[0]["google_id"] }}">
+                                        <input type="hidden" name="system_uid"
+                                               value="{{ system_neo4j[0][0]["system_uid"] }}">
+                                        <button type="submit" class="btn btn-primary" name="submit"
+                                                value="DeleteParticipant" onclick="return getUserConsent()">Delete
+                                        </button>
+                                        <button type="submit" class="btn btn-primary" name="submit"
+                                                value="MakeAdmin" onclick="return getUserConsent()">Make Admin
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                    <!-- Sad Smiley When There Exists No Participants For The System -->
+                {% else %}
+                    <div class="row">
+                        <ul class="pull-left">
+                            <img src="{{ url_for('social.static', filename='images/sad_smiley.png') }}" alt="System"
+                                 height="32"
+                                 width="32">
+                        </ul>
+                        <br/>
+                        <ul>
+                            Sorry, there is no Participant(s) for this system.
+                        </ul>
+                    </div>
+                {% endif %}
+            </div>
+            <!-- End Of Participant Results Div -->
+        </div>
+        <!-- End Of Manage Participants Div -->
+
+
+        <!-- Manage Admin Div -->
+        <div class="row" id="adminTab">
+            <!-- Admin Results Div -->
+            <div class="row adminResults">
+                <!-- Iterate Over The List Of Admins -->
+                {% if system_admins %}
+                    <table class="table">
+                        <thead>
+                        <tr class="adminTableHeader">
+                            <th>Profile Picture</th>
+                            <th>Display Name</th>
+                            <th>Option(s)</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <!-- Form Post For Delete Of Admin(s) -->
+                        {% for admin in system_admins %}
+                            <tr>
+                                <td>
+                                    <a href="{{ url_for('social.profile', google_id=admin[0]["google_id"]) }}">
+                                        <img class="adminImage" src="{{ admin[0]["image_url"] }}">
+                                    </a>
+                                </td>
+                                <td>
+                                    {% if admin[0]["displayName"] is not none %}
+                                        {{ admin[0]["displayName"] }}
+                                    {% else %}
+                                        No Display Name
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <form action="{{ url_for('social.delete_system_admin') }}" method="post">
+                                        <input type="hidden" name="google_id"
+                                               value="{{ admin[0]["google_id"] }}">
+                                        <input type="hidden" name="system_uid"
+                                               value="{{ system_neo4j[0][0]["system_uid"] }}">
+                                        <!-- Self Delete Is Prevented -->
+                                        {% if admin[0]["sql_id"] != logged_in_user["sql_id"] %}
+                                            <button type="submit" class="btn btn-primary" name="submit"
+                                                    value="DeleteAdmin" onclick="return getUserConsent()">Delete
+                                            </button>
+                                        {% endif %}
+                                    </form>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                    <!-- Sad Smiley When There Exists No Admin For The System -->
+                {% else %}
+                    <div class="row">
+                        <ul class="pull-left">
+                            <img src="{{ url_for('social.static', filename='images/sad_smiley.png') }}" alt="System"
+                                 height="32"
+                                 width="32">
+                        </ul>
+                        <br/>
+                        <ul>
+                            Sorry, there is no Admin(s) for this system.
+                        </ul>
+                    </div>
+                {% endif %}
+            </div>
+            <!-- End Of Admin Results Div -->
+        </div>
+        <!-- End Of Manage Admin Div -->
+
+
+        <!-- Manage Subscriber Div -->
+        <div class="row" id="subscriberTab">
+            <!-- Subscriber Results Div -->
+            <div class="row subscriberResults">
+                <!-- Iterate Over The List Of Subscribers -->
+                {% if system_subscribers %}
+                    <table class="table">
+                        <thead>
+                        <tr class="subscriberTableHeader">
+                            <th>Profile Picture</th>
+                            <th>Display Name</th>
+                            <th>Option(s)</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <!-- Form Post For Delete Of Subscriber(s) and Make Admin For The System -->
+                        {% for subscriber in system_subscribers %}
+                            <tr>
+                                <td>
+                                    <a href="{{ url_for('social.profile', google_id=subscriber[0]["google_id"]) }}">
+                                        <img class="subscriberImage" src="{{ subscriber[0]["image_url"] }}">
+                                    </a>
+                                </td>
+                                <td>
+                                    {% if subscriber[0]["displayName"] is not none %}
+                                        {{ subscriber[0]["displayName"] }}
+                                    {% else %}
+                                        No Display Name
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <form action="{{ url_for('social.delete_system_subscriber_or_make_admin') }}"
+                                          method="post">
+                                        <input type="hidden" name="google_id"
+                                               value="{{ subscriber[0]["google_id"] }}">
+                                        <input type="hidden" name="system_uid"
+                                               value="{{ system_neo4j[0][0]["system_uid"] }}">
+                                        <button type="submit" class="btn btn-primary" name="submit"
+                                                value="DeleteSubscriber" onclick="return getUserConsent()">Delete
+                                        </button>
+                                        <button type="submit" class="btn btn-primary" name="submit"
+                                                value="MakeAdmin" onclick="return getUserConsent()">Make Admin
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                    <!-- Sad Smiley When There Exists No Subscriber For The System -->
+                {% else %}
+                    <div class="row">
+                        <ul class="pull-left">
+                            <img src="{{ url_for('social.static', filename='images/sad_smiley.png') }}" alt="System"
+                                 height="32"
+                                 width="32">
+                        </ul>
+                        <br/>
+                        <ul>
+                            Sorry, there is no Subscriber(s) for this system.
+                        </ul>
+                    </div>
+                {% endif %}
+            </div>
+            <!-- End Of Subscriber Results Div -->
+        </div>
+        <!-- End Of Manage Subscriber Div -->
+
+
+    </div>
+    <!-- End of Entire Page Div Container -->
+
+    <br/><br/>
+
+
+{% endblock %}
+
+{% block scripts %}
+    {{ super() }}
+    <!-- jQuery Script For DOM Manipulation In Manage Systems Page -->
+    <script type="text/javascript" src="{{ url_for('social.static', filename='js/system_manage.js') }}"></script>
+{% endblock %}
