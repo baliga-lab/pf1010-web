@@ -6,33 +6,28 @@
         <ul class="nav nav-tabs">
             <li><a href="{{ url_for('social.friends') }}">MyFriends</a></li>
             <li><a href="{{ url_for('social.searchFriends') }}">Search Friends</a></li>
-            <li class="active"><a href="pendingRequest.html">Pending Requests</a></li>
-            <li><a href="{{ url_for('social.recofriends') }}">Recommended Friends</a></li>
+            <li><a href="{{ url_for('social.pendingRequest') }}">Pending Requests</a></li>
+            <li class="active"><a href="recofriends.html">Recommended Friends</a></li>
         </ul>
 
         <table class="table">
-
+            <br>
             <!-- Search Results Div -->
             <div class="row">
-                <h4>Pending Friend Requests:</h4>
-                <hr>
-                {% if pendingRequests %}
+                {% if recolist %}
                     <thead>
                       <tr>
                        <th class="col-sm-1"></th>
-                       <th>Username</th>
-                       <th>Option</th>
+                       <th>Name</th>
+                       <th>Number of Mutual Friends</th>
                       </tr>
                     </thead>
                     <tbody>
-                    {% for row in pendingRequests %}
+                    {% for row in recolist %}
                         <tr>
-                         <td><img src="{{ url_for('frontend.static', filename='images/users/vileplume.png') }}"></td>
-                         <td>{{ row.n.displayName}}</td>
-                         <td>
-                            <button type="button" class="btn btn-primary">Confirm</button>
-                            <button type="button" class="btn btn-primary">Delete</button>
-                         </td>
+                            <td><img src="{{ url_for('frontend.static', filename='images/users/vileplume.png') }}"></td>
+                            <td>{{ row.FriendName}}</td>
+                            <td>{{ row.Num_Mutual_Friends}}</td>
                         </tr>
 
                     {% endfor %}
@@ -47,7 +42,7 @@
                         </ul>
                         <br/>
                         <ul>
-                             Oops! No Pending Friend Requests!
+                             Oops! Your friends have no friends!
                         </ul>
                     </div>
                 {% endif %}
@@ -57,7 +52,6 @@
         </div>
 
 
-
-
+    </div>
 
 {% endblock %}

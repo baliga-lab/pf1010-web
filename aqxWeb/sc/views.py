@@ -298,30 +298,28 @@ def profile(google_id):
     except Exception as e:
         logging.exception("Exception at view_profile: " + str(e))
 
-
-@social.route('/friends', methods=['GET'])
 #######################################################################################
 # function : friends
-# purpose : renders friends.html
+# purpose : renders friends.html to let the user perform activities related to friends
 # parameters : None
 # returns: friends.html
 # Exception : None
-#######################################################################################
+###############################################################################
+@social.route('/friends', methods=['GET'])
 def friends():
     if session.get('uid') is not None:
         return render_template("friends.html")
     else:
         return render_template("/home.html")
 
-
-@social.route('/pendingRequest', methods=['GET', 'POST'])
 #######################################################################################
 # function : pendingRequest
-# purpose : renders pendingRequests
+# purpose : renders pendingRequests of the logged in user
 # parameters : None
 # returns: pendingRequest.html
 # Exception : None
 #######################################################################################
+@social.route('/pendingRequest', methods=['GET', 'POST'])
 def pendingRequest():
     if request.method == 'GET':
         if session.get('uid') is not None:
@@ -333,23 +331,37 @@ def pendingRequest():
     else:
         return render_template("/home.html")
 
-
-@social.route('/searchFriends', methods=['GET'])
 #######################################################################################
-# function : searchFriends
-# purpose : renders searchFriends
+# function : recofriends
+# purpose : display the logged in user's recommended friends list
 # parameters : None
-# returns: searchFriends.html
+# returns: recofriends.html in case the user is logged in
+#          or home.html in case the user is not logged in
 # Exception : None
 #######################################################################################
+@social.route('/recofriends')
+def recofriends():
+    if session.get('uid') is not None:
+        reco_friends = User(session['uid']).get_recommended_frnds()
+        return render_template("recofriends.html", recolist = reco_friends)
+    else:
+        return render_template("/home.html")
+
+#######################################################################################
+# function : searchFriends
+# purpose : lets the user search for friends and add them if necessary
+# parameters : None
+# returns: searchFriends.html in case the user is logged in
+#          or home.html in case the user is not logged in
+# Exception : None
+#######################################################################################
+@social.route('/searchFriends', methods=['GET'])
 def searchFriends():
     if session.get('uid') is not None:
         return render_template("searchFriends.html")
     else:
         return render_template("/home.html")
 
-
-@social.route('/send_friend_request/<u_sql_id>', methods=['POST'])
 #######################################################################################
 # function : send_friend_request
 # purpose : send a friend request to a user clicked on the UI
@@ -357,6 +369,7 @@ def searchFriends():
 # returns: calls index function
 # Exception : None
 #######################################################################################
+@social.route('/send_friend_request/<u_sql_id>', methods=['POST'])
 def send_friend_request(u_sql_id):
     receiver_sql_id = u_sql_id
     User(session['uid']).send_friend_request(receiver_sql_id)

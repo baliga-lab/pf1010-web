@@ -398,8 +398,7 @@ class User:
         except cypher.CypherError, cypher.CypherTransactionError:
             raise "Exception occured in function send_friend_request "
 
-            ############################################################################
-
+    ############################################################################
     # function : get_pending_friend_request
     # purpose : gets the list of friends whose requests are pending
     # params : user_id
@@ -412,14 +411,36 @@ class User:
             WHERE n1.sql_id = {u_sql_id}
             return n
             ORDER BY n.givenName
-
-
         """
         try:
             pending_friends_request = getGraphConnectionURI().cypher.execute(query, u_sql_id=u_sql_id)
             return pending_friends_request
         except cypher.CypherError, cypher.CypherTransactionError:
             raise "Exception occured in function get_pending_friend_request"
+
+    ############################################################################
+    # function : get_recommended_frnds
+    # purpose : get recommended friend list based on mutual friends for the
+    #           logged in user if the user is not already friends with those
+    #           users and if the user has not already sent that user a friend request
+    # params : None
+    # returns : recommended friend list
+    # Exceptions : cypher.CypherError, cypher.CypherTransactionError
+    ############################################################################
+    def get_recommended_frnds(self):
+        my_sql_id = self.sql_id
+        reco_friends_query = """
+            MATCH (me { sql_id: {sql_id} })-[:FRIENDS*2..2]-(friend_of_friend)
+            WHERE NOT (me)-[:FRIENDS]-(friend_of_friend) AND
+            NOT (me)-[:SentRequest]-(friend_of_friend)
+            RETURN friend_of_friend.givenName+ " " + friend_of_friend.familyName AS FriendName, COUNT(*) AS Num_Mutual_Friends
+            ORDER BY COUNT(*) DESC , FriendName
+            """
+        try:
+            reco_list = getGraphConnectionURI().cypher.execute(reco_friends_query, sql_id=my_sql_id)
+            return reco_list
+        except cypher.CypherError, cypher.CypherTransactionError:
+            raise "Exception occured in function get_recommended_frnds"
 
     ############################################################################
     # function : get_user_by_email_id
