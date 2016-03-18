@@ -10,16 +10,38 @@
 
 
 {% block content %}
-    <div class="row">
-        {# SIDEBAR #}
+
         <div class="col-sm-3">
             <div class="row">
                 <img class="imgstyle" id="userImage" src="{{ google_profile['img_url'] }}" width="200"/> <br/>
-                <h3 class="username">  {{ google_profile['display_name'] }} </h3>
+                <h3 class="username">  {{ google_profile['displayName'] }} </h3>
                 <a id="profileLink" class="btn mycolor" target="_blank"
                    href="{{ google_profile['plus_url'] }}">Google Plus Profile</a>
                 <input id="googleId" type="hidden" value="{{ google_profile['google_id'] }}"/>
-                <br/>
+
+            </div>
+            <div id="systems">
+                <h3>User Systems</h3>
+                <ul class="nav nav-pills nav-stacked">
+                    <li><u>{{ participated_systems[0][0]['name'] }}</u></li>
+                 </ul>
+
+
+                <h3>Subscribed Systems</h3>
+                <ul class="nav nav-pills nav-stacked">
+
+                <li><u>{{ subscribed_systems[0][0]['name'] }}</u></li>
+                    </ul>
+
+                 <h3>Admin Systems</h3>
+                                <ul class="nav nav-pills nav-stacked">
+                {% if admin_systems=="None" %}
+                                     <li>None</li>
+                {% else %}
+                <li><u>{{ admin_systems[0][0]['name'] }}</u></li>
+                    </ul>
+                {% endif %}<br>
+              <button type="button" class="btn btn-info btn-sm" data-toggle="modal" data-target="#myModal">See all systems</button>
             </div>
 
             <br/>
@@ -34,4 +56,54 @@
         </div>
 
     </div>
+    <!-- Modal -->
+<div id="myModal" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+
+    <!-- Modal content-->
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <h4 class="modal-title">Systems</h4>
+      </div>
+      <div class="modal-body">
+      <h1>User Systems</h1>
+
+                                  {% for row in participated_systems %}
+                            <div class="row">
+                            <ul>
+
+                               <li>{{ row[0]['name']}}</li>
+                                </ul>
+                            </div>
+                        {% endfor %}
+      <h1>Subscribed Systems</h1>
+        {% for row in subscribed_systems %}
+                            <div class="row">
+                            <ul>
+
+                               <li>{{ row[0]['name']}}</li>
+                                </ul>
+                            </div>
+                        {% endfor %}
+      <h1>Admin Systems</h1>
+        {% for row in admin_systems %}
+                            <div class="row">
+                            <ul>
+
+                               <li>{{ row[0]['name']}}</li>
+                                </ul>
+                            </div>
+                        {% endfor %}
+
+
+
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+
+  </div>
+</div>
 {% endblock %}

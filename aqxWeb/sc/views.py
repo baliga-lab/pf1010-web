@@ -2,7 +2,7 @@ from flask import Blueprint, request, session, redirect, url_for, render_templat
 from models import User, get_all_recent_posts, get_all_recent_comments
 from models import System
 from models import get_app_instance, getGraphConnectionURI
-
+from py2neo import cypher
 from app.scAPI import ScAPI
 from flask_login import login_required
 from flask_googlelogin import LoginManager, make_secure_token,GoogleLogin
@@ -143,8 +143,10 @@ def signin():
         if 'image' in googleAPIResponse:
             image=googleAPIResponse['image']
             imgurl = image['url']
+
         else:
             imgurl = "/static/images/default_profile.png"
+        session['img']=imgurl
         user_id = get_user(google_id, googleAPIResponse)
         emails = googleAPIResponse['emails']
         email = emails[0]['value']
@@ -270,10 +272,33 @@ def profile(google_id):
         if google_id == "me":
             user_profile = User(session['uid']).find()
             privacy = {"Friends", "Public"}
+
+            admin_systems = System().get_admin_systems(session['uid'])
+            participated_systems = System().get_participated_systems(session['uid'])
+            subscribed_systems = System().get_subscribed_systems(session['uid'])
         else:
+            sqlId=get_sqlId(google_id)
+            if not sqlId:
+                return redirect(url_for('social.home'))
+            else:
+                id=sqlId[0]["sql_id"]
+                admin_systems = System().get_admin_systems(id)
+                participated_systems = System().get_participated_systems(id)
+                subscribed_systems = System().get_subscribed_systems(id)
+                print(participated_systems)
+                print(subscribed_systems)
+                print(admin_systems.records == [])
+
+
             user_profile = User(session['uid']).get_user_by_google_id(google_id)
             privacy = {"Friends", "Private", "Public"}
 
+        if admin_systems.records == []:
+            admin_systems="None"
+        if participated_systems.records == []:
+            participated_systems="None"
+        if subscribed_systems.records == []:
+            subscribed_systems="None"
         # Invalid User ID
         if user_profile is None:
             return redirect(url_for('social.home'))
@@ -293,7 +318,8 @@ def profile(google_id):
             comments = get_all_recent_comments()
 
             return render_template("profile.html", user_profile=user_profile, google_profile=google_profile,
-                                   posts=posts, comments=comments, privacy_options=privacy)
+                                   posts=posts, comments=comments, privacy_options=privacy,participated_systems=participated_systems
+                                   ,subscribed_systems=subscribed_systems,admin_systems=admin_systems)
     except Exception as e:
         logging.exception("Exception at view_profile: " + str(e))
 
@@ -613,7 +639,8 @@ def getfriends():
     users = User(session['uid']).get_search_friends()
     user_list = []
     sentreq_res, frnds_res = User(session['uid']).get_friends_and_sentreq()
-
+    print(frnds_res)
+    print(sentreq_res)
     for result in users:
         individual_user = {}
         first_name = result[0]
@@ -749,3 +776,19 @@ def create_system():
 def delete_system_by_system_id(system_id):
     if session.get('siteadmin') is not None:
         return ScAPI(getGraphConnectionURI()).delete_system_by_system_id(system_id)
+
+
+
+def get_sqlId(google_id):
+    query = """
+        MATCH (user:User)
+        WHERE user.google_id = {google_id}
+        RETURN user.sql_id as sql_id
+    """
+    try:
+        regExPattern = google_id
+        #user_profile = getGraphConnectionURI().find_one("User", "email", regExPattern)
+        sql_id = getGraphConnectionURI().cypher.execute(query, google_id=google_id)
+        return sql_id
+    except cypher.CypherError, cypher.CypherTransactionError:
+        raise "Exception occured in function get_user_by_google_id()"
