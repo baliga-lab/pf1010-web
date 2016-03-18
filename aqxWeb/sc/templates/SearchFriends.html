@@ -48,9 +48,13 @@
                         })
                         .autocomplete("instance")._renderItem = function (ul, item) {
                         var store_sql_id = item.user_sql_id;
+                        var google_id = item.gid;
 
                         	var $a = $("<div></div>");
-                            $("<span class='col-sm-6'></span>").text(item.label).appendTo($a);
+                            $("<a id='profile' class='col-sm-6'></a>").text(item.label).appendTo($a).click(function () {
+                                    window.location = "profile/" + google_id;
+                                });
+
                             if(item.friend_status == "Add Friend") {
                                 $("<a id='dummy' class='col-sm-6'></a>").text(item.friend_status).appendTo($a).click(function () {
 
@@ -69,11 +73,14 @@
                                     alert("You have already sent this user a friend request")
                                 });
                             }
-                            else
-                            {
+                            else if(item.friend_status == "Friends") {
                                 $("<a id='dummy' class='col-sm-6'></a>").text(item.friend_status).appendTo($a).click(function () {
                                     alert("You are already friends with this user")
                                 });
+                            }
+                            else
+                            {
+                                $("<a id='dummy' class='col-sm-6'></a>").text(item.friend_status).appendTo($a);
                             }
 
                             $("<br>").appendTo($a);

@@ -346,7 +346,7 @@ class User:
     def get_search_friends(self):
         query = """
             MATCH (users:User)
-            RETURN users.givenName, users.familyName, users.organization, users.sql_id, users.email
+            RETURN users.givenName, users.familyName, users.organization, users.sql_id, users.email, users.google_id
         """
 
         try:
@@ -374,13 +374,6 @@ class User:
             return sentreq_res, frnds_res
         except cypher.CypherError, cypher.CypherTransactionError:
             raise "Exception occured in function get_search_friends"
-
-    def find_user(receiver_id):
-        try:
-            user = getGraphConnectionURI().find_one("User", "sql_id", receiver_id)
-            return user
-        except cypher.CypherError, cypher.CypherTransactionError:
-            raise "Exception occured in function User.find()"
 
     ############################################################################
     # function : send_friend_request
