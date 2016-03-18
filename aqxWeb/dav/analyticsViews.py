@@ -231,6 +231,15 @@ def get_readings_for_plot():
     data = request.get_json()
     return davAPI.get_readings_for_plot(data)
 
+######################################################################
+# API to get all measurements for picking axis in graph
+######################################################################
+
+@dav.route('/aqxapi/get/system/measurement_types', methods=['GET'])
+def get_all_measurement_names():
+    davAPI = DavAPI(get_conn())
+    return davAPI.get_all_measurement_names()
+
 
 if __name__ == '__main__':
     init_app()

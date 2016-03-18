@@ -27,5 +27,12 @@ class MeasurementsDAOTest(unittest.TestCase):
         print test['ph']
         self.assertNotEqual(len(response), 0, 'filters exist')
 
+    # get_all_measurements
+    def test_get_all_measurement_names(self):
+        m = MeasurementsDAO(self.conn)
+        response = m.get_all_measurement_names()
+        print response
+        self.assertNotEqual(len(response), 0, 'measurements exist')
+
 if __name__ == '__main__':
     unittest.main()

@@ -29,6 +29,12 @@ class DavApiTest(unittest.TestCase):
         result = json.loads(response.data)
         self.assertNotEqual(len(result), 0, 'systems exist')
 
+    #get all measurement types
+    def test_get_all_measurement_names(self):
+        response = self.app.get('/dav/aqxapi/get/system/measurement_types')
+        result = json.loads(response.data)
+        self.assertNotEqual(len(result), 0, 'measurements exist')
+
     #insert user data
     '''def test_put_user(self):
         response=self.app.post('/dav/aqxapi/put/user',

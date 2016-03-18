@@ -434,6 +434,22 @@ class DavAPI:
             diff = curDate - startDate
             return diff.days*24 + diff.seconds/3600
 
+
+    ###############################################################################
+    # get all measurement types
+    ###############################################################################
+    # returns all types that can be chosen for the axes of the graph
+
+    def get_all_measurement_names(self):
+        meas = self.mea.get_all_measurement_names()
+        mlist = []
+        for m in meas:
+            mlist.append(m)
+        mlist.append('time')
+        return json.dumps({"types":mlist})
+
+
+
     ################################################################################
     # method to generate test data
     # param conn - connection to db
@@ -455,3 +471,4 @@ class DavAPI:
                         time = d.strftime('%Y-%m-%d %H:%M:%S')
                         val = random.uniform(minrange,maxrange)
                         self.mea.put_system_measurement(table_name,time,val)
+
