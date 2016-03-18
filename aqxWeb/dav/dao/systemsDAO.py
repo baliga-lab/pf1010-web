@@ -8,12 +8,12 @@ class SystemsDAO:
         self.conn = conn
 
     ###############################################################################
-    # get_metadata(system_uid) - It takes in the system_uid as the input
+    # get_system_name(system_uid) - It takes in the system_uid as the input
     #                            parameter and returns the metadata for the
     #                            given system. Currently, it returns only
     #                            the name of the system.
     # param system_uid : system's UID
-    def get_metadata(self, system_uid):
+    def get_system_name(self, system_uid):
         cursor = self.conn.cursor()
         query = "SELECT name FROM systems WHERE system_uid = %s"
 
@@ -25,7 +25,7 @@ class SystemsDAO:
             cursor.close()
             self.conn.close()
 
-        return result
+        return result[0]
 
     ###############################################################################
     # get_all_systems_info() - It returns the system information as a JSON
@@ -57,5 +57,3 @@ class SystemsDAO:
             self.conn.close()
 
         return rows
-
-    ###############################################################################

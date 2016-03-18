@@ -23,8 +23,9 @@ var DEFAULT_Y_TEXT = "Nitrate";
 var DEFAULT_Y_VALUE = DEFAULT_Y_TEXT.toLowerCase();
 var CHART_TITLE = "System Analyzer";
 var HC_OPTIONS;
-var COLORS = ['#058DC7', '#50B432', '#ED561B', '#DDDF00', '#24CBE5', '#64E572', '#FF9655', '#FFF263', '#6AF9C4'];
-var MARKERS = []
+var COLORS = Highcharts.getOptions().colors; // Contains 10 different colors; .symbols contains 5 symbols
+var MARKERS = {'nitrate': 'circle', 'ph': 'url(https://www.highcharts.com/samples/graphics/snow.png)', 'Ammonia': 'triangle-down', 'Nitrite': 'square'}
+//'triangle','diamond' ,'url(https://www.highcharts.com/samples/graphics/sun.png']
 
 
 /* ##################################################################################################################
@@ -33,12 +34,13 @@ var MARKERS = []
 
 /**
  *
- * @param graphType - Line or Scatter or Barchart
- * @param showLegend - boolean value (true or false)
  * @param systemName - name of system
- * @param dataPoints - array of values for graph; [{x:"", y: "", data: ""}]
- * @param content - HTML formatted String that populates dataPoint ToolTips
- * @returns {{type: *, showInLegend: *, name: *, dataPoints: *, content: *}}
+ * @param dataPoints - array of values for graph; [{x:"", y: "", date: "", marker: ""}]
+ * @param color - color of the series
+ * @param graphType - Line or Scatter or Barchart
+ * @param id - systemId
+ * @param linkedTo - used to group series to a system
+ * @returns {{name: *, type: *, data: *, color: *, id: *}|*}
  */
 var getDataPointsHC = function(systemName, dataPoints, color, graphType, id, linkedTo, yAxis) {
     series = { name: systemName,
@@ -54,6 +56,20 @@ var getDataPointsHC = function(systemName, dataPoints, color, graphType, id, lin
     return series;
 };
 
+// TODO: This can be done before plotting graph
+/**
+ *
+ * @param dataPoints - array of values for graph; [{x:"", y: "", date: ""}]
+ * @param type - measurementType. Ex: nitrate, ph
+ * @returns datapoints with new 'marker' attribute [{x:"", y: "", date: "", marker: ""}]
+ */
+var addMarker = function(dataPoints, type) {
+    var symbolType =  MARKERS[type];
+    _.each(dataPoints, function(data) {
+        data.marker = {'symbol': symbolType};
+    })
+    return dataPoints;
+}
 
 /**
  *
@@ -82,17 +98,19 @@ var getDataPointsForPlotHC = function(xType, yTypeList, color, graphType){
     var dataPointsList = [];
     // Every system should be represented by unique color
     // Each measurementType should have a unique marker type
-    var colorCounter = 0;
-    var axisMap = createYAxisMap(yTypeList);
 
+    var colorCounter = 0, markerCounter = 0;
+    var axisMap = createYAxisMap(yTypeList);
     _.each(systems_and_measurements, function(system){
         var measurements = system.measurement;
         var linkedTo = false;
-        _.each(measurements, function(measurement){
-            _.each(yTypeList, function(yType) {
+        _.each(yTypeList, function(yType) {
+            _.each(measurements, function(measurement){
                 if (_.isEqual(measurement.type.toLowerCase(), yType.toLowerCase())){
+                    datawithMarkers = addMarker(measurement.values, yType);
                     dataPointsList.push(
-                        getDataPointsHC(system.name, measurement.values, COLORS[colorCounter],
+                        // TODO: Discuss about outOfBoundExceptions while using COLORS and MARKERS
+                        getDataPointsHC(system.name, datawithMarkers, COLORS[colorCounter],
                             graphType, system.system_uid,linkedTo, axisMap[yType]));
                     linkedTo = true;
                 }
@@ -141,7 +159,6 @@ var updateChartDataPointsHC = function(chart, xType, yTypeList, color, graphType
         // selectedSystemIDs is a global carried over from the view fxn
         // updateSystemsAndMeasurementsObject(selectedSystemIDs, measurementsToFetch);
     }
-
     chart.xAxis[0].setTitle({ text: xType });
     var numYAxes = 1;
 
@@ -209,9 +226,36 @@ var drawChart = function(){
     updateChartDataPointsHC(CHART, xType, yTypes, color, graphType).redraw();
 
     // TODO: What about the other chart characteristics? Symbols, ranges, different scales, different y-axes?
-
+    addMeasurementLegend();
+    //REMOVELEGENDSYMBOL(CHART);
 };
 
+var addMeasurementLegend = function() {
+    var selectedMeasurements = $(".js-example-basic-multiple").select2().val();
+    $('#legendTypes').remove();
+    $('#measurementLegend').append('<div id="legendTypes"></div>');
+    _.each(selectedMeasurements, function (measurement) {
+        var symbol;
+        switch (measurement.toLowerCase()) {
+            case 'nitrate':
+                symbol = '●';
+                break;
+            case 'ph':
+                symbol = '<img src="https://www.highcharts.com/samples/graphics/snow.png" alt="Marker" />';
+                break;
+            case 'square':
+                symbol = '■';
+                break;
+            case 'triangle':
+                symbol = '▲';
+                break;
+            case 'triangle-down':
+                symbol = '▼';
+                break;
+        }
+        $('#legendTypes').append('<div>' + measurement+ '<span>' + symbol +'</span></div>');
+    });
+};
 
 /* ##################################################################################################################
  PAGE-DRIVING FUNCTIONS
@@ -263,37 +307,17 @@ window.onload = function() {
             type: 'line',
             zoomType: 'xy'
         },
-        //yAxis: {
-        //    title: ""
-        //},
-        yAxis: [{ // Primary yAxis
-            labels: {
-                format: '{value}°C',
-                style: {
-                    color: Highcharts.getOptions().colors[2]
-                }
-            },
-            title: {
-                text: 'Temperature'
-            },
-            opposite: true
-
+        legend: {
+            align: 'right',
+            verticalAlign: 'top',
+            layout: 'vertical',
+            x: 0,
+            y: 100,
+            labelFormatter: function() {
+                return '<span style="color: '+this.color+'">'+ this.name + '</span>';
+            }
         },
-            { // Secondary yAxis
-                gridLineWidth: 0,
-                title: {
-                    text: 'Rainfall'
-                },
-                labels: {
-                    format: '{value} mm',
-                    style: {
-                        color: Highcharts.getOptions().colors[0]
-                    }
-                }
-
-            }],
         xAxis: {
-            title: "",
             minPadding: 0.05,
             maxPadding: 0.05
         },
@@ -305,3 +329,13 @@ window.onload = function() {
     // Render chart based on default page setting. i.e. x-axis & graph-type dropdowns, and the y-axis checklist
     drawChart();
 };
+
+var REMOVELEGENDSYMBOL = function(chart){
+    var series = chart.series;
+    $(series).each(function(i, s){
+        if (s.legendSymbol)
+            s.legendSymbol.destroy();
+        if (s.legendLine)
+            s.legendLine.destroy();
+    });
+}

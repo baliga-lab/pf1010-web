@@ -5,6 +5,8 @@ from aqxWeb.dav.dao.UserDAO import UserDAO
 from collections import defaultdict
 import json
 import re
+import random
+import datetime
 
 
 # data analysis and viz data access api
@@ -22,8 +24,15 @@ class DavAPI:
     #                                   given system. Currently, it returns only
     #                                   the name of the system.
 
-    def get_system_metadata(self, conn, system_id):
-        s = SystemsDAO(conn)
+    def __init__(self, conn):
+        self.conn = conn
+        self.sys = SystemsDAO(self.conn)
+        self.met = MetadataDAO(self.conn)
+        self.mea = MeasurementsDAO(self.conn)
+
+
+    def get_system_metadata(self,system_id):
+        s = SystemsDAO(self.conn)
         result = s.get_metadata(system_id)
 
         return result
@@ -35,9 +44,8 @@ class DavAPI:
     # get_all_systems_info() - It returns the system information as a JSON
     #                          object.
 
-    def get_all_systems_info(self, conn):
-        s = SystemsDAO(conn)
-        systems = s.get_all_systems_info()
+    def get_all_systems_info(self):
+        systems = self.sys.get_all_systems_info()
 
         # Create a list of systems
         systems_list = []
@@ -64,12 +72,11 @@ class DavAPI:
     # fetches all filter criteria
     ###############################################################################
     # param conn : db connection
-    # get_all_filters_metadata - It returns all the metadata that are needed
+    # get_all_filters_`data - It returns all the metadata that are needed
     #                            to filter the displayed systems.
 
-    def get_all_filters_metadata(self, conn):
-        m = MetadataDAO(conn)
-        results = m.get_all_filters()
+    def get_all_filters_metadata(self):
+        results = self.met.get_all_filters()
         vals = defaultdict(list)
         for result in results:
             type = result[0]
@@ -83,9 +90,8 @@ class DavAPI:
     # param conn : db connection
     # param user_id : user's google id
     # get_user - It returns user details based on google id.
-
-    def get_user(self, conn, user_id):
-        u = UserDAO(conn)
+    def get_user(self, user_id):
+        u = UserDAO(self.conn)
         result_temp = u.get_user(user_id)
         result = result_temp[0]
         user = {
@@ -104,8 +110,8 @@ class DavAPI:
     # param user : user details in the form of a json structure
     # get_user - It inserts the user details into the users table
 
-    def put_user(self, conn, user):
-        u = UserDAO(conn)
+    def put_user(self, user):
+        u = UserDAO(self.conn)
         result = u.put_user(user)
         message = {
             "message": result
@@ -120,10 +126,9 @@ class DavAPI:
     # get_system_measurements - It returns the latest recorded values of the
     #                           given system.
 
-    def get_system_measurements(self, conn, system_uid):
-        m = MeasurementsDAO(conn)
+    def get_system_measurements(self, system_uid):
         # Fetch names of all the measurements
-        names = m.get_all_measurement_names()
+        names = self.mea.get_all_measurement_names()
         # Create a list to store the name, latest time and value of all the measurements
         x = []
         # For each measurement
@@ -135,8 +140,9 @@ class DavAPI:
                 # we need to create the name of each table.
                 # Each measurement table is: aqxs_measurementName_systemUID
                 table_name = self.get_measurement_table_name(measurement_name, system_uid)
+                num_of_records = 1
                 # Get the latest value stored in the table
-                value = m.get_latest_value(table_name)
+                value = self.mea.get_latest_value(table_name, num_of_records)
                 # Append the value to the latest_value[] list
                 if len(value) == 1:
                     value_temp = value[0]
@@ -191,19 +197,279 @@ class DavAPI:
     # param measurement_id: ID of a measurement
     # get_system_measurement - It returns the latest recorded values of the
     #                           given system.
-    def get_system_measurement(self, conn, system_uid, measurement_id):
-        m = MeasurementsDAO(conn)
+    def get_system_measurement(self,system_uid, measurement_id):
         # Fetch the name of the measurement
-        measurement = m.get_measurement_name(measurement_id)
+        measurement = self.mea.get_measurement_name(measurement_id)
+        #measurement_name = self.get_measurement_name(measurement)
+        if measurement[0] == 'light':
+            num_of_records = 7
+        else:
+            num_of_records = 1
+        # Create the name of the table
+        table_name = self.get_measurement_table_name(measurement[0], system_uid)
+        # Get the latest value recorded in that table
+        result = self.mea.get_latest_value(table_name, num_of_records)
+        values = []
+        for result_temp in result:
+            values_temp = {
+                'time': str(result_temp[0]),
+                'value': str(result_temp[1])
+            }
+            values.append(values_temp)
+        obj = {
+            'system_uid': system_uid,
+            'records': values
+        }
+        return json.dumps(obj)
+
+    ###############################################################################
+    # Insert records values of given measurement for a given system
+    ###############################################################################
+    # param conn : db connection
+    # param system_uid : system's unique ID
+    # param measurement_id: ID of a measurement
+    # get_system_measurement - It returns the latest recorded values of the
+    #                           given system.
+    def put_system_measurement(self, data):
+        # Fetch the name of the measurement
+        system_uid = data.get('system_uid')
+        measurement_id = data.get('measurement_id')
+        time = data.get('time')
+        value = data.get('value')
+        measurement = self.mea.get_measurement_name(measurement_id)
         measurement_name = self.get_measurement_name(measurement)
         # Create the name of the table
         table_name = self.get_measurement_table_name(measurement_name, system_uid)
-        # Get the latest value recorded in that table
-        result = m.get_latest_value(table_name)
-        result_temp = result[0]
-        obj = {
-            'system_uid': system_uid,
-            'time': str(result_temp[0]),
-            'value': str(result_temp[1])
+        result = self.mea.put_system_measurement(table_name, time, value)
+        message = {
+            "message": result
         }
-        return json.dumps(obj)
+        return json.dumps({'status': message})
+
+    ###############################################################################
+    # Retrieve the readings for input system and type of measurements
+    ###############################################################################
+    # param conn : db connection
+    # param system_uid_list : List of system unique IDs
+    # param measurement_type_list: List of measurement_IDs
+    # get_readings_for_plot - It returns the readings of all the input system uids
+    #                         for all input measurement ids
+    def get_readings_for_plot(self,data):
+        # Retrieve lists from input request data
+        system_uid_list = data.get('system_uid_list')
+        measurement_id_list = data.get('measurement_id_list')
+
+        # Form a list of names from the list of ids
+        measurement_type_list = self.mea.get_measurement_name_list(measurement_id_list)
+        measurement_name_list  = []
+
+        for name in measurement_type_list:
+            measurement_name_list.append(str(name[0]))
+
+        # Retrieve the measurements calling DAO
+        data_retrieved = self.mea.get_measurements(system_uid_list,measurement_name_list)
+
+        system_measurement_list = []
+
+        for system_uid in system_uid_list:
+            readings = data_retrieved[system_uid]
+            system_measurement_json = self.form_system_measurement_json(self,system_uid,readings,
+                                                                         measurement_name_list)
+            system_measurement_list.append(system_measurement_json)
+
+        return json.dumps({'response': system_measurement_list})
+
+
+    ###############################################################################
+    # Form the system's measurement reading json
+    ###############################################################################
+    # param conn : db connection
+    # param system_uid  : Unique id of system
+    # param readings  : all readings for the input system_uid
+    # param measurement_type_list : list of measurement types in the request
+    # form_system_measurement_json  - It returns the json for all information needed
+    # for the plot for the input system_uid
+    #
+    @staticmethod
+    def form_system_measurement_json(self,system_uid,readings,measurement_type_list):
+        measurement_list = []
+
+        # For each measurement type, form the list of readings
+        for measurement_type in measurement_type_list:
+            valueList = self.form_values_list(self,measurement_type,readings[measurement_type])
+
+            measurement = {
+                "type" : measurement_type,
+                "values": valueList
+            }
+            measurement_list.append(measurement)
+
+        system_measurement = {
+            "system_uid" : system_uid,
+            "name" : self.sys.get_system_name(system_uid),
+            "measurement": measurement_list
+        }
+
+        return system_measurement
+
+    ###############################################################################
+    # Form the list of values
+    ###############################################################################
+    # param measurement_type : name of the type of measurement
+    # param all_readings : readings associated with input measurement_type
+    # form_values_list   : It returns the list of readings formed from input
+    # readings. ALl the readings that fall in 1-hour bucket from time of first reading
+    # are averaged and readings is timestamped with latest timestamp in the bucket.
+    @staticmethod
+    def form_values_list(self,measurement_type,all_readings):
+        valuesList=[]
+
+        # Initialize the variables
+        startDate = all_readings[0][1]
+        prev_reading = all_readings[0]
+        prevX = 0
+        # Required variable for averaging
+        sum = 0
+        counter = 0
+
+        # Every time  'values' is formed for previous reading if it falls outside the bucket, otherwise averaging is
+        # done, over the bucket
+
+        for i in range (1,len(all_readings) + 1):
+            try:
+                # This condition takes care of the last reading, which gets left out
+                if(i == len(all_readings)):
+                    # By incrementing x deliberately, we enforce the 'values' formation for the very last reading
+                    reading = prev_reading
+                    x = prevX + 1
+                # This condition takes care of all but the last reading
+                else:
+                    reading = all_readings[i]
+                    curDate = reading[1]
+                    # Calculate the difference in hours from previous reading
+                    x = self.calcDiffInHours(curDate,startDate)
+
+
+                # If x >  prevX, build the values object and append to the values list
+                if x > prevX:
+
+                    # If counter > 0, there were readings from 1-hour bucket and values should be averaged
+                    if(counter > 0):
+                        sum =  sum + prev_reading[2]
+                        counter = counter + 1
+
+                        avg= sum / counter
+                        lastValDate = prev_reading[1]
+
+                        values= self.build_values(prevX,avg,lastValDate)
+
+                        # Reset Average in a 1-hour bucket params
+                        sum = 0
+                        counter = 0
+                    # Otherwise, simply build values from previous reading
+                    else:
+                        y = prev_reading[2]
+                        values = self.build_values(prevX,y, prev_reading[1])
+
+                    #   Append the current values to valuelist
+                    valuesList.append(values)
+
+                    prev_reading = reading
+                    prevX = x
+
+                else:
+                     # if reading falls in same bucket, accumulate the reading value to average later
+                     if x == prevX:
+                        sum =  sum + prev_reading[2]
+                        counter = counter + 1
+                        prevX = x
+                        prev_reading = reading
+                     # Skip the reading if the readings are not in order. This is unlikely to occur.
+                     else:
+                         print("Skipped Value for ",measurement_type,curDate)
+
+            except ValueError as err:
+                raise ValueError('Error in preparing values list',measurement_type,reading)
+                print(err.args)
+
+        return valuesList
+    ###############################################################################
+    # Build the values object
+    ###############################################################################
+    # param x : x value of reading
+    # param y  : y value of reading
+    # param reading_date  : date of reading
+    #  build_values - It returns the values object formed from x,y and reading date
+    @staticmethod
+    def build_values(x,y,reading_date):
+        values={
+                    "x": str(x),
+                    "y": str(round(y,2)),
+                    "date": str(reading_date)
+                }
+        return values
+
+    ###############################################################################
+    # Get the system name
+    ###############################################################################
+    # param conn : db connection
+    # param  system_id : Unique id of the system
+    # get_system_name  - It returns the name of the system
+    #
+    @staticmethod
+    def get_system_name(conn,system_id):
+        s = SystemsDAO(conn)
+        return s.get_system_name(system_id)
+
+    ###############################################################################
+    # Calculate the difference in hours
+    ###############################################################################
+    # param curDate    : date of current reading
+    # param  startDate : date of first reading
+    # calcDiffInHours  : It returns the difference in hours between two input dates
+    @staticmethod
+    def calcDiffInHours(curDate,startDate):
+        if(curDate < startDate ):
+            raise ValueError('Current date is lesser than previous date',curDate,startDate)
+        else:
+            diff = curDate - startDate
+            return diff.days*24 + diff.seconds/3600
+
+
+    ###############################################################################
+    # get all measurement types
+    ###############################################################################
+    # returns all types that can be chosen for the axes of the graph
+
+    def get_all_measurement_names(self):
+        meas = self.mea.get_all_measurement_names()
+        mlist = []
+        for m in meas:
+            mlist.append(m)
+        mlist.append('time')
+        return json.dumps({"types":mlist})
+
+
+
+    ################################################################################
+    # method to generate test data
+    # param conn - connection to db
+    # param minrange - minimum value u want to insert
+    # param maxrange - maximum value u want to insert
+    # systems - list of systems
+    # meas - list of measurements
+    ################################################################################
+
+    def generate_data(self,minrange,maxrange,systems,meas):
+        for s in systems:
+            d = datetime.datetime(2015,1,1,0,0,0)
+            for i in range(1,6,1):
+                for j in range(0,24,1):
+                    d = datetime.datetime(2015,1,i,j,0,0)
+                    for m in meas:
+                        d = datetime.datetime(2015,1,i,j,0,0)
+                        table_name = self.get_measurement_table_name(m, s)
+                        time = d.strftime('%Y-%m-%d %H:%M:%S')
+                        val = random.uniform(minrange,maxrange)
+                        self.mea.put_system_measurement(table_name,time,val)
+
