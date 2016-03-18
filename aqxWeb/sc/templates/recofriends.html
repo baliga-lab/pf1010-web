@@ -29,7 +29,11 @@
                             <td><img src="{{ url_for('frontend.static', filename='images/users/vileplume.png') }}"></td>
                             <td>
                                 <a href="profile/{{ row['r_friend'].gid }}">{{ row['r_friend'].FriendName}}</a>
-                                <p>{{ row['r_friend'].Num_Mutual_Friends }} Mutual Friends</p>
+                                {% if (row['r_friend'].Num_Mutual_Friends) == 1 %}
+                                    <p>{{ row['r_friend'].Num_Mutual_Friends }} Mutual Friend</p>
+                                {% else %}
+                                    <p>{{ row['r_friend'].Num_Mutual_Friends }} Mutual Friends</p>
+                                {% endif %}
                             </td>
                             <td>
                                 {% for m_row in row['m_info'] %}
