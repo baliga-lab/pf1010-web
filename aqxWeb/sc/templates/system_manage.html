@@ -75,6 +75,9 @@
                                         <button type="submit" class="btn btn-primary" name="submit"
                                                 value="MakeAdmin" onclick="return getUserConsent()">Make Admin
                                         </button>
+                                        <button type="submit" class="btn btn-primary" name="submit"
+                                                value="MakeSubscriber" onclick="return getUserConsent()">Make Subscriber
+                                        </button>
                                     </form>
                                 </td>
                             </tr>
@@ -212,6 +215,9 @@
                                         <button type="submit" class="btn btn-primary" name="submit"
                                                 value="MakeAdmin" onclick="return getUserConsent()">Make Admin
                                         </button>
+                                        <button type="submit" class="btn btn-primary" name="submit"
+                                                value="MakeParticipant" onclick="return getUserConsent()">Make Participant
+                                        </button>
                                     </form>
                                 </td>
                             </tr>
@@ -237,7 +243,14 @@
         </div>
         <!-- End Of Manage Subscriber Div -->
 
-
+        <!-- Span For Go Back To Systems Page Button -->
+        <span>
+            <a href="{{ url_for('social.view_system', system_uid= system_neo4j[0][0]["system_uid"]) }}">
+                <img class="goBackIcon" src="{{ url_for('social.static', filename='images/system_go_back.png') }}">
+                <h4 class="page-header">Back To System</h4>
+            </a>
+        </span>
+        <!-- End Of Span For Go Back To Systems Page Button -->
     </div>
     <!-- End of Entire Page Div Container -->
 

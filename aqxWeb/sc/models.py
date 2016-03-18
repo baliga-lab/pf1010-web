@@ -959,6 +959,64 @@ class System:
             raise "Exception occured in function make_admin_for_system"
 
     ############################################################################
+    # function : make_participant_for_system
+    # purpose : Add the user as subscriber of the specified system (SYS_PARTICIPANT)
+    # params : google_id, system_uid
+    # returns : None
+    # Exceptions : cypher.CypherError, cypher.CypherTransactionError
+    ############################################################################
+    def make_participant_for_system(self, google_id, system_uid):
+        removeRelationshipQuery = """
+                MATCH (u:User)-[rel]->(s:System)
+                WHERE u.google_id = {google_id} and s.system_uid={system_uid}
+                DETACH DELETE rel
+        """
+        createParticipantRelationshipQuery = """
+                MATCH (u:User), (s:System)
+                WHERE u.google_id = {google_id} and s.system_uid={system_uid}
+                CREATE UNIQUE (u)-[rel:SYS_PARTICIPANT]->(s)
+                RETURN rel
+        """
+        try:
+            remove_relationship_status = getGraphConnectionURI().cypher.execute(removeRelationshipQuery,
+                                                                                google_id=google_id,
+                                                                                system_uid=system_uid)
+            create_relationship_status = getGraphConnectionURI().cypher.execute(createParticipantRelationshipQuery,
+                                                                                google_id=google_id,
+                                                                                system_uid=system_uid)
+        except cypher.CypherError, cypher.CypherTransactionError:
+            raise "Exception occured in function make_participant_for_system"
+
+    ############################################################################
+    # function : make_subscriber_for_system
+    # purpose : Add the user as subscriber of the specified system (SYS_SUBSCRIBER)
+    # params : google_id, system_uid
+    # returns : None
+    # Exceptions : cypher.CypherError, cypher.CypherTransactionError
+    ############################################################################
+    def make_subscriber_for_system(self, google_id, system_uid):
+        removeRelationshipQuery = """
+                MATCH (u:User)-[rel]->(s:System)
+                WHERE u.google_id = {google_id} and s.system_uid={system_uid}
+                DETACH DELETE rel
+        """
+        createSubscriberRelationshipQuery = """
+                MATCH (u:User), (s:System)
+                WHERE u.google_id = {google_id} and s.system_uid={system_uid}
+                CREATE UNIQUE (u)-[rel:SYS_SUBSCRIBER]->(s)
+                RETURN rel
+        """
+        try:
+            remove_relationship_status = getGraphConnectionURI().cypher.execute(removeRelationshipQuery,
+                                                                                google_id=google_id,
+                                                                                system_uid=system_uid)
+            create_relationship_status = getGraphConnectionURI().cypher.execute(createSubscriberRelationshipQuery,
+                                                                                google_id=google_id,
+                                                                                system_uid=system_uid)
+        except cypher.CypherError, cypher.CypherTransactionError:
+            raise "Exception occured in function make_subscriber_for_system"
+
+    ############################################################################
     # function : delete_system_admin
     # purpose : Delete the relationship of the specified participant with the system node (SYS_ADMIN)
     # params : google_id, system_uid

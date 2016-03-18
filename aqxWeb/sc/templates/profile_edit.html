@@ -7,9 +7,10 @@
 
             <div class="row">
                 <div class="col-sm-4 text-center">
-                    <img class="imgstyle" id="userImage" src="{{ google_profile['img_url'] }}"
+                    <img class="imgstyle" id="userImage" src="{{ user['image_url'] }}"
                          height="200" width="200"/> <br/>
-                    <a id="profileLink" class="btn btn-blue" target="_blank" href="{{ google_profile['plus_url'] }}">
+                    <a id="profileLink" class="btn btn-blue" target="_blank"
+                       href= "{{ "http://plus.google.com/" +  user['google_id'] }}">
                         My Google Plus Profile</a>
                 </div>
 

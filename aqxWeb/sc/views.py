@@ -191,21 +191,25 @@ def get_google_profile(google_id):
         access_token = session.get('access_token')
         access_token = access_token[0]
         r = requests.get('https://www.googleapis.com/plus/v1/people/' + google_id + '?access_token=' + access_token)
-        print(r.content)
 
         google_response = json.loads(r.content)
-        print(google_response)
         logging.debug("profile of: %s", str(google_response))
 
+        img_url = None
+        google_plus_account_url = google_response.get("url", None)
+        plus_url = ""
         # getting image url
         if 'image' in google_response:
             image = google_response['image']
             img_url = image['url'].replace('?sz=50', '')
 
+        if google_plus_account_url is not None:
+            plus_url =  google_response['url']
+
         google_profile = {
             "displayName": google_response['displayName'],
             "google_id": google_response['id'],
-            "plus_url": google_response['url'],
+            "plus_url":plus_url,
             "img_url": img_url
         }
 
@@ -225,9 +229,8 @@ def get_google_profile(google_id):
 def editprofile():
     if session.get('uid') is not None:
         user = User(session['uid']).find()
-        print user
-        google_profile = get_google_profile('me')
-        return render_template("profile_edit.html", user=user, google_profile=google_profile)
+        #google_profile = get_google_profile('me')
+        return render_template("profile_edit.html", user=user)
     else:
         return render_template("/home.html")
 
@@ -598,6 +601,8 @@ def delete_system_participant_or_make_admin():
                     system.delete_system_participant(google_id, system_uid)
                 elif request.form['submit'] == "MakeAdmin":
                     system.make_admin_for_system(google_id, system_uid)
+                elif request.form['submit'] == "MakeSubscriber":
+                    system.make_subscriber_for_system(google_id, system_uid)
         return redirect(url_for('social.manage_system', system_uid=system_uid ))
     else:
         return redirect(url_for('social.search_systems'))
@@ -647,6 +652,8 @@ def delete_system_subscriber_or_make_admin():
                     system.delete_system_subscriber(google_id, system_uid)
                 elif request.form['submit'] == "MakeAdmin":
                     system.make_admin_for_system(google_id, system_uid)
+                elif request.form['submit'] == "MakeParticipant":
+                    system.make_participant_for_system(google_id, system_uid)
         return redirect(url_for('social.manage_system', system_uid=system_uid ))
     else:
         return redirect(url_for('social.search_systems'))
@@ -888,6 +895,7 @@ def getfriends():
 #######################################################################################
 def logout():
     session.pop('uid', None)
+    session.pop('img', None)
     session.pop('email', None)
     session.pop('displayName', None)
     flash('Logged out.')
