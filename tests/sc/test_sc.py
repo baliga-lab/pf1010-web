@@ -30,7 +30,7 @@ class FlaskTestCase(unittest.TestCase):
             with client.session_transaction() as sess:
                 sess['username'] = "nisha"
             res = client.post(
-                "/add_post",
+                "/test_add_post",
                 data=dict(privacy="public", text="unittest", link="")
             )
             self.assertTrue(res is not None)
@@ -42,7 +42,7 @@ class FlaskTestCase(unittest.TestCase):
                 sess['username'] = "nisha"
             res = client.post(
                 "/add_comment",
-                data=dict(newcomment="This is a comment", postid="704b4616-d14e-46a4-ac6e-6d607d86b154")
+                data=dict(newcomment="This is a comment", postid="1")
             )
             self.assertTrue(res is not None)
 
@@ -53,7 +53,7 @@ class FlaskTestCase(unittest.TestCase):
                 sess['username'] = "nisha"
             res = client.post(
                 "/like_post",
-                data=dict(postid="704b4616-d14e-46a4-ac6e-6d607d86b154")
+                data=dict(postid="1")
             )
             self.assertTrue(res is not None)
 

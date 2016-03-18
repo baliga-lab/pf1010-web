@@ -11,7 +11,18 @@ def get_or_create_user(conn, cursor, google_id, googleAPIResponse):
     name = googleAPIResponse.get('name', None)
     if 'image' in googleAPIResponse:
         image=googleAPIResponse['image']
-        imgurl = image['url']
+        url = image.get('url', None)
+        if url is None:
+            imgurl = None
+        else:
+            #https://lh3.googleusercontent.com/-2jp5fJmzfj4/AAAAAAAAAAI/AAAAAAAAESs/ULgi0QWqsaQ/photo.jpg?sz=200
+            indexVal =  url.find("?sz")
+            if indexVal != -1:
+                imgurl = url[0:indexVal]
+            else:
+                imgurl = url
+    else:
+        imgurl = None
     if name is None:
         givenName = None
         displayName = None

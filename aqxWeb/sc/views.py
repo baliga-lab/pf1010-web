@@ -6,6 +6,7 @@ from py2neo import cypher
 from app.scAPI import ScAPI
 from flask_login import login_required
 from flask_googlelogin import LoginManager, make_secure_token,GoogleLogin
+from models import  convertMilliSecondsToNormalDate, get_sqlId
 import mysql.connector
 import requests
 import aqxdb
@@ -279,7 +280,7 @@ def profile(google_id):
         else:
             sqlId=get_sqlId(google_id)
             if not sqlId:
-                return redirect(url_for('social.home'))
+                return redirect(url_for('social.Home'))
             else:
                 id=sqlId[0]["sql_id"]
                 admin_systems = System().get_admin_systems(id)
@@ -323,30 +324,28 @@ def profile(google_id):
     except Exception as e:
         logging.exception("Exception at view_profile: " + str(e))
 
-
-@social.route('/friends', methods=['GET'])
 #######################################################################################
 # function : friends
-# purpose : renders friends.html
+# purpose : renders friends.html to let the user perform activities related to friends
 # parameters : None
 # returns: friends.html
 # Exception : None
-#######################################################################################
+###############################################################################
+@social.route('/friends', methods=['GET'])
 def friends():
     if session.get('uid') is not None:
         return render_template("friends.html")
     else:
         return render_template("/home.html")
 
-
-@social.route('/pendingRequest', methods=['GET', 'POST'])
 #######################################################################################
 # function : pendingRequest
-# purpose : renders pendingRequests
+# purpose : renders pendingRequests of the logged in user
 # parameters : None
 # returns: pendingRequest.html
 # Exception : None
 #######################################################################################
+@social.route('/pendingRequest', methods=['GET', 'POST'])
 def pendingRequest():
     if request.method == 'GET':
         if session.get('uid') is not None:
@@ -358,23 +357,37 @@ def pendingRequest():
     else:
         return render_template("/home.html")
 
-
-@social.route('/searchFriends', methods=['GET'])
 #######################################################################################
-# function : searchFriends
-# purpose : renders searchFriends
+# function : recofriends
+# purpose : display the logged in user's recommended friends list
 # parameters : None
-# returns: searchFriends.html
+# returns: recofriends.html in case the user is logged in
+#          or home.html in case the user is not logged in
 # Exception : None
 #######################################################################################
+@social.route('/recofriends')
+def recofriends():
+    if session.get('uid') is not None:
+        reco_friends = User(session['uid']).get_recommended_frnds()
+        return render_template("recofriends.html", recolist = reco_friends)
+    else:
+        return render_template("/home.html")
+
+#######################################################################################
+# function : searchFriends
+# purpose : lets the user search for friends and add them if necessary
+# parameters : None
+# returns: searchFriends.html in case the user is logged in
+#          or home.html in case the user is not logged in
+# Exception : None
+#######################################################################################
+@social.route('/searchFriends', methods=['GET'])
 def searchFriends():
     if session.get('uid') is not None:
         return render_template("searchFriends.html")
     else:
         return render_template("/home.html")
 
-
-@social.route('/send_friend_request/<u_sql_id>', methods=['POST'])
 #######################################################################################
 # function : send_friend_request
 # purpose : send a friend request to a user clicked on the UI
@@ -382,6 +395,7 @@ def searchFriends():
 # returns: calls index function
 # Exception : None
 #######################################################################################
+@social.route('/send_friend_request/<u_sql_id>', methods=['POST'])
 def send_friend_request(u_sql_id):
     receiver_sql_id = u_sql_id
     User(session['uid']).send_friend_request(receiver_sql_id)
@@ -437,27 +451,98 @@ def search_systems():
 
 @social.route('/systems/<system_uid>', methods=['GET', 'POST'])
 def view_system(system_uid):
+    sql_id = session.get('uid')
+    #sql_id = 33
+    #system_uid = "416f3f2e3fe411e597b1000c29b92e09"
+    if sql_id is None:
+        return redirect(url_for('social.search_systems'))
     try:
+        system = System()
         if request.method == 'GET':
-            system_neo4j = System().get_system_by_uid(system_uid)
-            # Invalid System_UID
-            if system_neo4j is None:
+            system_neo4j = system.get_system_by_uid(system_uid)
+            # InValid System_UID
+            if not system_neo4j:
                 return redirect(url_for('social.search_systems'))
+            # Valid System_UID
             else:
+                logged_in_user = User(sql_id).find()
+                created_date = convertMilliSecondsToNormalDate(system_neo4j[0][0]['creation_time'])
                 # system_mysql = System().get_mysql_system_by_uid(system_uid)
                 system_mysql = system_neo4j
-                system_admins = System().get_system_admins(system_uid)
-                system_participants = System().get_system_participants(system_uid)
-                system_subscribers = System().get_system_subscribers(system_uid)
-                participants_pending_approval = System().get_participants_pending_approval(system_uid)
-                subscribers_pending_approval = System().get_subscribers_pending_approval(system_uid)
+                user_privilege = system.get_user_privilege_for_system(sql_id, system_uid)
+                system_admins = system.get_system_admins(system_uid)
+                system_participants = system.get_system_participants(system_uid)
+                system_subscribers = system.get_system_subscribers(system_uid)
+                participants_pending_approval = system.get_participants_pending_approval(system_uid)
+                subscribers_pending_approval = system.get_subscribers_pending_approval(system_uid)
                 return render_template("system_social.html", system_neo4j=system_neo4j, system_mysql=system_mysql,
-                                       system_admins=system_admins, system_participants=system_participants,
-                                       system_subscribers=system_subscribers,
-                                       participants_pending_approval=participants_pending_approval,
-                                       subscribers_pending_approval=subscribers_pending_approval)
+                                        logged_in_user=logged_in_user, created_date=created_date,
+                                        user_privilege=user_privilege, system_admins=system_admins,
+                                        system_participants=system_participants, system_subscribers=system_subscribers,
+                                        participants_pending_approval=participants_pending_approval,
+                                        subscribers_pending_approval=subscribers_pending_approval)
     except Exception as e:
         logging.exception("Exception at view_system: " + str(e))
+
+
+
+#######################################################################################
+@social.route('/system/approve_reject_participant', methods=['POST'])
+# function : approve_reject_participant
+# purpose : approve/reject the participant request made for the particular system
+# parameters : None
+# Exception : None
+#######################################################################################
+def approve_reject_participant():
+    if request.method == 'POST':
+        system_uid = request.form["system_uid"]
+        google_id = request.form["google_id"]
+        system = System()
+        sql_id = session.get('uid')
+        #sql_id = 1;
+        if sql_id is not None:
+            user_privilege = system.get_user_privilege_for_system(sql_id, system_uid)
+            if user_privilege == "SYS_ADMIN":
+                if request.form['submit'] == 'Approve':
+                    system.approve_system_participant(google_id, system_uid)
+                elif request.form['submit'] == 'Reject':
+                    system.reject_system_participant(google_id, system_uid)
+        return redirect(url_for('social.view_system', system_uid=system_uid ))
+    else:
+        return redirect(url_for('social.search_systems'))
+
+
+#######################################################################################
+@social.route('/system/participate_subscribe_leave_system', methods=['POST'])
+# function : join_system
+# purpose : Subscribe/Request To Join the system by an User for the particular system
+# parameters : None
+# Exception : None
+#######################################################################################
+def participate_subscribe_leave_system():
+    if request.method == 'POST':
+        system_uid = request.form["system_uid"]
+        google_id = request.form["google_id"]
+        system = System()
+        sql_id = session.get('uid')
+        #sql_id = 1;
+        if sql_id is not None:
+            user_privilege = system.get_user_privilege_for_system(sql_id, system_uid)
+            if user_privilege is None:
+                if request.form['submit'] == 'Subscribe':
+                    system.subscribe_to_system(google_id, system_uid)
+                elif request.form['submit'] == 'Participate':
+                    system.pending_participate_to_system(google_id, system_uid)
+            else:
+                if user_privilege == "SYS_ADMIN" or user_privilege == "SYS_PARTICIPANT" or user_privilege == "SYS_SUBSCRIBER"\
+                        or user_privilege == "SYS_PENDING_PARTICIPANT" or user_privilege == "SYS_PENDING_SUBSCRIBER":
+                    if request.form['submit'] == 'Leave':
+                        system.leave_system(google_id, system_uid)
+        return redirect(url_for('social.view_system', system_uid=system_uid ))
+    else:
+        return redirect(url_for('social.search_systems'))
+
+#######################################################################################
 
 
 @social.route('/add_comment', methods=['POST'])
@@ -648,6 +733,7 @@ def getfriends():
         org = result[2]
         user_sql_id = result[3]
         email = result[4]
+        gid = result[5]
         friend_status = "Add Friend"
         for sf in sentreq_res:
             sf_id = sf[0]
@@ -657,6 +743,8 @@ def getfriends():
             fr_id = fr[0]
             if (user_sql_id == fr_id):
                 friend_status = "Friends"
+        if(user_sql_id == session['uid']):
+            friend_status = ""
 
         if not first_name and not last_name:
             full_name = None
@@ -672,6 +760,7 @@ def getfriends():
             individual_user['org'] = org
         individual_user['friend_status'] = friend_status
         individual_user['user_sql_id'] = user_sql_id
+        individual_user['gid'] = gid
         if email:
             individual_user['email'] = email
         if individual_user:
@@ -778,17 +867,24 @@ def delete_system_by_system_id(system_id):
         return ScAPI(getGraphConnectionURI()).delete_system_by_system_id(system_id)
 
 
+#######################################################################################
 
-def get_sqlId(google_id):
-    query = """
-        MATCH (user:User)
-        WHERE user.google_id = {google_id}
-        RETURN user.sql_id as sql_id
-    """
-    try:
-        regExPattern = google_id
-        #user_profile = getGraphConnectionURI().find_one("User", "email", regExPattern)
-        sql_id = getGraphConnectionURI().cypher.execute(query, google_id=google_id)
-        return sql_id
-    except cypher.CypherError, cypher.CypherTransactionError:
-        raise "Exception occured in function get_user_by_google_id()"
+@social.route('/test_add_post', methods=['POST'])
+#######################################################################################
+# function : test_add_post
+# purpose : tests adds posts newly created by user
+# parameters : None
+# returns: calls index function
+# Exception : None
+#######################################################################################
+def test_add_post():
+    if session.get('uid') is not None:
+        privacy = request.form['privacy']
+        text = request.form['text']
+        link = request.form['link']
+        if text == "":
+            flash('Post cannot be empty.')
+        else:
+            User(session['uid']).test_add_post(text, privacy, link)
+            flash('Your post has been shared')
+    return redirect(url_for('social.index'))
