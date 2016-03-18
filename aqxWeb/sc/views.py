@@ -894,6 +894,8 @@ def getfriends():
 # Exception : None
 #######################################################################################
 def logout():
+    session.pop('access_token', None)
+    session.pop('token', None)
     session.pop('uid', None)
     session.pop('img', None)
     session.pop('email', None)
