@@ -24,8 +24,15 @@ class DavAPI:
     #                                   given system. Currently, it returns only
     #                                   the name of the system.
 
-    def get_system_metadata(self, conn, system_id):
-        s = SystemsDAO(conn)
+    def __init__(self, conn):
+        self.conn = conn
+        self.sys = SystemsDAO(self.conn)
+        self.met = MetadataDAO(self.conn)
+        self.mea = MeasurementsDAO(self.conn)
+
+
+    def get_system_metadata(self,system_id):
+        s = SystemsDAO(self.conn)
         result = s.get_metadata(system_id)
 
         return result
@@ -37,9 +44,8 @@ class DavAPI:
     # get_all_systems_info() - It returns the system information as a JSON
     #                          object.
 
-    def get_all_systems_info(self, conn):
-        s = SystemsDAO(conn)
-        systems = s.get_all_systems_info()
+    def get_all_systems_info(self):
+        systems = self.sys.get_all_systems_info()
 
         # Create a list of systems
         systems_list = []
@@ -66,12 +72,11 @@ class DavAPI:
     # fetches all filter criteria
     ###############################################################################
     # param conn : db connection
-    # get_all_filters_metadata - It returns all the metadata that are needed
+    # get_all_filters_`data - It returns all the metadata that are needed
     #                            to filter the displayed systems.
 
-    def get_all_filters_metadata(self, conn):
-        m = MetadataDAO(conn)
-        results = m.get_all_filters()
+    def get_all_filters_metadata(self):
+        results = self.met.get_all_filters()
         vals = defaultdict(list)
         for result in results:
             type = result[0]
@@ -85,9 +90,8 @@ class DavAPI:
     # param conn : db connection
     # param user_id : user's google id
     # get_user - It returns user details based on google id.
-
-    def get_user(self, conn, user_id):
-        u = UserDAO(conn)
+    def get_user(self, user_id):
+        u = UserDAO(self.conn)
         result_temp = u.get_user(user_id)
         result = result_temp[0]
         user = {
@@ -106,8 +110,8 @@ class DavAPI:
     # param user : user details in the form of a json structure
     # get_user - It inserts the user details into the users table
 
-    def put_user(self, conn, user):
-        u = UserDAO(conn)
+    def put_user(self, user):
+        u = UserDAO(self.conn)
         result = u.put_user(user)
         message = {
             "message": result
@@ -122,10 +126,9 @@ class DavAPI:
     # get_system_measurements - It returns the latest recorded values of the
     #                           given system.
 
-    def get_system_measurements(self, conn, system_uid):
-        m = MeasurementsDAO(conn)
+    def get_system_measurements(self, system_uid):
         # Fetch names of all the measurements
-        names = m.get_all_measurement_names()
+        names = self.mea.get_all_measurement_names()
         # Create a list to store the name, latest time and value of all the measurements
         x = []
         # For each measurement
@@ -139,7 +142,7 @@ class DavAPI:
                 table_name = self.get_measurement_table_name(measurement_name, system_uid)
                 num_of_records = 1
                 # Get the latest value stored in the table
-                value = m.get_latest_value(table_name, num_of_records)
+                value = self.mea.get_latest_value(table_name, num_of_records)
                 # Append the value to the latest_value[] list
                 if len(value) == 1:
                     value_temp = value[0]
@@ -194,19 +197,18 @@ class DavAPI:
     # param measurement_id: ID of a measurement
     # get_system_measurement - It returns the latest recorded values of the
     #                           given system.
-    def get_system_measurement(self, conn, system_uid, measurement_id):
-        m = MeasurementsDAO(conn)
+    def get_system_measurement(self,system_uid, measurement_id):
         # Fetch the name of the measurement
-        measurement = m.get_measurement_name(measurement_id)
-        measurement_name = self.get_measurement_name(measurement)
-        if measurement_name == 'light':
+        measurement = self.mea.get_measurement_name(measurement_id)
+        #measurement_name = self.get_measurement_name(measurement)
+        if measurement[0] == 'light':
             num_of_records = 7
         else:
             num_of_records = 1
         # Create the name of the table
-        table_name = self.get_measurement_table_name(measurement_name, system_uid)
+        table_name = self.get_measurement_table_name(measurement[0], system_uid)
         # Get the latest value recorded in that table
-        result = m.get_latest_value(table_name, num_of_records)
+        result = self.mea.get_latest_value(table_name, num_of_records)
         values = []
         for result_temp in result:
             values_temp = {
@@ -228,18 +230,17 @@ class DavAPI:
     # param measurement_id: ID of a measurement
     # get_system_measurement - It returns the latest recorded values of the
     #                           given system.
-    def put_system_measurement(self, conn, data):
-        m = MeasurementsDAO(conn)
+    def put_system_measurement(self, data):
         # Fetch the name of the measurement
         system_uid = data.get('system_uid')
         measurement_id = data.get('measurement_id')
         time = data.get('time')
         value = data.get('value')
-        measurement = m.get_measurement_name(measurement_id)
+        measurement = self.mea.get_measurement_name(measurement_id)
         measurement_name = self.get_measurement_name(measurement)
         # Create the name of the table
         table_name = self.get_measurement_table_name(measurement_name, system_uid)
-        result = m.put_system_measurement(table_name, time, value)
+        result = self.mea.put_system_measurement(table_name, time, value)
         message = {
             "message": result
         }
@@ -253,28 +254,26 @@ class DavAPI:
     # param measurement_type_list: List of measurement_IDs
     # get_readings_for_plot - It returns the readings of all the input system uids
     #                         for all input measurement ids
-    def get_readings_for_plot(self,conn,data):
+    def get_readings_for_plot(self,data):
         # Retrieve lists from input request data
         system_uid_list = data.get('system_uid_list')
         measurement_id_list = data.get('measurement_id_list')
 
-        m = MeasurementsDAO(conn)
-
         # Form a list of names from the list of ids
-        measurement_type_list = m.get_measurement_name_list(measurement_id_list)
+        measurement_type_list = self.mea.get_measurement_name_list(measurement_id_list)
         measurement_name_list  = []
 
         for name in measurement_type_list:
             measurement_name_list.append(str(name[0]))
 
         # Retrieve the measurements calling DAO
-        data_retrieved = m.get_measurements(system_uid_list,measurement_name_list)
+        data_retrieved = self.mea.get_measurements(system_uid_list,measurement_name_list)
 
         system_measurement_list = []
 
         for system_uid in system_uid_list:
             readings = data_retrieved[system_uid]
-            system_measurement_json = self.form_system_measurement_json(self,conn,system_uid,readings,measurement_name_list)
+            system_measurement_json = self.form_system_measurement_json(self,system_uid,readings,measurement_name_list)
             system_measurement_list.append(system_measurement_json)
 
         print json.dumps({'response': system_measurement_list})
@@ -444,8 +443,7 @@ class DavAPI:
     # meas - list of measurements
     ################################################################################
 
-    def generate_data(self,conn,minrange,maxrange,systems,meas):
-        mdoa = MeasurementsDAO(conn)
+    def generate_data(self,minrange,maxrange,systems,meas):
         for s in systems:
             d = datetime.datetime(2015,1,1,0,0,0)
             for i in range(1,6,1):
@@ -456,4 +454,4 @@ class DavAPI:
                         table_name = self.get_measurement_table_name(m, s)
                         time = d.strftime('%Y-%m-%d %H:%M:%S')
                         val = random.uniform(minrange,maxrange)
-                        mdoa.put_system_measurement(table_name,time,val)
+                        self.mea.put_system_measurement(table_name,time,val)

@@ -15,9 +15,6 @@ def home():
 # To hold db connection pool
 pool = None
 
-# Creating object for dav api
-davAPI = DavAPI()
-
 # Connect to the database
 def init_app(app):
     app.debug = True
@@ -142,7 +139,8 @@ def analyzeGraph():
 #                            the name of the system.
 @dav.route('/aqxapi/get/system/meta/<system_uid>', methods=['GET'])
 def get_metadata(system_uid):
-    return davAPI.get_system_metadata(get_conn(), system_uid)
+    davAPI = DavAPI(get_conn())
+    return davAPI.get_system_metadata(system_uid)
 
 
 ######################################################################
@@ -153,7 +151,8 @@ def get_metadata(system_uid):
 #                          object.
 @dav.route('/aqxapi/get/systems/metadata')
 def get_all_systems_info():
-    return davAPI.get_all_systems_info(get_conn())
+    davAPI = DavAPI(get_conn())
+    return davAPI.get_all_systems_info()
 
 
 ######################################################################
@@ -164,7 +163,8 @@ def get_all_systems_info():
 #                        to filter the displayed systems.
 @dav.route('/aqxapi/get/systems/filters')
 def get_all_aqx_metadata():
-    return davAPI.get_all_filters_metadata(get_conn())
+    davAPI = DavAPI(get_conn())
+    return davAPI.get_all_filters_metadata()
 
 
 ######################################################################
@@ -173,7 +173,8 @@ def get_all_aqx_metadata():
 
 @dav.route('/aqxapi/get/user/<uid>', methods=['GET'])
 def get_user(uid):
-    return davAPI.get_user(get_conn(), uid)
+    davAPI = DavAPI(get_conn())
+    return davAPI.get_user(uid)
 
 
 ######################################################################
@@ -182,8 +183,9 @@ def get_user(uid):
 
 @dav.route('/aqxapi/put/user', methods=['POST'])
 def put_user():
+    davAPI = DavAPI(get_conn())
     user = request.get_json()
-    return davAPI.put_user(get_conn(), user)
+    return davAPI.put_user(user)
 
 
 ######################################################################
@@ -193,7 +195,8 @@ def put_user():
 
 @dav.route('/aqxapi/get/system/measurements/<system_uid>', methods=['GET'])
 def get_system_measurements(system_uid):
-    return davAPI.get_system_measurements(get_conn(), system_uid)
+    davAPI = DavAPI(get_conn())
+    return davAPI.get_system_measurements(system_uid)
 
 
 ######################################################################
@@ -203,7 +206,8 @@ def get_system_measurements(system_uid):
 
 @dav.route('/aqxapi/system/<system_uid>/measurement/<measurement_id>', methods=['GET'])
 def get_system_light_measurement(system_uid, measurement_id):
-    return davAPI.get_system_measurement(get_conn(), system_uid, measurement_id)
+    davAPI = DavAPI(get_conn())
+    return davAPI.get_system_measurement(system_uid, measurement_id)
 
 
 ######################################################################
@@ -212,8 +216,9 @@ def get_system_light_measurement(system_uid, measurement_id):
 
 @dav.route('/aqxapi/put/system/measurement', methods=['POST'])
 def put_system_measurement():
+    davAPI = DavAPI(get_conn())
     data = request.get_json()
-    return davAPI.put_system_measurement(get_conn(), data)
+    return davAPI.put_system_measurement(data)
 
 
 ######################################################################
@@ -222,8 +227,9 @@ def put_system_measurement():
 
 @dav.route('/aqxapi/get/readings/time_series_plot', methods=['POST'])
 def get_readings_for_plot():
+    davAPI = DavAPI(get_conn())
     data = request.get_json()
-    return davAPI.get_readings_for_plot(get_conn(), data)
+    return davAPI.get_readings_for_plot(data)
 
 
 if __name__ == '__main__':

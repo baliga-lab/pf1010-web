@@ -71,11 +71,13 @@ class DavApiTest(unittest.TestCase):
 
     # method to insert test data
     def test_generate_data(self):
-        davAPI = DavAPI()
-        davAPI.generate_data(self.conn,0,10,
+        davAPI = DavAPI(self.conn)
+        davAPI.generate_data(0,10,
                   ['555d0cfe9ebc11e58153000c29b92d09'],
                   ['o2','ph','temp','alkalinity','ammonium','chlorine','hardness','light','nitrate'])
         self.assertEqual("", "", "Test fail")
+
+
      #get the readings for plot
     def test_get_readings_for_plot(self):
         data ={}
