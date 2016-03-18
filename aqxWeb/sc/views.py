@@ -838,3 +838,24 @@ def create_system():
 def delete_system_by_system_id(system_id):
     if session.get('siteadmin') is not None:
         return ScAPI(getGraphConnectionURI()).delete_system_by_system_id(system_id)
+
+
+@social.route('/test_add_post', methods=['POST'])
+#######################################################################################
+# function : test_add_post
+# purpose : tests adds posts newly created by user
+# parameters : None
+# returns: calls index function
+# Exception : None
+#######################################################################################
+def test_add_post():
+    if session.get('uid') is not None:
+        privacy = request.form['privacy']
+        text = request.form['text']
+        link = request.form['link']
+        if text == "":
+            flash('Post cannot be empty.')
+        else:
+            User(session['uid']).test_add_post(text, privacy, link)
+            flash('Your post has been shared')
+    return redirect(url_for('social.index'))

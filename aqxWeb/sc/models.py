@@ -129,6 +129,35 @@ class User:
             raise "Exception occured in function add_post "
 
     ############################################################################
+    # function : test_add_post
+    # purpose : Adds new post node in neo4j with the given information and id 1
+    #           and creates POSTED relationship between Post and User node
+    # params :
+    #        text : contains the data shared in post
+    #        privacy : privacy level of the post
+    #        link : contains the link information
+    # returns : None
+    # Exceptions : cypher.CypherError, cypher.CypherTransactionError
+    ############################################################################
+
+    def test_add_post(self, text, privacy, link):
+        user = self.find()
+        post = Node(
+            "Post",
+            id=str(1),
+            text=text,
+            link=link,
+            privacy=privacy,
+            creation_time=timestamp(),
+            modified_time=timestamp(),
+            date=date()
+        )
+        rel = Relationship(user, "POSTED", post)
+        try:
+            getGraphConnectionURI().create(rel)
+        except cypher.CypherError, cypher.CypherTransactionError:
+            raise "Exception occured in function test_add_post "
+    ############################################################################
     # function : edit_post
     # purpose : Edits post node in neo4j with the given id
     # params :
@@ -295,24 +324,6 @@ class User:
             getGraphConnectionURI().create_unique(rel)
         except cypher.CypherError, cypher.CypherTransactionError:
             raise "Exception occured in function like_post "
-
-    def add_post(self, text, privacy, link):
-        user = self.find()
-        post = Node(
-            "Post",
-            id=str(uuid.uuid4()),
-            text=text,
-            link=link,
-            privacy=privacy,
-            creation_time=timestamp(),
-            modified_time=timestamp(),
-            date=date()
-        )
-        rel = Relationship(user, "POSTED", post)
-        try:
-            getGraphConnectionURI().create(rel)
-        except cypher.CypherError, cypher.CypherTransactionError:
-            raise "Exception occured in function add_post "
 
     ############################################################################
     # function : unlike_post
