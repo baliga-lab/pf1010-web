@@ -40,17 +40,32 @@ var MARKERS = []
  * @param content - HTML formatted String that populates dataPoint ToolTips
  * @returns {{type: *, showInLegend: *, name: *, dataPoints: *, content: *}}
  */
-var getDataPointsHC = function(systemName, dataPoints, color, graphType, id, linkedTo) {
+var getDataPointsHC = function(systemName, dataPoints, color, graphType, id, linkedTo, yAxis) {
     series = { name: systemName,
-               type: graphType,
-               data: dataPoints,
-               color: color,
-               id: id
+        type: graphType,
+        data: dataPoints,
+        color: color,
+        id: id,
+        yAxis: yAxis
     };
     if(linkedTo) {
         series.linkedTo = id;
     }
     return series;
+};
+
+
+/**
+ *
+ * @param yTypeList
+ * @returns {{}}
+ */
+var createYAxisMap = function(yTypeList){
+    var axisMap = {}, yAxis = 0;
+    _.each(yTypeList, function(x){
+        axisMap[x] = yAxis++;
+    });
+    return axisMap;
 };
 
 
@@ -68,6 +83,7 @@ var getDataPointsForPlotHC = function(xType, yTypeList, color, graphType){
     // Every system should be represented by unique color
     // Each measurementType should have a unique marker type
     var colorCounter = 0;
+    var axisMap = createYAxisMap(yTypeList);
 
     _.each(systems_and_measurements, function(system){
         var measurements = system.measurement;
@@ -77,7 +93,7 @@ var getDataPointsForPlotHC = function(xType, yTypeList, color, graphType){
                 if (_.isEqual(measurement.type.toLowerCase(), yType.toLowerCase())){
                     dataPointsList.push(
                         getDataPointsHC(system.name, measurement.values, COLORS[colorCounter],
-                                        graphType, system.system_uid,linkedTo));
+                            graphType, system.system_uid,linkedTo, axisMap[yType]));
                     linkedTo = true;
                 }
             });
@@ -90,13 +106,33 @@ var getDataPointsForPlotHC = function(xType, yTypeList, color, graphType){
 
 /**
  *
+ * @param yType
+ * @param numAxes
+ * @returns {{title: {text: *}, labels: {format: string, style: {color: *}}, opposite: boolean}}
+ */
+var createYAxis = function(yType, numAxes){
+    return { // Primary yAxis
+        title:
+        {
+            text: yType
+        },
+        labels:
+        {
+            format: '{value}',
+            style: { color: Highcharts.getOptions().colors[Math.floor((Math.random() * 15) + 1)] }
+        },
+        opposite: (numAxes % 2 === 0)
+    }
+};
+
+/**
+ *
  * @param chart - A CanvasJS chart
  * @param xType - X-axis value chosen from dropdown
  * @param yTypeList - List of y-axis values selected from the checklist
  * @param graphType - The graph type chosen from dropdown
  */
 var updateChartDataPointsHC = function(chart, xType, yTypeList, color, graphType){
-    var newDataSeries = [];
     var activeMeasurements = getAllActiveMeasurements();
     var measurementsToFetch = _.difference(yTypeList, activeMeasurements);
     if (measurementsToFetch.length > 0) {
@@ -105,31 +141,30 @@ var updateChartDataPointsHC = function(chart, xType, yTypeList, color, graphType
         // selectedSystemIDs is a global carried over from the view fxn
         // updateSystemsAndMeasurementsObject(selectedSystemIDs, measurementsToFetch);
     }
-    //_.each(yTypeList, function(yType){
-    //    newDataSeries = newDataSeries.concat(getDataPointsForPlotHC(xType, yType, color, graphType));
-    //});
-    newDataSeries = getDataPointsForPlotHC(xType, yTypeList, color, graphType);
+
+    chart.xAxis[0].setTitle({ text: xType });
+    var numYAxes = 1;
+
+    while(chart.yAxis.length > 0){
+        chart.yAxis[0].remove(true);
+    }
+
+    _.each(yTypeList, function(yType){
+        // If axis with these units not already up...
+        chart.addAxis(createYAxis(yType, numYAxes));
+        numYAxes++;
+    });
+
+    var newDataSeries = getDataPointsForPlotHC(xType, yTypeList, color, graphType);
     while(chart.series.length > 0)
         chart.series[0].remove(true);
 
     _.each(newDataSeries, function(series) {
         chart.addSeries(series);
     });
+
+
     return chart;
-};
-
-
-/**
- *
- * @param xType - X-axis values. Ex: Time, pH, Hardness
- * @param yType - Y-axis values. Ex: pH, Nitrate
- * @returns HTML that populates dataPoint ToolTips with the specifics of a measurement
- */
-var buildTooltipContent = function(xType, yType){
-    if (xType === TIME.toLowerCase()){
-        xType = "Hours since creation";
-    }
-    return "<h4>Measured on: {date}</h4> <p>" + xType + ": {x}</p> <p>" + yType + ": {y}</p>"
 };
 
 
@@ -147,6 +182,10 @@ var getAllActiveMeasurements = function() {
     return activeMeasurements;
 };
 
+
+/**
+ *
+ */
 var setDefaultYAxis = function() {
     $(".js-example-basic-multiple").val(DEFAULT_Y_VALUE).select2({
         maximumSelectionLength: 4
@@ -164,14 +203,13 @@ var drawChart = function(){
     // Get measurement types to display on the y-axis
     var yTypes = $(".js-example-basic-multiple").select2().val();
     var color = "blue";
+    console.log(xType);
 
     // Generate a data Series for each y-value type, and assign them all to the CHART
     updateChartDataPointsHC(CHART, xType, yTypes, color, graphType).redraw();
 
     // TODO: What about the other chart characteristics? Symbols, ranges, different scales, different y-axes?
 
-    // Render the new chart
-    //CHART.redraw();
 };
 
 
@@ -219,18 +257,48 @@ var main = function(){
  */
 window.onload = function() {
 
-     HC_OPTIONS = {
-       chart: {
-           renderTo: 'analyzeContainer',
-           type: 'line',
-           zoomType: 'xy'
-       },
-       xAxis: {
-           minPadding: 0.05,
-           maxPadding: 0.05
-       },
-       showInLegend: true,
-       series: []
+    HC_OPTIONS = {
+        chart: {
+            renderTo: 'analyzeContainer',
+            type: 'line',
+            zoomType: 'xy'
+        },
+        //yAxis: {
+        //    title: ""
+        //},
+        yAxis: [{ // Primary yAxis
+            labels: {
+                format: '{value}°C',
+                style: {
+                    color: Highcharts.getOptions().colors[2]
+                }
+            },
+            title: {
+                text: 'Temperature'
+            },
+            opposite: true
+
+        },
+            { // Secondary yAxis
+                gridLineWidth: 0,
+                title: {
+                    text: 'Rainfall'
+                },
+                labels: {
+                    format: '{value} mm',
+                    style: {
+                        color: Highcharts.getOptions().colors[0]
+                    }
+                }
+
+            }],
+        xAxis: {
+            title: "",
+            minPadding: 0.05,
+            maxPadding: 0.05
+        },
+        showInLegend: true,
+        series: []
     };
     CHART = new Highcharts.Chart(HC_OPTIONS);
 
