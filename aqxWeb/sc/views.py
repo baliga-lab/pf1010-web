@@ -6,6 +6,7 @@ from models import get_app_instance, getGraphConnectionURI
 from app.scAPI import ScAPI
 from flask_login import login_required
 from flask_googlelogin import LoginManager, make_secure_token,GoogleLogin
+from models import  convertMilliSecondsToNormalDate
 import mysql.connector
 import requests
 import aqxdb
@@ -411,27 +412,98 @@ def search_systems():
 
 @social.route('/systems/<system_uid>', methods=['GET', 'POST'])
 def view_system(system_uid):
+    sql_id = session.get('uid')
+    #sql_id = 33
+    #system_uid = "416f3f2e3fe411e597b1000c29b92e09"
+    if sql_id is None:
+        return redirect(url_for('social.search_systems'))
     try:
+        system = System()
         if request.method == 'GET':
-            system_neo4j = System().get_system_by_uid(system_uid)
-            # Invalid System_UID
-            if system_neo4j is None:
+            system_neo4j = system.get_system_by_uid(system_uid)
+            # InValid System_UID
+            if not system_neo4j:
                 return redirect(url_for('social.search_systems'))
+            # Valid System_UID
             else:
+                logged_in_user = User(sql_id).find()
+                created_date = convertMilliSecondsToNormalDate(system_neo4j[0][0]['creation_time'])
                 # system_mysql = System().get_mysql_system_by_uid(system_uid)
                 system_mysql = system_neo4j
-                system_admins = System().get_system_admins(system_uid)
-                system_participants = System().get_system_participants(system_uid)
-                system_subscribers = System().get_system_subscribers(system_uid)
-                participants_pending_approval = System().get_participants_pending_approval(system_uid)
-                subscribers_pending_approval = System().get_subscribers_pending_approval(system_uid)
+                user_privilege = system.get_user_privilege_for_system(sql_id, system_uid)
+                system_admins = system.get_system_admins(system_uid)
+                system_participants = system.get_system_participants(system_uid)
+                system_subscribers = system.get_system_subscribers(system_uid)
+                participants_pending_approval = system.get_participants_pending_approval(system_uid)
+                subscribers_pending_approval = system.get_subscribers_pending_approval(system_uid)
                 return render_template("system_social.html", system_neo4j=system_neo4j, system_mysql=system_mysql,
-                                       system_admins=system_admins, system_participants=system_participants,
-                                       system_subscribers=system_subscribers,
-                                       participants_pending_approval=participants_pending_approval,
-                                       subscribers_pending_approval=subscribers_pending_approval)
+                                        logged_in_user=logged_in_user, created_date=created_date,
+                                        user_privilege=user_privilege, system_admins=system_admins,
+                                        system_participants=system_participants, system_subscribers=system_subscribers,
+                                        participants_pending_approval=participants_pending_approval,
+                                        subscribers_pending_approval=subscribers_pending_approval)
     except Exception as e:
         logging.exception("Exception at view_system: " + str(e))
+
+
+
+#######################################################################################
+@social.route('/system/approve_reject_participant', methods=['POST'])
+# function : approve_reject_participant
+# purpose : approve/reject the participant request made for the particular system
+# parameters : None
+# Exception : None
+#######################################################################################
+def approve_reject_participant():
+    if request.method == 'POST':
+        system_uid = request.form["system_uid"]
+        google_id = request.form["google_id"]
+        system = System()
+        sql_id = session.get('uid')
+        #sql_id = 1;
+        if sql_id is not None:
+            user_privilege = system.get_user_privilege_for_system(sql_id, system_uid)
+            if user_privilege == "SYS_ADMIN":
+                if request.form['submit'] == 'Approve':
+                    system.approve_system_participant(google_id, system_uid)
+                elif request.form['submit'] == 'Reject':
+                    system.reject_system_participant(google_id, system_uid)
+        return redirect(url_for('social.view_system', system_uid=system_uid ))
+    else:
+        return redirect(url_for('social.search_systems'))
+
+
+#######################################################################################
+@social.route('/system/participate_subscribe_leave_system', methods=['POST'])
+# function : join_system
+# purpose : Subscribe/Request To Join the system by an User for the particular system
+# parameters : None
+# Exception : None
+#######################################################################################
+def participate_subscribe_leave_system():
+    if request.method == 'POST':
+        system_uid = request.form["system_uid"]
+        google_id = request.form["google_id"]
+        system = System()
+        sql_id = session.get('uid')
+        #sql_id = 1;
+        if sql_id is not None:
+            user_privilege = system.get_user_privilege_for_system(sql_id, system_uid)
+            if user_privilege is None:
+                if request.form['submit'] == 'Subscribe':
+                    system.subscribe_to_system(google_id, system_uid)
+                elif request.form['submit'] == 'Participate':
+                    system.pending_participate_to_system(google_id, system_uid)
+            else:
+                if user_privilege == "SYS_ADMIN" or user_privilege == "SYS_PARTICIPANT" or user_privilege == "SYS_SUBSCRIBER"\
+                        or user_privilege == "SYS_PENDING_PARTICIPANT" or user_privilege == "SYS_PENDING_SUBSCRIBER":
+                    if request.form['submit'] == 'Leave':
+                        system.leave_system(google_id, system_uid)
+        return redirect(url_for('social.view_system', system_uid=system_uid ))
+    else:
+        return redirect(url_for('social.search_systems'))
+
+#######################################################################################
 
 
 @social.route('/add_comment', methods=['POST'])

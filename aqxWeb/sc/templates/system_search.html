@@ -41,8 +41,8 @@
             {% if post_method %}
                 <br/><br/>
                 <!-- Search Results Div -->
+                <h4 class="page-header" style="padding-left: 10px">Search Results:</h4>
                 <div class="row systemSearchResults">
-                    <h4 class="page-header" style="padding-left: 10px">Search Results:</h4>
                     {% if system_search_results %}
                         {% for row in system_search_results %}
                             <div class="row">
@@ -53,7 +53,6 @@
                                 </ul>
                                 <br/>
                                 <ul>
-
                                     <a href="{{ url_for('social.view_system', system_uid=row.system.system_uid) }}">{{ row.system.name }}</a>
                                 </ul>
                             </div>
@@ -74,7 +73,6 @@
                 <!-- End of Search Results Div -->
             {% endif %}
 
-            <br/>
             <br/>
 
             <!-- Div To Display System Where The Logged In User Is Administrator/Participant For That System -->
@@ -245,9 +243,7 @@
         <!-- All Systems Div -->
         <div class="row" id="allSystemsTab">
             <!-- Search Results Div -->
-            <div class="row systemSearchResults">
-                <h4 style="padding-left: 20px">All Systems:</h4>
-                <hr>
+            <div class="row allSystemResults">
                 {% if all_systems %}
                     {% for row in all_systems %}
                         <div class="row">

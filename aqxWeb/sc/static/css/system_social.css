@@ -4,11 +4,6 @@
     text-align: justify;
 }
 
-.leftPaneDiv {
-    padding-left: 10px;
-    padding-right: 10px;
-}
-
 .leftPaneDiv, .rightPaneDiv {
     border-radius: 25px;
     border: 1px solid #23434d;
@@ -22,8 +17,23 @@
     padding-right: 30px;
 }
 
-.participantsImage, .pendingRequestElements {
-    padding-left: 25px;
-    padding-right: 25px;
+.participantImage, .subscriberImage, .pendingParticipantImage {
+    height: 40px;
+    width: 40px;
+}
 
+.participantDiv, .subscriberDiv {
+    overflow-x: hidden;
+    overflow-y: auto;
+    height: 100px;
+}
+
+.pendingRequests {
+    overflow-x: hidden;
+    overflow-y: auto;
+    height: 100px;
+}
+
+h4 {
+    color: #449d44;
 }
