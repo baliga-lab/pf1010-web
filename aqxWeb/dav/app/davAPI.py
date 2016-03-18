@@ -273,10 +273,10 @@ class DavAPI:
 
         for system_uid in system_uid_list:
             readings = data_retrieved[system_uid]
-            system_measurement_json = self.form_system_measurement_json(self,system_uid,readings,measurement_name_list)
+            system_measurement_json = self.form_system_measurement_json(self,system_uid,readings,
+                                                                         measurement_name_list)
             system_measurement_list.append(system_measurement_json)
 
-        print json.dumps({'response': system_measurement_list})
         return json.dumps({'response': system_measurement_list})
 
 
@@ -291,7 +291,7 @@ class DavAPI:
     # for the plot for the input system_uid
     #
     @staticmethod
-    def form_system_measurement_json(self,conn,system_uid,readings,measurement_type_list):
+    def form_system_measurement_json(self,system_uid,readings,measurement_type_list):
         measurement_list = []
 
         # For each measurement type, form the list of readings
@@ -306,7 +306,7 @@ class DavAPI:
 
         system_measurement = {
             "system_uid" : system_uid,
-            "name" : self.get_system_name(conn,system_uid),
+            "name" : self.sys.get_system_name(system_uid),
             "measurement": measurement_list
         }
 
@@ -340,6 +340,7 @@ class DavAPI:
                 # This condition takes care of the last reading, which gets left out
                 if(i == len(all_readings)):
                     # By incrementing x deliberately, we enforce the 'values' formation for the very last reading
+                    reading = prev_reading
                     x = prevX + 1
                 # This condition takes care of all but the last reading
                 else:
