@@ -129,6 +129,35 @@ class User:
             raise "Exception occured in function add_post "
 
     ############################################################################
+    # function : test_add_post
+    # purpose : Adds new post node in neo4j with the given information and id 1
+    #           and creates POSTED relationship between Post and User node
+    # params :
+    #        text : contains the data shared in post
+    #        privacy : privacy level of the post
+    #        link : contains the link information
+    # returns : None
+    # Exceptions : cypher.CypherError, cypher.CypherTransactionError
+    ############################################################################
+
+    def test_add_post(self, text, privacy, link):
+        user = self.find()
+        post = Node(
+            "Post",
+            id=str(1),
+            text=text,
+            link=link,
+            privacy=privacy,
+            creation_time=timestamp(),
+            modified_time=timestamp(),
+            date=date()
+        )
+        rel = Relationship(user, "POSTED", post)
+        try:
+            getGraphConnectionURI().create(rel)
+        except cypher.CypherError, cypher.CypherTransactionError:
+            raise "Exception occured in function test_add_post "
+    ############################################################################
     # function : edit_post
     # purpose : Edits post node in neo4j with the given id
     # params :
@@ -296,24 +325,6 @@ class User:
         except cypher.CypherError, cypher.CypherTransactionError:
             raise "Exception occured in function like_post "
 
-    def add_post(self, text, privacy, link):
-        user = self.find()
-        post = Node(
-            "Post",
-            id=str(uuid.uuid4()),
-            text=text,
-            link=link,
-            privacy=privacy,
-            creation_time=timestamp(),
-            modified_time=timestamp(),
-            date=date()
-        )
-        rel = Relationship(user, "POSTED", post)
-        try:
-            getGraphConnectionURI().create(rel)
-        except cypher.CypherError, cypher.CypherTransactionError:
-            raise "Exception occured in function add_post "
-
     ############################################################################
     # function : unlike_post
     # purpose : removes LIKED relationship between User and Post
@@ -424,7 +435,7 @@ class User:
     #           logged in user if the user is not already friends with those
     #           users and if the user has not already sent that user a friend request
     # params : None
-    # returns : recommended friend list
+    # returns : name of recommended friends and number of mutual friends
     # Exceptions : cypher.CypherError, cypher.CypherTransactionError
     ############################################################################
     def get_recommended_frnds(self):
@@ -545,6 +556,28 @@ def convertMilliSecondsToNormalDate(milliseconds):
 
 def date():
     return datetime.datetime.now().strftime('%Y-%m-%d')
+
+
+############################################################################
+# function : get_sqlId
+# purpose : function to return Sql Id of the user from Neo4j
+# params : GoogleId
+# returns : returns Sql Id
+# Exceptions : cypher.CypherError, cypher.CypherTransactionError
+############################################################################
+def get_sqlId(google_id):
+    query = """
+        MATCH (user:User)
+        WHERE user.google_id = {google_id}
+        RETURN user.sql_id as sql_id
+    """
+    try:
+        regExPattern = google_id
+        #user_profile = getGraphConnectionURI().find_one("User", "email", regExPattern)
+        sql_id = getGraphConnectionURI().cypher.execute(query, google_id=google_id)
+        return sql_id
+    except cypher.CypherError, cypher.CypherTransactionError:
+        raise "Exception occured in function get_sqlId()"
 
 
 ################################################################################
@@ -1107,3 +1140,4 @@ class System:
             raise "Exception occured in function get_all_systems"
 
         raise "Exception occured in function get_all_systems"
+
