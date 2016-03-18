@@ -57,7 +57,7 @@
                                 });
 
                             if(item.friend_status == "Add Friend") {
-                                $("<a id='dummy' class='col-sm-6'></a>").text(item.friend_status).appendTo($a).click(function () {
+                                $("<button type='button' class='btn btn-primary'></button>").text(item.friend_status).appendTo($a).click(function () {
 
                                     $.ajax({
                                         type: 'post',
@@ -70,12 +70,12 @@
                                 });
                             }
                             else if(item.friend_status == "Sent Friend Request") {
-                                $("<a id='dummy' class='col-sm-6'></a>").text(item.friend_status).appendTo($a).click(function () {
+                                $("<button type='button' class='btn btn-info'></button>").text(item.friend_status).appendTo($a).click(function () {
                                     alert("You have already sent this user a friend request")
                                 });
                             }
                             else if(item.friend_status == "Friends") {
-                                $("<a id='dummy' class='col-sm-6'></a>").text(item.friend_status).appendTo($a).click(function () {
+                                $("<button type='button' class='btn btn-success'></button>").text(item.friend_status).appendTo($a).click(function () {
                                     alert("You are already friends with this user")
                                 });
                             }

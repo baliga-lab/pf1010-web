@@ -424,7 +424,7 @@ class User:
     #           logged in user if the user is not already friends with those
     #           users and if the user has not already sent that user a friend request
     # params : None
-    # returns : recommended friend list
+    # returns : name of recommended friends and number of mutual friends
     # Exceptions : cypher.CypherError, cypher.CypherTransactionError
     ############################################################################
     def get_recommended_frnds(self):
