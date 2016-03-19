@@ -1,9 +1,10 @@
 from flask import Blueprint, request, session, redirect, url_for, render_template, flash, Response, jsonify,json
-from models import User, get_all_recent_posts, get_all_recent_comments, get_all_recent_likes
+from models import User, get_all_recent_posts, get_all_recent_comments, get_all_recent_likes, get_total_likes_for_posts
 from models import System
 from models import get_app_instance, getGraphConnectionURI
 from py2neo import cypher
 from app.scAPI import ScAPI
+from dav import analyticsViews
 from flask_login import login_required
 from flask_googlelogin import LoginManager, make_secure_token,GoogleLogin
 from models import  convertMilliSecondsToNormalDate, get_sqlId
@@ -67,7 +68,6 @@ def authorized(resp):
 def get_access_token():
     return session.get('access_token')
 
-
 @social.route('/index')
 #######################################################################################
 # function : index
@@ -79,10 +79,10 @@ def index():
     posts = get_all_recent_posts()
     comments = get_all_recent_comments()
     likes = get_all_recent_likes()
+    totalLikes = get_total_likes_for_posts()
     privacy = {"Friends", "Public"}
     return render_template('home.html', posts=posts, comments=comments,
-                           privacy_options=privacy, likes=likes)
-
+                           privacy_options=privacy, likes=likes, totalLikes=totalLikes)
 
 @social.route('/login')
 #######################################################################################
@@ -146,7 +146,6 @@ def signin():
         if 'image' in googleAPIResponse:
             image=googleAPIResponse['image']
             imgurl = image['url']
-
         else:
             imgurl = "/static/images/default_profile.png"
         session['img']=imgurl

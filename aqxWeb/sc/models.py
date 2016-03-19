@@ -626,6 +626,24 @@ def get_all_recent_comments():
         raise "Exception occured in function get_all_recent_comments "
 
 ############################################################################
+# function : get_total_likes_for_posts
+# purpose : gets all likes from db
+# params : None
+# returns : set of postids and number of likes for all posts
+# Exceptions : cypher.CypherError, cypher.CypherTransactionError
+############################################################################
+def get_total_likes_for_posts():
+    query = """
+    MATCH (u:User)-[r:LIKED]->(p:Post)
+    RETURN p.id as postid, count(*) as likecount
+    """
+    try:
+        totalLikes = getGraphConnectionURI().cypher.execute(query)
+        return totalLikes
+    except cypher.CypherError, cypher.CypherTransactionError:
+        raise "Exception occured in function get_total_likes_for_posts"
+
+############################################################################
 # function : get_all_recent_likes
 # purpose : gets all likes from db
 # params : None
@@ -643,6 +661,8 @@ def get_all_recent_likes():
         return likes
     except cypher.CypherError, cypher.CypherTransactionError:
         raise "Exception occured in function get_all_recent_likes "
+
+
 
 ############################################################################
 # function : timestamp
