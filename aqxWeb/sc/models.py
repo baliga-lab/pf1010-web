@@ -644,6 +644,25 @@ def get_total_likes_for_posts():
         raise "Exception occured in function get_total_likes_for_posts"
 
 ############################################################################
+# function : get_all_post_owners
+# purpose : gets all posts and their owners from db
+# params : None
+# returns : set of postids and userid for all posts
+# Exceptions : cypher.CypherError, cypher.CypherTransactionError
+############################################################################
+def get_all_post_owners():
+    query = """
+    MATCH (u:User)-[r:POSTED]->(p:Post)
+    RETURN p.id as postid, u.sql_id as userid
+    ORDER BY p.modified_time DESC
+    """
+    try:
+        postOwners = getGraphConnectionURI().cypher.execute(query)
+        return postOwners
+    except cypher.CypherError, cypher.CypherTransactionError:
+        raise "Exception occured in function get_all_post_owners "
+
+############################################################################
 # function : get_all_recent_likes
 # purpose : gets all likes from db
 # params : None
