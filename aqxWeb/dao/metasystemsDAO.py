@@ -1,4 +1,4 @@
-# DAO for systems table
+# DAO for metasystems table
 
 
 class MetaSystemsDAO:

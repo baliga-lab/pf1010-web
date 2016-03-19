@@ -1,6 +1,6 @@
-from aqxWeb.app.metasystemsDAO import MetaSystemsDAO
-from aqxWeb.dav.dao.MetaDataDAO import MetadataDAO
-from aqxWeb.dav.dao.UserDAO import UserDAO
+from aqxWeb.dao.metasystemsDAO import MetaSystemsDAO
+from aqxWeb.dao.MetaDataDAO import MetadataDAO
+from aqxWeb.dao.UserDAO import UserDAO
 from collections import defaultdict
 import json
 
@@ -20,7 +20,7 @@ class uiAPI:
     #                                   given system.
 
     def get_system_metadata(self, conn, system_id):
-        s = SystemsDAO(conn)
+        s = MetaSystemsDAO(conn)
         result = s.get_metadata(system_id)
 
         return json.dumps({'system': result})
@@ -33,7 +33,7 @@ class uiAPI:
     #                          object.
 
     def get_all_systems_info(self, conn):
-        s = SystemsDAO(conn)
+        s = MetaSystemsDAO(conn)
         systems = s.get_all_systems_info()
 
         # Create a list of systems
@@ -156,7 +156,7 @@ class uiAPI:
     #longitude and latitude of system's location as a JSON object.
 
     def get_all_systems(self, conn):
-        s = SystemsDAO(conn)
+        s = MetaSystemsDAO(conn)
         systems = s.get_all_systems_info()
 
         # Create a list of systems
@@ -172,6 +172,7 @@ class uiAPI:
             systems_list.append(obj)
 
         return json.dumps({'systems': systems_list})
+
 
 
 
