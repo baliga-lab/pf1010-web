@@ -254,17 +254,13 @@ class DavAPI:
     # param measurement_type_list: List of measurement_IDs
     # get_readings_for_plot - It returns the readings of all the input system uids
     #                         for all input measurement ids
-    def get_readings_for_plot(self,data):
-        # Retrieve lists from input request data
-        system_uid_list = data.get('system_uid_list')
-        measurement_id_list = data.get('measurement_id_list')
-
+    def get_readings_for_plot(self,system_uid_list,measurement_id_list):
         # Form a list of names from the list of ids
         measurement_type_list = self.mea.get_measurement_name_list(measurement_id_list)
         measurement_name_list  = []
 
         for name in measurement_type_list:
-            measurement_name_list.append(str(name[0]))
+             measurement_name_list.append(str(name[0]))
 
         # Retrieve the measurements calling DAO
         data_retrieved = self.mea.get_measurements(system_uid_list,measurement_name_list)
@@ -277,7 +273,9 @@ class DavAPI:
                                                                          measurement_name_list)
             system_measurement_list.append(system_measurement_json)
 
-        return json.dumps({'response': system_measurement_list})
+        print json.dumps({"response": system_measurement_list})
+
+        return json.dumps({"response": system_measurement_list})
 
 
     ###############################################################################
