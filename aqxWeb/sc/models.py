@@ -479,6 +479,22 @@ class User:
         except cypher.CypherError, cypher.CypherTransactionError:
             raise "Exception occured in function get_recommended_frnds"
 
+    ############################################################################
+    # function : get_my_friends
+    # purpose : to get the logged in user's friend list
+    # params : None
+    # returns : friend list of the user
+    # Exceptions : cypher.CypherError, cypher.CypherTransactionError
+    ############################################################################
+    def get_my_friends(self):
+        my_sql_id = self.sql_id
+        my_friends_query = "MATCH (friends { sql_id:{sql_id} })-[:FRIENDS]->(res) RETURN res.sql_id"
+        try:
+            frnds_res = getGraphConnectionURI().cypher.execute(my_friends_query, sql_id = my_sql_id);
+            return frnds_res
+        except cypher.CypherError, cypher.CypherTransactionError:
+            raise "Exception occured in function get_my_friends"
+
 
     ############################################################################
     # function : get_user_by_email_id
