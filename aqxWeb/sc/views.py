@@ -1,5 +1,6 @@
 from flask import Blueprint, request, session, redirect, url_for, render_template, flash, Response, jsonify,json
-from models import User, get_all_recent_posts, get_all_recent_comments, get_all_recent_likes, get_total_likes_for_posts
+from models import User, get_all_recent_posts, get_all_recent_comments, get_all_recent_likes
+from models import get_total_likes_for_posts, get_all_post_owners
 from models import System
 from models import get_app_instance, getGraphConnectionURI
 from py2neo import cypher
@@ -80,9 +81,11 @@ def index():
     comments = get_all_recent_comments()
     likes = get_all_recent_likes()
     totalLikes = get_total_likes_for_posts()
+    postOwners = get_all_post_owners()
     privacy = {"Friends", "Public"}
     return render_template('home.html', posts=posts, comments=comments,
-                           privacy_options=privacy, likes=likes, totalLikes=totalLikes)
+                           privacy_options=privacy, likes=likes,
+                           totalLikes=totalLikes, postOwners=postOwners)
 
 @social.route('/login')
 #######################################################################################
@@ -534,6 +537,8 @@ def view_system(system_uid):
                 created_date = convertMilliSecondsToNormalDate(system_neo4j[0][0]['creation_time'])
                 # system_mysql = System().get_mysql_system_by_uid(system_uid)
                 system_mysql = system_neo4j
+                # measurements = analyticsViews.get_system_measurements(sql_id)
+                # print (measurements)
                 user_privilege = system.get_user_privilege_for_system(sql_id, system_uid)
                 system_admins = system.get_system_admins(system_uid)
                 system_participants = system.get_system_participants(system_uid)
