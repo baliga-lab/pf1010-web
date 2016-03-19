@@ -1,3 +1,4 @@
+from flask import session
 from flask_nav import Nav
 from flask_nav.elements import Navbar, View, Subgroup, Link, Text, Separator
 from flask_bootstrap.nav import BootstrapRenderer
@@ -64,7 +65,7 @@ def member():
             View('Challenges', 'frontend.coming'),
             View('Documents', 'frontend.coming')
         ),
-        SidedSubgroup('Oddish', False,
+        SidedSubgroup(session['displayName'], False,
             View('Edit Profile', 'social.editprofile'),
             View('Settings', 'frontend.settings'),
             Separator(),

@@ -1,7 +1,8 @@
 {% extends "base.html" %}
+
 {% block content %}
-  <h2>Login</h2>
-	<form action="{{ url_for('social.login') }}" method="post">
+    <h2>Login</h2>
+    <form action="{{ url_for('social.login') }}" method="post">
         <dl>
             <dt>Username:</dt>
             <dd><input type="text" name="username"></dd>
@@ -9,5 +10,5 @@
             <dd><input type="password" name="password"></dd>
         </dl>
         <input type="submit" value="Login">
-	</form>
+    </form>
 {% endblock %}
