@@ -265,6 +265,7 @@ class DavAPI:
         # Retrieve the measurements calling DAO
         data_retrieved = self.mea.get_measurements(system_uid_list,measurement_name_list)
 
+        print "data_retrieved: " + str(data_retrieved)
         system_measurement_list = []
 
         for system_uid in system_uid_list:
@@ -273,7 +274,7 @@ class DavAPI:
                                                                          measurement_name_list)
             system_measurement_list.append(system_measurement_json)
 
-        print json.dumps({"response": system_measurement_list})
+        #print json.dumps({"response": system_measurement_list})
 
         return json.dumps({"response": system_measurement_list})
 
@@ -294,7 +295,11 @@ class DavAPI:
 
         # For each measurement type, form the list of readings
         for measurement_type in measurement_type_list:
-            valueList = self.form_values_list(self,measurement_type,readings[measurement_type])
+
+            if readings:
+                valueList = self.form_values_list(self,measurement_type,readings[measurement_type])
+            else:
+                valueList=[]
 
             measurement = {
                 "type" : measurement_type,

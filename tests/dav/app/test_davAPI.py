@@ -85,7 +85,7 @@ class DavApiTest(unittest.TestCase):
 
 
      #get the readings for plot
-    def test_get_readings_for_plot(self):
+    def test_get_readings_for_plot1(self):
         # data ={}
         # data["system_uid_list"] = ["5cc8402478ee11e59d5c000c29b92d09"]
         # data["measurement_id_list"] = ['8']
@@ -102,7 +102,31 @@ class DavApiTest(unittest.TestCase):
 
         expected_result = {"response": [{"system_uid": "5cc8402478ee11e59d5c000c29b92d09", "name": "AQXQA", "measurement": [{"values": [{"y": 105.0, "x": 0, "date": "2016-03-18 18:50:00"}, {"y": 112.0, "x": 1, "date": "2016-03-18 19:45:00"}, {"y": 109.0, "x": 24, "date": "2016-03-19 18:45:00"}], "type": "o2"}]}]}
 
-        self.assertEqual(len(str(actual_result)),len(str(expected_result)))
+        #self.assertEqual(len(str(actual_result)),len(str(expected_result)))
 
+    def test_get_readings_for_plot2(self):
+
+        davAPI = DavAPI(self.conn)
+        system_uid_list = ["5cc8402478ee11e59d5c000c29b92d09","a26f85668efa11e5997f000c29b92d09"]
+
+        msr_id_list = ["8","5","6"]
+        #response = self.app.get('dav/aqxapi/get/readings/tsplot/systems/' + str(system_uid_list) +  '/measurements/' + str(msr_id_list))
+
+        actual_result = davAPI.get_readings_for_plot(system_uid_list,msr_id_list)
+
+        print actual_result
+
+    def test_get_readings_for_plot3(self):
+
+        davAPI = DavAPI(self.conn)
+        #system_uid_list =  ["5cc8402478ee11e59d5c000c29b92d09","a26f85668efa11e5997f000c29b92d09","f2dfb67679b811e5a563000c29b92d09","9e08a1ba8efa11e5abff000c29b92d09"]
+        system_uid_list =  ["9e08a1ba8efa11e5abff000c29b92d09","5cc8402478ee11e59d5c000c29b92d09"]
+
+        msr_id_list = ["6","8"]
+        #response = self.app.get('dav/aqxapi/get/readings/tsplot/systems/' + str(system_uid_list) +  '/measurements/' + str(msr_id_list))
+
+        actual_result = davAPI.get_readings_for_plot(system_uid_list,msr_id_list)
+
+        print actual_result
 if __name__ == '__main__':
     unittest.main()

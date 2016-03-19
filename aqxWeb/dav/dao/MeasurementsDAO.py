@@ -127,6 +127,7 @@ class MeasurementsDAO:
         try:
             for system in systems:
                 query = self.create_query1(system,measurements)
+                print query
                 cursor.execute(query)
                 payload[system] = cursor.fetchall()
         finally:
@@ -139,9 +140,15 @@ class MeasurementsDAO:
         #add all measurements in a dict
         for s in systems:
             v = payload[s]
-            for m in v:
-                values[m[0]].append(m)
+            print s
+            if v:
+                for m in v:
+                    values[m[0]].append(m)
+            else:
+                 values = {}
+
             payload[s] = values
+
         return payload
 
     ###############################################################################

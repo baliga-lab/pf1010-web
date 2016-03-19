@@ -23,7 +23,6 @@ class SystemsDAO:
 
         finally:
             cursor.close()
-            self.conn.close()
 
         return result[0]
 
@@ -57,3 +56,7 @@ class SystemsDAO:
             self.conn.close()
 
         return rows
+
+    # Destructor to close the self connection
+    def __del__(self):
+        self.conn.close()
