@@ -24,7 +24,8 @@ var DEFAULT_Y_VALUE = DEFAULT_Y_TEXT.toLowerCase();
 var CHART_TITLE = "System Analyzer";
 var HC_OPTIONS;
 var COLORS = Highcharts.getOptions().colors; // Contains 10 different colors; .symbols contains 5 symbols
-var MARKERS = {'nitrate': 'circle', 'ph': 'url(https://www.highcharts.com/samples/graphics/snow.png)', 'Ammonia': 'triangle-down', 'Nitrite': 'square'}
+var MARKERS = Highcharts.getOptions().symbols;
+//var MARKERS = {'nitrate': 'circle', 'ph': 'url(https://www.highcharts.com/samples/graphics/snow.png)', 'Ammonia': 'triangle-down', 'Nitrite': 'square'}
 //'triangle','diamond' ,'url(https://www.highcharts.com/samples/graphics/sun.png']
 
 
@@ -40,6 +41,7 @@ var MARKERS = {'nitrate': 'circle', 'ph': 'url(https://www.highcharts.com/sample
  * @param graphType - Line or Scatter or Barchart
  * @param id - systemId
  * @param linkedTo - used to group series to a system
+ * @param yAxis - The axis these graph will be plotted against
  * @returns {{name: *, type: *, data: *, color: *, id: *}|*}
  */
 var getDataPointsHC = function(systemName, dataPoints, color, graphType, id, linkedTo, yAxis) {
@@ -64,12 +66,12 @@ var getDataPointsHC = function(systemName, dataPoints, color, graphType, id, lin
  * @returns datapoints with new 'marker' attribute [{x:"", y: "", date: "", marker: ""}]
  */
 var addMarker = function(dataPoints, type) {
-    var symbolType =  MARKERS[type];
+    var symbolType =  MARKERS[Math.random() * 5];
     _.each(dataPoints, function(data) {
         data.marker = {'symbol': symbolType};
-    })
+    });
     return dataPoints;
-}
+};
 
 /**
  *
@@ -136,8 +138,8 @@ var createYAxis = function(yType, numAxes){
         },
         labels:
         {
-            format: '{value}',
-            style: { color: Highcharts.getOptions().colors[Math.floor((Math.random() * 15) + 1)] }
+            format: '{value} ',
+            style: { color: COLORS[Math.floor((Math.random() * 10) + 1)] }
         },
         opposite: (numAxes % 2 === 0)
     }
@@ -179,7 +181,6 @@ var updateChartDataPointsHC = function(chart, xType, yTypeList, color, graphType
     _.each(newDataSeries, function(series) {
         chart.addSeries(series);
     });
-
 
     return chart;
 };
@@ -269,6 +270,7 @@ var main = function(){
     // When the submit button is clicked, redraw the graph based on user selections
     $('#submitbtn').click(function() {
         drawChart();
+        //setDefaultYAxis();
     });
 
     // Select the default y-axis value
@@ -338,4 +340,4 @@ var REMOVELEGENDSYMBOL = function(chart){
         if (s.legendLine)
             s.legendLine.destroy();
     });
-}
+};
