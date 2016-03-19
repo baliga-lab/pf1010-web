@@ -162,7 +162,7 @@ def analyzeGraph():
 
     # systems_and_measurements_json = systems_and_measurements_json['response']
     # selected_systemID_list = ["system_12345", "system_54321"]
-    selected_systemID_list = ["5cc8402478ee11e59d5c000c29b92d09"]
+    selected_systemID_list = ["5cc8402478ee11e59d5c000c29b92d09", "a26f85668efa11e5997f000c29b92d09"]
     measurement_types = ["Nitrate", "Nitrite", "Hardness", "Chlorine", "Alkalinity", "pH", "Ammonia", "Water Temp", "Light intensity",
                          "Light wavelength","Light intensity","DO","NO3","NH4","Day length","Conductivity", "o2"]
 
@@ -171,7 +171,11 @@ def analyzeGraph():
     # content = request.json
     # data = json.dumps(request.form.get('selectedSystems'))
     # print data
-    systems_and_measurements_json = get_readings_for_tsplot(selected_systemID_list,[6,8])
+
+    data1 = json.dumps(request.form.get('selectedSystems')).translate(None, '\"\\').split(",")
+    # print data1
+    systems_and_measurements_json = get_readings_for_tsplot(data1,[6,8])
+
 
     return render_template("analyze.html", **locals())
 
