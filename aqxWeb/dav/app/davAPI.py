@@ -401,8 +401,8 @@ class DavAPI:
     @staticmethod
     def build_values(x,y,reading_date):
         values={
-                    "x": str(x),
-                    "y": str(round(y,2)),
+                    "x": x,
+                    "y": round(y,2),
                     "date": str(reading_date)
                 }
         return values

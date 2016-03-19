@@ -94,14 +94,13 @@ class DavApiTest(unittest.TestCase):
 
         davAPI = DavAPI(self.conn)
         system_uid_list = ["5cc8402478ee11e59d5c000c29b92d09"]
-        msr_id_list = [8]
+        msr_id_list = ["8"]
         #response = self.app.get('dav/aqxapi/get/readings/tsplot/systems/' + str(system_uid_list) +  '/measurements/' + str(msr_id_list))
 
         actual_result = davAPI.get_readings_for_plot(system_uid_list,msr_id_list)
         #actual_result = json.loads(response.data)
 
-        expected_result = {"response": [{"system_uid": "5cc8402478ee11e59d5c000c29b92d09", "name": "AQXQA", "measurement": [{"values": [{"y": "105.0", "x": "0", "date": "2016-03-18 18:50:00"}, {"y": "112.0", "x": "1", "date": "2016-03-18 19:45:00"}, {"y": "109.0", "x": "24", "date": "2016-03-19 18:45:00"}], "type": "o2"}]}]}
-
+        expected_result = {"response": [{"system_uid": "5cc8402478ee11e59d5c000c29b92d09", "name": "AQXQA", "measurement": [{"values": [{"y": 105.0, "x": 0, "date": "2016-03-18 18:50:00"}, {"y": 112.0, "x": 1, "date": "2016-03-18 19:45:00"}, {"y": 109.0, "x": 24, "date": "2016-03-19 18:45:00"}], "type": "o2"}]}]}
 
         self.assertEqual(len(str(actual_result)),len(str(expected_result)))
 
