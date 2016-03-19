@@ -119,14 +119,21 @@ class DavApiTest(unittest.TestCase):
     def test_get_readings_for_plot3(self):
 
         davAPI = DavAPI(self.conn)
-        #system_uid_list =  ["5cc8402478ee11e59d5c000c29b92d09","a26f85668efa11e5997f000c29b92d09","f2dfb67679b811e5a563000c29b92d09","9e08a1ba8efa11e5abff000c29b92d09"]
-        system_uid_list =  ["9e08a1ba8efa11e5abff000c29b92d09","5cc8402478ee11e59d5c000c29b92d09"]
 
-        msr_id_list = ["6","8"]
+        views = analyticsViews.get_conn()
+
+        #system_uid_list =  ["5cc8402478ee11e59d5c000c29b92d09","a26f85668efa11e5997f000c29b92d09","f2dfb67679b811e5a563000c29b92d09","9e08a1ba8efa11e5abff000c29b92d09"]
+        #system_uid_list =  ["a26f85668efa11e5997f000c29b92d09","5cc8402478ee11e59d5c000c29b92d09"]
+
+        system_uid_list =  ["555d0cfe9ebc11e58153000c29b92d09","5cc8402478ee11e59d5c000c29b92d09"]
+        msr_id_list = [6]
         #response = self.app.get('dav/aqxapi/get/readings/tsplot/systems/' + str(system_uid_list) +  '/measurements/' + str(msr_id_list))
 
-        actual_result = davAPI.get_readings_for_plot(system_uid_list,msr_id_list)
+        #actual_result = davAPI.get_readings_for_plot(system_uid_list,msr_id_list)
+
+        actual_result =   analyticsViews.get_readings_for_tsplot(system_uid_list,msr_id_list)
 
         print actual_result
+
 if __name__ == '__main__':
     unittest.main()

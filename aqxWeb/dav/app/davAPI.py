@@ -348,10 +348,11 @@ class DavAPI:
                 # This condition takes care of all but the last reading
                 else:
                     reading = all_readings[i]
+                    print reading
                     curDate = reading[1]
                     # Calculate the difference in hours from previous reading
                     x = self.calcDiffInHours(curDate,startDate)
-
+                    print x
 
                 # If x >  prevX, build the values object and append to the values list
                 if x > prevX:
