@@ -262,6 +262,35 @@ class User:
             raise "Exception occured in function add_comment "
 
     ############################################################################
+    # function : test_add_comment
+    # purpose : Adds new comment node in neo4j with the given information and creates
+    #            POSTED relationship between Post and User node with id 1
+    # params :
+    #        newcomment : contains the data shared in comment
+    #        postid : post id for which the comment has been added
+    # Exceptions : cypher.CypherError, cypher.CypherTransactionError
+    # returns : None
+    ############################################################################
+
+    def test_add_comment(self, newcomment, postid):
+        user = self.find()
+        # print(user)
+        comment = Node(
+            "Comment",
+            id=str(1),
+            content=newcomment,
+            user_sql_id=self.sql_id,
+            user_display_name=user['displayName'],
+            creation_time=timestamp(),
+            modified_time=timestamp())
+        post = getGraphConnectionURI().find_one("Post", "id", postid)
+        rel = Relationship(post, 'HAS', comment)
+        try:
+            getGraphConnectionURI().create(rel)
+        except cypher.CypherError, cypher.CypherTransactionError:
+            raise "Exception occured in function test_add_comment "
+
+    ############################################################################
     # function : edit_comment
     # purpose : Edits comment node in neo4j with the given id
     # params :
@@ -605,7 +634,7 @@ class User:
         except cypher.CypherError, cypher.CypherTransactionError:
             raise "Exception occured in function get_user_by_google_id()"
 
-            # END OF USER class
+    # END OF USER class
 
 
 ############################################################################
@@ -648,6 +677,63 @@ def get_all_recent_comments():
         return comments
     except cypher.CypherError, cypher.CypherTransactionError:
         raise "Exception occured in function get_all_recent_comments "
+
+############################################################################
+# function : get_total_likes_for_posts
+# purpose : gets all likes from db
+# params : None
+# returns : set of postids and number of likes for all posts
+# Exceptions : cypher.CypherError, cypher.CypherTransactionError
+############################################################################
+def get_total_likes_for_posts():
+    query = """
+    MATCH (u:User)-[r:LIKED]->(p:Post)
+    RETURN p.id as postid, count(*) as likecount
+    """
+    try:
+        totalLikes = getGraphConnectionURI().cypher.execute(query)
+        return totalLikes
+    except cypher.CypherError, cypher.CypherTransactionError:
+        raise "Exception occured in function get_total_likes_for_posts"
+
+############################################################################
+# function : get_all_post_owners
+# purpose : gets all posts and their owners from db
+# params : None
+# returns : set of postids and userid for all posts
+# Exceptions : cypher.CypherError, cypher.CypherTransactionError
+############################################################################
+def get_all_post_owners():
+    query = """
+    MATCH (u:User)-[r:POSTED]->(p:Post)
+    RETURN p.id as postid, u.sql_id as userid
+    ORDER BY p.modified_time DESC
+    """
+    try:
+        postOwners = getGraphConnectionURI().cypher.execute(query)
+        return postOwners
+    except cypher.CypherError, cypher.CypherTransactionError:
+        raise "Exception occured in function get_all_post_owners "
+
+############################################################################
+# function : get_all_recent_likes
+# purpose : gets all likes from db
+# params : None
+# returns : set of postids and userid who liked those posts
+# Exceptions : cypher.CypherError, cypher.CypherTransactionError
+############################################################################
+def get_all_recent_likes():
+    query = """
+    MATCH (u:User)-[r:LIKED]->(p:Post)
+    RETURN p.id as postid, u.sql_id as userid
+    ORDER BY p.modified_time DESC
+    """
+    try:
+        likes = getGraphConnectionURI().cypher.execute(query)
+        return likes
+    except cypher.CypherError, cypher.CypherTransactionError:
+        raise "Exception occured in function get_all_recent_likes "
+
 
 
 ############################################################################

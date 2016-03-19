@@ -1,5 +1,6 @@
 from flask import Blueprint, request, session, redirect, url_for, render_template, flash, Response, jsonify,json
-from models import User, get_all_recent_posts, get_all_recent_comments
+from models import User, get_all_recent_posts, get_all_recent_comments, get_all_recent_likes
+from models import get_total_likes_for_posts, get_all_post_owners
 from models import System
 from models import get_app_instance, getGraphConnectionURI
 from py2neo import cypher
@@ -67,7 +68,6 @@ def authorized(resp):
 def get_access_token():
     return session.get('access_token')
 
-
 @social.route('/index')
 #######################################################################################
 # function : index
@@ -78,9 +78,13 @@ def get_access_token():
 def index():
     posts = get_all_recent_posts()
     comments = get_all_recent_comments()
+    likes = get_all_recent_likes()
+    totalLikes = get_total_likes_for_posts()
+    postOwners = get_all_post_owners()
     privacy = {"Friends", "Public"}
-    return render_template('home.html', posts=posts, comments=comments, privacy_options=privacy)
-
+    return render_template('home.html', posts=posts, comments=comments,
+                           privacy_options=privacy, likes=likes,
+                           totalLikes=totalLikes, postOwners=postOwners)
 
 @social.route('/login')
 #######################################################################################
@@ -144,7 +148,6 @@ def signin():
         if 'image' in googleAPIResponse:
             image=googleAPIResponse['image']
             imgurl = image['url']
-
         else:
             imgurl = "/static/images/default_profile.png"
         session['img']=imgurl
@@ -551,6 +554,8 @@ def view_system(system_uid):
                 created_date = convertMilliSecondsToNormalDate(system_neo4j[0][0]['creation_time'])
                 # system_mysql = System().get_mysql_system_by_uid(system_uid)
                 system_mysql = system_neo4j
+                # measurements = analyticsViews.get_system_measurements(sql_id)
+                # print (measurements)
                 user_privilege = system.get_user_privilege_for_system(sql_id, system_uid)
                 system_admins = system.get_system_admins(system_uid)
                 system_participants = system.get_system_participants(system_uid)
@@ -762,29 +767,55 @@ def add_comment():
     return redirect(url_for('social.index'))
 
 
-@social.route('/edit_comment', methods=['POST'])
+@social.route('/edit_or_delete_comment', methods=['POST'])
+#######################################################################################
+# function : edit_or_delete_comment
+# purpose : edits or delete existing comments using unique comment id
+# parameters : None
+# returns: calls index function
+# Exception : None
+#######################################################################################
+def edit_or_delete_comment():
+    if session.get('uid') is not None:
+        commentid = request.form['commentid']
+        if commentid == "" or commentid == None:
+            flash('Comment not found to edit')
+            redirect(url_for('social.index'))
+        else:
+            comment = request.form['editedcomment']
+            if request.form['submit'] == 'deleteComment':
+                User(session['uid']).delete_comment(commentid)
+                flash('Your post has been deleted')
+            elif request.form['submit'] == 'editComment':
+                if comment == "" or comment == None:
+                    flash('Comment can not be empty')
+                    redirect(url_for('social.index'))
+                else:
+                    User(session['uid']).edit_comment(comment, commentid)
+                    flash('Your comment has been updated')
+    return redirect(url_for('social.index'))
+
+social.route('/edit_comment', methods=['POST'])
 #######################################################################################
 # function : edit_comment
-# purpose : edits existing comments using unique comment id
+# purpose : edits comments using unique comment id
 # parameters : None
 # returns: calls index function
 # Exception : None
 #######################################################################################
 def edit_comment():
-    comment = request.form['editedcomment']
-    commentid = request.form['commentid']
-
-    if comment == "" or comment == None:
-        flash('Comment can not be empty')
-        redirect(url_for('social.index'))
-    elif commentid == "" or commentid == None:
-        flash('Comment not found to edit')
-        redirect(url_for('social.index'))
-    else:
-        User(session['uid']).edit_comment(comment, commentid)
-        flash('Your comment has been updated')
+    if session.get('uid') is not None:
+        commentid = request.form['commentid']
+        if commentid == "" or commentid == None:
+            flash('Comment not found to edit')
+        else:
+            comment = request.form['editedcomment']
+            if comment == "" or comment == None:
+                flash('Comment can not be empty')
+            else:
+                User(session['uid']).edit_comment(comment, commentid)
+                flash('Your comment has been updated')
     return redirect(url_for('social.index'))
-
 
 @social.route('/edit_post', methods=['POST'])
 #######################################################################################
@@ -820,7 +851,6 @@ def edit_post():
 #######################################################################################
 def delete_comment():
     commentid = request.form['commentid']
-
     if commentid == "" or commentid == None:
         flash('Comment not found to delete')
         redirect(url_for('social.index'))
@@ -850,6 +880,32 @@ def add_post():
             flash('Your post has been shared')
     return redirect(url_for('social.index'))
 
+@social.route('/like_or_unlike_post', methods=['POST'])
+#######################################################################################
+# function : like_or_unlike_post
+# purpose : like or unlike existing post using unique post id
+# parameters : None
+# returns: calls index function
+# Exception : None
+#######################################################################################
+def like_or_unlike_post():
+    if request.method == 'POST':
+        if session.get('uid') is not None:
+            postid = request.form['postid']
+            print('This is a post i')
+            print(postid)
+
+            print(request.form['submit'])
+            if postid == "":
+                flash('Can not find the post to delete.')
+            else:
+                if request.form['submit'] == 'likePost':
+                    User(session['uid']).like_post(postid)
+                    flash('You liked the post')
+                elif request.form['submit'] == 'unlikePost':
+                    User(session['uid']).unlike_post(postid)
+                    flash('You unliked the post')
+            return redirect(url_for('social.index'))
 
 @social.route('/delete_post', methods=['POST'])
 #######################################################################################
@@ -1084,4 +1140,26 @@ def test_add_post():
         else:
             User(session['uid']).test_add_post(text, privacy, link)
             flash('Your post has been shared')
+    return redirect(url_for('social.index'))
+
+@social.route('/test_add_comment', methods=['POST'])
+#######################################################################################
+# function : test_add_comment
+# purpose : tests adds comments to the post
+# parameters : None
+# returns: calls index function
+# Exception : None
+#######################################################################################
+def test_add_comment():
+    comment = request.form['newcomment']
+    postid = request.form['postid']
+    if comment == "" or comment == None:
+        flash('Comment can not be empty')
+        redirect(url_for('social.index'))
+    elif postid == "" or postid == None:
+        flash('Post not found to comment on')
+        redirect(url_for('social.index'))
+    else:
+        User(session['uid']).test_add_comment(comment, postid)
+        flash('Your comment has been posted')
     return redirect(url_for('social.index'))

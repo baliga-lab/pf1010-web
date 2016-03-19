@@ -46,6 +46,28 @@ class FlaskTestCase(unittest.TestCase):
             )
             self.assertTrue(res is not None)
 
+    # Ensure that edit_comment works correctly
+    def test_edit_comment(self):
+        with app.test_client() as client:
+            with client.session_transaction() as sess:
+                sess['username'] = "nisha"
+            res = client.post(
+                "/edit_comment",
+                data=dict(editedcomment="This is a comment", commentid="1")
+            )
+            self.assertTrue(res is not None)
+
+    # Ensure that delete_comment works correctly
+    def test_delete_comment(self):
+        with app.test_client() as client:
+            with client.session_transaction() as sess:
+                sess['username'] = "nisha"
+            res = client.post(
+                "/delete_comment",
+                data=dict(commentid="1")
+            )
+            self.assertTrue(res is not None)
+
     # Ensure that like_post works correctly
     def test_like_post(self):
         with app.test_client() as client:
@@ -53,6 +75,39 @@ class FlaskTestCase(unittest.TestCase):
                 sess['username'] = "nisha"
             res = client.post(
                 "/like_post",
+                data=dict(postid="1")
+            )
+            self.assertTrue(res is not None)
+
+    # Ensure that unlike_post works correctly
+    def test_unlike_post(self):
+        with app.test_client() as client:
+            with client.session_transaction() as sess:
+                sess['username'] = "nisha"
+            res = client.post(
+                "/unlike_post",
+                data=dict(postid="1")
+            )
+            self.assertTrue(res is not None)
+
+    # Ensure that delete_post works correctly
+    def test_edit_post(self):
+        with app.test_client() as client:
+            with client.session_transaction() as sess:
+                sess['username'] = "nisha"
+            res = client.post(
+                "/edit_post",
+                data=dict(postid="1",editedpost="This is edited post")
+            )
+            self.assertTrue(res is not None)
+
+    # Ensure that delete_post works correctly
+    def test_delete_post(self):
+        with app.test_client() as client:
+            with client.session_transaction() as sess:
+                sess['username'] = "nisha"
+            res = client.post(
+                "/delete_post",
                 data=dict(postid="1")
             )
             self.assertTrue(res is not None)
