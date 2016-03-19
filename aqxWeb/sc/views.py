@@ -342,6 +342,40 @@ def friends():
         return render_template("/home.html")
 
 #######################################################################################
+# function : accept_friend_request
+# purpose : renders friends.html to let the user perform activities related to friends
+# parameters : None
+# returns: friends.html
+# Exception : None
+###############################################################################
+@social.route('/accept_friend_request/<u_sql_id>', methods=['GET','POST'])
+def accept_friend_request(u_sql_id):
+      accepted_sql_id = u_sql_id
+      User(session['uid']).accept_friend_request(accepted_sql_id)
+      User(session['uid']).delete_friend_request(accepted_sql_id)
+      flash('Friend Request Accepted');
+      return redirect(url_for('social.pendingRequest'))
+
+
+#######################################################################################
+# function : decline_friend_request
+# purpose : declines friend request
+# parameters : None
+# returns: pendingRequest.html
+# Exception : None
+###############################################################################
+@social.route('/decline_friend_request/<u_sql_id>', methods=['GET','POST'])
+def decline_friend_request(u_sql_id):
+      accepted_sql_id = u_sql_id
+      User(session['uid']).delete_friend_request(accepted_sql_id)
+      flash('Friend Request Deleted');
+      return redirect(url_for('social.pendingRequest'))
+
+
+
+
+
+#######################################################################################
 # function : pendingRequest
 # purpose : renders pendingRequests of the logged in user
 # parameters : None

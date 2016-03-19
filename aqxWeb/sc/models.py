@@ -1,6 +1,6 @@
 from py2neo import Graph, Node, Relationship, cypher
 import time
-import datetime
+from datetime import datetime
 import uuid
 
 
@@ -408,6 +408,61 @@ class User:
                                                              receiver_sid=user2.properties["sql_id"]);
         except cypher.CypherError, cypher.CypherTransactionError:
             raise "Exception occured in function send_friend_request "
+
+
+############################################################################
+    # function : accept_friend_request
+    # purpose : accepts friend request from intended user in the system
+    # params : None
+    # returns : None
+    # Exceptions : cypher.CypherError, cypher.CypherTransactionError
+    ############################################################################
+    def accept_friend_request(self, receiver_sql_id):
+        user = self.find()
+        user2 = User(int(receiver_sql_id)).find()
+        print(datetime.now());
+        print("In accept_friend_request")
+        query = """
+            MATCH  (n:User),(n1:User)
+            Where n.sql_id = {acceptor_sid} AND n1.sql_id = {accepted_sid}
+            CREATE (n)- [r:FRIENDS{date:{today}}] ->(n1)
+            RETURN r
+        """
+        try:
+            results = getGraphConnectionURI().cypher.execute(query, acceptor_sid=user.properties["sql_id"],
+                                                             accepted_sid=user2.properties["sql_id"],today = datetime.now());
+        except cypher.CypherError, cypher.CypherTransactionError:
+            raise "Exception occured in function accept_friend_request "
+
+
+############################################################################
+    # function : delete_friend_request
+    # purpose : delete sent  request on declining or on becoming friends
+    # params : None
+    # returns : None
+    # Exceptions : cypher.CypherError, cypher.CypherTransactionError
+    ############################################################################
+    def delete_friend_request(self, receiver_sql_id):
+        user = self.find()
+        user2 = User(int(receiver_sql_id)).find()
+        print(datetime.now());
+        print("In accept_friend_request")
+        query = """
+            MATCH  (n:User) - [r:SentRequest] - (n1:User)
+            Where n.sql_id = {acceptor_sid} AND n1.sql_id = {accepted_sid}
+            delete r
+
+        """
+        try:
+            results = getGraphConnectionURI().cypher.execute(query, acceptor_sid=user.properties["sql_id"],
+                                                             accepted_sid=user2.properties["sql_id"],today = datetime.now());
+        except cypher.CypherError, cypher.CypherTransactionError:
+            raise "Exception occured in function delete_sent_request "
+
+
+
+
+
 
     ############################################################################
     # function : get_pending_friend_request
