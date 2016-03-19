@@ -1,6 +1,6 @@
 from py2neo import Graph, Node, Relationship, cypher
 import time
-from datetime import datetime
+import datetime
 import uuid
 
 
@@ -420,7 +420,7 @@ class User:
     def accept_friend_request(self, receiver_sql_id):
         user = self.find()
         user2 = User(int(receiver_sql_id)).find()
-        print(datetime.now());
+        print(date());
         print("In accept_friend_request")
         query = """
             MATCH  (n:User),(n1:User)
@@ -430,7 +430,7 @@ class User:
         """
         try:
             results = getGraphConnectionURI().cypher.execute(query, acceptor_sid=user.properties["sql_id"],
-                                                             accepted_sid=user2.properties["sql_id"],today = datetime.now());
+                                                             accepted_sid=user2.properties["sql_id"],today = date());
         except cypher.CypherError, cypher.CypherTransactionError:
             raise "Exception occured in function accept_friend_request "
 
@@ -445,8 +445,8 @@ class User:
     def delete_friend_request(self, receiver_sql_id):
         user = self.find()
         user2 = User(int(receiver_sql_id)).find()
-        print(datetime.now());
-        print("In accept_friend_request")
+
+        print("In delete_friend_request")
         query = """
             MATCH  (n:User) - [r:SentRequest] - (n1:User)
             Where n.sql_id = {acceptor_sid} AND n1.sql_id = {accepted_sid}
@@ -455,7 +455,7 @@ class User:
         """
         try:
             results = getGraphConnectionURI().cypher.execute(query, acceptor_sid=user.properties["sql_id"],
-                                                             accepted_sid=user2.properties["sql_id"],today = datetime.now());
+                                                             accepted_sid=user2.properties["sql_id"]);
         except cypher.CypherError, cypher.CypherTransactionError:
             raise "Exception occured in function delete_sent_request "
 
@@ -541,12 +541,21 @@ class User:
     # returns : friend list of the user
     # Exceptions : cypher.CypherError, cypher.CypherTransactionError
     ############################################################################
-    def get_my_friends(self):
-        my_sql_id = self.sql_id
-        my_friends_query = "MATCH (friends { sql_id:{sql_id} })-[:FRIENDS]->(res) RETURN res.sql_id"
+    def get_my_friends(self,u_sql_id):
+        my_sql_id = u_sql_id
+        print("hi")
+
+        query = """
+            MATCH (n:User)-[r:FRIENDS]-(n1:User)
+            WHERE n1.sql_id = {sql_id}
+            return n
+            ORDER BY n.givenName
+        """
+
         try:
-            frnds_res = getGraphConnectionURI().cypher.execute(my_friends_query, sql_id = my_sql_id);
-            return frnds_res
+            friendlist = getGraphConnectionURI().cypher.execute(query, sql_id = my_sql_id);
+
+            return friendlist
         except cypher.CypherError, cypher.CypherTransactionError:
             raise "Exception occured in function get_my_friends"
 

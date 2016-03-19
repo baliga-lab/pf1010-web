@@ -334,12 +334,12 @@ def profile(google_id):
 # returns: friends.html
 # Exception : None
 ###############################################################################
-@social.route('/friends', methods=['GET'])
-def friends():
-    if session.get('uid') is not None:
-        return render_template("friends.html")
-    else:
-        return render_template("/home.html")
+#@social.route('/friends', methods=['GET'])
+#def friends():
+#    if session.get('uid') is not None:
+#        return render_template("friends.html")
+#    else:
+#        return render_template("/home.html")
 
 #######################################################################################
 # function : accept_friend_request
@@ -371,6 +371,26 @@ def decline_friend_request(u_sql_id):
       flash('Friend Request Deleted');
       return redirect(url_for('social.pendingRequest'))
 
+#######################################################################################
+# function : myFriends
+# purpose : renders Friends of the logged in user
+# parameters : None
+# returns: friends.html
+# Exception : None
+#######################################################################################
+@social.route('/friends', methods=['GET', 'POST'])
+def friends():
+    if request.method == 'GET':
+        if session.get('uid') is not None:
+            u_sql_id = User(session['uid']).get_user_sql_id()
+            print("sqlid")
+            print (u_sql_id)
+            Friends = User(session['uid']).get_my_friends(u_sql_id);
+            return render_template("/friends.html",Friends = Friends)
+    else:
+        return render_template("/home.html")
+
+#######################################################################################
 
 
 
