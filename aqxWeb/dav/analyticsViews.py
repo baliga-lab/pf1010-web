@@ -4,7 +4,6 @@ from mysql.connector.pooling import MySQLConnectionPool
 import os
 import json
 from app.davAPI import DavAPI
-import yaml
 
 dav = Blueprint('dav', __name__, template_folder='templates',static_folder='static')
 
@@ -77,7 +76,7 @@ def index():
 
 @dav.route('/analyzeGraph', methods=['POST'])
 def analyzeGraph():
-    systems_and_measurements_json = get_readings_for_tsplot(["5cc8402478ee11e59d5c000c29b92d09"],[6,8])
+
     # print str(response)
     # print response['response']
 
@@ -165,12 +164,14 @@ def analyzeGraph():
     # selected_systemID_list = ["system_12345", "system_54321"]
     selected_systemID_list = ["5cc8402478ee11e59d5c000c29b92d09"]
     measurement_types = ["Nitrate", "Nitrite", "Hardness", "Chlorine", "Alkalinity", "pH", "Ammonia", "Water Temp", "Light intensity",
-                         "Light wavelength","Light intensity","DO","NO3","NH4","Day length","Conductivity"]
+                         "Light wavelength","Light intensity","DO","NO3","NH4","Day length","Conductivity", "o2"]
 
     # get measurement information
     # text = request.form['text']
     # content = request.json
     # data = json.dumps(request.form.get('selectedSystems'))
+    # print data
+    systems_and_measurements_json = get_readings_for_tsplot(selected_systemID_list,[6,8])
 
     return render_template("analyze.html", **locals())
 
