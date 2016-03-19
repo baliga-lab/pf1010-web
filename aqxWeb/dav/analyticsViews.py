@@ -4,6 +4,7 @@ from mysql.connector.pooling import MySQLConnectionPool
 import os
 import json
 from app.davAPI import DavAPI
+import yaml
 
 dav = Blueprint('dav', __name__, template_folder='templates',static_folder='static')
 
@@ -76,91 +77,96 @@ def index():
 
 @dav.route('/analyzeGraph', methods=['POST'])
 def analyzeGraph():
-    systems_and_measurements_json = \
-        {'response':
-            [
-                { 'name': 'system_12345' ,
-                  'system_uid': '12344',
-                  'measurement': [
-                      { 'type': 'pH',
-                        'values':
-                            [{ 'x' : 0, 'y' : 2.0, 'date': '03:03:16:00' },
-                             { 'x' : 1, 'y' : 3.0, 'date': '03:03:16:01' },
-                             { 'x' : 2, 'y' : 1.3, 'date': '03:03:16:02' },
-                             { 'x' : 5, 'y' : 2.5, 'date': '03:03:16:00' },
-                             { 'x' : 8, 'y' : 1.6, 'date': '03:03:16:01' },
-                             { 'x' : 13, 'y' : 3.7, 'date': '03:03:16:02' },
-                             { 'x' : 14, 'y' : 4.6, 'date': '03:03:16:00' },
-                             { 'x' : 15, 'y' : 5.5, 'date': '03:03:16:01' },
-                             { 'x' : 16, 'y' : 4.6, 'date': '03:03:16:02' },
-                             { 'x' : 21, 'y' : 3.0, 'date': '03:03:16:00' },
-                             { 'x' : 30, 'y' : 11.0, 'date': '03:03:16:01' },
-                             { 'x' : 35, 'y' : 12.8, 'date': '03:03:16:02' }]
-                        },
-                      { 'type': 'nitrate',
-                        'values':
-                            [{ 'x' : 0, 'y' : 42.0, 'date': '03:03:16:00' },
-                             { 'x' : 1, 'y' : 33.0, 'date': '03:03:16:01' },
-                             { 'x' : 2, 'y' : 31.3, 'date': '03:03:16:02' },
-                             { 'x' : 5, 'y' : 32.5, 'date': '03:03:16:00' },
-                             { 'x' : 8, 'y' : 31.6, 'date': '03:03:16:01' },
-                             { 'x' : 13, 'y' : 43.7, 'date': '03:03:16:02' },
-                             { 'x' : 14, 'y' : 54.6, 'date': '03:03:16:00' },
-                             { 'x' : 15, 'y' : 55.5, 'date': '03:03:16:01' },
-                             { 'x' : 16, 'y' : 64.6, 'date': '03:03:16:02' },
-                             { 'x' : 21, 'y' : 33.0, 'date': '03:03:16:00' },
-                             { 'x' : 30, 'y' : 41.0, 'date': '03:03:16:01' },
-                             { 'x' : 35, 'y' : 42.8, 'date': '03:03:16:02' }]
-                        },
-                      { 'type': 'hardness',
-                        'values':
-                            [{ 'x' : 11, 'y' : 4.5, 'date': '03:01:16:12'},
-                             { 'x' : 17, 'y' : 6.5, 'date': '03:01:22:12'},
-                             { 'x' : 19, 'y' : 9.5, 'date': '03:02:00:12'}]
-                        }
-                  ]
-                  },
-                { 'name': 'system_23145',
-                  'system_uid': '23145',
-                  'measurement':
-                      [
-                          { 'type': 'pH',
-                            'values':
-                                [{ 'x' : 0, 'y' : 6.0, 'date': '03:03:16:00' },
-                                 { 'x' : 1, 'y' : 9.0, 'date': '03:03:16:01' },
-                                 { 'x' : 2, 'y' : 12.3, 'date': '03:03:16:02' },
-                                 { 'x' : 5, 'y' : 12.5, 'date': '03:03:16:00' },
-                                 { 'x' : 8, 'y' : 12.6, 'date': '03:03:16:01' },
-                                 { 'x' : 13, 'y' : 12.7, 'date': '03:03:16:02' },
-                                 { 'x' : 14, 'y' : 12.6, 'date': '03:03:16:00' },
-                                 { 'x' : 15, 'y' : 12.5, 'date': '03:03:16:01' },
-                                 { 'x' : 16, 'y' : 12.6, 'date': '03:03:16:02' },
-                                 { 'x' : 21, 'y' : 11.0, 'date': '03:03:16:00' },
-                                 { 'x' : 30, 'y' : 9.0, 'date': '03:03:16:01' },
-                                 { 'x' : 35, 'y' : 9.8, 'date': '03:03:16:02' }]
-                            },
-                          { 'type': 'nitrate',
-                            'values':
-                                [{ 'x' : 1, 'y' : 6.5, 'date': '03:01:16:12'},
-                                 { 'x' : 7, 'y' : 6.5, 'date': '03:01:22:12'},
-                                 { 'x' : 9, 'y' : 1.5, 'date': '03:02:00:12'}]
-                            },
-                          { 'type': 'hardness',
-                            'values':
-                                [{ 'x' : 11, 'y' : 1.5, 'date': '03:01:16:12'},
-                                 { 'x' : 17, 'y' : 6.5, 'date': '03:01:22:12'},
-                                 { 'x' : 19, 'y' : 1.5, 'date': '03:02:00:12'}]
-                            }
-                      ]
-                  }
-            ]
-        }
+    systems_and_measurements_json = get_readings_for_tsplot(["5cc8402478ee11e59d5c000c29b92d09"],[6,8])
+    # print str(response)
+    # print response['response']
 
-    systems_and_measurements_json = systems_and_measurements_json['response']
-    selected_systemID_list = ["system_12345", "system_54321"]
+    # systems_and_measurements_json = \
+    #     {'response':
+    #         [
+    #             { 'name': 'system_12345' ,
+    #               'system_uid': '12344',
+    #               'measurement': [
+    #                   { 'type': 'pH',
+    #                     'values':
+    #                         [{ 'x' : 0, 'y' : 2.0, 'date': '03:03:16:00' },
+    #                          { 'x' : 1, 'y' : 3.0, 'date': '03:03:16:01' },
+    #                          { 'x' : 2, 'y' : 1.3, 'date': '03:03:16:02' },
+    #                          { 'x' : 5, 'y' : 2.5, 'date': '03:03:16:00' },
+    #                          { 'x' : 8, 'y' : 1.6, 'date': '03:03:16:01' },
+    #                          { 'x' : 13, 'y' : 3.7, 'date': '03:03:16:02' },
+    #                          { 'x' : 14, 'y' : 4.6, 'date': '03:03:16:00' },
+    #                          { 'x' : 15, 'y' : 5.5, 'date': '03:03:16:01' },
+    #                          { 'x' : 16, 'y' : 4.6, 'date': '03:03:16:02' },
+    #                          { 'x' : 21, 'y' : 3.0, 'date': '03:03:16:00' },
+    #                          { 'x' : 30, 'y' : 11.0, 'date': '03:03:16:01' },
+    #                          { 'x' : 35, 'y' : 12.8, 'date': '03:03:16:02' }]
+    #                     },
+    #                   { 'type': 'nitrate',
+    #                     'values':
+    #                         [{ 'x' : 0, 'y' : 42.0, 'date': '03:03:16:00' },
+    #                          { 'x' : 1, 'y' : 33.0, 'date': '03:03:16:01' },
+    #                          { 'x' : 2, 'y' : 31.3, 'date': '03:03:16:02' },
+    #                          { 'x' : 5, 'y' : 32.5, 'date': '03:03:16:00' },
+    #                          { 'x' : 8, 'y' : 31.6, 'date': '03:03:16:01' },
+    #                          { 'x' : 13, 'y' : 43.7, 'date': '03:03:16:02' },
+    #                          { 'x' : 14, 'y' : 54.6, 'date': '03:03:16:00' },
+    #                          { 'x' : 15, 'y' : 55.5, 'date': '03:03:16:01' },
+    #                          { 'x' : 16, 'y' : 64.6, 'date': '03:03:16:02' },
+    #                          { 'x' : 21, 'y' : 33.0, 'date': '03:03:16:00' },
+    #                          { 'x' : 30, 'y' : 41.0, 'date': '03:03:16:01' },
+    #                          { 'x' : 35, 'y' : 42.8, 'date': '03:03:16:02' }]
+    #                     },
+    #                   { 'type': 'hardness',
+    #                     'values':
+    #                         [{ 'x' : 11, 'y' : 4.5, 'date': '03:01:16:12'},
+    #                          { 'x' : 17, 'y' : 6.5, 'date': '03:01:22:12'},
+    #                          { 'x' : 19, 'y' : 9.5, 'date': '03:02:00:12'}]
+    #                     }
+    #               ]
+    #               },
+    #             { 'name': 'system_23145',
+    #               'system_uid': '23145',
+    #               'measurement':
+    #                   [
+    #                       { 'type': 'pH',
+    #                         'values':
+    #                             [{ 'x' : 0, 'y' : 6.0, 'date': '03:03:16:00' },
+    #                              { 'x' : 1, 'y' : 9.0, 'date': '03:03:16:01' },
+    #                              { 'x' : 2, 'y' : 12.3, 'date': '03:03:16:02' },
+    #                              { 'x' : 5, 'y' : 12.5, 'date': '03:03:16:00' },
+    #                              { 'x' : 8, 'y' : 12.6, 'date': '03:03:16:01' },
+    #                              { 'x' : 13, 'y' : 12.7, 'date': '03:03:16:02' },
+    #                              { 'x' : 14, 'y' : 12.6, 'date': '03:03:16:00' },
+    #                              { 'x' : 15, 'y' : 12.5, 'date': '03:03:16:01' },
+    #                              { 'x' : 16, 'y' : 12.6, 'date': '03:03:16:02' },
+    #                              { 'x' : 21, 'y' : 11.0, 'date': '03:03:16:00' },
+    #                              { 'x' : 30, 'y' : 9.0, 'date': '03:03:16:01' },
+    #                              { 'x' : 35, 'y' : 9.8, 'date': '03:03:16:02' }]
+    #                         },
+    #                       { 'type': 'nitrate',
+    #                         'values':
+    #                             [{ 'x' : 1, 'y' : 6.5, 'date': '03:01:16:12'},
+    #                              { 'x' : 7, 'y' : 6.5, 'date': '03:01:22:12'},
+    #                              { 'x' : 9, 'y' : 1.5, 'date': '03:02:00:12'}]
+    #                         },
+    #                       { 'type': 'hardness',
+    #                         'values':
+    #                             [{ 'x' : 11, 'y' : 1.5, 'date': '03:01:16:12'},
+    #                              { 'x' : 17, 'y' : 6.5, 'date': '03:01:22:12'},
+    #                              { 'x' : 19, 'y' : 1.5, 'date': '03:02:00:12'}]
+    #                         }
+    #                   ]
+    #               }
+    #         ]
+    #     }
+
+    # systems_and_measurements_json = systems_and_measurements_json['response']
+    # selected_systemID_list = ["system_12345", "system_54321"]
+    selected_systemID_list = ["5cc8402478ee11e59d5c000c29b92d09"]
     measurement_types = ["Nitrate", "Nitrite", "Hardness", "Chlorine", "Alkalinity", "pH", "Ammonia", "Water Temp", "Light intensity",
                          "Light wavelength","Light intensity","DO","NO3","NH4","Day length","Conductivity"]
-    measurement_units = [{'type':'nitrate', 'unit':''}]
+
     # get measurement information
     # text = request.form['text']
     # content = request.json
