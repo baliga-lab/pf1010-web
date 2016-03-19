@@ -80,6 +80,8 @@
     </script>
     <script>
         var systems_and_measurements = {{ systems_and_measurements_json | safe }};
+        systems_and_measurements = systems_and_measurements.response;
+        console.log(systems_and_measurements);
         var dropdown_values = {{ measurement_types | safe }};
         var selectedSystemIDs = {{ selected_systemID_list|safe }};
         $(document).ready(main());
