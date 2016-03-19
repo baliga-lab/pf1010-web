@@ -262,6 +262,35 @@ class User:
             raise "Exception occured in function add_comment "
 
     ############################################################################
+    # function : test_add_comment
+    # purpose : Adds new comment node in neo4j with the given information and creates
+    #            POSTED relationship between Post and User node with id 1
+    # params :
+    #        newcomment : contains the data shared in comment
+    #        postid : post id for which the comment has been added
+    # Exceptions : cypher.CypherError, cypher.CypherTransactionError
+    # returns : None
+    ############################################################################
+
+    def test_add_comment(self, newcomment, postid):
+        user = self.find()
+        # print(user)
+        comment = Node(
+            "Comment",
+            id=str(1),
+            content=newcomment,
+            user_sql_id=self.sql_id,
+            user_display_name=user['displayName'],
+            creation_time=timestamp(),
+            modified_time=timestamp())
+        post = getGraphConnectionURI().find_one("Post", "id", postid)
+        rel = Relationship(post, 'HAS', comment)
+        try:
+            getGraphConnectionURI().create(rel)
+        except cypher.CypherError, cypher.CypherTransactionError:
+            raise "Exception occured in function test_add_comment "
+
+    ############################################################################
     # function : edit_comment
     # purpose : Edits comment node in neo4j with the given id
     # params :
@@ -581,7 +610,7 @@ class User:
         except cypher.CypherError, cypher.CypherTransactionError:
             raise "Exception occured in function get_user_by_google_id()"
 
-            # END OF USER class
+    # END OF USER class
 
 
 ############################################################################

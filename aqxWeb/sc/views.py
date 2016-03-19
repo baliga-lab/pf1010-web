@@ -5,7 +5,6 @@ from models import System
 from models import get_app_instance, getGraphConnectionURI
 from py2neo import cypher
 from app.scAPI import ScAPI
-from dav import analyticsViews
 from flask_login import login_required
 from flask_googlelogin import LoginManager, make_secure_token,GoogleLogin
 from models import  convertMilliSecondsToNormalDate, get_sqlId
@@ -778,6 +777,27 @@ def edit_or_delete_comment():
                     flash('Your comment has been updated')
     return redirect(url_for('social.index'))
 
+social.route('/edit_comment', methods=['POST'])
+#######################################################################################
+# function : edit_comment
+# purpose : edits comments using unique comment id
+# parameters : None
+# returns: calls index function
+# Exception : None
+#######################################################################################
+def edit_comment():
+    if session.get('uid') is not None:
+        commentid = request.form['commentid']
+        if commentid == "" or commentid == None:
+            flash('Comment not found to edit')
+        else:
+            comment = request.form['editedcomment']
+            if comment == "" or comment == None:
+                flash('Comment can not be empty')
+            else:
+                User(session['uid']).edit_comment(comment, commentid)
+                flash('Your comment has been updated')
+    return redirect(url_for('social.index'))
 
 @social.route('/edit_post', methods=['POST'])
 #######################################################################################
@@ -813,7 +833,6 @@ def edit_post():
 #######################################################################################
 def delete_comment():
     commentid = request.form['commentid']
-
     if commentid == "" or commentid == None:
         flash('Comment not found to delete')
         redirect(url_for('social.index'))
@@ -1103,4 +1122,26 @@ def test_add_post():
         else:
             User(session['uid']).test_add_post(text, privacy, link)
             flash('Your post has been shared')
+    return redirect(url_for('social.index'))
+
+@social.route('/test_add_comment', methods=['POST'])
+#######################################################################################
+# function : test_add_comment
+# purpose : tests adds comments to the post
+# parameters : None
+# returns: calls index function
+# Exception : None
+#######################################################################################
+def test_add_comment():
+    comment = request.form['newcomment']
+    postid = request.form['postid']
+    if comment == "" or comment == None:
+        flash('Comment can not be empty')
+        redirect(url_for('social.index'))
+    elif postid == "" or postid == None:
+        flash('Post not found to comment on')
+        redirect(url_for('social.index'))
+    else:
+        User(session['uid']).test_add_comment(comment, postid)
+        flash('Your comment has been posted')
     return redirect(url_for('social.index'))
