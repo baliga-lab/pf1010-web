@@ -296,10 +296,13 @@ class DavAPI:
         # For each measurement type, form the list of readings
         for measurement_type in measurement_type_list:
 
+            valueList=[]
+
             if readings:
-                valueList = self.form_values_list(self,measurement_type,readings[measurement_type])
-            else:
-                valueList=[]
+                if readings[measurement_type]:
+                    valueList = self.form_values_list(self,measurement_type,readings[measurement_type])
+                else:
+                    valueList=[]
 
             measurement = {
                 "type" : measurement_type,
@@ -348,12 +351,9 @@ class DavAPI:
                 # This condition takes care of all but the last reading
                 else:
                     reading = all_readings[i]
-                    print reading
                     curDate = reading[1]
                     # Calculate the difference in hours from previous reading
                     x = self.calcDiffInHours(curDate,startDate)
-                    print x
-
                 # If x >  prevX, build the values object and append to the values list
                 if x > prevX:
 

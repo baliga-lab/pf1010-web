@@ -99,10 +99,13 @@ class DavApiTest(unittest.TestCase):
 
         actual_result = davAPI.get_readings_for_plot(system_uid_list,msr_id_list)
         #actual_result = json.loads(response.data)
+        print "actual = " + str(actual_result)
+        expected_result = '{"response": [{"system_uid": "5cc8402478ee11e59d5c000c29b92d09", ' \
+                          '"name": "AQXQA", "measurement": [{"values": [{"y": 0.0, "x": 0, "date": "2015-12-10 20:11:43"}, {"y": 0.0, "x": 2, "date": "2015-12-10 22:12:09"}, {"y": 0.0, "x": 27, "date": "2015-12-11 23:17:27"}, {"y": 0.0, "x": 97, "date": "2015-12-14 22:03:00"}, {"y": 0.0, "x": 160, "date": "2015-12-17 12:15:18"}, {"y": 0.0, "x": 193, "date": "2015-12-18 21:17:09"}, {"y": 0.0, "x": 529, "date": "2016-01-01 21:50:43"}, {"y": 0.0, "x": 675, "date": "2016-01-08 00:10:59"}, {"y": 0.0, "x": 695, "date": "2016-01-08 20:09:51"}], "type": "o2"}]}]}'
 
-        expected_result = {"response": [{"system_uid": "5cc8402478ee11e59d5c000c29b92d09", "name": "AQXQA", "measurement": [{"values": [{"y": 105.0, "x": 0, "date": "2016-03-18 18:50:00"}, {"y": 112.0, "x": 1, "date": "2016-03-18 19:45:00"}, {"y": 109.0, "x": 24, "date": "2016-03-19 18:45:00"}], "type": "o2"}]}]}
+        print "expected = " + expected_result
 
-        #self.assertEqual(len(str(actual_result)),len(str(expected_result)))
+        self.assertEquals(actual_result,expected_result)
 
     def test_get_readings_for_plot2(self):
 
@@ -130,6 +133,21 @@ class DavApiTest(unittest.TestCase):
         #response = self.app.get('dav/aqxapi/get/readings/tsplot/systems/' + str(system_uid_list) +  '/measurements/' + str(msr_id_list))
 
         #actual_result = davAPI.get_readings_for_plot(system_uid_list,msr_id_list)
+
+        actual_result =   analyticsViews.get_readings_for_tsplot(system_uid_list,msr_id_list)
+
+        print actual_result
+
+    def test_get_readings_for_plot4(self):
+
+        davAPI = DavAPI(self.conn)
+
+        views = analyticsViews.get_conn()
+
+        system_uid_list =  ["a26f85668efa11e5997f000c29b92d09","5cc8402478ee11e59d5c000c29b92d09"]
+
+        msr_id_list = [6]
+
 
         actual_result =   analyticsViews.get_readings_for_tsplot(system_uid_list,msr_id_list)
 
