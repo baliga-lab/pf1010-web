@@ -371,6 +371,24 @@ def decline_friend_request(u_sql_id):
       flash('Friend Request Deleted');
       return redirect(url_for('social.pendingRequest'))
 
+
+#######################################################################################
+# function : delete_friend
+# purpose : deletes friend
+# parameters : None
+# returns: friends.html
+# Exception : None
+###############################################################################
+@social.route('/delete_friend/<u_sql_id>', methods=['GET','POST'])
+def delete_friend(u_sql_id):
+      accepted_sql_id = u_sql_id
+      User(session['uid']).delete_friend(accepted_sql_id)
+      flash('Friend  Deleted');
+      return redirect(url_for('social.friends'))
+
+
+
+
 #######################################################################################
 # function : myFriends
 # purpose : renders Friends of the logged in user

@@ -31,7 +31,7 @@
                          <td>{{ row.n.displayName}}</td>
                          <td>
                             <a type="button"   class="btn btn-primary">Block</a>
-                            <a type="button"  class="btn btn-primary">Delete</a>
+                            <a type="button" href="{{ url_for('social.delete_friend', u_sql_id=row.n.sql_id) }}" class="btn btn-primary">Delete</a>
                          </td>
                         </tr>
 

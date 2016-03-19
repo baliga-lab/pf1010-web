@@ -457,7 +457,31 @@ class User:
             results = getGraphConnectionURI().cypher.execute(query, acceptor_sid=user.properties["sql_id"],
                                                              accepted_sid=user2.properties["sql_id"]);
         except cypher.CypherError, cypher.CypherTransactionError:
-            raise "Exception occured in function delete_sent_request "
+            raise "Exception occured in function delete_friend_request "
+
+############################################################################
+    # function : delete_friend
+    # purpose : delete sent  request on declining or on becoming friends
+    # params : None
+    # returns : None
+    # Exceptions : cypher.CypherError, cypher.CypherTransactionError
+    ############################################################################
+    def delete_friend(self, receiver_sql_id):
+        user = self.find()
+        user2 = User(int(receiver_sql_id)).find()
+
+        print("In delete_friend_request")
+        query = """
+            MATCH  (n:User) - [r:FRIENDS] - (n1:User)
+            Where n.sql_id = {acceptor_sid} AND n1.sql_id = {accepted_sid}
+            delete r
+
+        """
+        try:
+            results = getGraphConnectionURI().cypher.execute(query, acceptor_sid=user.properties["sql_id"],
+                                                             accepted_sid=user2.properties["sql_id"]);
+        except cypher.CypherError, cypher.CypherTransactionError:
+            raise "Exception occured in function delete_friend "
 
 
 
