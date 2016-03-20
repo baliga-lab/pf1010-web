@@ -69,13 +69,13 @@
                                                value="{{ participant[0]["google_id"] }}">
                                         <input type="hidden" name="system_uid"
                                                value="{{ system_neo4j[0][0]["system_uid"] }}">
-                                        <button type="submit" class="btn btn-primary" name="submit"
+                                        <button type="submit" class="btn btn-danger" name="submit"
                                                 value="DeleteParticipant" onclick="return getUserConsent()">Delete
                                         </button>
-                                        <button type="submit" class="btn btn-primary" name="submit"
+                                        <button type="submit" class="btn btn-success" name="submit"
                                                 value="MakeAdmin" onclick="return getUserConsent()">Make Admin
                                         </button>
-                                        <button type="submit" class="btn btn-primary" name="submit"
+                                        <button type="submit" class="btn btn-success" name="submit"
                                                 value="MakeSubscriber" onclick="return getUserConsent()">Make Subscriber
                                         </button>
                                     </form>
@@ -142,7 +142,7 @@
                                                value="{{ system_neo4j[0][0]["system_uid"] }}">
                                         <!-- Self Delete Is Prevented -->
                                         {% if admin[0]["sql_id"] != logged_in_user["sql_id"] %}
-                                            <button type="submit" class="btn btn-primary" name="submit"
+                                            <button type="submit" class="btn btn-danger" name="submit"
                                                     value="DeleteAdmin" onclick="return getUserConsent()">Delete
                                             </button>
                                         {% endif %}
@@ -209,13 +209,13 @@
                                                value="{{ subscriber[0]["google_id"] }}">
                                         <input type="hidden" name="system_uid"
                                                value="{{ system_neo4j[0][0]["system_uid"] }}">
-                                        <button type="submit" class="btn btn-primary" name="submit"
+                                        <button type="submit" class="btn btn-danger" name="submit"
                                                 value="DeleteSubscriber" onclick="return getUserConsent()">Delete
                                         </button>
-                                        <button type="submit" class="btn btn-primary" name="submit"
+                                        <button type="submit" class="btn btn-success" name="submit"
                                                 value="MakeAdmin" onclick="return getUserConsent()">Make Admin
                                         </button>
-                                        <button type="submit" class="btn btn-primary" name="submit"
+                                        <button type="submit" class="btn btn-success" name="submit"
                                                 value="MakeParticipant" onclick="return getUserConsent()">Make Participant
                                         </button>
                                     </form>

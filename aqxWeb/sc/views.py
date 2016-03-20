@@ -253,6 +253,8 @@ def editprofile():
 #######################################################################################
 @social.route('/updateprofile', methods=['POST'])
 def updateprofile():
+    if session.get('uid') is None:
+        return redirect(url_for('social.index'))
     givenName = request.form.get('givenName', None)
     familyName = request.form.get('familyName', None)
     displayName = request.form.get('displayName', None)
@@ -277,6 +279,8 @@ def updateprofile():
 #######################################################################################
 @social.route('/profile/<google_id>', methods=['GET'])
 def profile(google_id):
+    if session.get('uid') is None:
+        return redirect(url_for('social.index'))
     try:
         # accessing google API to retrieve profile data
         google_profile = get_google_profile(google_id)
@@ -584,8 +588,8 @@ def search_systems():
 @social.route('/systems/<system_uid>', methods=['GET', 'POST'])
 def view_system(system_uid):
     sql_id = session.get('uid')
-    # sql_id = 33
-    # system_uid = "416f3f2e3fe411e597b1000c29b92e09"
+    # sql_id = 29
+    # system_uid = "2e79ea8a411011e5aac7000c29b92d09"
     if sql_id is None:
         return redirect(url_for('social.search_systems'))
     try:
