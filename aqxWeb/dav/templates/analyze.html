@@ -28,8 +28,8 @@
                     <label class="control-label">Select X Axis</label>
                     <select class="dropdown" id="selectXAxis">
                         <option name="xAxisTypes" value="time" selected="selected">Time</option>
-                        {% for key, value in measurement_types_and_ids.iteritems() %}
-                            <option name="xAxisTypes" value="{{key}}">{{ key }}</option>
+                        {% for type in measurement_types %}
+                            <option name="xAxisTypes" value="{{type.lower()}}">{{ type }}</option>
                         {% endfor %}
                     </select>
                 </div>
@@ -38,8 +38,8 @@
                 <div class="form-group">
                     <label class="control-label">Select Y Axis</label>
                     <select class="js-example-basic-multiple dropdown" multiple="multiple" id="selectYAxis">
-                        {% for key, value in measurement_types_and_ids.iteritems() %}
-                            <option value="{{key}}">{{ key }}</option>
+                        {% for type in measurement_types %}
+                            <option value="{{type.lower()}}">{{ type }}</option>
                         {% endfor %}
                     </select>
                 </div>
@@ -82,8 +82,8 @@
         var systems_and_measurements = {{ systems_and_measurements_json | safe }};
         systems_and_measurements = systems_and_measurements.response;
         console.log(systems_and_measurements);
+        var dropdown_values = {{ measurement_types | safe }};
         var selectedSystemIDs = {{ selected_systemID_list|safe }};
-        var measurement_types_and_ids = {{ measurement_types_and_ids | safe }};
         $(document).ready(main());
     </script>
 {% endblock %}
