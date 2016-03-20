@@ -1,4 +1,4 @@
-from flask import Blueprint, request, session, redirect, url_for, render_template, flash, Response, jsonify,json
+from flask import Blueprint, request, session, redirect, url_for, render_template, flash, Response, jsonify, json
 from models import User, get_all_recent_posts, get_all_recent_comments, get_all_recent_likes
 from models import get_total_likes_for_posts, get_all_post_owners
 from models import System
@@ -6,34 +6,33 @@ from models import get_app_instance, getGraphConnectionURI
 from py2neo import cypher
 from app.scAPI import ScAPI
 from flask_login import login_required
-from flask_googlelogin import LoginManager, make_secure_token,GoogleLogin
-from models import  convertMilliSecondsToNormalDate, get_sqlId
+from flask_googlelogin import LoginManager, make_secure_token, GoogleLogin
+from models import convertMilliSecondsToNormalDate, get_sqlId
 import mysql.connector
 import requests
 import aqxdb
 import logging
 import json
 from flask_oauth import OAuth
+
 oauth = OAuth()
-#GOOGLE_CLIENT_ID='757190606234-pnqru7tabom1p1hhvpm0d3c3lnjk2vv4.apps.googleusercontent.com',
-#GOOGLE_CLIENT_SECRET='wklqAsOoVtn44AP-EIePEGmQ',
+# GOOGLE_CLIENT_ID='757190606234-pnqru7tabom1p1hhvpm0d3c3lnjk2vv4.apps.googleusercontent.com',
+# GOOGLE_CLIENT_SECRET='wklqAsOoVtn44AP-EIePEGmQ',
 
 google = oauth.remote_app('google',
                           base_url='https://www.google.com/accounts/',
                           authorize_url='https://accounts.google.com/o/oauth2/auth',
                           request_token_url=None,
-                          request_token_params={'scope': 'https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/plus.login',
-                                                'response_type': 'code'},
+                          request_token_params={
+                              'scope': 'https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/plus.login',
+                              'response_type': 'code'},
                           access_token_url='https://accounts.google.com/o/oauth2/token',
                           access_token_method='POST',
                           access_token_params={'grant_type': 'authorization_code'},
                           consumer_key='757190606234-pnqru7tabom1p1hhvpm0d3c3lnjk2vv4.apps.googleusercontent.com',
                           consumer_secret='wklqAsOoVtn44AP-EIePEGmQ')
 
-
-
 social = Blueprint('social', __name__, template_folder='templates', static_folder="static")
-
 
 
 #######################################################################################
@@ -48,9 +47,10 @@ def dbconn():
                                    host=get_app_instance().config['HOST'],
                                    database=get_app_instance().config['DB'])
 
+
 @social.route('/getToken')
 def getToken():
-    callback=url_for('social.authorized', _external=True)
+    callback = url_for('social.authorized', _external=True)
     return google.authorize(callback=callback)
 
 
@@ -67,6 +67,7 @@ def authorized(resp):
 @google.tokengetter
 def get_access_token():
     return session.get('access_token')
+
 
 @social.route('/index')
 #######################################################################################
@@ -85,6 +86,7 @@ def index():
     return render_template('home.html', posts=posts, comments=comments,
                            privacy_options=privacy, likes=likes,
                            totalLikes=totalLikes, postOwners=postOwners)
+
 
 @social.route('/login')
 #######################################################################################
@@ -134,29 +136,29 @@ def Home():
 # Exception : app.logger.exception
 #######################################################################################
 def signin():
-   try:
+    try:
         access_token = session.get('access_token')
         access_token = access_token[0]
         r = requests.get('https://www.googleapis.com/plus/v1/people/me?access_token=' + access_token)
-       # content=r.content
+        # content=r.content
         print(r.content)
         googleAPIResponse = json.loads(r.content)
-        #googleAPIResponsev=json.loads(googleAPIResponse)
+        # googleAPIResponsev=json.loads(googleAPIResponse)
         print(googleAPIResponse)
         logging.debug("signed in: %s", str(googleAPIResponse))
         google_id = googleAPIResponse['id']
         if 'image' in googleAPIResponse:
-            image=googleAPIResponse['image']
+            image = googleAPIResponse['image']
             imgurl = image['url']
         else:
             imgurl = "/static/images/default_profile.png"
-        session['img']=imgurl
+        session['img'] = imgurl
         user_id = get_user(google_id, googleAPIResponse)
         emails = googleAPIResponse['emails']
         email = emails[0]['value']
         logging.debug("user: %s img: %s", user_id, imgurl)
         return redirect(url_for('social.index'))
-   except:
+    except:
         logging.exception("Got an exception")
         raise
 
@@ -207,12 +209,12 @@ def get_google_profile(google_id):
             img_url = image['url'].replace('?sz=50', '')
 
         if google_plus_account_url is not None:
-            plus_url =  google_response['url']
+            plus_url = google_response['url']
 
         google_profile = {
             "displayName": google_response['displayName'],
             "google_id": google_response['id'],
-            "plus_url":plus_url,
+            "plus_url": plus_url,
             "img_url": img_url
         }
 
@@ -232,7 +234,7 @@ def get_google_profile(google_id):
 def editprofile():
     if session.get('uid') is not None:
         user = User(session['uid']).find()
-        #google_profile = get_google_profile('me')
+        # google_profile = get_google_profile('me')
         return render_template("profile_edit.html", user=user)
     else:
         return render_template("/home.html")
@@ -284,11 +286,11 @@ def profile(google_id):
             participated_systems = System().get_participated_systems(session['uid'])
             subscribed_systems = System().get_subscribed_systems(session['uid'])
         else:
-            sqlId=get_sqlId(google_id)
+            sqlId = get_sqlId(google_id)
             if not sqlId:
                 return redirect(url_for('social.Home'))
             else:
-                id=sqlId[0]["sql_id"]
+                id = sqlId[0]["sql_id"]
                 admin_systems = System().get_admin_systems(id)
                 participated_systems = System().get_participated_systems(id)
                 subscribed_systems = System().get_subscribed_systems(id)
@@ -296,16 +298,15 @@ def profile(google_id):
                 print(subscribed_systems)
                 print(admin_systems.records == [])
 
-
             user_profile = User(session['uid']).get_user_by_google_id(google_id)
             privacy = {"Friends", "Private", "Public"}
 
         if admin_systems.records == []:
-            admin_systems="None"
+            admin_systems = "None"
         if participated_systems.records == []:
-            participated_systems="None"
+            participated_systems = "None"
         if subscribed_systems.records == []:
-            subscribed_systems="None"
+            subscribed_systems = "None"
         # Invalid User ID
         if user_profile is None:
             return redirect(url_for('social.home'))
@@ -325,10 +326,12 @@ def profile(google_id):
             comments = get_all_recent_comments()
 
             return render_template("profile.html", user_profile=user_profile, google_profile=google_profile,
-                                   posts=posts, comments=comments, privacy_options=privacy,participated_systems=participated_systems
-                                   ,subscribed_systems=subscribed_systems,admin_systems=admin_systems)
+                                   posts=posts, comments=comments, privacy_options=privacy,
+                                   participated_systems=participated_systems
+                                   , subscribed_systems=subscribed_systems, admin_systems=admin_systems)
     except Exception as e:
         logging.exception("Exception at view_profile: " + str(e))
+
 
 #######################################################################################
 # function : friends
@@ -337,8 +340,8 @@ def profile(google_id):
 # returns: friends.html
 # Exception : None
 ###############################################################################
-#@social.route('/friends', methods=['GET'])
-#def friends():
+# @social.route('/friends', methods=['GET'])
+# def friends():
 #    if session.get('uid') is not None:
 #        return render_template("friends.html")
 #    else:
@@ -351,13 +354,13 @@ def profile(google_id):
 # returns: friends.html
 # Exception : None
 ###############################################################################
-@social.route('/accept_friend_request/<u_sql_id>', methods=['GET','POST'])
+@social.route('/accept_friend_request/<u_sql_id>', methods=['GET', 'POST'])
 def accept_friend_request(u_sql_id):
-      accepted_sql_id = u_sql_id
-      User(session['uid']).accept_friend_request(accepted_sql_id)
-      User(session['uid']).delete_friend_request(accepted_sql_id)
-      flash('Friend Request Accepted');
-      return redirect(url_for('social.pendingRequest'))
+    accepted_sql_id = u_sql_id
+    User(session['uid']).accept_friend_request(accepted_sql_id)
+    User(session['uid']).delete_friend_request(accepted_sql_id)
+    flash('Friend Request Accepted');
+    return redirect(url_for('social.pendingRequest'))
 
 
 #######################################################################################
@@ -367,12 +370,12 @@ def accept_friend_request(u_sql_id):
 # returns: pendingRequest.html
 # Exception : None
 ###############################################################################
-@social.route('/decline_friend_request/<u_sql_id>', methods=['GET','POST'])
+@social.route('/decline_friend_request/<u_sql_id>', methods=['GET', 'POST'])
 def decline_friend_request(u_sql_id):
-      accepted_sql_id = u_sql_id
-      User(session['uid']).delete_friend_request(accepted_sql_id)
-      flash('Friend Request Deleted');
-      return redirect(url_for('social.pendingRequest'))
+    accepted_sql_id = u_sql_id
+    User(session['uid']).delete_friend_request(accepted_sql_id)
+    flash('Friend Request Deleted');
+    return redirect(url_for('social.pendingRequest'))
 
 
 #######################################################################################
@@ -415,14 +418,12 @@ def unblock_friend(u_sql_id):
 # returns: friends.html
 # Exception : None
 ###############################################################################
-@social.route('/delete_friend/<u_sql_id>', methods=['GET','POST'])
+@social.route('/delete_friend/<u_sql_id>', methods=['GET', 'POST'])
 def delete_friend(u_sql_id):
-      accepted_sql_id = u_sql_id
-      User(session['uid']).delete_friend(accepted_sql_id)
-      flash('Friend  Deleted');
-      return redirect(url_for('social.friends'))
-
-
+    accepted_sql_id = u_sql_id
+    User(session['uid']).delete_friend(accepted_sql_id)
+    flash('Friend  Deleted');
+    return redirect(url_for('social.friends'))
 
 
 #######################################################################################
@@ -440,12 +441,17 @@ def friends():
             print("sqlid")
             print (u_sql_id)
             Friends = User(session['uid']).get_my_friends(u_sql_id);
+
             UnblockedFriend = User(session['uid']).get_my_blocked_friends(u_sql_id);
             print("Unblocked")
             print(UnblockedFriend)
             return render_template("/friends.html",Friends = Friends,UnblockedFriend = UnblockedFriend)
+
+            return render_template("/friends.html", Friends=Friends)
+
     else:
         return render_template("/home.html")
+
 
 #######################################################################################
 
@@ -467,9 +473,10 @@ def pendingRequest():
             print("sqlid")
             print (u_sql_id)
             pendingRequests = User(session['uid']).get_pending_friend_request(u_sql_id);
-            return render_template("/pendingRequest.html",pendingRequests = pendingRequests)
+            return render_template("/pendingRequest.html", pendingRequests=pendingRequests)
     else:
         return render_template("/home.html")
+
 
 #######################################################################################
 # function : recofriends
@@ -490,9 +497,10 @@ def recofriends():
             reco_user['r_friend'] = row
             reco_user['m_info'] = mutual_row
             return_list.append(reco_user)
-        return render_template("recofriends.html", recolist = return_list)
+        return render_template("recofriends.html", recolist=return_list)
     else:
         return render_template("/home.html")
+
 
 #######################################################################################
 # function : searchFriends
@@ -508,6 +516,7 @@ def searchFriends():
         return render_template("searchFriends.html")
     else:
         return render_template("/home.html")
+
 
 #######################################################################################
 # function : send_friend_request
@@ -533,33 +542,32 @@ def send_friend_request(u_sql_id):
 @social.route('/systems', methods=['GET', 'POST'])
 @social.route('/systems/', methods=['GET', 'POST'])
 def search_systems():
-    if request.method == 'POST':
-        if session.get('uid') is not None:
+    sql_id = session.get('uid')
+    # sql_id = 29
+    if sql_id is None:
+        return redirect(url_for('social.index'))
+    else:
+        if request.method == 'POST':
             systemName = request.form['txtSystemName']
             system_search_results = System().get_system_by_name(systemName)
-            admin_systems = System().get_admin_systems(session.get('uid'))
-            participated_systems = System().get_participated_systems(session.get('uid'))
-            subscribed_systems = System().get_subscribed_systems(session.get('uid'))
-            recommended_systems = System().get_recommended_systems(session.get('uid'))
+            admin_systems = System().get_admin_systems(sql_id)
+            participated_systems = System().get_participated_systems(sql_id)
+            subscribed_systems = System().get_subscribed_systems(sql_id)
+            recommended_systems = System().get_recommended_systems(sql_id)
             all_systems = System().get_all_systems()
             return render_template("system_search.html", post_method="true", search_param=systemName,
                                    system_search_results=system_search_results, admin_systems=admin_systems,
                                    participated_systems=participated_systems, subscribed_systems=subscribed_systems,
                                    recommended_systems=recommended_systems, all_systems=all_systems)
-        else:
-            return redirect(url_for('social.index'))
-    elif request.method == 'GET':
-        if session.get('uid') is not None:
-            admin_systems = System().get_admin_systems(session.get('uid'))
-            participated_systems = System().get_participated_systems(session.get('uid'))
-            subscribed_systems = System().get_subscribed_systems(session.get('uid'))
-            recommended_systems = System().get_recommended_systems(session.get('uid'))
+        elif request.method == 'GET':
+            admin_systems = System().get_admin_systems(sql_id)
+            participated_systems = System().get_participated_systems(sql_id)
+            subscribed_systems = System().get_subscribed_systems(sql_id)
+            recommended_systems = System().get_recommended_systems(sql_id)
             all_systems = System().get_all_systems()
             return render_template("system_search.html", admin_systems=admin_systems,
                                    participated_systems=participated_systems, subscribed_systems=subscribed_systems,
                                    recommended_systems=recommended_systems, all_systems=all_systems)
-        else:
-            return redirect(url_for('social.index'))
 
 
 #######################################################################################
@@ -573,8 +581,8 @@ def search_systems():
 @social.route('/systems/<system_uid>', methods=['GET', 'POST'])
 def view_system(system_uid):
     sql_id = session.get('uid')
-    #sql_id = 33
-    #system_uid = "416f3f2e3fe411e597b1000c29b92e09"
+    # sql_id = 33
+    # system_uid = "416f3f2e3fe411e597b1000c29b92e09"
     if sql_id is None:
         return redirect(url_for('social.search_systems'))
     try:
@@ -599,14 +607,13 @@ def view_system(system_uid):
                 participants_pending_approval = system.get_participants_pending_approval(system_uid)
                 subscribers_pending_approval = system.get_subscribers_pending_approval(system_uid)
                 return render_template("system_social.html", system_neo4j=system_neo4j, system_mysql=system_mysql,
-                                        logged_in_user=logged_in_user, created_date=created_date,
-                                        user_privilege=user_privilege, system_admins=system_admins,
-                                        system_participants=system_participants, system_subscribers=system_subscribers,
-                                        participants_pending_approval=participants_pending_approval,
-                                        subscribers_pending_approval=subscribers_pending_approval)
+                                       logged_in_user=logged_in_user, created_date=created_date,
+                                       user_privilege=user_privilege, system_admins=system_admins,
+                                       system_participants=system_participants, system_subscribers=system_subscribers,
+                                       participants_pending_approval=participants_pending_approval,
+                                       subscribers_pending_approval=subscribers_pending_approval)
     except Exception as e:
         logging.exception("Exception at view_system: " + str(e))
-
 
 
 #######################################################################################
@@ -622,7 +629,7 @@ def approve_reject_system_participant():
         google_id = request.form["google_id"]
         system = System()
         sql_id = session.get('uid')
-        #sql_id = 1;
+        # sql_id = 1;
         if sql_id is not None:
             user_privilege = system.get_user_privilege_for_system(sql_id, system_uid)
             if user_privilege == "SYS_ADMIN":
@@ -630,7 +637,7 @@ def approve_reject_system_participant():
                     system.approve_system_participant(google_id, system_uid)
                 elif request.form['submit'] == 'Reject':
                     system.reject_system_participant(google_id, system_uid)
-        return redirect(url_for('social.view_system', system_uid=system_uid ))
+        return redirect(url_for('social.view_system', system_uid=system_uid))
     else:
         return redirect(url_for('social.search_systems'))
 
@@ -648,7 +655,7 @@ def participate_subscribe_leave_system():
         google_id = request.form["google_id"]
         system = System()
         sql_id = session.get('uid')
-        #sql_id = 1;
+        # sql_id = 1;
         if sql_id is not None:
             user_privilege = system.get_user_privilege_for_system(sql_id, system_uid)
             if user_privilege is None:
@@ -657,11 +664,11 @@ def participate_subscribe_leave_system():
                 elif request.form['submit'] == 'Participate':
                     system.pending_participate_to_system(google_id, system_uid)
             else:
-                if user_privilege == "SYS_ADMIN" or user_privilege == "SYS_PARTICIPANT" or user_privilege == "SYS_SUBSCRIBER"\
+                if user_privilege == "SYS_ADMIN" or user_privilege == "SYS_PARTICIPANT" or user_privilege == "SYS_SUBSCRIBER" \
                         or user_privilege == "SYS_PENDING_PARTICIPANT" or user_privilege == "SYS_PENDING_SUBSCRIBER":
                     if request.form['submit'] == 'Leave':
                         system.leave_system(google_id, system_uid)
-        return redirect(url_for('social.view_system', system_uid=system_uid ))
+        return redirect(url_for('social.view_system', system_uid=system_uid))
     else:
         return redirect(url_for('social.search_systems'))
 
@@ -676,8 +683,8 @@ def participate_subscribe_leave_system():
 @social.route('/manage/systems/<system_uid>', methods=['GET', 'POST'])
 def manage_system(system_uid):
     sql_id = session.get('uid')
-    #sql_id = 29
-    #system_uid = "416f3f2e3fe411e597b1000c29b92e09"
+    # sql_id = 29
+    # system_uid = "416f3f2e3fe411e597b1000c29b92e09"
     if sql_id is None:
         return redirect(url_for('social.index'))
     system = System()
@@ -690,7 +697,7 @@ def manage_system(system_uid):
     # Only Admin of The System Has Privileges To Access The Settings Page
     if user_privilege != "SYS_ADMIN":
         return redirect(url_for('social.search_systems'))
-    if request.method == 'GET' :
+    if request.method == 'GET':
         system_admins = system.get_system_admins(system_uid)
         system_participants = system.get_system_participants(system_uid)
         system_subscribers = system.get_system_subscribers(system_uid)
@@ -699,6 +706,7 @@ def manage_system(system_uid):
                                system_subscribers=system_subscribers)
     elif request.method == 'POST':
         return render_template("system_manage.html")
+
 
 #######################################################################################
 @social.route('/manage/systems/delete_system_participant_or_make_admin', methods=['POST'])
@@ -713,7 +721,7 @@ def delete_system_participant_or_make_admin():
         google_id = request.form["google_id"]
         system = System()
         sql_id = session.get('uid')
-        #sql_id = 29;
+        # sql_id = 29;
         if sql_id is not None:
             user_privilege = system.get_user_privilege_for_system(sql_id, system_uid)
             if user_privilege == "SYS_ADMIN":
@@ -723,7 +731,7 @@ def delete_system_participant_or_make_admin():
                     system.make_admin_for_system(google_id, system_uid)
                 elif request.form['submit'] == "MakeSubscriber":
                     system.make_subscriber_for_system(google_id, system_uid)
-        return redirect(url_for('social.manage_system', system_uid=system_uid ))
+        return redirect(url_for('social.manage_system', system_uid=system_uid))
     else:
         return redirect(url_for('social.search_systems'))
 
@@ -741,15 +749,16 @@ def delete_system_admin():
         google_id = request.form["google_id"]
         system = System()
         sql_id = session.get('uid')
-        #sql_id = 29;
+        # sql_id = 29;
         if sql_id is not None:
             user_privilege = system.get_user_privilege_for_system(sql_id, system_uid)
             if user_privilege == "SYS_ADMIN":
                 if request.form['submit'] == 'DeleteAdmin':
                     system.delete_system_admin(google_id, system_uid)
-        return redirect(url_for('social.manage_system', system_uid=system_uid ))
+        return redirect(url_for('social.manage_system', system_uid=system_uid))
     else:
         return redirect(url_for('social.search_systems'))
+
 
 #######################################################################################
 @social.route('/manage/systems/delete_system_subscriber_or_make_admin', methods=['POST'])
@@ -764,7 +773,7 @@ def delete_system_subscriber_or_make_admin():
         google_id = request.form["google_id"]
         system = System()
         sql_id = session.get('uid')
-        #sql_id = 29;
+        # sql_id = 29;
         if sql_id is not None:
             user_privilege = system.get_user_privilege_for_system(sql_id, system_uid)
             if user_privilege == "SYS_ADMIN":
@@ -774,9 +783,10 @@ def delete_system_subscriber_or_make_admin():
                     system.make_admin_for_system(google_id, system_uid)
                 elif request.form['submit'] == "MakeParticipant":
                     system.make_participant_for_system(google_id, system_uid)
-        return redirect(url_for('social.manage_system', system_uid=system_uid ))
+        return redirect(url_for('social.manage_system', system_uid=system_uid))
     else:
         return redirect(url_for('social.search_systems'))
+
 
 #######################################################################################
 
@@ -831,7 +841,10 @@ def edit_or_delete_comment():
                     flash('Your comment has been updated')
     return redirect(url_for('social.index'))
 
+
 social.route('/edit_comment', methods=['POST'])
+
+
 #######################################################################################
 # function : edit_comment
 # purpose : edits comments using unique comment id
@@ -852,6 +865,7 @@ def edit_comment():
                 User(session['uid']).edit_comment(comment, commentid)
                 flash('Your comment has been updated')
     return redirect(url_for('social.index'))
+
 
 @social.route('/edit_post', methods=['POST'])
 #######################################################################################
@@ -916,6 +930,7 @@ def add_post():
             flash('Your post has been shared')
     return redirect(url_for('social.index'))
 
+
 @social.route('/like_or_unlike_post', methods=['POST'])
 #######################################################################################
 # function : like_or_unlike_post
@@ -942,6 +957,7 @@ def like_or_unlike_post():
                     User(session['uid']).unlike_post(postid)
                     flash('You unliked the post')
             return redirect(url_for('social.index'))
+
 
 @social.route('/delete_post', methods=['POST'])
 #######################################################################################
@@ -1029,7 +1045,7 @@ def getfriends():
             fr_id = fr[0]
             if (user_sql_id == fr_id):
                 friend_status = "Friends"
-        if(user_sql_id == session['uid']):
+        if (user_sql_id == session['uid']):
             friend_status = ""
 
         if not first_name and not last_name:
@@ -1177,6 +1193,7 @@ def test_add_post():
             User(session['uid']).test_add_post(text, privacy, link)
             flash('Your post has been shared')
     return redirect(url_for('social.index'))
+
 
 @social.route('/test_add_comment', methods=['POST'])
 #######################################################################################
