@@ -68,6 +68,10 @@ def authorized(resp):
 def get_access_token():
     return session.get('access_token')
 
+@social.route('/trial')
+def trial():
+    return render_template('dummy.html')
+
 
 @social.route('/index')
 #######################################################################################
