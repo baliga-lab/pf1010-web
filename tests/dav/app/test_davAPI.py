@@ -76,13 +76,13 @@ class DavApiTest(unittest.TestCase):
         self.assertEqual(message, "Value at the given time already recorded", "Test fail")
 
     # method to insert test data
-    def test_generate_data(self):
-        davAPI = DavAPI(self.conn)
-        davAPI.generate_data(0,10,
-                  ['5cc8402478ee11e59d5c000c29b92d09'],
-                 # ['o2','ph','temp','alkalinity','ammonium','chlorine','hardness','light','nitrate'])
-                             ['light'])
-        self.assertEqual("", "", "Test fail")
+    # def test_generate_data(self):
+    #     davAPI = DavAPI(self.conn)
+    #     davAPI.generate_data(0,10,
+    #               ['5cc8402478ee11e59d5c000c29b92d09'],
+    #              # ['o2','ph','temp','alkalinity','ammonium','chlorine','hardness','light','nitrate'])
+    #                          ['light'])
+    #     self.assertEqual("", "", "Test fail")
 
 
     ###  get the readings for plot TESTCASES
@@ -155,6 +155,16 @@ class DavApiTest(unittest.TestCase):
 
         self.assertEquals(actual_result,expected_result)
 
+    def test_get_readings_for_plot7(self):
+
+        system_uid_list =  ["cb08e32e41f111e5b93f000c29b92d09","8fb1f712bf1d11e5adcc000c29b92d09"]
+        msr_id_list = [6,8,9]
+
+        actual_result =   analyticsViews.get_readings_for_tsplot(system_uid_list,msr_id_list)
+        print actual_result
+        expected_result = '{"response": [{"system_uid": "cb08e32e41f111e5b93f000c29b92d09", "name": "My first system", "measurement": [{"values": [], "type": "nitrate"}, {"values": [], "type": "o2"}, {"values": [], "type": "ph"}]}, {"system_uid": "8fb1f712bf1d11e5adcc000c29b92d09", "name": "XYZ", "measurement": [{"values": [], "type": "nitrate"}, {"values": [], "type": "o2"}, {"values": [], "type": "ph"}]}]}'
+
+        self.assertEquals(actual_result,expected_result)
 
 if __name__ == '__main__':
     unittest.main()
