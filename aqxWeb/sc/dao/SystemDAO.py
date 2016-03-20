@@ -30,8 +30,9 @@ class SystemDAO:
                 system_uid = system.get('system_uid')
                 name = system.get('name')
                 description = system.get('description')
+                status = system.get('status')
                 systemNode = Node("System", system_id=system_id, system_uid=system_uid, name=name,
-                                  description=description,
+                                  description=description, status=status,
                                   creation_time=timestamp(), modified_time=timestamp())
                 self.graph.create(systemNode)
                 relationship = Relationship(is_existing_user, "SYS_ADMIN", systemNode)
@@ -49,7 +50,9 @@ class SystemDAO:
         try:
             system = self.graph.find_one("System", "system_id", system_id)
             self.graph.delete(system)
-        except cypher.CypherError, cypher.CypherTransactionError:
+        #except cypher.CypherError, cypher.CypherTransactionError:
+        except Exception as e:
+            print "cypher exception" + str(e)
             raise "Exception occured in function delete_system_by_system_id"
 
             ###############################################################################

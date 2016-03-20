@@ -29,6 +29,7 @@ class ScAPITest(unittest.TestCase):
         "givenName": "Venkatesh",
         "familyName": "Balasubramanian",
         "displayName": "Rahul Bala",
+        "image_url": "https://www.gstatic.com/webp/gallery3/1.png",
         "gender": "male",
         "dob": "03/19/1989",
         "user_type": "farmer",
@@ -40,34 +41,36 @@ class ScAPITest(unittest.TestCase):
     global system_uid
     global systemJSONObject
     system_id = 4209
-    system_uid = "182bdc3c-3fcb-4716-b40d-2cf7i38713a4"
+    system_uid = "1abcd948a5afe11e5a2ac000c29b92d09"
     system_json = {
         "system_id": system_id,
         "system_uid": system_uid,
-        "name": "Coventry System"
+        "name": "Test SC API System",
+        "description": "Test SC API System Description",
+        "status": 0
     }
     systemJSONObject = json.dumps({'user': sql_id, 'system': system_json})
 
-    # Ensure /aqxapi/delete/user/<sql_id> works as expected
+    # Ensure /social/aqxapi/delete/user/<sql_id> works as expected
     def test_07_delete_user(self):
         with app.test_client() as client:
             with client.session_transaction() as session:
                 session['siteadmin'] = "true"
             response = client.delete('/social/aqxapi/delete/user/' + str(sql_id))
 
-    # Ensure /aqxapi/delete/system/<system_id> works as expected
+    # Ensure /social/aqxapi/delete/system/<system_id> works as expected
     def test_06_delete_system(self):
         with app.test_client() as client:
             with client.session_transaction() as session:
                 session['siteadmin'] = "true"
             response = client.delete('/social/aqxapi/delete/system/' + str(system_id))
 
-    # Ensure /aqxapi/put/system works as expected
+    # Ensure /social/aqxapi/put/system works as expected
     def test_05_create_system(self):
         with app.test_client() as client:
             response = client.post('/social/aqxapi/put/system', data=systemJSONObject, content_type='application/json')
 
-    # Ensure /aqxapi/get/user/by_google_id/<sql_id> works as expected
+    # Ensure /social/aqxapi/get/user/by_google_id/<sql_id> works as expected
     def test_04_get_user_by_sql_id(self):
         with app.test_client() as client:
             response = client.get('/social/aqxapi/get/user/by_sql_id/123pxewbcd')
@@ -91,7 +94,7 @@ class ScAPITest(unittest.TestCase):
                     self.assert_('user_type' in user.keys(), "user JSON object should contain user_type")
                     self.assert_('status' in user.keys(), "user JSON object should contain status")
 
-    # Ensure /aqxapi/get/user/by_google_id/<google_id> works as expected
+    # Ensure /social/aqxapi/get/user/by_google_id/<google_id> works as expected
     def test_03_get_user_by_google_id(self):
         with app.test_client() as client:
             response = client.get('/social/aqxapi/get/user/by_google_id/123epcbcd')
@@ -117,7 +120,7 @@ class ScAPITest(unittest.TestCase):
                     self.assert_('user_type' in user.keys(), "user JSON object should contain user_type")
                     self.assert_('status' in user.keys(), "user JSON object should contain status")
 
-    # Ensure /aqxapi/get/user/logged_in_user/ works as expected
+    # Ensure /social/aqxapi/get/user/logged_in_user/ works as expected
     def test_02_get_logged_in_user(self):
         with app.test_client() as client:
             response = client.get('/social/aqxapi/get/user/logged_in_user/')
@@ -145,7 +148,7 @@ class ScAPITest(unittest.TestCase):
                     self.assert_('user_type' in user.keys(), "user JSON object should contain user_type")
                     self.assert_('status' in user.keys(), "user JSON object should contain status")
 
-    # Ensure /aqxapi/put/user works as expected
+    # Ensure /social/aqxapi/put/user works as expected
     def test_01_create_user(self):
         with app.test_client() as client:
             response = client.post('/social/aqxapi/put/user', data=userJSONObject, content_type='application/json')
