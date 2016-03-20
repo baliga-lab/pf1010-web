@@ -25,6 +25,7 @@ class uiAPI:
 
         return json.dumps({'system': result})
 
+
     ###############################################################################
     # get_all_systems_info
     ###############################################################################
@@ -57,6 +58,7 @@ class uiAPI:
 
         return json.dumps({'systems': systems_list})
 
+
     ###############################################################################
     # fetches all filter criteria
     ###############################################################################
@@ -73,6 +75,7 @@ class uiAPI:
             value = result[1]
             vals[type].append(value)
         return json.dumps({'filters': vals})
+
 
     ###############################################################################
     # fetch fetch existing user data
@@ -94,7 +97,7 @@ class uiAPI:
         return json.dumps({'user': user})
 
 
-     ###############################################################################
+    ###############################################################################
     # fetch existing user data
     ###############################################################################
     # param conn : db connection
@@ -112,7 +115,6 @@ class uiAPI:
             "longitude" :str(result[4])
         }
         return json.dumps({'user': user})
-
 
 
 
@@ -152,8 +154,8 @@ class uiAPI:
     # get_all_systems
     ###############################################################################
     # param conn : db connection
-    # get_all_systems() - It returns List of all aquaponics systems, system_uid,name,user_id owning the system
-    #longitude and latitude of system's location as a JSON object.
+    # get_all_systems() - It returns List of all aquaponics systems, system_uid,name,user_id owning
+    # the system longitude and latitude of system's location as a JSON object.
 
     def get_all_systems(self, conn):
         s = MetaSystemsDAO(conn)
@@ -174,7 +176,19 @@ class uiAPI:
         return json.dumps({'systems': systems_list})
 
 
+    ###############################################################################
+    # check_system_exists
+    ###############################################################################
+    # param conn : db connection, system_uid
+    # check_system_exists() - It returns "If system exists:
+    #{"status":"True"}
+    #If system does not exist:
+    #{"status":"False"}
 
-
-
-
+    def check_system_exists(self, conn, system_uid):
+        status = False
+        s = SystemsDAO(conn)
+        system = s.get_system_metadata(self, conn, system_uid)
+        if system is not "null":
+            status = True
+        return json.dumps({"status": str(status)})

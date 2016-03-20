@@ -1,7 +1,6 @@
 from flask import Blueprint, render_template, request, session
 from mysql.connector.pooling import MySQLConnectionPool
 import os
-import json
 from aqxWeb.app.uiAPI import uiAPI
 
 frontend = Blueprint('frontend', __name__, template_folder='templates',static_folder='static')
@@ -107,12 +106,16 @@ def settings():
 def coming():
     return render_template('coming.html')
 
-####
-#
-# SYSTEMS METADATA
-#
-# ####
+#########################
+#                       #
+#  SYSTEMS METADATA     #
+#                       #
+# #######################
 
+
+######################################################################
+# API call to get metadata of a given system
+######################################################################
 @frontend.route('/aqxapi/get/system/meta/<system_uid>', methods=['GET'])
 def get_metadata(system_uid):
     return uiAPI.get_system_metadata(get_conn(), system_uid)
@@ -126,7 +129,7 @@ def get_metadata(system_uid):
 #                          object.
 @frontend.route('/aqxapi/get/systems/metadata')
 def get_all_systems_info():
-    return davAPI.get_all_systems_info(get_conn())
+    return uiAPI.get_all_systems_info(get_conn())
 
 
 ######################################################################
@@ -137,7 +140,7 @@ def get_all_systems_info():
 #                        to filter the displayed systems.
 @frontend.route('/aqxapi/get/systems/filters')
 def get_all_aqx_metadata():
-    return davAPI.get_all_filters_metadata(get_conn())
+    return uiAPI.get_all_filters_metadata(get_conn())
 
 
 ######################################################################
@@ -146,7 +149,16 @@ def get_all_aqx_metadata():
 
 @frontend.route('/aqxapi/get/user/<uid>', methods=['GET'])
 def get_user(uid):
-    return davAPI.get_user(get_conn(), uid)
+    return uiAPI.get_user(get_conn(), uid)
+
+
+######################################################################
+# API call to get user data with googleid
+######################################################################
+
+@frontend.route('/aqxapi/get/user/<googleid>', methods=['GET'])
+def get_user_with_google_id(googleid):
+    return uiAPI.get_user_with_google_id(get_conn(), googleid)
 
 
 ######################################################################
@@ -156,4 +168,38 @@ def get_user(uid):
 @frontend.route('/aqxapi/put/user', methods=['POST'])
 def put_user():
     user = request.get_json()
-    return davAPI.put_user(get_conn(), user)
+    return uiAPI.put_user(get_conn(), user)
+
+
+######################################################################
+# API call to inserting user data
+######################################################################
+
+@frontend.route('/aqxapi/post/user', methods=['POST'])
+def insert_user():
+    user = request.get_json()
+    return uiAPI.insert_user(get_conn(),user)
+
+
+######################################################################
+# API call to get all systems
+# get_all_systems) - It returns List of all aquaponics systems,
+# system_uid,name,user_id owning the system longitude and latitude
+# of system's location as a JSON object.
+######################################################################
+@frontend.route('/aqxapi/get/systems')
+def get_systems():
+     return uiAPI.get_systems(get_conn())
+
+
+######################################################################
+# API call to Check if the system exists
+# check_system_exists) - It returns "If system exists:
+#{"status":"True"}
+#If system does not exist:
+#{"status":"False"}
+######################################################################
+
+@frontend.route('/aqxapi/system/exists/<system_uid>',methods=['GET'])
+def check_system_exists(system_uid):
+     return uiAPI.check_system_exists(get_conn(), system_uid)
