@@ -1,7 +1,7 @@
 from flask import Blueprint, request, session, redirect, url_for, render_template, flash, Response, jsonify, json
 from models import User, get_all_recent_posts, get_all_recent_comments, get_all_recent_likes
 from models import get_total_likes_for_posts, get_all_post_owners
-from models import System
+from models import System, Privacy
 from models import get_app_instance, getGraphConnectionURI
 from py2neo import cypher
 from app.scAPI import ScAPI
@@ -82,9 +82,9 @@ def index():
     likes = get_all_recent_likes()
     totalLikes = get_total_likes_for_posts()
     postOwners = get_all_post_owners()
-    privacy = {"Friends", "Public"}
+    privacy = Privacy([Privacy.FRIENDS, Privacy.PUBLIC], Privacy.FRIENDS)
     return render_template('home.html', posts=posts, comments=comments,
-                           privacy_options=privacy, likes=likes,
+                           privacy_info=privacy, likes=likes,
                            totalLikes=totalLikes, postOwners=postOwners)
 
 
@@ -280,9 +280,8 @@ def profile(google_id):
         # getting data from neo4j
         if google_id == "me":
             user_profile = User(session['uid']).find()
-            privacy = {"Friends", "Public"}
-
             admin_systems = System().get_admin_systems(session['uid'])
+            privacy = Privacy([Privacy.FRIENDS, Privacy.PUBLIC], Privacy.FRIENDS)
             participated_systems = System().get_participated_systems(session['uid'])
             subscribed_systems = System().get_subscribed_systems(session['uid'])
         else:
@@ -299,7 +298,7 @@ def profile(google_id):
                 print(admin_systems.records == [])
 
             user_profile = User(session['uid']).get_user_by_google_id(google_id)
-            privacy = {"Friends", "Private", "Public"}
+            privacy = Privacy([Privacy.FRIENDS, Privacy.PRIVATE, Privacy.PRIVATE], Privacy.FRIENDS)
 
         if admin_systems.records == []:
             admin_systems = "None"
@@ -326,7 +325,7 @@ def profile(google_id):
             comments = get_all_recent_comments()
 
             return render_template("profile.html", user_profile=user_profile, google_profile=google_profile,
-                                   posts=posts, comments=comments, privacy_options=privacy,
+                                   posts=posts, comments=comments, privacy_info=privacy,
                                    participated_systems=participated_systems
                                    , subscribed_systems=subscribed_systems, admin_systems=admin_systems)
     except Exception as e:

@@ -1550,3 +1550,32 @@ class System:
             raise "Exception occured in function get_all_systems"
 
         raise "Exception occured in function get_all_systems"
+
+
+################################################################################
+# Class : Privacy
+# Contains the privacy information, such as default privacy and privacy options
+# Defining Privacy enumeration in a simple way to avoiding extra dependencies
+################################################################################
+class Privacy:
+    # Constants Definition
+    FRIENDS = "Friends"
+    PRIVATE = "Private"
+    PUBLIC = "Public"
+    PARTICIPANTS = "Participants"   # Participants Only
+    SUBSCRIBERS = "Subscribers"     # Participants and Subscribers
+    ANYONE = "Anyone"               # Anyone is approved by default
+    ADMIN_APPROVAL = "Approval"     # Needs to be approved by Admin
+    SPECIFIED = "Specified"         # Defined per post by User
+
+    ############################################################################
+    # function : __init__
+    # purpose : main function sets default privacy and possible privacy options
+    # params :
+    #       privacy_options, default_privacy
+    # returns : None
+    # Exceptions : None
+    ############################################################################
+    def __init__(self, privacy_options, default_privacy):
+        self.privacy_options = privacy_options
+        self.default_privacy = default_privacy

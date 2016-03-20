@@ -15,9 +15,15 @@
                         <div class="form-group pull-right">
                             <i class="fa fa-lock"></i>
                             <select name="privacy" class="form-control">
-                                {% for privacy in privacy_options %}
-                                    <option value="{{ privacy.lower() }}">{{ privacy }}</option>
+                            {% if privacy_info %}
+                                {% for privacy in privacy_info.privacy_options %}
+                                    {% if privacy_info.default_privacy == privacy %}
+                                        <option value="{{ privacy.lower() }}" selected>{{ privacy }}</option>
+                                    {% else %}
+                                        <option value="{{ privacy.lower() }}">{{ privacy }}</option>
+                                    {% endif %}
                                 {% endfor %}
+                            {% endif %}
                             </select>
                             <input type="submit" class="btn btn-green" value="Share">
                         </div>
