@@ -407,7 +407,7 @@ class User:
     def get_friends_and_sentreq(self):
         my_sql_id = self.sql_id
         my_sentreq_query = "MATCH (sentrequests { sql_id:{sql_id} })-[:SentRequest]->(res) RETURN res.sql_id"
-        my_friends_query = "MATCH (friends { sql_id:{sql_id} })-[:FRIENDS]->(res) RETURN res.sql_id"
+        my_friends_query = "MATCH (friends { sql_id:{sql_id} })-[:FRIENDS]-(res) RETURN res.sql_id"
 
         try:
             sentreq_res = getGraphConnectionURI().cypher.execute(my_sentreq_query, sql_id=my_sql_id);
@@ -440,8 +440,7 @@ class User:
             raise "Exception occured in function send_friend_request "
 
 
-            ############################################################################
-
+    ############################################################################
     # function : accept_friend_request
     # purpose : accepts friend request from intended user in the system
     # params : None
@@ -465,15 +464,10 @@ class User:
 
                                                              accepted_sid=user2.properties["sql_id"],today = date(),blocker_id='');
 
-
-
         except cypher.CypherError, cypher.CypherTransactionError:
             raise "Exception occured in function accept_friend_request "
 
-
-
-
-############################################################################
+    ############################################################################
     # function : block_a_friend
     # purpose : blocks a friend
     # params : None
@@ -500,7 +494,7 @@ class User:
             raise "Exception occured in function block_a_friend "
 
 
-############################################################################
+    ############################################################################
     # function : unblock_a_friend
     # purpose : unblocks a friend
     # params : None
@@ -522,15 +516,7 @@ class User:
         except cypher.CypherError, cypher.CypherTransactionError:
             raise "Exception occured in function block_a_friend "
 
-
-
-
-
-############################################################################
-
-            ############################################################################
-
-
+    ############################################################################
     # function : delete_friend_request
     # purpose : delete sent  request on declining or on becoming friends
     # params : None
@@ -554,8 +540,7 @@ class User:
         except cypher.CypherError, cypher.CypherTransactionError:
             raise "Exception occured in function delete_friend_request "
 
-            ############################################################################
-
+    ############################################################################
     # function : delete_friend
     # purpose : delete sent  request on declining or on becoming friends
     # params : None
@@ -658,8 +643,6 @@ class User:
     ############################################################################
     def get_my_friends(self, u_sql_id):
         my_sql_id = u_sql_id
-        print("hi")
-
         query = """
             MATCH (n:User)-[r:FRIENDS]-(n1:User)
             WHERE n1.sql_id = {sql_id} and  r.blocker_id = {blocker_id}
@@ -668,11 +651,7 @@ class User:
         """
 
         try:
-
             friendlist = getGraphConnectionURI().cypher.execute(query, sql_id = my_sql_id, blocker_id="");
-
-
-
 
             return friendlist
         except cypher.CypherError, cypher.CypherTransactionError:
