@@ -76,7 +76,7 @@ def index():
 
 @dav.route('/analyzeGraph', methods=['POST'])
 def analyzeGraph():
-    msr_id_list = [6]
+    msr_id_list = [6, 7, 2, 1, 9, 8, 10]
     measurement_types_and_ids = {	'alkalinity': 1,
                              'ammonium': 2,
                              'chlorine': 3,
