@@ -16,7 +16,7 @@
             <div class="row">
                 <h4>My Friends:</h4>
                 <hr>
-                {% if Friends %}
+                {% if Friends or UnblockedFriend  %}
                     <thead>
                       <tr>
                        <th class="col-sm-1"></th>
@@ -30,12 +30,24 @@
                          <td><img src="{{ url_for('frontend.static', filename='images/users/vileplume.png') }}"></td>
                          <td>{{ row.n.displayName}}</td>
                          <td>
-                            <a type="button"   class="btn btn-primary">Block</a>
+                            <a type="button" href="{{ url_for('social.block_friend', u_sql_id=row.n.sql_id) }}"  class="btn btn-primary">Block</a>
                             <a type="button" href="{{ url_for('social.delete_friend', u_sql_id=row.n.sql_id) }}" class="btn btn-primary">Delete</a>
                          </td>
                         </tr>
 
                     {% endfor %}
+                    {% for row in UnblockedFriend %}
+                        <tr>
+                         <td><img src="{{ url_for('frontend.static', filename='images/users/vileplume.png') }}"></td>
+                         <td>{{ row.n.displayName}}</td>
+                         <td>
+                            <a type="button" href="{{ url_for('social.unblock_friend', u_sql_id=row.n.sql_id) }}"  class="btn btn-primary">UnBlock</a>
+                            <a type="button" href="{{ url_for('social.delete_friend', u_sql_id=row.n.sql_id) }}" class="btn btn-primary">Delete</a>
+                         </td>
+                        </tr>
+
+                    {% endfor %}
+
                     </tbody>
 
                 {% else %}
@@ -47,7 +59,7 @@
                         </ul>
                         <br/>
                         <ul>
-                             Oops! No Pending Friend Requests!
+                             Oops! No  Friends !
                         </ul>
                     </div>
                 {% endif %}

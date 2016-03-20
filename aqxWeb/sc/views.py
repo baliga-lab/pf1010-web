@@ -376,6 +376,39 @@ def decline_friend_request(u_sql_id):
 
 
 #######################################################################################
+# function : block_friend
+# purpose : blocks a friend
+# parameters : None
+# returns: friends.html
+# Exception : None
+###############################################################################
+@social.route('/block_friend/<u_sql_id>', methods=['GET','POST'])
+def block_friend(u_sql_id):
+      blocked_sql_id = u_sql_id
+      User(session['uid']).block_a_friend(blocked_sql_id)
+      flash('Friend Blocked');
+      return redirect(url_for('social.friends'))
+
+
+#######################################################################################
+# function : unblock_friend
+# purpose : unblocks a friend
+# parameters : None
+# returns: friends.html
+# Exception : None
+###############################################################################
+@social.route('/unblock_friend/<u_sql_id>', methods=['GET','POST'])
+def unblock_friend(u_sql_id):
+      blocked_sql_id = u_sql_id
+      User(session['uid']).unblock_a_friend(blocked_sql_id)
+      flash('Friend Blocked');
+      return redirect(url_for('social.friends'))
+
+
+
+
+
+#######################################################################################
 # function : delete_friend
 # purpose : deletes friend
 # parameters : None
@@ -407,7 +440,10 @@ def friends():
             print("sqlid")
             print (u_sql_id)
             Friends = User(session['uid']).get_my_friends(u_sql_id);
-            return render_template("/friends.html",Friends = Friends)
+            UnblockedFriend = User(session['uid']).get_my_blocked_friends(u_sql_id);
+            print("Unblocked")
+            print(UnblockedFriend)
+            return render_template("/friends.html",Friends = Friends,UnblockedFriend = UnblockedFriend)
     else:
         return render_template("/home.html")
 

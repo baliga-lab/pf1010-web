@@ -449,19 +449,74 @@ class User:
     def accept_friend_request(self, receiver_sql_id):
         user = self.find()
         user2 = User(int(receiver_sql_id)).find()
+
         print(date());
         print("In accept_friend_request")
         query = """
             MATCH  (n:User),(n1:User)
             Where n.sql_id = {acceptor_sid} AND n1.sql_id = {accepted_sid}
-            CREATE (n)- [r:FRIENDS{date:{today}}] ->(n1)
-            RETURN r
+            CREATE (n)- [r:FRIENDS{date:{today},blocker_id:{blocker_id}}] ->(n1)
+
         """
         try:
             results = getGraphConnectionURI().cypher.execute(query, acceptor_sid=user.properties["sql_id"],
-                                                             accepted_sid=user2.properties["sql_id"],today = date());
+                                                             accepted_sid=user2.properties["sql_id"],today = date(),blocker_id='');
         except cypher.CypherError, cypher.CypherTransactionError:
             raise "Exception occured in function accept_friend_request "
+
+
+
+############################################################################
+    # function : block_a_friend
+    # purpose : blocks a friend
+    # params : None
+    # returns : None
+    # Exceptions : cypher.CypherError, cypher.CypherTransactionError
+    ############################################################################
+    def block_a_friend(self, blocked_sql_id):
+        user = self.find()
+        user2 = User(int(blocked_sql_id)).find()
+        print("In block_a_friend")
+
+
+        query = """
+            match (n1:User)-[r:FRIENDS]-(n2:User)
+            where n1.sql_id = {blocker_sid} and n2.sql_id = {blocked_sid}
+            set r.blocker_id={blocker_id}
+            return r
+        """
+        try:
+            results = getGraphConnectionURI().cypher.execute(query, blocker_sid=user.properties["sql_id"],
+                                                             blocked_sid=user2.properties["sql_id"],
+                                                             blocker_id=str((user.properties["sql_id"])));
+        except cypher.CypherError, cypher.CypherTransactionError:
+            raise "Exception occured in function block_a_friend "
+
+
+############################################################################
+    # function : unblock_a_friend
+    # purpose : unblocks a friend
+    # params : None
+    # returns : None
+    # Exceptions : cypher.CypherError, cypher.CypherTransactionError
+    ############################################################################
+    def unblock_a_friend(self, blocked_sql_id):
+        user = self.find()
+        user2 = User(int(blocked_sql_id)).find()
+        print("In block_a_friend")
+        query = """
+            match (n1:User)-[r:FRIENDS]-(n2:User)
+            where n1.sql_id = {blocker_sid} and n2.sql_id = {blocked_sid}
+            set r.blocker_id={blocker_id};
+        """
+        try:
+            results = getGraphConnectionURI().cypher.execute(query, blocker_sid=user.properties["sql_id"],
+                                                             blocked_sid=user2.properties["sql_id"],today = date(),blocker_id='');
+        except cypher.CypherError, cypher.CypherTransactionError:
+            raise "Exception occured in function block_a_friend "
+
+
+
 
 
 ############################################################################
@@ -600,17 +655,45 @@ class User:
 
         query = """
             MATCH (n:User)-[r:FRIENDS]-(n1:User)
-            WHERE n1.sql_id = {sql_id}
+            WHERE n1.sql_id = {sql_id} and  r.blocker_id = {blocker_id}
             return n
             ORDER BY n.givenName
         """
 
         try:
-            friendlist = getGraphConnectionURI().cypher.execute(query, sql_id = my_sql_id);
+            friendlist = getGraphConnectionURI().cypher.execute(query, sql_id = my_sql_id, blocker_id="");
 
             return friendlist
         except cypher.CypherError, cypher.CypherTransactionError:
             raise "Exception occured in function get_my_friends"
+
+
+    ############################################################################
+    # function : get_my_blocked_friends
+    # purpose : to get the logged in user's friend list
+    # params : None
+    # returns : friend list of the user
+    # Exceptions : cypher.CypherError, cypher.CypherTransactionError
+    ############################################################################
+    def get_my_blocked_friends(self,u_sql_id):
+        my_sql_id = u_sql_id
+        print("hi")
+
+        query = """
+            MATCH (n:User)-[r:FRIENDS]-(n1:User)
+            WHERE n1.sql_id = {sql_id}  and r.blocker_id = {blocker_id}
+            return n
+            ORDER BY n.givenName
+        """
+
+        try:
+            friendlist = getGraphConnectionURI().cypher.execute(query, sql_id = my_sql_id,blocker_id=str(my_sql_id));
+
+            return friendlist
+        except cypher.CypherError, cypher.CypherTransactionError:
+            raise "Exception occured in function get_my_blocked_friends"
+
+
 
 
     ############################################################################
