@@ -32,7 +32,7 @@ def index():
     return render_template('index.html')
 
 # Common init method for application
-if __name__ == "__main__":
+if __name__ == "__main__":  
     # Initialize the aquaponics db connection
     analyticsViews.init_app(app)
     # Intialize the social component global app instance

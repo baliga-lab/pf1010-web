@@ -127,7 +127,7 @@ class MeasurementsDAO:
         try:
             for system in systems:
                 query = self.create_query1(system,measurements)
-                print query
+                #print query
                 cursor.execute(query)
                 payload[system] = cursor.fetchall()
         finally:
@@ -135,16 +135,16 @@ class MeasurementsDAO:
 
         #create new list for each measurement
         for mea in measurements:
-            print mea
+            #print mea
             values[mea] = []
 
         #add all measurements in a dict
         for s in systems:
             v = payload[s]
-            print s
+            #print s
             if v:
                 for m in v:
-                    print m
+                    #print m
                     key = m[0]
                     #key = m[0].encode('latin-1')
                     #print key
@@ -211,4 +211,4 @@ if __name__ == "__main__":
     m = MeasurementsDAO("")
     ml = ["o2","ph","light"];
     query = m.create_query1("555d0cfe9ebc11e58153000c29b92d09",ml)
-    print query
+    #print query

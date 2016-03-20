@@ -155,8 +155,37 @@ var createYAxis = function(yType, numAxes){
 var updateChartDataPointsHC = function(chart, xType, yTypeList, color, graphType){
     var activeMeasurements = getAllActiveMeasurements();
     var measurementsToFetch = _.difference(yTypeList, activeMeasurements);
+    var measurementIDList = [];
+    _.each(measurementsToFetch, function(measurement){
+       measurementIDList.push(measurement_types_and_ids[measurement]);
+    });
+    console.log(measurementIDList);
+    console.log(selectedSystemIDs);
+
     if (measurementsToFetch.length > 0) {
         console.log("Call API for " + measurementsToFetch);
+        $(function(){
+            $.ajax({
+                type: 'POST',
+                contentType: 'application/json;charset=UTF-8',
+                dataType: 'json',
+                url: '/dav/aqxapi/get/readings/time_series_plot',
+                data: JSON.stringify({systems: selectedSystemIDs, measurements: measurementIDList}, null, '\t'),
+                success: function(data){
+                    console.log('success',data);
+                    var systems = data.response;
+                    _.each(systems, function(system){
+                        var systemMeasurements = system.measurement;
+                        _.each(systems_and_measurements, function(existingSystem){
+                            if (_.isEqual(existingSystem.system_uid, system.system_uid)){
+                                existingSystem.measurement = existingSystem.measurement.concat(systemMeasurements);
+                            }
+                        });
+                    });
+                    console.log(systems_and_measurements);
+                }
+            });
+        });
         // Some AJAX function that grabs data from API or DB, then updates systems_and_measurements with the response
         // selectedSystemIDs is a global carried over from the view fxn
         // updateSystemsAndMeasurementsObject(selectedSystemIDs, measurementsToFetch);

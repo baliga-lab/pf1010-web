@@ -265,7 +265,7 @@ class DavAPI:
         # Retrieve the measurements calling DAO
         data_retrieved = self.mea.get_measurements(system_uid_list,measurement_name_list)
 
-        print "data_retrieved: " + str(data_retrieved)
+        #print "data_retrieved: " + str(data_retrieved)
         system_measurement_list = []
 
         for system_uid in system_uid_list:
@@ -348,11 +348,11 @@ class DavAPI:
                 # This condition takes care of all but the last reading
                 else:
                     reading = all_readings[i]
-                    print reading
+                    # print reading
                     curDate = reading[1]
                     # Calculate the difference in hours from previous reading
                     x = self.calcDiffInHours(curDate,startDate)
-                    print x
+                    #print x
 
                 # If x >  prevX, build the values object and append to the values list
                 if x > prevX:

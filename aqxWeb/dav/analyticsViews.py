@@ -76,107 +76,23 @@ def index():
 
 @dav.route('/analyzeGraph', methods=['POST'])
 def analyzeGraph():
+    msr_id_list = [6]
+    measurement_types_and_ids = {	'alkalinity': 1,
+                             'ammonium': 2,
+                             'chlorine': 3,
+                             'hardness': 4,
+                             'light': 5,
+                             'nitrate': 6,
+                             'nitrite': 7,
+                             'o2': 8,
+                             'ph': 9,
+                             'temp': 10,
+                             'time': 11
+                             }
 
-    # print str(response)
-    # print response['response']
 
-    # systems_and_measurements_json = \
-    #     {'response':
-    #         [
-    #             { 'name': 'system_12345' ,
-    #               'system_uid': '12344',
-    #               'measurement': [
-    #                   { 'type': 'pH',
-    #                     'values':
-    #                         [{ 'x' : 0, 'y' : 2.0, 'date': '03:03:16:00' },
-    #                          { 'x' : 1, 'y' : 3.0, 'date': '03:03:16:01' },
-    #                          { 'x' : 2, 'y' : 1.3, 'date': '03:03:16:02' },
-    #                          { 'x' : 5, 'y' : 2.5, 'date': '03:03:16:00' },
-    #                          { 'x' : 8, 'y' : 1.6, 'date': '03:03:16:01' },
-    #                          { 'x' : 13, 'y' : 3.7, 'date': '03:03:16:02' },
-    #                          { 'x' : 14, 'y' : 4.6, 'date': '03:03:16:00' },
-    #                          { 'x' : 15, 'y' : 5.5, 'date': '03:03:16:01' },
-    #                          { 'x' : 16, 'y' : 4.6, 'date': '03:03:16:02' },
-    #                          { 'x' : 21, 'y' : 3.0, 'date': '03:03:16:00' },
-    #                          { 'x' : 30, 'y' : 11.0, 'date': '03:03:16:01' },
-    #                          { 'x' : 35, 'y' : 12.8, 'date': '03:03:16:02' }]
-    #                     },
-    #                   { 'type': 'nitrate',
-    #                     'values':
-    #                         [{ 'x' : 0, 'y' : 42.0, 'date': '03:03:16:00' },
-    #                          { 'x' : 1, 'y' : 33.0, 'date': '03:03:16:01' },
-    #                          { 'x' : 2, 'y' : 31.3, 'date': '03:03:16:02' },
-    #                          { 'x' : 5, 'y' : 32.5, 'date': '03:03:16:00' },
-    #                          { 'x' : 8, 'y' : 31.6, 'date': '03:03:16:01' },
-    #                          { 'x' : 13, 'y' : 43.7, 'date': '03:03:16:02' },
-    #                          { 'x' : 14, 'y' : 54.6, 'date': '03:03:16:00' },
-    #                          { 'x' : 15, 'y' : 55.5, 'date': '03:03:16:01' },
-    #                          { 'x' : 16, 'y' : 64.6, 'date': '03:03:16:02' },
-    #                          { 'x' : 21, 'y' : 33.0, 'date': '03:03:16:00' },
-    #                          { 'x' : 30, 'y' : 41.0, 'date': '03:03:16:01' },
-    #                          { 'x' : 35, 'y' : 42.8, 'date': '03:03:16:02' }]
-    #                     },
-    #                   { 'type': 'hardness',
-    #                     'values':
-    #                         [{ 'x' : 11, 'y' : 4.5, 'date': '03:01:16:12'},
-    #                          { 'x' : 17, 'y' : 6.5, 'date': '03:01:22:12'},
-    #                          { 'x' : 19, 'y' : 9.5, 'date': '03:02:00:12'}]
-    #                     }
-    #               ]
-    #               },
-    #             { 'name': 'system_23145',
-    #               'system_uid': '23145',
-    #               'measurement':
-    #                   [
-    #                       { 'type': 'pH',
-    #                         'values':
-    #                             [{ 'x' : 0, 'y' : 6.0, 'date': '03:03:16:00' },
-    #                              { 'x' : 1, 'y' : 9.0, 'date': '03:03:16:01' },
-    #                              { 'x' : 2, 'y' : 12.3, 'date': '03:03:16:02' },
-    #                              { 'x' : 5, 'y' : 12.5, 'date': '03:03:16:00' },
-    #                              { 'x' : 8, 'y' : 12.6, 'date': '03:03:16:01' },
-    #                              { 'x' : 13, 'y' : 12.7, 'date': '03:03:16:02' },
-    #                              { 'x' : 14, 'y' : 12.6, 'date': '03:03:16:00' },
-    #                              { 'x' : 15, 'y' : 12.5, 'date': '03:03:16:01' },
-    #                              { 'x' : 16, 'y' : 12.6, 'date': '03:03:16:02' },
-    #                              { 'x' : 21, 'y' : 11.0, 'date': '03:03:16:00' },
-    #                              { 'x' : 30, 'y' : 9.0, 'date': '03:03:16:01' },
-    #                              { 'x' : 35, 'y' : 9.8, 'date': '03:03:16:02' }]
-    #                         },
-    #                       { 'type': 'nitrate',
-    #                         'values':
-    #                             [{ 'x' : 1, 'y' : 6.5, 'date': '03:01:16:12'},
-    #                              { 'x' : 7, 'y' : 6.5, 'date': '03:01:22:12'},
-    #                              { 'x' : 9, 'y' : 1.5, 'date': '03:02:00:12'}]
-    #                         },
-    #                       { 'type': 'hardness',
-    #                         'values':
-    #                             [{ 'x' : 11, 'y' : 1.5, 'date': '03:01:16:12'},
-    #                              { 'x' : 17, 'y' : 6.5, 'date': '03:01:22:12'},
-    #                              { 'x' : 19, 'y' : 1.5, 'date': '03:02:00:12'}]
-    #                         }
-    #                   ]
-    #               }
-    #         ]
-    #     }
-
-    # systems_and_measurements_json = systems_and_measurements_json['response']
-    # selected_systemID_list = ["system_12345", "system_54321"]
-    selected_systemID_list = ["5cc8402478ee11e59d5c000c29b92d09", "a26f85668efa11e5997f000c29b92d09"]
-    measurement_types = ["Nitrate", "Nitrite", "Hardness", "Chlorine", "Alkalinity", "pH", "Ammonia", "Water Temp", "Light intensity",
-                         "Light wavelength","Light intensity","DO","NO3","NH4","Day length","Conductivity", "O2"]
-
-    # get measurement information
-    # text = request.form['text']
-    # content = request.json
-    # data = json.dumps(request.form.get('selectedSystems'))
-    # print data
-
-    data1 = json.dumps(request.form.get('selectedSystems')).translate(None, '\"\\').split(",")
-    # print data1
-    print data1
-    systems_and_measurements_json = get_readings_for_tsplot(['5cc8402478ee11e59d5c000c29b92d09', '555d0cfe9ebc11e58153000c29b92d09'],["6"])
-
+    selected_systemID_list = json.dumps(request.form.get('selectedSystems')).translate(None, '\"\\').split(",")
+    systems_and_measurements_json = get_readings_for_tsplot(selected_systemID_list, msr_id_list)
 
     return render_template("analyze.html", **locals())
 
@@ -277,10 +193,18 @@ def put_system_measurement():
 # API to get the readings of the time series plot
 ######################################################################
 
-@dav.route('/aqxapi/get/readings/tsplot/systems/<system_uid_list>/measurements/<msr_id_list>', methods=['GET'])
+@dav.route('/aqxapi/get/readings/tsplot/systems/<system_uid_list>/<msr_id_list>', methods=['GET'])
 def get_readings_for_tsplot(system_uid_list,msr_id_list):
+    #print "Heloowowowowowow"
     davAPI = DavAPI(get_conn())
     return davAPI.get_readings_for_plot(system_uid_list,msr_id_list)
+
+@dav.route('/aqxapi/get/readings/time_series_plot', methods=['POST'])
+def get_readings_for_plot():
+    davAPI = DavAPI(get_conn())
+    measurements = request.json['measurements']
+    systems_uid = request.json['systems']
+    return davAPI.get_readings_for_plot(systems_uid, measurements)
 
 ##### REQUEST WITH POST
 #@dav.route('/aqxapi/get/readings/time_series_plot', methods=['POST'])
