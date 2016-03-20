@@ -90,7 +90,7 @@ class MeasurementsDAO:
                        id_list_str)
 
         try:
-            cursor.execute(query_names,id_list_str)
+            cursor.execute(query_names)
             measurement_names = cursor.fetchall()
         finally:
             cursor.close()
