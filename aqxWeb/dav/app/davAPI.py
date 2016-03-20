@@ -46,7 +46,8 @@ class DavAPI:
 
     def get_all_systems_info(self):
         systems = self.sys.get_all_systems_info()
-
+        if 'error' in systems:
+            return json.dumps(systems)
         # Create a list of systems
         systems_list = []
         for system in systems:
@@ -77,6 +78,8 @@ class DavAPI:
 
     def get_all_filters_metadata(self):
         results = self.met.get_all_filters()
+        if 'error' in results:
+            return json.dumps(results)
         vals = defaultdict(list)
         for result in results:
             type = result[0]
@@ -93,6 +96,8 @@ class DavAPI:
     def get_user(self, user_id):
         u = UserDAO(self.conn)
         result_temp = u.get_user(user_id)
+        if 'error' in result_temp:
+            return json.dumps(result_temp)
         result = result_temp[0]
         user = {
             "id" : result[0],
@@ -129,6 +134,8 @@ class DavAPI:
     def get_system_measurements(self, system_uid):
         # Fetch names of all the measurements
         names = self.mea.get_all_measurement_names()
+        if 'error' in names:
+            return json.dumps(names)
         # Create a list to store the name, latest time and value of all the measurements
         x = []
         # For each measurement
@@ -140,9 +147,12 @@ class DavAPI:
                 # we need to create the name of each table.
                 # Each measurement table is: aqxs_measurementName_systemUID
                 table_name = self.get_measurement_table_name(measurement_name, system_uid)
+
                 num_of_records = 1
                 # Get the latest value stored in the table
                 value = self.mea.get_latest_value(table_name, num_of_records)
+                if 'error' in value:
+                    return json.dumps(value)
                 # Append the value to the latest_value[] list
                 if len(value) == 1:
                     value_temp = value[0]
@@ -200,6 +210,8 @@ class DavAPI:
     def get_system_measurement(self,system_uid, measurement_id):
         # Fetch the name of the measurement
         measurement = self.mea.get_measurement_name(measurement_id)
+        if 'error' in measurement:
+                    return json.dumps(measurement)
         #measurement_name = self.get_measurement_name(measurement)
         if measurement[0] == 'light':
             num_of_records = 7
@@ -209,6 +221,8 @@ class DavAPI:
         table_name = self.get_measurement_table_name(measurement[0], system_uid)
         # Get the latest value recorded in that table
         result = self.mea.get_latest_value(table_name, num_of_records)
+        if 'error' in result:
+                    return json.dumps(result)
         values = []
         for result_temp in result:
             values_temp = {
@@ -237,10 +251,14 @@ class DavAPI:
         time = data.get('time')
         value = data.get('value')
         measurement = self.mea.get_measurement_name(measurement_id)
+        if 'error' in measurement:
+                    return json.dumps(measurement)
         measurement_name = self.get_measurement_name(measurement)
         # Create the name of the table
         table_name = self.get_measurement_table_name(measurement_name, system_uid)
         result = self.mea.put_system_measurement(table_name, time, value)
+        if 'error' in result:
+                    return json.dumps(result)
         message = {
             "message": result
         }
@@ -257,24 +275,24 @@ class DavAPI:
     def get_readings_for_plot(self,system_uid_list,measurement_id_list):
         # Form a list of names from the list of ids
         measurement_type_list = self.mea.get_measurement_name_list(measurement_id_list)
+        if 'error' in measurement_type_list:
+                    return json.dumps(measurement_type_list)
         measurement_name_list  = []
-
         for name in measurement_type_list:
              measurement_name_list.append(str(name[0]))
 
         # Retrieve the measurements calling DAO
         data_retrieved = self.mea.get_measurements(system_uid_list,measurement_name_list)
+        if 'error' in data_retrieved:
+            return json.dumps(data_retrieved)
 
-        print "data_retrieved: " + str(data_retrieved)
         system_measurement_list = []
 
         for system_uid in system_uid_list:
             readings = data_retrieved[system_uid]
-            system_measurement_json = self.form_system_measurement_json(self,system_uid,readings,
+            system_measurement_json = self.form_system_measurement_json(system_uid,readings,
                                                                          measurement_name_list)
             system_measurement_list.append(system_measurement_json)
-
-        #print json.dumps({"response": system_measurement_list})
 
         return json.dumps({"response": system_measurement_list})
 
@@ -289,7 +307,6 @@ class DavAPI:
     # form_system_measurement_json  - It returns the json for all information needed
     # for the plot for the input system_uid
     #
-    @staticmethod
     def form_system_measurement_json(self,system_uid,readings,measurement_type_list):
         measurement_list = []
 
@@ -309,7 +326,6 @@ class DavAPI:
                 "values": valueList
             }
             measurement_list.append(measurement)
-
         system_measurement = {
             "system_uid" : system_uid,
             "name" : self.sys.get_system_name(system_uid),
@@ -447,6 +463,8 @@ class DavAPI:
 
     def get_all_measurement_names(self):
         meas = self.mea.get_all_measurement_names()
+        if 'error' in meas:
+                    return json.dumps(meas)
         mlist = []
         for m in meas:
             mlist.append(m)

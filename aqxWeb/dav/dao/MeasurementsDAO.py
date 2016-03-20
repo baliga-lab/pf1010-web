@@ -1,5 +1,5 @@
 # DAO for fetching all the data related to the measurements of the systems
-
+from mysql.connector import Error
 
 class MeasurementsDAO:
     ###############################################################################
@@ -16,6 +16,8 @@ class MeasurementsDAO:
         try:
             cursor.execute(query_names)
             measurement_names = cursor.fetchall()
+        except Error as e:
+            return {'error': e.msg}
         finally:
             cursor.close()
         return measurement_names
@@ -30,11 +32,14 @@ class MeasurementsDAO:
         try:
             cursor.execute(query_get, (num_of_records, ))
             value = cursor.fetchall()
+        except Error as e:
+            return {'error': e.msg}
         finally:
             cursor.close()
         return value
 
     ###############################################################################
+    # insert measurement value
     def put_system_measurement(self, table_name, time, value):
         time_already_recorded = self.get_recorded_time(table_name, time)
         if len(time_already_recorded) != 0:
@@ -47,16 +52,15 @@ class MeasurementsDAO:
         try:
             cursor.execute(query_put, record)
             self.conn.commit()
-        except:
+        except Error as e:
             self.conn.rollback()
-            cursor.close()
-            return "Insert error"
+            return {'error': e.msg}
         finally:
             cursor.close()
         return "Record successfully inserted"
 
     ###############################################################################
-
+    # check if measurement exists
     def get_recorded_time(self, table_name, time):
         cursor = self.conn.cursor()
         query_time = "SELECT time " \
@@ -65,6 +69,8 @@ class MeasurementsDAO:
         try:
             cursor.execute(query_time, (time, ))
             recorded_time = cursor.fetchall()
+        except Error as e:
+            return {'error': e.msg}
         finally:
             cursor.close()
         return recorded_time
@@ -92,6 +98,8 @@ class MeasurementsDAO:
         try:
             cursor.execute(query_names)
             measurement_names = cursor.fetchall()
+        except Error as e:
+            return {'error': e.msg}
         finally:
             cursor.close()
 
@@ -109,6 +117,8 @@ class MeasurementsDAO:
         try:
             cursor.execute(query_name, (measurement_id, ))
             measurement_name, = cursor.fetchall()
+        except Error as e:
+            return {'error': e.msg}
         finally:
             cursor.close()
         return measurement_name
@@ -129,6 +139,8 @@ class MeasurementsDAO:
                 query = self.create_query1(system,measurements)
                 cursor.execute(query)
                 payload[system] = cursor.fetchall()
+        except Error as e:
+            return {'error': e.msg}
         finally:
             cursor.close()
 
@@ -146,10 +158,7 @@ class MeasurementsDAO:
             if v:
                 for m in v:
                     key = m[0]
-                    #key = m[0].encode('latin-1')
-                    #print key
                     values[s][key].append(m)
-                    #values[m[0]].append(m)
 
             payload[s] = values[s]
 
@@ -204,10 +213,3 @@ class MeasurementsDAO:
     # Destructor to close the self connection
     def __del__(self):
         self.conn.close()
-
-
-if __name__ == "__main__":
-    m = MeasurementsDAO("")
-    ml = ["o2","ph","light"];
-    query = m.create_query1("555d0cfe9ebc11e58153000c29b92d09",ml)
-    print query

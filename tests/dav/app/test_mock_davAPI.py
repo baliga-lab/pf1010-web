@@ -40,3 +40,16 @@ class DavTests(unittest.TestCase):
         d.mea.get_latest_value.return_value = tuple(latest_value)
         result = d.get_system_measurements('555d0cfe9ebc11e58153000c29b92d09')
         self.assertEquals('{"system_uid": "555d0cfe9ebc11e58153000c29b92d09", "measurements": [{"name": "o2", "value": "0E-10", "time": "2016-01-14 20:00:00"}, {"name": "ph", "value": "0E-10", "time": "2016-01-14 20:00:00"}, {"name": "temp", "value": "0E-10", "time": "2016-01-14 20:00:00"}, {"name": "alkalinity", "value": "0E-10", "time": "2016-01-14 20:00:00"}, {"name": "ammonium", "value": "0E-10", "time": "2016-01-14 20:00:00"}, {"name": "chlorine", "value": "0E-10", "time": "2016-01-14 20:00:00"}, {"name": "hardness", "value": "0E-10", "time": "2016-01-14 20:00:00"}, {"name": "light", "value": "0E-10", "time": "2016-01-14 20:00:00"}, {"name": "nitrate", "value": "0E-10", "time": "2016-01-14 20:00:00"}]}', result)
+
+    # mock test for get_readings_for_plot
+    def test_get_readings_for_plot(self):
+        d = DavAPI(Mock())
+        d.mea = Mock()
+        d.sys = Mock()
+        result =  {'555d0cfe9ebc11e58153000c29b92d09': {'nitrate': [], 'ph': [], 'o2': []}, '8fb1f712bf1d11e5adcc000c29b92d09': {'nitrate': [], 'ph': [], 'o2': []}}
+        d.mea.get_measurement_name_list.return_value = [(u'nitrate',), (u'o2',), (u'ph',)]
+        d.mea.get_measurements.return_value = result
+        d.sys.get_system_name.return_value = 'xyz'
+        result = d.get_readings_for_plot(['555d0cfe9ebc11e58153000c29b92d09'],['9'])
+        print result
+        self.assertEquals('{"response": [{"system_uid": "555d0cfe9ebc11e58153000c29b92d09", "name": "xyz", "measurement": [{"values": [], "type": "nitrate"}, {"values": [], "type": "o2"}, {"values": [], "type": "ph"}]}]}', result)
