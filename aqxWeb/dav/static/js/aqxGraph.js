@@ -89,13 +89,7 @@ var createYAxisMap = function(yTypeList) {
     return axisMap;
 };
 
-var randomlyAssignMarkers = function(yTypeList) {
-    var typeAndSymbol = {};
-    _.each(yTypeList, function(yType) {
-        typeAndSymbol[yType] = Math.floor((Math.random() * (MARKERS.length -1)) + 1);
-    });
-    return typeAndSymbol;
-}
+
 
 var randomlyAssignLineStyleForSystems = function(systems) {
     var systemAndDashline = {};
@@ -109,18 +103,18 @@ var randomlyAssignLineStyleForSystems = function(systems) {
 /**
  *
  * @param xType - X-axis values. Ex: Time, pH, Hardness
- * @param yType - Y-axis values. Ex: pH, Nitrate
+ * @param yTypeList - Y-axis values. Ex: [pH, Nitrate]
+ * @param colorSchemeForMeasurementTypes - {"nitrate": COLORS_INDEX, "pH": COLORS_INDEX}
+ * @param markerForMeasurementType = {"nitrate": MARKERS_INDEX, "pH": MARKERS_INDEX}
  * @param graphType - Type of graph to display. Ex: line, scatter
- * @returns {Array} - An array of CanvasJS dataPoints of yType measurement data for all systems
+ * @returns {Array} - An array of dataPoints of yType measurement data for all systems
  */
-var getDataPointsForPlotHC = function(xType, yTypeList, color, graphType){
+var getDataPointsForPlotHC = function(xType, yTypeList, colorSchemeForMeasurement, markerForMeasurement, graphType){
 
     var dataPointsList = [];
     // Every system should be represented by unique color
     // Each measurementType should have a unique marker type
 
-    var colorCounter = 0, markerCounter = 0;
-    var markerForMeasurement = randomlyAssignMarkers(yTypeList);
     var dashStyleForSystems = randomlyAssignLineStyleForSystems(systems_and_measurements);
     var axisMap = createYAxisMap(yTypeList);
     //TODO: Rename systems_and_measurements to selectedSystemsToAnalyze
@@ -137,13 +131,12 @@ var getDataPointsForPlotHC = function(xType, yTypeList, color, graphType){
                     //TODO: You can add yaxis here
                     dataPointsList.push(
                         // TODO: Discuss about outOfBoundExceptions while using COLORS and MARKERS
-                        getDataPointsHC(system.name, datawithMarkers, COLORS[colorCounter],
+                        getDataPointsHC(system.name, datawithMarkers, COLORS[colorSchemeForMeasurement[yType]],
                             graphType, systemId,linkedTo, axisMap[yType], dashStyleForSystems[systemId]));
                     linkedTo = true;
                 }
             });
         });
-        colorCounter++;
     });
     return dataPointsList;
 };
@@ -153,9 +146,10 @@ var getDataPointsForPlotHC = function(xType, yTypeList, color, graphType){
  *
  * @param yType
  * @param numAxes
+ * @param colorIndex - index number that is mapped to COLORS[] array
  * @returns {{title: {text: *}, labels: {format: string, style: {color: *}}, opposite: boolean}}
  */
-var createYAxis = function(yType, numAxes){
+var createYAxis = function(yType, numAxes, colorIndex){
     return { // Primary yAxis
         title:
         {
@@ -164,7 +158,7 @@ var createYAxis = function(yType, numAxes){
         labels:
         {
             format: '{value} ',
-            style: { color: COLORS[Math.floor((Math.random() * 10) + 1)] }
+            style: {color: COLORS[colorIndex] }
         },
         opposite: (numAxes % 2 === 0)
     }
@@ -177,7 +171,7 @@ var createYAxis = function(yType, numAxes){
  * @param yTypeList - List of y-axis values selected from the checklist
  * @param graphType - The graph type chosen from dropdown
  */
-var updateChartDataPointsHC = function(chart, xType, yTypeList, color, graphType){
+var updateChartDataPointsHC = function(chart, xType, yTypeList, graphType){
     var activeMeasurements = getAllActiveMeasurements();
     var measurementsToFetch = _.difference(yTypeList, activeMeasurements);
     var measurementIDList = [];
@@ -212,19 +206,15 @@ var updateChartDataPointsHC = function(chart, xType, yTypeList, color, graphType
         });
     }
 
-    chart.xAxis[0].setTitle({ text: xType });
-    var numYAxes = 1;
-
+    chart.xAxis[0].setTitle({ text: "hours per creation" });
     chart = clearOldGraphValues(chart);
-
-    _.each(yTypeList, function(yType){
-        // If axis with these units not already up...
-        chart.addAxis(createYAxis(yType, numYAxes));
-        numYAxes++;
-    });
-
-    var newDataSeries = getDataPointsForPlotHC(xType, yTypeList, color, graphType);
-
+    var chartAndColorSchemes = setupMultipleYAxisAndColorAndMarker(chart, yTypeList);
+    chart = chartAndColorSchemes.chart;
+    var colorSchemeForMeasurementType = chartAndColorSchemes.color;
+    var markerForMeasurementType = chartAndColorSchemes.marker;
+    var newDataSeries = getDataPointsForPlotHC(xType, yTypeList,
+                                                colorSchemeForMeasurementType,
+                                                markerForMeasurementType, graphType);
     _.each(newDataSeries, function(series) {
         chart.addSeries(series);
     });
@@ -259,6 +249,33 @@ var clearOldGraphValues = function(chart) {
     return chart;
 };
 
+var setupMultipleYAxisAndColorAndMarker = function (chart, yTypeList) {
+    var chartAndColorScheme = {};
+    var typeAndColor = {};
+    var typeAndMarker = {};
+    var numYAxes = 1;
+     _.each(yTypeList, function(yType){
+        // Pick a marker & color for yType
+        typeAndMarker[yType] = randomlyPickMarkerIndex();
+        typeAndColor[yType] = randomlyPickColorIndex();
+        // If axis with these units not already up...
+        chart.addAxis(createYAxis(yType, numYAxes, typeAndColor[yType]));
+        numYAxes++;
+    });
+    chartAndColorScheme.chart = chart;
+    chartAndColorScheme.color = typeAndColor;
+    chartAndColorScheme.marker = typeAndMarker;
+    return chartAndColorScheme;
+}
+
+var randomlyPickMarkerIndex = function() {
+    return Math.floor((Math.random() * (MARKERS.length -1)) + 1);
+}
+
+var randomlyPickColorIndex = function() {
+    return Math.floor((Math.random() * (COLORS.length -1)) + 1);
+}
+
 /**
  *
  */
@@ -277,10 +294,9 @@ var drawChart = function(){
 
     // Get measurement types to display on the y-axis
     var yTypes = $(".js-example-basic-multiple").select2().val();
-    var color = "blue";
 
     // Generate a data Series for each y-value type, and assign them all to the CHART
-    updateChartDataPointsHC(CHART, xType, yTypes, color, graphType).redraw();
+    updateChartDataPointsHC(CHART, xType, yTypes, graphType).redraw();
 
     // TODO: What about the other chart characteristics? Symbols, ranges, different scales, different y-axes?
     addMeasurementLegend();
@@ -368,6 +384,12 @@ window.onload = function() {
             type: 'line',
             zoomType: 'xy'
         },
+        tooltip: {
+            formatter: function() {
+                return 'The value at <b>' + this.x + '</b> hour was <b>' + this.y + '</b>, in series '+ this.series.name;
+            },
+            crosshairs: [true,true]
+        },
         legend: {
             align: 'right',
             verticalAlign: 'top',
@@ -375,7 +397,7 @@ window.onload = function() {
             x: 0,
             y: 100,
             labelFormatter: function() {
-                return '<span style="color: '+this.color+'">'+ this.name + '</span>';
+                return '<span>'+ this.name + '</span>';
             }
         },
         xAxis: {
