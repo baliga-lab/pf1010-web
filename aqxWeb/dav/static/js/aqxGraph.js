@@ -26,6 +26,7 @@ var HC_OPTIONS;
 var COLORS = Highcharts.getOptions().colors; // Contains 10 different colors; .symbols contains 5 symbols
 var MARKERS = Highcharts.getOptions().symbols;
 //Dashstyle is applicable only to line, spline, area and scatter graphs
+//TODO: some of these styles are very sutle, we should come up with a better selection I guess
 var DASHSTYLES = ["Solid", "ShortDash", "ShortDot", "ShortDashDot", "ShortDashDotDot", "Dot", "Dash", "LongDash", "DashDot", "LongDashDot", "LongDashDotDot"];
 //var MARKERS = {'nitrate': 'circle', 'ph': 'url(https://www.highcharts.com/samples/graphics/snow.png)', 'Ammonia': 'triangle-down', 'Nitrite': 'square'}
 //'triangle','diamond' ,'url(https://www.highcharts.com/samples/graphics/sun.png']
@@ -46,7 +47,7 @@ var DASHSTYLES = ["Solid", "ShortDash", "ShortDot", "ShortDashDot", "ShortDashDo
  * @param yAxis - The axis these graph will be plotted against
  * @returns {{name: *, type: *, data: *, color: *, id: *}|*}
  */
-var getDataPointsHC = function(systemName, dataPoints, color, graphType, id, linkedTo, yAxis, dashStyleIndex) {
+var getDataPoints = function(systemName, dataPoints, color, graphType, id, linkedTo, yAxis, dashStyleIndex) {
     series = { name: systemName,
         type: graphType,
         data: dataPoints,
@@ -90,7 +91,6 @@ var createYAxisMap = function(yTypeList) {
 };
 
 
-
 var randomlyAssignLineStyleForSystems = function(systems) {
     var systemAndDashline = {};
     _.each(systems, function(system) {
@@ -130,8 +130,7 @@ var getDataPointsForPlotHC = function(xType, yTypeList, colorSchemeForMeasuremen
                     datawithMarkers = addMarker(measurement.values, markerForMeasurement[yType]);
                     //TODO: You can add yaxis here
                     dataPointsList.push(
-                        // TODO: Discuss about outOfBoundExceptions while using COLORS and MARKERS
-                        getDataPointsHC(system.name, datawithMarkers, COLORS[colorSchemeForMeasurement[yType]],
+                        getDataPoints(system.name, datawithMarkers, COLORS[colorSchemeForMeasurement[yType]],
                             graphType, systemId,linkedTo, axisMap[yType], dashStyleForSystems[systemId]));
                     linkedTo = true;
                 }
@@ -299,36 +298,36 @@ var drawChart = function(){
     updateChartDataPointsHC(CHART, xType, yTypes, graphType).redraw();
 
     // TODO: What about the other chart characteristics? Symbols, ranges, different scales, different y-axes?
-    addMeasurementLegend();
+    //addMeasurementLegend(); //TODO: This is not required anymore right
     //REMOVELEGENDSYMBOL(CHART);
 };
 
-var addMeasurementLegend = function() {
-    var selectedMeasurements = $(".js-example-basic-multiple").select2().val();
-    $('#legendTypes').remove();
-    $('#measurementLegend').append('<div id="legendTypes"></div>');
-    _.each(selectedMeasurements, function (measurement) {
-        var symbol;
-        switch (measurement.toLowerCase()) {
-            case 'nitrate':
-                symbol = '●';
-                break;
-            case 'ph':
-                symbol = '<img src="https://www.highcharts.com/samples/graphics/snow.png" alt="Marker" />';
-                break;
-            case 'square':
-                symbol = '■';
-                break;
-            case 'triangle':
-                symbol = '▲';
-                break;
-            case 'triangle-down':
-                symbol = '▼';
-                break;
-        }
-        $('#legendTypes').append('<div>' + measurement+ '<span>' + symbol +'</span></div>');
-    });
-};
+//var addMeasurementLegend = function() {
+//    var selectedMeasurements = $(".js-example-basic-multiple").select2().val();
+//    $('#legendTypes').remove();
+//    $('#measurementLegend').append('<div id="legendTypes"></div>');
+//    _.each(selectedMeasurements, function (measurement) {
+//        var symbol;
+//        switch (measurement.toLowerCase()) {
+//            case 'nitrate':
+//                symbol = '●';
+//                break;
+//            case 'ph':
+//                symbol = '<img src="https://www.highcharts.com/samples/graphics/snow.png" alt="Marker" />';
+//                break;
+//            case 'square':
+//                symbol = '■';
+//                break;
+//            case 'triangle':
+//                symbol = '▲';
+//                break;
+//            case 'triangle-down':
+//                symbol = '▼';
+//                break;
+//        }
+//        $('#legendTypes').append('<div>' + measurement+ '<span>' + symbol +'</span></div>');
+//    });
+//};
 
 /* ##################################################################################################################
  PAGE-DRIVING FUNCTIONS
@@ -398,7 +397,8 @@ window.onload = function() {
             y: 100,
             labelFormatter: function() {
                 return '<span>'+ this.name + '</span>';
-            }
+            },
+            symbolWidth: 60
         },
         xAxis: {
             minPadding: 0.05,
@@ -413,12 +413,12 @@ window.onload = function() {
     drawChart();
 };
 
-var REMOVELEGENDSYMBOL = function(chart){
-    var series = chart.series;
-    $(series).each(function(i, s){
-        if (s.legendSymbol)
-            s.legendSymbol.destroy();
-        if (s.legendLine)
-            s.legendLine.destroy();
-    });
-};
+//var REMOVELEGENDSYMBOL = function(chart){
+//    var series = chart.series;
+//    $(series).each(function(i, s){
+//        if (s.legendSymbol)
+//            s.legendSymbol.destroy();
+//        if (s.legendLine)
+//            s.legendLine.destroy();
+//    });
+//};
