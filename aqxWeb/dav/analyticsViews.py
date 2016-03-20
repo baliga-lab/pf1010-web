@@ -175,7 +175,8 @@ def analyzeGraph():
     data1 = json.dumps(request.form.get('selectedSystems')).translate(None, '\"\\').split(",")
     # print data1
     print data1
-    systems_and_measurements_json = get_readings_for_tsplot(['5cc8402478ee11e59d5c000c29b92d09', '555d0cfe9ebc11e58153000c29b92d09'],["6"])
+    # systems_and_measurements_json = get_readings_for_tsplot(['5cc8402478ee11e59d5c000c29b92d09', '555d0cfe9ebc11e58153000c29b92d09'],["6"])
+    systems_and_measurements_json = get_readings_for_tsplot(data1,[6,8])
 
 
     return render_template("analyze.html", **locals())
