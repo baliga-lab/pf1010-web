@@ -184,8 +184,6 @@ var updateChartDataPointsHC = function(chart, xType, yTypeList, color, graphType
     _.each(measurementsToFetch, function(measurement){
         measurementIDList.push(measurement_types_and_ids[measurement]);
     });
-    console.log(measurementIDList);
-    console.log(selectedSystemIDs);
 
     if (measurementsToFetch.length > 0) {
         console.log("Call API for " + measurementsToFetch);
@@ -212,11 +210,8 @@ var updateChartDataPointsHC = function(chart, xType, yTypeList, color, graphType
                 }
             });
         });
-        // Some AJAX function that grabs data from API or DB, then updates systems_and_measurements with the response
-        // selectedSystemIDs is a global carried over from the view fxn
-        // updateSystemsAndMeasurementsObject(selectedSystemIDs, measurementsToFetch);
     }
-    console.log("here");
+
     chart.xAxis[0].setTitle({ text: xType });
     var numYAxes = 1;
 
@@ -229,6 +224,7 @@ var updateChartDataPointsHC = function(chart, xType, yTypeList, color, graphType
     });
 
     var newDataSeries = getDataPointsForPlotHC(xType, yTypeList, color, graphType);
+
     _.each(newDataSeries, function(series) {
         chart.addSeries(series);
     });
@@ -267,9 +263,8 @@ var clearOldGraphValues = function(chart) {
  *
  */
 var setDefaultYAxis = function() {
-    $(".js-example-basic-multiple").val(DEFAULT_Y_VALUE).select2({
-        maximumSelectionLength: 4
-    });
+    $(".js-example-basic-multiple").select2();
+    $(".js-example-basic-multiple").val(DEFAULT_Y_VALUE).trigger("change");
 };
 
 
@@ -283,7 +278,6 @@ var drawChart = function(){
     // Get measurement types to display on the y-axis
     var yTypes = $(".js-example-basic-multiple").select2().val();
     var color = "blue";
-    console.log(xType);
 
     // Generate a data Series for each y-value type, and assign them all to the CHART
     updateChartDataPointsHC(CHART, xType, yTypes, color, graphType).redraw();
@@ -334,6 +328,9 @@ var main = function(){
         drawChart();
         //setDefaultYAxis();
     });
+
+    $.fn.select2.defaults.set("maximumSelectionLength", 4);
+
 
     // Select the default y-axis value
     setDefaultYAxis();
