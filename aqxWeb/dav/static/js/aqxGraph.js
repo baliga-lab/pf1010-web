@@ -25,6 +25,8 @@ var CHART_TITLE = "System Analyzer";
 var HC_OPTIONS;
 var COLORS = Highcharts.getOptions().colors; // Contains 10 different colors; .symbols contains 5 symbols
 var MARKERS = Highcharts.getOptions().symbols;
+//Dashstyle is applicable only to line, spline, area and scatter graphs
+var DASHSTYLES = ["Solid", "ShortDash", "ShortDot", "ShortDashDot", "ShortDashDotDot", "Dot", "Dash", "LongDash", "DashDot", "LongDashDot", "LongDashDotDot"];
 //var MARKERS = {'nitrate': 'circle', 'ph': 'url(https://www.highcharts.com/samples/graphics/snow.png)', 'Ammonia': 'triangle-down', 'Nitrite': 'square'}
 //'triangle','diamond' ,'url(https://www.highcharts.com/samples/graphics/sun.png']
 
@@ -44,13 +46,14 @@ var MARKERS = Highcharts.getOptions().symbols;
  * @param yAxis - The axis these graph will be plotted against
  * @returns {{name: *, type: *, data: *, color: *, id: *}|*}
  */
-var getDataPointsHC = function(systemName, dataPoints, color, graphType, id, linkedTo, yAxis) {
+var getDataPointsHC = function(systemName, dataPoints, color, graphType, id, linkedTo, yAxis, dashStyleIndex) {
     series = { name: systemName,
         type: graphType,
         data: dataPoints,
         color: color,
         id: id,
-        yAxis: yAxis
+        yAxis: yAxis,
+        dashStyle: DASHSTYLES[dashStyleIndex]
     };
     if(linkedTo) {
         series.linkedTo = id;
@@ -65,8 +68,8 @@ var getDataPointsHC = function(systemName, dataPoints, color, graphType, id, lin
  * @param type - measurementType. Ex: nitrate, ph
  * @returns datapoints with new 'marker' attribute [{x:"", y: "", date: "", marker: ""}]
  */
-var addMarker = function(dataPoints, type) {
-    var symbolType =  MARKERS[Math.random() * 5];
+var addMarker = function(dataPoints, markerIndex) {
+    var symbolType =  MARKERS[markerIndex];
     _.each(dataPoints, function(data) {
         data.marker = {'symbol': symbolType};
     });
@@ -78,7 +81,7 @@ var addMarker = function(dataPoints, type) {
  * @param yTypeList
  * @returns {{}}
  */
-var createYAxisMap = function(yTypeList){
+var createYAxisMap = function(yTypeList) {
     var axisMap = {}, yAxis = 0;
     _.each(yTypeList, function(x){
         axisMap[x] = yAxis++;
@@ -86,6 +89,21 @@ var createYAxisMap = function(yTypeList){
     return axisMap;
 };
 
+var randomlyAssignMarkers = function(yTypeList) {
+    var typeAndSymbol = {};
+    _.each(yTypeList, function(yType) {
+        typeAndSymbol[yType] = Math.floor((Math.random() * (MARKERS.length -1)) + 1);
+    });
+    return typeAndSymbol;
+}
+
+var randomlyAssignLineStyleForSystems = function(systems) {
+    var systemAndDashline = {};
+    _.each(systems, function(system) {
+        systemAndDashline[system.system_uid] = Math.floor((Math.random() * (DASHSTYLES.length - 1)) + 1);
+    });
+    return systemAndDashline;
+}
 
 // TODO: This will need to be re-evaluated to incorporate non-time x-axis values. For now, stubbing xType for this.
 /**
@@ -102,18 +120,25 @@ var getDataPointsForPlotHC = function(xType, yTypeList, color, graphType){
     // Each measurementType should have a unique marker type
 
     var colorCounter = 0, markerCounter = 0;
+    var markerForMeasurement = randomlyAssignMarkers(yTypeList);
+    var dashStyleForSystems = randomlyAssignLineStyleForSystems(systems_and_measurements);
     var axisMap = createYAxisMap(yTypeList);
+    //TODO: Rename systems_and_measurements to selectedSystemsToAnalyze
+    //TODO: It is possible to remove axisMap and use function(system, i)
     _.each(systems_and_measurements, function(system){
         var measurements = system.measurement;
+        // Used to link measurements to system
         var linkedTo = false;
         _.each(yTypeList, function(yType) {
             _.each(measurements, function(measurement){
                 if (_.isEqual(measurement.type.toLowerCase(), yType.toLowerCase())){
-                    datawithMarkers = addMarker(measurement.values, yType);
+                    var systemId = system.system_uid;
+                    datawithMarkers = addMarker(measurement.values, markerForMeasurement[yType]);
+                    //TODO: You can add yaxis here
                     dataPointsList.push(
                         // TODO: Discuss about outOfBoundExceptions while using COLORS and MARKERS
                         getDataPointsHC(system.name, datawithMarkers, COLORS[colorCounter],
-                            graphType, system.system_uid,linkedTo, axisMap[yType]));
+                            graphType, systemId,linkedTo, axisMap[yType], dashStyleForSystems[systemId]));
                     linkedTo = true;
                 }
             });
@@ -195,9 +220,7 @@ var updateChartDataPointsHC = function(chart, xType, yTypeList, color, graphType
     chart.xAxis[0].setTitle({ text: xType });
     var numYAxes = 1;
 
-    while(chart.yAxis.length > 0){
-        chart.yAxis[0].remove(true);
-    }
+    chart = clearOldGraphValues(chart);
 
     _.each(yTypeList, function(yType){
         // If axis with these units not already up...
@@ -206,10 +229,6 @@ var updateChartDataPointsHC = function(chart, xType, yTypeList, color, graphType
     });
 
     var newDataSeries = getDataPointsForPlotHC(xType, yTypeList, color, graphType);
-    console.log("print dataseries" + newDataSeries);
-    while(chart.series.length > 0)
-        chart.series[0].remove(true);
-
     _.each(newDataSeries, function(series) {
         chart.addSeries(series);
     });
@@ -232,6 +251,17 @@ var getAllActiveMeasurements = function() {
     return activeMeasurements;
 };
 
+var clearOldGraphValues = function(chart) {
+    // Clear yAxis
+    while(chart.yAxis.length > 0){
+        chart.yAxis[0].remove(true);
+    }
+    // Clear series data
+    while(chart.series.length > 0) {
+        chart.series[0].remove(true);
+    }
+    return chart;
+};
 
 /**
  *
@@ -321,7 +351,7 @@ var main = function(){
             return this.defaultSelected;
         });
 
-        // Uncheck all Y Axis checkboxes except DEFAULT_Y
+        // Select the default y-axis value
         setDefaultYAxis();
 
         drawChart();
