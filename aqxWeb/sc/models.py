@@ -398,21 +398,23 @@ class User:
 
     ############################################################################
     # function : get_friends_and_sentreq
-    # purpose : used when adding friends to return list of friends and list of users
+    # purpose : used when adding friends to return list of users to be displayed on search screen
     #           of currently logged in user
     # params : None
-    # returns :
+    # returns : list of friend requests sent by user, friend requests received by user, list of user friends
     # Exceptions : cypher.CypherError, cypher.CypherTransactionError
     ############################################################################
     def get_friends_and_sentreq(self):
         my_sql_id = self.sql_id
         my_sentreq_query = "MATCH (sentrequests { sql_id:{sql_id} })-[:SentRequest]->(res) RETURN res.sql_id"
+        my_received_query = "MATCH (receivedrequests { sql_id:{sql_id} })<-[:SentRequest]-(res) RETURN res.sql_id"
         my_friends_query = "MATCH (friends { sql_id:{sql_id} })-[:FRIENDS]-(res) RETURN res.sql_id"
 
         try:
             sentreq_res = getGraphConnectionURI().cypher.execute(my_sentreq_query, sql_id=my_sql_id);
+            receivedreq_res = getGraphConnectionURI().cypher.execute(my_received_query, sql_id=my_sql_id);
             frnds_res = getGraphConnectionURI().cypher.execute(my_friends_query, sql_id=my_sql_id);
-            return sentreq_res, frnds_res
+            return sentreq_res, receivedreq_res, frnds_res
         except cypher.CypherError, cypher.CypherTransactionError:
             raise "Exception occured in function get_search_friends"
 
@@ -645,7 +647,7 @@ class User:
         my_sql_id = u_sql_id
         query = """
             MATCH (n:User)-[r:FRIENDS]-(n1:User)
-            WHERE n1.sql_id = {sql_id} and  r.blocker_id = {blocker_id}
+            WHERE n1.sql_id = {sql_id} and r.blocker_id = {blocker_id}
             return n
             ORDER BY n.givenName
         """

@@ -74,6 +74,11 @@
                                     alert("You have already sent this user a friend request")
                                 });
                             }
+                            else if(item.friend_status == "Received Friend Request") {
+                                $("<button type='button' class='btn btn-info'></button>").text(item.friend_status).appendTo($a).click(function () {
+                                    alert(" This user has sent you a friend request. Please accept or decline in pending friend requests tab.")
+                                });
+                            }
                             else if(item.friend_status == "Friends") {
                                 $("<button type='button' class='btn btn-success'></button>").text(item.friend_status).appendTo($a).click(function () {
                                     alert("You are already friends with this user")

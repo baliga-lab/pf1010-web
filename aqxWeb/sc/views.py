@@ -1025,9 +1025,7 @@ def unlike_post():
 def getfriends():
     users = User(session['uid']).get_search_friends()
     user_list = []
-    sentreq_res, frnds_res = User(session['uid']).get_friends_and_sentreq()
-    print(frnds_res)
-    print(sentreq_res)
+    sentreq_res, receivedreq_res, frnds_res = User(session['uid']).get_friends_and_sentreq()
     for result in users:
         individual_user = {}
         first_name = result[0]
@@ -1041,6 +1039,10 @@ def getfriends():
             sf_id = sf[0]
             if (user_sql_id == sf_id):
                 friend_status = "Sent Friend Request"
+        for rf in receivedreq_res:
+            rf_id = rf[0]
+            if (user_sql_id == rf_id):
+                friend_status = "Received Friend Request"
         for fr in frnds_res:
             fr_id = fr[0]
             if (user_sql_id == fr_id):
