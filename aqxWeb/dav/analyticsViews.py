@@ -222,6 +222,17 @@ def get_all_measurement_names():
     davAPI = DavAPI(get_conn())
     return davAPI.get_all_measurement_names()
 
+######################################################################
+# API to get all measurements' information: id, name, units, min and
+# max
+######################################################################
+
+@dav.route('/aqxapi/get/system/measurement_info', methods = ['GET'])
+def get_all_measurement_info():
+    davAPI = DavAPI(get_conn())
+    return davAPI.get_all_measurement_info()
+
+
 
 if __name__ == '__main__':
     init_app()

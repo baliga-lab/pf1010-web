@@ -208,7 +208,22 @@ class MeasurementsDAO:
                      + " " + measurements[i] + " union "
 
         return query
-     ###############################################################################
+    ###############################################################################
+
+    # get_all_measurement_info: method to fetch the id, name, units, min and max
+    #  of all the measurements
+    def get_all_measurement_info(self):
+        cursor = self.conn.cursor()
+        query_mea_info = ("SELECT * "
+                       "FROM measurement_types;")
+        try:
+            cursor.execute(query_mea_info)
+            measurement_info = cursor.fetchall()
+        except Error as e:
+            return {'error': e.msg}
+        finally:
+            cursor.close()
+        return measurement_info
 
     # Destructor to close the self connection
     def __del__(self):

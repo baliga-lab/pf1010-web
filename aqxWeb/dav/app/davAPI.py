@@ -495,3 +495,21 @@ class DavAPI:
                         val = random.uniform(minrange,maxrange)
                         self.mea.put_system_measurement(table_name,time,val)
 
+    ###############################################################################
+    # get all measurement information: id, name, units, min, max
+    ###############################################################################
+    # returns all types
+
+    def get_all_measurement_info(self):
+        meas = self.mea.get_all_measurement_info()
+        if 'error' in meas:
+                    return json.dumps(meas)
+        measurement_names = {}
+        for m in meas:
+            measurement_names[m[1]] = {}
+            measurement_names[m[1]]["id"] = str(m[0])
+            measurement_names[m[1]]["unit"] = str(m[2])
+            measurement_names[m[1]]["min"] = str(m[3])
+            measurement_names[m[1]]["max"] = str(m[4])
+        return json.dumps(measurement_names)
+
