@@ -3,12 +3,17 @@
     {% if posts %}
         {% for row in posts %}
             <div class="post detail-box">
-
                 {# USER OF POST #}
                 <div class="media-left">
-                    <a href="#"> {# LINK TO USER'S PROFILE #}
+                {# LINK TO USER'S PROFILE #}
+                    <a href="/social/profile/{% if row.user %}{{ row.user.google_id }}{% endif %}">
+                        {% if row.user.image_url %}
+                        <img class="media-object" src="{{ row.user.image_url }}" alt="{{ row.displayName }}'s Picture">
+                            {# PLACEHOLDER IMAGE FOR USER'S PROFILE PIC #}
+                        {% else %}
                         <img class="media-object" src="{{ url_for('frontend.static', filename='images/users/oddish.png') }}"
-                             alt=""> {# PLACEHOLDER IMAGE FOR USER'S PROFILE PIC #}
+                             alt="User has no profile picture"> {# PLACEHOLDER IMAGE FOR USER WITH NO PROFILE PICTURE #}
+                        {% endif %}
                     </a>
                 </div>
 
@@ -113,9 +118,15 @@
                                 <li>
                                     <div class="media-left">
                                         <a href="#"> {# LINK TO USER'S PROFILE #}
+                                            {% if row.user and row.user.image_url %}
+                                            <img class="media-object" src="{{ cmt.user.image_url }}"
+                                                 alt="{{ cmt.displayName }}'s Picture"/>
+                                                {# PLACEHOLDER IMAGE FOR USER'S PROFILE PIC #}
+                                            {% else %}
                                             <img class="media-object"
                                                  src="{{ url_for('frontend.static', filename='images/users/gloom.png') }}"
-                                                 alt=""> {# PLACEHOLDER IMAGE FOR USER'S PROFILE PIC #}
+                                                 alt=""/> {# PLACEHOLDER IMAGE FOR USER'S PROFILE PIC #}
+                                            {% endif %}
                                         </a>
                                     </div>
                                     <div class="media-body">

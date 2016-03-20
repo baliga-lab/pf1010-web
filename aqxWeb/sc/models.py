@@ -722,7 +722,7 @@ class User:
 def get_all_recent_posts():
     query = """
     MATCH (user:User)-[:POSTED]->(post:Post)
-    RETURN user.displayName AS displayName, post
+    RETURN user.displayName AS displayName, user, post
     ORDER BY post.modified_time DESC
     """
     try:
@@ -742,8 +742,9 @@ def get_all_recent_posts():
 
 def get_all_recent_comments():
     query = """
-    MATCH (post:Post)-[:HAS]->(comment:Comment)
-    RETURN post.id AS postid, comment
+    MATCH (user:User),(post:Post)-[:HAS]->(comment:Comment)
+    WHERE user.sql_id = comment.user_sql_id
+    RETURN post.id AS postid, user, comment
     ORDER BY comment.creation_time
     """
     try:
