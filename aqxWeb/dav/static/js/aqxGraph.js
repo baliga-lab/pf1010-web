@@ -30,40 +30,62 @@ var MARKERTYPES = ["circle", "square", "diamond", "triangle", "triangle-down"];
 
 
 /* ##################################################################################################################
- HELPER FUNCTIONS
+ MAIN CHART LOADING FUNCTIONS
  #################################################################################################################### */
 
 /**
  *
- * @param systemName - name of system
- * @param dataPoints - array of values for graph; [{x:"", y: "", date: "", marker: ""}]
- * @param graphType
- * @param id
- * @param linkedTo - used to group series to a system
- * @param i - The iterator for a measurement
- * @param j - The iterator for a system
- * @param yType - The measurement type name
- * @returns {{name: string, type: *, data: *, color: string, id: *, yAxis: *, dashStyle: string, marker: {symbol: string}}|*}
  */
-var getDataPoints = function(systemName, dataPoints, graphType, id, linkedTo, i, j, yType) {
-    series = { name: systemName + ',' + yType,
-        type: graphType,
-        data: dataPoints,
-        color: COLORS[i],
-        id: id,
-        yAxis: i,
-        dashStyle: DASHSTYLES[j],
-        marker: {symbol: MARKERTYPES[j]}
-    };
-    if(linkedTo) {
-        series.linkedTo = id;
-    }
-    return series;
+var drawChart = function(){
+    var graphType = document.getElementById(GRAPH_TYPE).value;
+    var xType = document.getElementById(XAXIS).value;
+
+    // Get measurement types to display on the y-axis
+    var yTypes = $(".js-example-basic-multiple").select2().val();
+
+    // Generate a data Series for each y-value type, and assign them all to the CHART
+    updateChartDataPointsHC(CHART, xType, yTypes, graphType).redraw();
 };
 
-var getAlertHTMLString = function(missingYTypes){
-    return '<div class="alert alert-danger"><a class="close" data-dismiss="alert">×</a><span>Missing values for: '
-        + _.uniq(missingYTypes).toString() + '</span></div>'
+
+/**
+ *
+ * @param chart - A CanvasJS chart
+ * @param xType - X-axis value chosen from dropdown
+ * @param yTypeList - List of y-axis values selected from the checklist
+ * @param graphType - The graph type chosen from dropdown
+ */
+var updateChartDataPointsHC = function(chart, xType, yTypeList, graphType){
+
+    // Clear the old chart's yAxis and dataPoints. Unfortunately this must be done manually.
+    chart = clearOldGraphValues(chart);
+
+    // Determine if any measurements are not already tracked in systems_and_measurements
+    var activeMeasurements = getAllActiveMeasurements();
+    var measurementsToFetch = _.difference(yTypeList, activeMeasurements);
+
+    // If there are any measurements to fetch, get the ids then pass those to the API along with the system names
+    // and add the new dataPoints to the systems_and_measurements object
+    if (measurementsToFetch.length > 0) {
+        var measurementIDList = [];
+        _.each(measurementsToFetch, function(measurement){
+            measurementIDList.push(measurement_types_and_info[measurement]['id']);
+        });
+        console.log("Call API for " + measurementsToFetch);
+        callAPIForNewData(measurementIDList);
+    }
+
+    // Handle the x axis, for now just using time
+    // TODO: Expand to handle changing x axes
+    chart.xAxis[0].setTitle({ text: "hours since creation" });
+
+    // Get dataPoints and their configs for the chart, using systems_and_measurements and add them
+    var newDataSeries = getDataPointsForPlotHC(chart, xType, yTypeList, graphType);
+    _.each(newDataSeries, function(series) {
+        chart.addSeries(series);
+    });
+
+    return chart;
 };
 
 
@@ -144,38 +166,9 @@ var getDataPointsForPlotHC = function(chart, xType, yTypeList, graphType){
 };
 
 
-/**
- *
- * @param yType
- * @param axisNum
- * @param units
- * @returns {{title: {text: *}, labels: {format: string, style: {color: *}}, opposite: boolean}}
- */
-var createYAxis = function(yType, axisNum, units){
-    var unitLabel = (units) ? units : "";
-    return { // Primary yAxis
-        title:
-        {
-            text: yType,
-            style: {color: COLORS[axisNum]}
-        },
-        labels:
-        {
-            format: '{value} ' + unitLabel,
-            style: {color: COLORS[axisNum] }
-        },
-        showEmpty: false,
-        lineWidth: 1,
-        tickWidth: 1,
-        gridLineWidth: 1,
-        opposite: !(axisNum % 2 === 0),
-        gridLineColor: '#707073',
-        lineColor: '#707073',
-        minorGridLineColor: '#505053',
-        tickColor: '#707073',
-    }
-
-};
+/* ##################################################################################################################
+ AJAX CALLS TO GRAB NEW DATA
+ #################################################################################################################### */
 
 
 /**
@@ -221,44 +214,9 @@ var callAPIForNewData = function(measurementIDList){
 };
 
 
-/**
- *
- * @param chart - A CanvasJS chart
- * @param xType - X-axis value chosen from dropdown
- * @param yTypeList - List of y-axis values selected from the checklist
- * @param graphType - The graph type chosen from dropdown
- */
-var updateChartDataPointsHC = function(chart, xType, yTypeList, graphType){
-
-    // Clear the old chart's yAxis and dataPoints. Unfortunately this must be done manually.
-    chart = clearOldGraphValues(chart);
-
-    // Determine if any measurements are not already tracked in systems_and_measurements
-    var activeMeasurements = getAllActiveMeasurements();
-    var measurementsToFetch = _.difference(yTypeList, activeMeasurements);
-
-    // If there are any measurements to fetch, get the ids then pass those to the API along with the system names
-    // and add the new dataPoints to the systems_and_measurements object
-    if (measurementsToFetch.length > 0) {
-        var measurementIDList = [];
-        _.each(measurementsToFetch, function(measurement){
-            measurementIDList.push(measurement_types_and_info[measurement]['id']);
-        });
-        console.log("Call API for " + measurementsToFetch);
-        callAPIForNewData(measurementIDList);
-    }
-
-    // Handle the x axis, for now just using time
-    chart.xAxis[0].setTitle({ text: "hours since creation" });
-
-    // Get dataPoints and their configs for the chart, using systems_and_measurements and add them
-    var newDataSeries = getDataPointsForPlotHC(chart, xType, yTypeList, graphType);
-    _.each(newDataSeries, function(series) {
-        chart.addSeries(series);
-    });
-
-    return chart;
-};
+/* ##################################################################################################################
+ HELPER FUNCTIONS
+ #################################################################################################################### */
 
 
 /**
@@ -295,7 +253,7 @@ var clearOldGraphValues = function(chart) {
 
 
 /**
- *
+ * Returns the Y Axis text selector to default
  */
 var setDefaultYAxis = function() {
     $(".js-example-basic-multiple").select2();
@@ -305,16 +263,74 @@ var setDefaultYAxis = function() {
 
 /**
  *
+ * @param missingYTypes
+ * @returns {string}
  */
-var drawChart = function(){
-    var graphType = document.getElementById(GRAPH_TYPE).value;
-    var xType = document.getElementById(XAXIS).value;
+var getAlertHTMLString = function(missingYTypes){
+    return '<div class="alert alert-danger"><a class="close" data-dismiss="alert">×</a><span>Missing values for: '
+        + _.uniq(missingYTypes).toString() + '</span></div>'
+};
 
-    // Get measurement types to display on the y-axis
-    var yTypes = $(".js-example-basic-multiple").select2().val();
+/**
+ *
+ * @param systemName - name of system
+ * @param dataPoints - array of values for graph; [{x:"", y: "", date: "", marker: ""}]
+ * @param graphType
+ * @param id
+ * @param linkedTo - used to group series to a system
+ * @param i - The iterator for a measurement
+ * @param j - The iterator for a system
+ * @param yType - The measurement type name
+ * @returns {{name: string, type: *, data: *, color: string, id: *, yAxis: *, dashStyle: string, marker: {symbol: string}}|*}
+ */
+var getDataPoints = function(systemName, dataPoints, graphType, id, linkedTo, i, j, yType) {
+    series = { name: systemName + ',' + yType,
+        type: graphType,
+        data: dataPoints,
+        color: COLORS[i],
+        id: id,
+        yAxis: i,
+        dashStyle: DASHSTYLES[j],
+        marker: {symbol: MARKERTYPES[j]}
+    };
+    if(linkedTo) {
+        series.linkedTo = id;
+    }
+    return series;
+};
 
-    // Generate a data Series for each y-value type, and assign them all to the CHART
-    updateChartDataPointsHC(CHART, xType, yTypes, graphType).redraw();
+
+/**
+ *
+ * @param yType
+ * @param axisNum
+ * @param units
+ * @returns {{title: {text: *}, labels: {format: string, style: {color: *}}, opposite: boolean}}
+ */
+var createYAxis = function(yType, axisNum, units){
+    var unitLabel = (units) ? units : "";
+    return { // Primary yAxis
+        title:
+        {
+            text: yType,
+            style: {color: COLORS[axisNum]}
+        },
+        labels:
+        {
+            format: '{value} ' + unitLabel,
+            style: {color: COLORS[axisNum] }
+        },
+        showEmpty: false,
+        lineWidth: 1,
+        tickWidth: 1,
+        gridLineWidth: 1,
+        opposite: !(axisNum % 2 === 0),
+        gridLineColor: '#707073',
+        lineColor: '#707073',
+        minorGridLineColor: '#505053',
+        tickColor: '#707073',
+    }
+
 };
 
 
@@ -440,6 +456,12 @@ window.onload = function() {
     // Render chart based on default page setting. i.e. x-axis & graph-type dropdowns, and the y-axis checklist
     drawChart();
 };
+
+
+/* ##################################################################################################################
+ HIGHCHARTS THEME
+ #################################################################################################################### */
+
 
 Highcharts.theme = {
     colors: ["#2b908f", "#90ee7e", "#f45b5b", "#7798BF", "#aaeeee", "#ff0066", "#eeaaee",
