@@ -1,6 +1,7 @@
 # DAO for fetching all the data related to the measurements of the systems
 from mysql.connector import Error
 
+
 class MeasurementsDAO:
     ###############################################################################
     # constructor to get connection
@@ -9,6 +10,7 @@ class MeasurementsDAO:
 
     ###############################################################################
     # get_all_measurement_names: method to fetch the names of all the measurements
+    # return: names of all the measurements
     def get_all_measurement_names(self):
         cursor = self.conn.cursor()
         query_names = ("SELECT name "
@@ -24,6 +26,9 @@ class MeasurementsDAO:
 
     ###############################################################################
     # get_latest_value: get latest value from the given table
+    # param - table_name: name of the table
+    # param - num_of_records: number of last records to be retrieved
+    # returns: last (num_of_records) from the given table_name
     def get_latest_value(self, table_name, num_of_records):
         cursor = self.conn.cursor()
         query_get = "SELECT * FROM %s " \
@@ -40,6 +45,14 @@ class MeasurementsDAO:
 
     ###############################################################################
     # insert measurement value
+    # param - table_name: name of the table
+    # param - time : time to be inserted
+    # param - value: value to be inserted corresponding to the given time
+    # returns:
+    #   (a) If successfully inserted: Record successfully inserted
+    #   (b) If the value at the given time already exists: Value at the given time
+    #       already recorded
+    #   (c) If encountered an insertion error: error message
     def put_system_measurement(self, table_name, time, value):
         time_already_recorded = self.get_recorded_time(table_name, time)
         if len(time_already_recorded) != 0:
@@ -61,6 +74,11 @@ class MeasurementsDAO:
 
     ###############################################################################
     # check if measurement exists
+    # param - table_name: name of the table
+    # param - time
+    # returns:
+    #   (a) If given time already present in the given table: Error
+    #   (b) Else: returns the time
     def get_recorded_time(self, table_name, time):
         cursor = self.conn.cursor()
         query_time = "SELECT time " \
@@ -77,6 +95,8 @@ class MeasurementsDAO:
 
     ###############################################################################
     # get_all_measurement_names: method to fetch the names of all the measurements
+    # param - id_list: list of the measurement ids
+    # returns: list of measurement names for the given ids.
     def get_measurement_name_list(self,id_list):
         cursor = self.conn.cursor()
 
@@ -107,7 +127,8 @@ class MeasurementsDAO:
     ###############################################################################
 
     # get_measurement_name: method to fetch the name of the measurements of the
-    # given measurement_id
+    # param - given measurement_id: id of a measurement
+    # returns: name of the measurement for the given id
     def get_measurement_name(self, measurement_id):
         cursor = self.conn.cursor()
         query_name = ("SELECT name "
@@ -209,7 +230,8 @@ class MeasurementsDAO:
     ###############################################################################
 
     # get_all_measurement_info: method to fetch the id, name, units, min and max
-    #  of all the measurements
+    #                           of all the measurements
+    # returns the id, name, units, min, max of all the measurements
     def get_all_measurement_info(self):
         cursor = self.conn.cursor()
         query_mea_info = ("SELECT * "
