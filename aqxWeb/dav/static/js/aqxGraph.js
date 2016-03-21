@@ -21,15 +21,12 @@ var SCATTER = "scatter";
 var BAR_CHART = "barchart";
 var DEFAULT_Y_TEXT = "Nitrate";
 var DEFAULT_Y_VALUE = DEFAULT_Y_TEXT.toLowerCase();
-var CHART_TITLE = "System Analyzer";
+var CHART_TITLE = "";
 var HC_OPTIONS;
-var COLORS = Highcharts.getOptions().colors; // Contains 10 different colors; .symbols contains 5 symbols
-var MARKERS = Highcharts.getOptions().symbols;
-//Dashstyle is applicable only to line, spline, area and scatter graphs
-//TODO: some of these styles are very sutle, we should come up with a better selection I guess
-var DASHSTYLES = ["Solid", "ShortDash", "ShortDot", "ShortDashDot", "ShortDashDotDot", "Dot", "Dash", "LongDash", "DashDot", "LongDashDot", "LongDashDotDot"];
-//var MARKERS = {'nitrate': 'circle', 'ph': 'url(https://www.highcharts.com/samples/graphics/snow.png)', 'Ammonia': 'triangle-down', 'Nitrite': 'square'}
-//'triangle','diamond' ,'url(https://www.highcharts.com/samples/graphics/sun.png']
+var COLORS = ["black", "red", "blue", "green"];
+var DASHSTYLES = ['Solid', 'LongDash', 'ShortDashDot', 'ShortDot', 'LongDashDotDot'];
+var MARKERTYPES = ["circle", "square", "diamond", "triangle", "triangle-down"];
+
 
 
 /* ##################################################################################################################
@@ -47,14 +44,15 @@ var DASHSTYLES = ["Solid", "ShortDash", "ShortDot", "ShortDashDot", "ShortDashDo
  * @param yAxis - The axis these graph will be plotted against
  * @returns {{name: *, type: *, data: *, color: *, id: *}|*}
  */
-var getDataPoints = function(systemName, dataPoints, color, graphType, id, linkedTo, yAxis, dashStyleIndex) {
-    series = { name: systemName,
+var getDataPoints = function(systemName, dataPoints, color, graphType, id, linkedTo, yAxis, dashStyle, markerType) {
+    series = { name: systemName + "poop",
         type: graphType,
         data: dataPoints,
         color: color,
         id: id,
         yAxis: yAxis,
-        dashStyle: DASHSTYLES[dashStyleIndex]
+        dashStyle: dashStyle,
+        marker: {symbol: markerType}
     };
     if(linkedTo) {
         series.linkedTo = id;
@@ -62,76 +60,39 @@ var getDataPoints = function(systemName, dataPoints, color, graphType, id, linke
     return series;
 };
 
-// TODO: This can be done before plotting graph
-/**
- *
- * @param dataPoints - array of values for graph; [{x:"", y: "", date: ""}]
- * @param type - measurementType. Ex: nitrate, ph
- * @returns datapoints with new 'marker' attribute [{x:"", y: "", date: "", marker: ""}]
- */
-var addMarker = function(dataPoints, markerIndex) {
-    var symbolType =  MARKERS[markerIndex];
-    _.each(dataPoints, function(data) {
-        data.marker = {'symbol': symbolType};
-    });
-    return dataPoints;
-};
-
-/**
- *
- * @param yTypeList
- * @returns {{}}
- */
-var createYAxisMap = function(yTypeList) {
-    var axisMap = {}, yAxis = 0;
-    _.each(yTypeList, function(x){
-        axisMap[x] = yAxis++;
-    });
-    return axisMap;
-};
-
-
-var randomlyAssignLineStyleForSystems = function(systems) {
-    var systemAndDashline = {};
-    _.each(systems, function(system) {
-        systemAndDashline[system.system_uid] = Math.floor((Math.random() * (DASHSTYLES.length - 1)) + 1);
-    });
-    return systemAndDashline;
-}
 
 // TODO: This will need to be re-evaluated to incorporate non-time x-axis values. For now, stubbing xType for this.
 /**
  *
  * @param xType - X-axis values. Ex: Time, pH, Hardness
  * @param yTypeList - Y-axis values. Ex: [pH, Nitrate]
- * @param colorSchemeForMeasurementTypes - {"nitrate": COLORS_INDEX, "pH": COLORS_INDEX}
- * @param markerForMeasurementType = {"nitrate": MARKERS_INDEX, "pH": MARKERS_INDEX}
+ * @param colorSchemeForMeasurement - {"nitrate": COLORS_INDEX, "pH": COLORS_INDEX}
+ * @param markerForMeasurement = {"nitrate": MARKERS_INDEX, "pH": MARKERS_INDEX}
  * @param graphType - Type of graph to display. Ex: line, scatter
  * @returns {Array} - An array of dataPoints of yType measurement data for all systems
  */
-var getDataPointsForPlotHC = function(xType, yTypeList, colorSchemeForMeasurement, markerForMeasurement, graphType){
+var getDataPointsForPlotHC = function(chart, xType, yTypeList, graphType){
 
     var dataPointsList = [];
     // Every system should be represented by unique color
     // Each measurementType should have a unique marker type
 
-    var dashStyleForSystems = randomlyAssignLineStyleForSystems(systems_and_measurements);
-    var axisMap = createYAxisMap(yTypeList);
-    //TODO: Rename systems_and_measurements to selectedSystemsToAnalyze
-    //TODO: It is possible to remove axisMap and use function(system, i)
-    _.each(systems_and_measurements, function(system){
+    var axes = [false, false, false, false];
+    _.each(systems_and_measurements, function(system, j){
         var measurements = system.measurement;
         // Used to link measurements to system
         var linkedTo = false;
-        _.each(yTypeList, function(yType) {
+        _.each(yTypeList, function(yType, i) {
             _.each(measurements, function(measurement){
-                if (_.isEqual(measurement.type.toLowerCase(), yType.toLowerCase())){
+                if (_.isEqual(measurement.type.toLowerCase(), yType.toLowerCase())) {
                     var systemId = system.system_uid;
-                    datawithMarkers = addMarker(measurement.values, markerForMeasurement[yType]);
-                    //TODO: You can add yaxis here
+                    if (!axes[i]) {
+                        chart.addAxis(createYAxis(yType, i, COLORS[i]));
+                        axes[i] = true;
+                    }
                     dataPointsList.push(
-                        getDataPoints(system.name, datawithMarkers, COLORS[colorSchemeForMeasurement[yType]],
-                            graphType, systemId,linkedTo, axisMap[yType], dashStyleForSystems[systemId]));
+                        getDataPoints(system.name, measurement.values, COLORS[i],
+                            graphType, systemId,linkedTo, i, DASHSTYLES[j], MARKERTYPES[j]));
                     linkedTo = true;
                 }
             });
@@ -145,10 +106,10 @@ var getDataPointsForPlotHC = function(xType, yTypeList, colorSchemeForMeasuremen
  *
  * @param yType
  * @param numAxes
- * @param colorIndex - index number that is mapped to COLORS[] array
+ * @param color - index number that is mapped to COLORS[] array
  * @returns {{title: {text: *}, labels: {format: string, style: {color: *}}, opposite: boolean}}
  */
-var createYAxis = function(yType, numAxes, colorIndex){
+var createYAxis = function(yType, numAxes, color){
     return { // Primary yAxis
         title:
         {
@@ -157,9 +118,9 @@ var createYAxis = function(yType, numAxes, colorIndex){
         labels:
         {
             format: '{value} ',
-            style: {color: COLORS[colorIndex] }
+            style: {color: color }
         },
-        opposite: (numAxes % 2 === 0)
+        opposite: !(numAxes % 2 === 0)
     }
 };
 
@@ -177,7 +138,7 @@ var updateChartDataPointsHC = function(chart, xType, yTypeList, graphType){
     _.each(measurementsToFetch, function(measurement){
         measurementIDList.push(measurement_types_and_ids[measurement]);
     });
-
+    chart = clearOldGraphValues(chart);
     if (measurementsToFetch.length > 0) {
         console.log("Call API for " + measurementsToFetch);
         $(function(){
@@ -204,16 +165,8 @@ var updateChartDataPointsHC = function(chart, xType, yTypeList, graphType){
             });
         });
     }
-
-    chart.xAxis[0].setTitle({ text: "hours per creation" });
-    chart = clearOldGraphValues(chart);
-    var chartAndColorSchemes = setupMultipleYAxisAndColorAndMarker(chart, yTypeList);
-    chart = chartAndColorSchemes.chart;
-    var colorSchemeForMeasurementType = chartAndColorSchemes.color;
-    var markerForMeasurementType = chartAndColorSchemes.marker;
-    var newDataSeries = getDataPointsForPlotHC(xType, yTypeList,
-                                                colorSchemeForMeasurementType,
-                                                markerForMeasurementType, graphType);
+    chart.xAxis[0].setTitle({ text: "hours since creation" });
+    var newDataSeries = getDataPointsForPlotHC(chart, xType, yTypeList, graphType);
     _.each(newDataSeries, function(series) {
         chart.addSeries(series);
     });
@@ -236,6 +189,12 @@ var getAllActiveMeasurements = function() {
     return activeMeasurements;
 };
 
+
+/**
+ *
+ * @param chart
+ * @returns {*}
+ */
 var clearOldGraphValues = function(chart) {
     // Clear yAxis
     while(chart.yAxis.length > 0){
@@ -248,32 +207,6 @@ var clearOldGraphValues = function(chart) {
     return chart;
 };
 
-var setupMultipleYAxisAndColorAndMarker = function (chart, yTypeList) {
-    var chartAndColorScheme = {};
-    var typeAndColor = {};
-    var typeAndMarker = {};
-    var numYAxes = 1;
-     _.each(yTypeList, function(yType){
-        // Pick a marker & color for yType
-        typeAndMarker[yType] = randomlyPickMarkerIndex();
-        typeAndColor[yType] = randomlyPickColorIndex();
-        // If axis with these units not already up...
-        chart.addAxis(createYAxis(yType, numYAxes, typeAndColor[yType]));
-        numYAxes++;
-    });
-    chartAndColorScheme.chart = chart;
-    chartAndColorScheme.color = typeAndColor;
-    chartAndColorScheme.marker = typeAndMarker;
-    return chartAndColorScheme;
-}
-
-var randomlyPickMarkerIndex = function() {
-    return Math.floor((Math.random() * (MARKERS.length -1)) + 1);
-}
-
-var randomlyPickColorIndex = function() {
-    return Math.floor((Math.random() * (COLORS.length -1)) + 1);
-}
 
 /**
  *
@@ -296,38 +229,8 @@ var drawChart = function(){
 
     // Generate a data Series for each y-value type, and assign them all to the CHART
     updateChartDataPointsHC(CHART, xType, yTypes, graphType).redraw();
-
-    // TODO: What about the other chart characteristics? Symbols, ranges, different scales, different y-axes?
-    //addMeasurementLegend(); //TODO: This is not required anymore right
-    //REMOVELEGENDSYMBOL(CHART);
 };
 
-//var addMeasurementLegend = function() {
-//    var selectedMeasurements = $(".js-example-basic-multiple").select2().val();
-//    $('#legendTypes').remove();
-//    $('#measurementLegend').append('<div id="legendTypes"></div>');
-//    _.each(selectedMeasurements, function (measurement) {
-//        var symbol;
-//        switch (measurement.toLowerCase()) {
-//            case 'nitrate':
-//                symbol = '●';
-//                break;
-//            case 'ph':
-//                symbol = '<img src="https://www.highcharts.com/samples/graphics/snow.png" alt="Marker" />';
-//                break;
-//            case 'square':
-//                symbol = '■';
-//                break;
-//            case 'triangle':
-//                symbol = '▲';
-//                break;
-//            case 'triangle-down':
-//                symbol = '▼';
-//                break;
-//        }
-//        $('#legendTypes').append('<div>' + measurement+ '<span>' + symbol +'</span></div>');
-//    });
-//};
 
 /* ##################################################################################################################
  PAGE-DRIVING FUNCTIONS
@@ -345,7 +248,6 @@ var main = function(){
     });
 
     $.fn.select2.defaults.set("maximumSelectionLength", 4);
-
 
     // Select the default y-axis value
     setDefaultYAxis();
@@ -383,6 +285,9 @@ window.onload = function() {
             type: 'line',
             zoomType: 'xy'
         },
+        title: {
+            text: CHART_TITLE
+        },
         tooltip: {
             formatter: function() {
                 return 'The value at <b>' + this.x + '</b> hour was <b>' + this.y + '</b>, in series '+ this.series.name;
@@ -404,6 +309,13 @@ window.onload = function() {
             minPadding: 0.05,
             maxPadding: 0.05
         },
+        exporting: {
+            csv: {
+                columnHeaderFormatter: function(series, key){
+                    return key;
+                }
+            }
+        },
         showInLegend: true,
         series: []
     };
@@ -412,13 +324,3 @@ window.onload = function() {
     // Render chart based on default page setting. i.e. x-axis & graph-type dropdowns, and the y-axis checklist
     drawChart();
 };
-
-//var REMOVELEGENDSYMBOL = function(chart){
-//    var series = chart.series;
-//    $(series).each(function(i, s){
-//        if (s.legendSymbol)
-//            s.legendSymbol.destroy();
-//        if (s.legendLine)
-//            s.legendLine.destroy();
-//    });
-//};
