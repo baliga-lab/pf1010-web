@@ -23,7 +23,7 @@ var DEFAULT_Y_TEXT = "Nitrate";
 var DEFAULT_Y_VALUE = DEFAULT_Y_TEXT.toLowerCase();
 var CHART_TITLE = "";
 var HC_OPTIONS;
-var COLORS = ["black", "red", "blue", "green"];
+var COLORS = ["lime", "orange", '#f7262f', "lightblue"];
 var DASHSTYLES = ['Solid', 'LongDash', 'ShortDashDot', 'ShortDot', 'LongDashDotDot'];
 var MARKERTYPES = ["circle", "square", "diamond", "triangle", "triangle-down"];
 
@@ -83,18 +83,25 @@ var getDataPointsForPlotHC = function(chart, xType, yTypeList, graphType){
         var measurements = system.measurement;
         // Used to link measurements to system
         var linkedTo = false;
-        _.each(yTypeList, function(yType, i) {
+        var i = 0;
+        _.each(yTypeList, function(yType) {
             _.each(measurements, function(measurement){
                 if (_.isEqual(measurement.type.toLowerCase(), yType.toLowerCase())) {
                     var systemId = system.system_uid;
-                    if (!axes[i]) {
-                        chart.addAxis(createYAxis(yType, i, COLORS[i]));
-                        axes[i] = true;
+                    if (measurement.values.length > 0){
+                        if (!axes[i]) {
+                            chart.addAxis(createYAxis(yType, i, COLORS[i], measurement_types_and_info[yType]['unit']));
+                            axes[i] = true;
+                        }
+                        dataPointsList.push(
+                            getDataPoints(system.name, measurement.values, COLORS[i],
+                                graphType, systemId,linkedTo, i, DASHSTYLES[j], MARKERTYPES[j], yType));
+                        linkedTo = true;
+                        i += 1;
                     }
-                    dataPointsList.push(
-                        getDataPoints(system.name, measurement.values, COLORS[i],
-                            graphType, systemId,linkedTo, i, DASHSTYLES[j], MARKERTYPES[j], yType));
-                    linkedTo = true;
+                    else{
+                        console.log("No measurements for " + yType);
+                    }
                 }
             });
         });
@@ -110,19 +117,29 @@ var getDataPointsForPlotHC = function(chart, xType, yTypeList, graphType){
  * @param color - index number that is mapped to COLORS[] array
  * @returns {{title: {text: *}, labels: {format: string, style: {color: *}}, opposite: boolean}}
  */
-var createYAxis = function(yType, numAxes, color){
+var createYAxis = function(yType, numAxes, color, units){
     return { // Primary yAxis
         title:
         {
-            text: yType
+            text: yType,
+            style: {color: color}
         },
         labels:
         {
-            format: '{value} ',
+            format: '{value} ' + units,
             style: {color: color }
         },
-        opposite: !(numAxes % 2 === 0)
+        showEmpty: false,
+        lineWidth: 1,
+        tickWidth: 1,
+        gridLineWidth: 1,
+        opposite: !(numAxes % 2 === 0),
+        gridLineColor: '#707073',
+        lineColor: '#707073',
+        minorGridLineColor: '#505053',
+        tickColor: '#707073',
     }
+
 };
 
 /**
@@ -136,7 +153,6 @@ var updateChartDataPointsHC = function(chart, xType, yTypeList, graphType){
     var activeMeasurements = getAllActiveMeasurements();
     var measurementsToFetch = _.difference(yTypeList, activeMeasurements);
     var measurementIDList = [];
-    // TODO: Need to access measurement_types_and_info.measurement_info.<measurement>.id here
     _.each(measurementsToFetch, function(measurement){
         measurementIDList.push(measurement_types_and_info[measurement]['id']);
     });
@@ -285,20 +301,33 @@ window.onload = function() {
         chart: {
             renderTo: 'analyzeContainer',
             type: 'line',
-            zoomType: 'xy'
+            zoomType: 'xy',
+            backgroundColor: {
+                linearGradient: { x1: 0, y1: 0, x2: 1, y2: 1 },
+                stops: [
+                    [0, '#2a2a2b'],
+                    [1, '#3e3e40']
+                ]
+            },
+            plotBorderColor: '#606063'
         },
         title: {
             text: CHART_TITLE
+        },
+        credits: {
+            style: {
+                color: '#666'
+            }
         },
         tooltip: {
             formatter: function() {
                 var tooltipInfo = this.series.name.split(",");
                 var yVal = tooltipInfo[1];
-                yVal = yVal.charAt(0).toUpperCase() + yVal.slice(1);
+                var yValCap = yVal.charAt(0).toUpperCase() + yVal.slice(1);
                 var datetime = this.point.date.split(" ");
                 //console.log(this.point.date);
                 return '<b>' + tooltipInfo[0] + '</b>' +
-                    '<br><p>' + yVal + ": " + this.y + '</p>' +
+                    '<br><p>' + yValCap + ": " + this.y + ' ' + measurement_types_and_info[yVal]['unit'] + '</p>' +
                     '<br><p>Hours in cycle: ' + this.x + '</p>' +
                     '<br><p>Measured on: ' + datetime[0] + '</p>' +
                     '<br><p>At time: ' + datetime[1] +'</p>';
@@ -307,11 +336,10 @@ window.onload = function() {
             crosshairs: [true,true]
         },
         legend: {
-            align: 'right',
-            verticalAlign: 'top',
-            layout: 'vertical',
-            x: 0,
-            y: 100,
+            itemStyle: {
+                color: '#E0E0E3'
+            },
+            enabled: true,
             labelFormatter: function() {
                 return '<span>'+ this.name.split(",")[0] + '</span>';
             },
@@ -333,7 +361,186 @@ window.onload = function() {
         series: []
     };
     CHART = new Highcharts.Chart(HC_OPTIONS);
-
+    Highcharts.setOptions(Highcharts.theme);
     // Render chart based on default page setting. i.e. x-axis & graph-type dropdowns, and the y-axis checklist
     drawChart();
+};
+
+Highcharts.theme = {
+    colors: ["#2b908f", "#90ee7e", "#f45b5b", "#7798BF", "#aaeeee", "#ff0066", "#eeaaee",
+        "#55BF3B", "#DF5353", "#7798BF", "#aaeeee"],
+    chart: {
+        backgroundColor: {
+            linearGradient: { x1: 0, y1: 0, x2: 1, y2: 1 },
+            stops: [
+                [0, '#2a2a2b'],
+                [1, '#3e3e40']
+            ]
+        },
+        plotBorderColor: '#606063'
+    },
+    title: {
+        style: {
+            color: '#E0E0E3',
+            textTransform: 'uppercase',
+            fontSize: '20px'
+        }
+    },
+    subtitle: {
+        style: {
+            color: '#E0E0E3',
+            textTransform: 'uppercase'
+        }
+    },
+    xAxis: {
+        gridLineColor: '#707073',
+        labels: {
+            style: {
+                color: '#E0E0E3'
+            }
+        },
+        lineColor: '#707073',
+        minorGridLineColor: '#505053',
+        tickColor: '#707073',
+        title: {
+            style: {
+                color: '#A0A0A3'
+
+            }
+        }
+    },
+    tooltip: {
+        backgroundColor: 'rgba(0, 0, 0, 0.85)',
+        style: {
+            color: '#F0F0F0'
+        }
+    },
+    plotOptions: {
+        series: {
+            dataLabels: {
+                color: '#B0B0B3'
+            },
+            marker: {
+                lineColor: '#333'
+            }
+        },
+        boxplot: {
+            fillColor: '#505053'
+        },
+        candlestick: {
+            lineColor: 'white'
+        },
+        errorbar: {
+            color: 'white'
+        }
+    },
+    legend: {
+        itemStyle: {
+            color: '#E0E0E3'
+        },
+        itemHoverStyle: {
+            color: '#FFF'
+        },
+        itemHiddenStyle: {
+            color: '#606063'
+        }
+    },
+    credits: {
+        style: {
+            color: '#666'
+        }
+    },
+    labels: {
+        style: {
+            color: '#707073'
+        }
+    },
+
+    drilldown: {
+        activeAxisLabelStyle: {
+            color: '#F0F0F3'
+        },
+        activeDataLabelStyle: {
+            color: '#F0F0F3'
+        }
+    },
+
+    navigation: {
+        buttonOptions: {
+            symbolStroke: '#DDDDDD',
+            theme: {
+                fill: '#505053'
+            }
+        }
+    },
+
+    // scroll charts
+    rangeSelector: {
+        buttonTheme: {
+            fill: '#505053',
+            stroke: '#000000',
+            style: {
+                color: '#CCC'
+            },
+            states: {
+                hover: {
+                    fill: '#707073',
+                    stroke: '#000000',
+                    style: {
+                        color: 'white'
+                    }
+                },
+                select: {
+                    fill: '#000003',
+                    stroke: '#000000',
+                    style: {
+                        color: 'white'
+                    }
+                }
+            }
+        },
+        inputBoxBorderColor: '#505053',
+        inputStyle: {
+            backgroundColor: '#333',
+            color: 'silver'
+        },
+        labelStyle: {
+            color: 'silver'
+        }
+    },
+
+    navigator: {
+        handles: {
+            backgroundColor: '#666',
+            borderColor: '#AAA'
+        },
+        outlineColor: '#CCC',
+        maskFill: 'rgba(255,255,255,0.1)',
+        series: {
+            color: '#7798BF',
+            lineColor: '#A6C7ED'
+        },
+        xAxis: {
+            gridLineColor: '#505053'
+        }
+    },
+
+    scrollbar: {
+        barBackgroundColor: '#808083',
+        barBorderColor: '#808083',
+        buttonArrowColor: '#CCC',
+        buttonBackgroundColor: '#606063',
+        buttonBorderColor: '#606063',
+        rifleColor: '#FFF',
+        trackBackgroundColor: '#404043',
+        trackBorderColor: '#404043'
+    },
+
+    // special colors for some of the
+    legendBackgroundColor: 'rgba(0, 0, 0, 0.5)',
+    background2: '#505053',
+    dataLabelsColor: '#B0B0B3',
+    textColor: '#C0C0C0',
+    contrastTextColor: '#F0F0F3',
+    maskColor: 'rgba(255,255,255,0.3)'
 };
