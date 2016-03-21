@@ -628,12 +628,18 @@ def view_system(system_uid):
                 system_subscribers = system.get_system_subscribers(system_uid)
                 participants_pending_approval = system.get_participants_pending_approval(system_uid)
                 subscribers_pending_approval = system.get_subscribers_pending_approval(system_uid)
+                privacy_options = {"Members", "Public"}
+                posts = system.get_system_recent_posts(system_uid)
+                #comments = system.get_system_recent_comments(system_uid)
                 return render_template("system_social.html", system_neo4j=system_neo4j, system_mysql=system_mysql,
                                        logged_in_user=logged_in_user, created_date=created_date,
                                        user_privilege=user_privilege, system_admins=system_admins,
                                        system_participants=system_participants, system_subscribers=system_subscribers,
                                        participants_pending_approval=participants_pending_approval,
-                                       subscribers_pending_approval=subscribers_pending_approval)
+                                       subscribers_pending_approval=subscribers_pending_approval,
+                                       system_uid=system_uid, privacy_options=privacy_options,
+                                       posts=posts)
+                #, comments=comments)
     except Exception as e:
         logging.exception("Exception at view_system: " + str(e))
 
@@ -952,6 +958,41 @@ def add_post():
             flash('Your post has been shared')
     return redirect(url_for('social.index'))
 
+#######################################################################################
+# function : add_system_post
+# purpose : renders system_social.html
+# parameters : system_uid
+# returns: system_social.html
+# Exception : General Exception
+#######################################################################################
+
+@social.route('/systems/add_system_post', methods=['POST'])
+def add_system_post():
+    user_sql_id = session.get('uid')
+    if user_sql_id is None:
+        return redirect(url_for('social.systems'))
+    system = System()
+    if request.method == 'POST':
+        system_uid = request.form['system_uid']
+        print("Creating the new system post")
+        print(system_uid)
+        system_neo4j = system.get_system_by_uid(system_uid)
+        # InValid System_UID
+        if not system_neo4j:
+            flash('System not found in neo4j.')
+            return redirect(url_for('social.view_system', system_uid=system_uid))
+            # Valid System_UID
+        else:
+            logged_in_user = User(user_sql_id).find()
+            created_date = convertMilliSecondsToNormalDate(system_neo4j[0][0]['creation_time'])
+            privacy = request.form['privacy']
+            text = request.form['text']
+            link = request.form['link']
+            if text == "":
+                flash('Post cannot be empty.')
+            else:
+                System().add_system_post(system_uid, user_sql_id, text, privacy, link)
+    return redirect(url_for('social.view_system', system_uid=system_uid))
 
 @social.route('/like_or_unlike_post', methods=['POST'])
 #######################################################################################
@@ -1000,6 +1041,80 @@ def delete_post():
     return redirect(url_for('social.index'))
 
 
+@social.route('/add_system_comment', methods=['POST'])
+#######################################################################################
+# function : add_system_comment
+# purpose : adds comments to the post
+# parameters : None
+# returns: calls index function
+# Exception : None
+#######################################################################################
+def add_system_comment():
+    comment = request.form['newcomment']
+    postid = request.form['postid']
+    userid = session['uid']
+    system_uid = request.form['system_uid']
+    if comment == "" or comment == None:
+        flash('Comment can not be empty')
+        redirect(url_for('social.view_system', system_uid=system_uid))
+    elif postid == "" or postid == None:
+        flash('Post not found to comment on')
+        redirect(url_for('social.view_system', system_uid=system_uid))
+    else:
+        System().add_system_comment(userid,comment,postid)
+        flash('Your comment has been posted')
+    return redirect(url_for('social.view_system', system_uid=system_uid))
+
+@social.route('/like_or_unlike_system_post', methods=['POST'])
+#######################################################################################
+# function : like_or_unlike_system_post
+# purpose : like or unlike existing post using unique post id
+# parameters : None
+# returns: calls index function
+# Exception : None
+#######################################################################################
+def like_or_unlike_system_post():
+    if request.method == 'POST':
+        if session.get('uid') is not None:
+            postid = request.form['postid']
+            print('This is a post i')
+            print(postid)
+            userid = session['uid']
+            system_uid = request.form['system_uid']
+            print("User id = " + str(userid))
+            print("system_uid id = " + str(system_uid))
+            print(request.form['submit'])
+            if postid == "":
+                flash('Can not find the post to delete.')
+            else:
+                if request.form['submit'] == 'likePost':
+                    System().like_system_post(userid, postid)
+                    flash('You liked the post')
+                elif request.form['submit'] == 'unlikePost':
+                    System().unlike_system_post(userid,postid)
+                    flash('You unliked the post')
+            return redirect(url_for('social.view_system', system_uid=system_uid))
+
+@social.route('/like_system_post', methods=['POST'])
+#######################################################################################
+# function : like_system_post
+# purpose : like system posts previously created by user
+# parameters : None
+# returns: calls index function
+# Exception : None
+#######################################################################################
+def like_system_post():
+    if session.get('uid') is not None:
+        userid = session.get('uid')
+        postid = request.form['postid']
+        system_uid = request.form['system_uid']
+        System().like_system_post(userid,postid)
+        flash('You liked the post')
+        return redirect(url_for('social.view_system', system_uid=system_uid))
+    else:
+        return render_template("/home.html")
+
+
 @social.route('/like_post', methods=['POST'])
 #######################################################################################
 # function : like_post
@@ -1016,7 +1131,6 @@ def like_post():
         return redirect(url_for('social.index'))
     else:
         return render_template("/home.html")
-
 
 @social.route('/unlike_post', methods=['POST'])
 #######################################################################################
@@ -1185,6 +1299,15 @@ def delete_user_by_sql_id(sql_id):
 def create_system():
     jsonObject = request.get_json()
     return ScAPI(getGraphConnectionURI()).create_system(jsonObject)
+
+
+######################################################################
+# API call to update system node in the Neo4J database using system_uid
+######################################################################
+@social.route('/aqxapi/post/system', methods=['POST'])
+def update_system():
+    jsonObject = request.get_json()
+    return ScAPI(getGraphConnectionURI()).update_system_with_system_uid(jsonObject)
 
 
 ######################################################################
