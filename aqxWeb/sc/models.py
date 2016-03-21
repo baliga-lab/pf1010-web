@@ -903,6 +903,66 @@ class System:
             raise "Exception occured in function User.find()"
 
     ############################################################################
+    # function : get_system_post_owners
+    # purpose : gets all likes from db
+    # params : None
+    # returns : set of postids and number of likes for all posts
+    # Exceptions : cypher.CypherError, cypher.CypherTransactionError
+    ############################################################################
+    def get_system_post_owners(self, system_uid):
+        query = """
+        MATCH (u:User)-[r:USER_POSTED]->(p:SystemPost)<-[r2:SYS_POSTED]-(s:System)
+        WHERE s.system_uid = {system_uid}
+        RETURN p.id as postid, u.sql_id as userid
+        ORDER BY p.modified_time DESC
+        """
+        try:
+            likes = getGraphConnectionURI().cypher.execute(query, system_uid=system_uid)
+            return likes
+        except cypher.CypherError, cypher.CypherTransactionError:
+            raise "Exception occured in function get_system_post_owners"
+
+    ############################################################################
+    # function : get_system_recent_likes
+    # purpose : gets all likes from db
+    # params : None
+    # returns : set of postids and number of likes for all posts
+    # Exceptions : cypher.CypherError, cypher.CypherTransactionError
+    ############################################################################
+    def get_system_recent_likes(self, system_uid):
+        query = """
+
+        MATCH (u:User)-[r:SYS_LIKED]->(p:SystemPost)<-[r1:SYS_POSTED]-(s:System)
+        WHERE s.system_uid = {system_uid}
+        RETURN p.id as postid, u.sql_id as userid
+        ORDER BY p.modified_time DESC
+        """
+        try:
+            likes = getGraphConnectionURI().cypher.execute(query, system_uid=system_uid)
+            return likes
+        except cypher.CypherError, cypher.CypherTransactionError:
+            raise "Exception occured in function get_system_recent_likes"
+
+    ############################################################################
+    # function : get_total_likes_for_system_posts
+    # purpose : gets all likes from db
+    # params : None
+    # returns : set of postids and number of likes for all posts
+    # Exceptions : cypher.CypherError, cypher.CypherTransactionError
+    ############################################################################
+    def get_total_likes_for_system_posts(self, system_uid):
+        query = """
+        MATCH (u:User)-[r:SYS_LIKED]->(p:SystemPost)<-[r1:SYS_POSTED]-(s:System)
+        WHERE s.system_uid = {system_uid}
+        RETURN p.id as postid, count(*) as likecount
+        """
+        try:
+            totalLikes = getGraphConnectionURI().cypher.execute(query, system_uid=system_uid)
+            return totalLikes
+        except cypher.CypherError, cypher.CypherTransactionError:
+            raise "Exception occured in function get_total_likes_for_system_posts"
+
+    ############################################################################
     # function : get_system_recent_posts
     # purpose : gets all posts from db
     # params : None

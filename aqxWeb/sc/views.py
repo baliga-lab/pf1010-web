@@ -630,7 +630,11 @@ def view_system(system_uid):
                 subscribers_pending_approval = system.get_subscribers_pending_approval(system_uid)
                 privacy_options = {"Members", "Public"}
                 posts = system.get_system_recent_posts(system_uid)
-                #comments = system.get_system_recent_comments(system_uid)
+                comments = system.get_system_recent_comments(system_uid)
+                likes = system.get_system_recent_likes(system_uid)
+                totalLikes = system.get_total_likes_for_system_posts(system_uid)
+                postOwners = system.get_system_post_owners(system_uid)
+
                 return render_template("system_social.html", system_neo4j=system_neo4j, system_mysql=system_mysql,
                                        logged_in_user=logged_in_user, created_date=created_date,
                                        user_privilege=user_privilege, system_admins=system_admins,
@@ -638,8 +642,8 @@ def view_system(system_uid):
                                        participants_pending_approval=participants_pending_approval,
                                        subscribers_pending_approval=subscribers_pending_approval,
                                        system_uid=system_uid, privacy_options=privacy_options,
-                                       posts=posts)
-                #, comments=comments)
+                                       posts=posts, comments=comments,likes=likes,
+                                       totalLikes=totalLikes, postOwners=postOwners)
     except Exception as e:
         logging.exception("Exception at view_system: " + str(e))
 
