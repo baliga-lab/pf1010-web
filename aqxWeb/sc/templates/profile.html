@@ -11,99 +11,167 @@
 
 {% block content %}
 
-        <div class="col-sm-3">
-            <div class="row">
-                <img class="imgstyle" id="userImage" src="{{ google_profile['img_url'] }}" width="200"/> <br/>
-                <h3 class="username">  {{ google_profile['displayName'] }} </h3>
-                <a id="profileLink" class="btn mycolor" target="_blank"
-                   href="{{ google_profile['plus_url'] }}">Google Plus Profile</a>
-                <input id="googleId" type="hidden" value="{{ google_profile['google_id'] }}"/>
-
-            </div>
-            <div id="systems">
-                <h3>User Systems</h3>
-                <ul class="nav nav-pills nav-stacked">
-                    <li><u>{{ participated_systems[0][0]['name'] }}</u></li>
-                 </ul>
+    <div class="col-sm-3">
+        <div class="row">
+            <img class="imgstyle" id="userImage" src="{{ google_profile['img_url'] }}" width="200"/> <br/>
+            <h3 class="username">  {{ google_profile['displayName'] }} </h3>
+            <a id="profileLink" class="btn mycolor" target="_blank"
+               href="{{ google_profile['plus_url'] }}">Google Plus Profile</a>
+            <input id="googleId" type="hidden" value="{{ google_profile['google_id'] }}"/>
 
 
-                <h3>Subscribed Systems</h3>
-                <ul class="nav nav-pills nav-stacked">
+        </div>
+        {% if status=="Sent Friend Request" %}
+            <a type="button" class="btn btn-info btn-sm" href="{{ url_for('social.delete_friend', u_sql_id=sqlId) }}">Cancel
+                Friend request
+            </a>
+        {% endif %}
+        {% if status=="Friends" %}
+            <a type="button" class="btn btn-info btn-sm" href="{{ url_for('social.delete_friend', u_sql_id=sqlId) }}">Unfriend
+            </a>
+        {% endif %}
+        {% if status=="Me" %}
 
-                <li><u>{{ subscribed_systems[0][0]['name'] }}</u></li>
-                    </ul>
 
-                 <h3>Admin Systems</h3>
-                                <ul class="nav nav-pills nav-stacked">
-                {% if admin_systems=="None" %}
-                                     <li>None</li>
+        {% endif %}
+        {% if status=="Add friend" %}
+            <a type="button" class="btn btn-info btn-sm" href="{{ url_for('social.send_friend_request', u_sql_id=sqlId) }}">Add friend
+            </a>
+        {% endif %}
+        <div id="systems">
+            <h5><b>User Systems</b></h5>
+            <ul class="nav nav-pills nav-stacked">
+                {% if subscribed_systems=="None" %}
+                    <li>None</li>
                 {% else %}
-                <li><u>{{ admin_systems[0][0]['name'] }}</u></li>
+                    <li>{{ participated_systems[0][0]['name'] }}</li>
                     </ul>
-                {% endif %}<br>
-              <button type="button" class="btn btn-info btn-sm" data-toggle="modal" data-target="#myModal">See all systems</button>
+                {% endif %}
+
+            <h5><b>Subscribed Systems</b></h5>
+            <ul class="nav nav-pills nav-stacked">
+                {% if subscribed_systems=="None" %}
+                    <li>None</li>
+                {% else %}
+                    <li>{{ subscribed_systems[0][0]['name'] }}</li>
+                    </ul>
+                {% endif %}
+           <h5> <b>Admin Systems</b></h5>
+            <ul class="nav nav-pills nav-stacked">
+                {% if admin_systems=="None" %}
+                    <li>None</li>
+                {% else %}
+                    <li>{{ admin_systems[0][0]['name'] }}</li>
+                    </ul>
+                {% endif %}
+
+            <button type="button" class="btn btn-info btn-sm" data-toggle="modal" data-target="#myModal">See all
+                systems
+            </button>
+        </div>
+
+        <div id="friends">
+            <h4>Friends</h4>
+            <ul class="nav nav-pills nav-stacked">
+                {% if friends=="None" %}
+                    <li>None</li>
+                {% else %}
+                    <li>
+                        <a href="{{ url_for('social.profile',google_id=friends[0][0]['google_id']) }}">{{ friends[0][0]['displayName'] }}</a>
+                    </li>
+                    </ul>
+                {% endif %}
+            <button type="button" class="btn btn-info btn-sm" data-toggle="modal" data-target="#myFriendModal">See all
+                Friends
+            </button>
+
+        </div>
+
+        <br/>
+    </div>
+
+    {# NEWSFEED #}
+    <div class="main col-sm-9">
+        {% include "post_form.html" %}
+
+        <h3>Recent Posts</h3>
+        {% include "display_posts.html" %}
+    </div>
+
+    <!-- Modal for System-->
+    <div id="myModal" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">Systems</h4>
+                </div>
+                <div class="modal-body">
+                    <h1>User Systems</h1>
+
+                    {% for row in participated_systems %}
+                        <div class="row">
+
+                            <ul>
+                                <li>{{ row[0]['name'] }}</li>
+                            </ul>
+                        </div>
+                    {% endfor %}
+                    <h1>Subscribed Systems</h1>
+                    {% for row in subscribed_systems %}
+                        <div class="row">
+                            <ul>
+                                <li>{{ row[0]['name'] }}</li>
+                            </ul>
+                        </div>
+                    {% endfor %}
+                    <h1>Admin Systems</h1>
+                    {% for row in admin_systems %}
+                        <div class="row">
+                            <ul>
+                                <li>{{ row[0]['name'] }}</li>
+                            </ul>
+                        </div>
+                    {% endfor %}
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+                <!-- Modal -->
             </div>
-
-            <br/>
         </div>
-
-        {# NEWSFEED #}
-        <div class="main col-sm-9">
-            {% include "post_form.html" %}
-
-            <h3>Recent Posts</h3>
-            {% include "display_posts.html" %}
-        </div>
-
-    </div>
-    <!-- Modal -->
-<div id="myModal" class="modal fade" role="dialog">
-  <div class="modal-dialog">
-
-    <!-- Modal content-->
-    <div class="modal-content">
-      <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal">&times;</button>
-        <h4 class="modal-title">Systems</h4>
-      </div>
-      <div class="modal-body">
-      <h1>User Systems</h1>
-
-                                  {% for row in participated_systems %}
-                            <div class="row">
-                            <ul>
-
-                               <li>{{ row[0]['name']}}</li>
-                                </ul>
-                            </div>
-                        {% endfor %}
-      <h1>Subscribed Systems</h1>
-        {% for row in subscribed_systems %}
-                            <div class="row">
-                            <ul>
-
-                               <li>{{ row[0]['name']}}</li>
-                                </ul>
-                            </div>
-                        {% endfor %}
-      <h1>Admin Systems</h1>
-        {% for row in admin_systems %}
-                            <div class="row">
-                            <ul>
-
-                               <li>{{ row[0]['name']}}</li>
-                                </ul>
-                            </div>
-                        {% endfor %}
-
-
-
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-      </div>
     </div>
 
-  </div>
-</div>
+    <div id="myFriendModal" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">Friends</h4>
+                </div>
+                <div class="modal-body">
+                    {% for row in friends %}
+                        <div class="row">
+                            <ul>
+                                <li>
+                                    <a href="{{ url_for('social.profile',google_id=row[0]['google_id']) }}">{{ row[0]['displayName'] }}</a>
+                                </li>
+                            </ul>
+                        </div>
+                    {% endfor %}
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
 {% endblock %}

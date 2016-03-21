@@ -58,7 +58,7 @@ def getToken():
 @google.authorized_handler
 def authorized(resp):
     access_token = resp['access_token']
-    print(access_token)
+    #print(access_token)
     session['access_token'] = access_token, ''
     session['token'] = access_token
     return redirect(url_for('social.Home'))
@@ -145,10 +145,10 @@ def signin():
         access_token = access_token[0]
         r = requests.get('https://www.googleapis.com/plus/v1/people/me?access_token=' + access_token)
         # content=r.content
-        print(r.content)
+       # print(r.content)
         googleAPIResponse = json.loads(r.content)
         # googleAPIResponsev=json.loads(googleAPIResponse)
-        print(googleAPIResponse)
+        #print(googleAPIResponse)
         logging.debug("signed in: %s", str(googleAPIResponse))
         google_id = googleAPIResponse['id']
         if 'image' in googleAPIResponse:
@@ -281,6 +281,10 @@ def updateprofile():
 def profile(google_id):
     if session.get('uid') is None:
         return redirect(url_for('social.index'))
+    my_sentreq_query = "MATCH (sentrequests { sql_id:{sql_id} })-[:SentRequest]->(res) RETURN res.sql_id"
+    my_received_query = "MATCH (receivedrequests { sql_id:{sql_id} })<-[:SentRequest]-(res) RETURN res.sql_id"
+    my_friends_query = "MATCH (friends { sql_id:{sql_id} })-[:FRIENDS]-(res) RETURN res.sql_id"
+
     try:
         # accessing google API to retrieve profile data
         google_profile = get_google_profile(google_id)
@@ -292,18 +296,26 @@ def profile(google_id):
             privacy = Privacy([Privacy.FRIENDS, Privacy.PUBLIC], Privacy.FRIENDS)
             participated_systems = System().get_participated_systems(session['uid'])
             subscribed_systems = System().get_subscribed_systems(session['uid'])
+            Friends = User(session['uid']).get_my_friends(session['uid']);
+            status="Me"
+            id=session['uid']
         else:
+
             sqlId = get_sqlId(google_id)
             if not sqlId:
                 return redirect(url_for('social.Home'))
             else:
                 id = sqlId[0]["sql_id"]
+
+                status=checkStatus(id)
+                #print(status)
                 admin_systems = System().get_admin_systems(id)
                 participated_systems = System().get_participated_systems(id)
                 subscribed_systems = System().get_subscribed_systems(id)
-                print(participated_systems)
-                print(subscribed_systems)
-                print(admin_systems.records == [])
+                Friends = User(session['uid']).get_my_friends(id);
+               # print(participated_systems)
+               # print(subscribed_systems)
+                #print(admin_systems.records == [])
 
             user_profile = User(session['uid']).get_user_by_google_id(google_id)
             privacy = Privacy([Privacy.FRIENDS, Privacy.PRIVATE, Privacy.PRIVATE], Privacy.FRIENDS)
@@ -329,13 +341,16 @@ def profile(google_id):
                     "plus_url": "#",
                     "img_url": ""
                 }
+            if Friends.records == []:
+                Friends="None"
             posts = get_all_recent_posts()
             comments = get_all_recent_comments()
-
+           # print(Friends)
             return render_template("profile.html", user_profile=user_profile, google_profile=google_profile,
                                    posts=posts, comments=comments, privacy_info=privacy,
                                    participated_systems=participated_systems
-                                   , subscribed_systems=subscribed_systems, admin_systems=admin_systems)
+                                   , subscribed_systems=subscribed_systems, admin_systems=admin_systems,friends=Friends,status=status,
+                                   sqlId=id)
     except Exception as e:
         logging.exception("Exception at view_profile: " + str(e))
 
@@ -532,7 +547,7 @@ def searchFriends():
 # returns: calls index function
 # Exception : None
 #######################################################################################
-@social.route('/send_friend_request/<u_sql_id>', methods=['POST'])
+@social.route('/send_friend_request/<u_sql_id>', methods=['GET','POST'])
 def send_friend_request(u_sql_id):
     receiver_sql_id = u_sql_id
     User(session['uid']).send_friend_request(receiver_sql_id)
@@ -1225,3 +1240,32 @@ def test_add_comment():
         User(session['uid']).test_add_comment(comment, postid)
         flash('Your comment has been posted')
     return redirect(url_for('social.index'))
+
+#######################################################################################
+# function : checkStatus
+# purpose : check the status of a user with another user
+# parameters : None
+# returns: if the user is friend,pending friend,add as a friend.
+# Exception : None
+#######################################################################################
+def checkStatus(user_sql_id):
+    friend_status="Add friend"
+    sentreq_res, receivedreq_res, frnds_res = User(session['uid']).get_friends_and_sentreq()
+    for sf in sentreq_res:
+        sf_id = sf[0]
+        if (user_sql_id == sf_id):
+            friend_status = "Sent Friend Request"
+    for rf in receivedreq_res:
+        rf_id = rf[0]
+        if (user_sql_id == rf_id):
+            friend_status = "Received Friend Request"
+    for fr in frnds_res:
+        fr_id = fr[0]
+        if (user_sql_id == fr_id):
+            friend_status = "Friends"
+    if (user_sql_id == session['uid']):
+        friend_status ="Me"
+    return friend_status
+
+
+
