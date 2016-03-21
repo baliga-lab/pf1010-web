@@ -21,7 +21,7 @@ var SCATTER = "scatter";
 var BAR_CHART = "barchart";
 var DEFAULT_Y_TEXT = "Nitrate";
 var DEFAULT_Y_VALUE = DEFAULT_Y_TEXT.toLowerCase();
-var CHART_TITLE = "";
+var CHART_TITLE = "System Analyzer";
 var HC_OPTIONS;
 var COLORS = ["lime", "orange", '#f7262f', "lightblue"];
 var DASHSTYLES = ['Solid', 'LongDash', 'ShortDashDot', 'ShortDot', 'LongDashDotDot'];
@@ -118,6 +118,7 @@ var getDataPointsForPlotHC = function(chart, xType, yTypeList, graphType){
  * @returns {{title: {text: *}, labels: {format: string, style: {color: *}}, opposite: boolean}}
  */
 var createYAxis = function(yType, numAxes, color, units){
+    var unitLabel = (units) ? units : "";
     return { // Primary yAxis
         title:
         {
@@ -126,7 +127,7 @@ var createYAxis = function(yType, numAxes, color, units){
         },
         labels:
         {
-            format: '{value} ' + units,
+            format: '{value} ' + unitLabel,
             style: {color: color }
         },
         showEmpty: false,
@@ -312,7 +313,10 @@ window.onload = function() {
             plotBorderColor: '#606063'
         },
         title: {
-            text: CHART_TITLE
+            text: CHART_TITLE,
+            style: {
+                color: '#E0E0E3'
+            }
         },
         credits: {
             style: {
@@ -324,10 +328,12 @@ window.onload = function() {
                 var tooltipInfo = this.series.name.split(",");
                 var yVal = tooltipInfo[1];
                 var yValCap = yVal.charAt(0).toUpperCase() + yVal.slice(1);
+                var units = measurement_types_and_info[yVal]['unit'];
+                units = (units) ? units : "";
                 var datetime = this.point.date.split(" ");
                 //console.log(this.point.date);
                 return '<b>' + tooltipInfo[0] + '</b>' +
-                    '<br><p>' + yValCap + ": " + this.y + ' ' + measurement_types_and_info[yVal]['unit'] + '</p>' +
+                    '<br><p>' + yValCap + ": " + this.y + ' ' + units + '</p>' +
                     '<br><p>Hours in cycle: ' + this.x + '</p>' +
                     '<br><p>Measured on: ' + datetime[0] + '</p>' +
                     '<br><p>At time: ' + datetime[1] +'</p>';
