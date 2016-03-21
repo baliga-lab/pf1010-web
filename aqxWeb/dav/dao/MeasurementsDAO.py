@@ -89,7 +89,6 @@ class MeasurementsDAO:
 
         id_list_str = ''.join(id_list_str)
 
-
         query_names = ("SELECT name "
                        "FROM measurement_types "
                        "where id in " +
@@ -144,13 +143,13 @@ class MeasurementsDAO:
         finally:
             cursor.close()
 
-        #create new list for each measurement
+        # create new list for each measurement
         for s in systems:
             values[s] = {}
             for mea in measurements:
                 values[s][mea] = []
 
-        #add all measurements in a dict
+        # add all measurements in a dict
         for s in systems:
 
             v = payload[s]
@@ -161,7 +160,6 @@ class MeasurementsDAO:
                     values[s][key].append(m)
 
             payload[s] = values[s]
-
 
         return payload
 
@@ -215,7 +213,7 @@ class MeasurementsDAO:
     def get_all_measurement_info(self):
         cursor = self.conn.cursor()
         query_mea_info = ("SELECT * "
-                       "FROM measurement_types;")
+                          "FROM measurement_types;")
         try:
             cursor.execute(query_mea_info)
             measurement_info = cursor.fetchall()
