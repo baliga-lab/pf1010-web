@@ -135,8 +135,9 @@ var updateChartDataPointsHC = function(chart, xType, yTypeList, graphType){
     var activeMeasurements = getAllActiveMeasurements();
     var measurementsToFetch = _.difference(yTypeList, activeMeasurements);
     var measurementIDList = [];
+    // TODO: Need to access measurement_types_and_info.measurement_info.<measurement>.id here
     _.each(measurementsToFetch, function(measurement){
-        measurementIDList.push(measurement_types_and_ids[measurement]);
+        measurementIDList.push(measurement_types_and_info[measurement]['id']);
     });
     chart = clearOldGraphValues(chart);
     if (measurementsToFetch.length > 0) {

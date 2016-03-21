@@ -54,7 +54,7 @@ def create_conn(app):
 @dav.route('/explore')
 def explore():
     systems_and_info_json = get_all_systems_info()
-    # systems = json.loads(systems_and_info_json)['systems']
+    systems = json.loads(systems_and_info_json)['systems']
     metadata_json = get_all_aqx_metadata()
     return render_template("explore.html", **locals())
 
@@ -70,6 +70,31 @@ def index():
     return 'Index'
 
 
+def json_loads_byteified(json_text):
+    return _byteify(
+        json.loads(json_text, object_hook=_byteify),
+        ignore_dicts=True
+    )
+
+def _byteify(data, ignore_dicts = False):
+    # if this is a unicode string, return its string representation
+    if isinstance(data, unicode):
+        return data.encode('utf-8')
+    # if this is a list of values, return list of byteified values
+    if isinstance(data, list):
+        return [ _byteify(item, ignore_dicts=True) for item in data ]
+    # if this is a dictionary, return dictionary of byteified keys and values
+    # but only if we haven't already byteified it
+    if isinstance(data, dict) and not ignore_dicts:
+        return {
+            _byteify(key, ignore_dicts=True): _byteify(value, ignore_dicts=True)
+            for key, value in data.iteritems()
+        }
+    # if it's anything else, return it in its original form
+    return data
+
+
+
 ######################################################################
 # Interactive graph analysis of system measurements
 ######################################################################
@@ -77,21 +102,12 @@ def index():
 @dav.route('/analyzeGraph', methods=['POST'])
 def analyzeGraph():
     msr_id_list = [6, 7, 2, 1, 9, 8, 10]
-    measurement_types_and_ids = {'alkalinity': 1,
-                             'ammonium': 2,
-                             'chlorine': 3,
-                             'hardness': 4,
-                             'light': 5,
-                             'nitrate': 6,
-                             'nitrite': 7,
-                             'o2': 8,
-                             'ph': 9,
-                             'temp': 10,
-                             'time': 11
-                             }
-    measurement_types_and_info = get_all_measurement_info()
-    # print measurement_types_and_info
 
+    # Load JSON formatted String from API. This will be piped into Javascript as a JS Object
+    measurement_types_and_info = get_all_measurement_info()
+
+    # Load JSON into Python dict with only Byte values, for use in populating dropdowns
+    measurement_types = json_loads_byteified(measurement_types_and_info)['measurement_info']
 
     selected_systemID_list = json.dumps(request.form.get('selectedSystems')).translate(None, '\"\\').split(",")
     systems_and_measurements_json = get_readings_for_tsplot(selected_systemID_list, msr_id_list)
