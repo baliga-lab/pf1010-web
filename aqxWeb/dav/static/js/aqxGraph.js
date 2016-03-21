@@ -44,8 +44,9 @@ var MARKERTYPES = ["circle", "square", "diamond", "triangle", "triangle-down"];
  * @param yAxis - The axis these graph will be plotted against
  * @returns {{name: *, type: *, data: *, color: *, id: *}|*}
  */
-var getDataPoints = function(systemName, dataPoints, color, graphType, id, linkedTo, yAxis, dashStyle, markerType) {
-    series = { name: systemName,
+// TODO: Make more efficient. Just pass an iterator that determines yAxis, dashStyle, marker.symbol, and color.
+var getDataPoints = function(systemName, dataPoints, color, graphType, id, linkedTo, yAxis, dashStyle, markerType, yType) {
+    series = { name: systemName + ',' + yType,
         type: graphType,
         data: dataPoints,
         color: color,
@@ -92,7 +93,7 @@ var getDataPointsForPlotHC = function(chart, xType, yTypeList, graphType){
                     }
                     dataPointsList.push(
                         getDataPoints(system.name, measurement.values, COLORS[i],
-                            graphType, systemId,linkedTo, i, DASHSTYLES[j], MARKERTYPES[j]));
+                            graphType, systemId,linkedTo, i, DASHSTYLES[j], MARKERTYPES[j], yType));
                     linkedTo = true;
                 }
             });
@@ -291,7 +292,17 @@ window.onload = function() {
         },
         tooltip: {
             formatter: function() {
-                return 'The value at <b>' + this.x + '</b> hour was <b>' + this.y + '</b>, in series '+ this.series.name;
+                var tooltipInfo = this.series.name.split(",");
+                var yVal = tooltipInfo[1];
+                yVal = yVal.charAt(0).toUpperCase() + yVal.slice(1);
+                var datetime = this.point.date.split(" ");
+                //console.log(this.point.date);
+                return '<b>' + tooltipInfo[0] + '</b>' +
+                    '<br><p>' + yVal + ": " + this.y + '</p>' +
+                    '<br><p>Hours in cycle: ' + this.x + '</p>' +
+                    '<br><p>Measured on: ' + datetime[0] + '</p>' +
+                    '<br><p>At time: ' + datetime[1] +'</p>';
+                //return 'The value at <b>' + this.x + '</b> hour was <b>' + this.y + '</b>, in series '+ this.series.name;
             },
             crosshairs: [true,true]
         },
@@ -302,7 +313,7 @@ window.onload = function() {
             x: 0,
             y: 100,
             labelFormatter: function() {
-                return '<span>'+ this.name + '</span>';
+                return '<span>'+ this.name.split(",")[0] + '</span>';
             },
             symbolWidth: 60
         },
@@ -312,8 +323,9 @@ window.onload = function() {
         },
         exporting: {
             csv: {
-                columnHeaderFormatter: function(series, key){
-                    return key;
+                columnHeaderFormatter: function(series){
+                    var name_and_variable = series.name.split(",");
+                    return name_and_variable[0] + '-' + name_and_variable[1];
                 }
             }
         },

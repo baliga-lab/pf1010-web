@@ -103,7 +103,7 @@ def _byteify(data, ignore_dicts = False):
 def analyzeGraph():
     msr_id_list = [6, 7, 2, 1, 9, 8, 10]
 
-    # Load JSON formatted String from API. This will be piped into Javascript as a JS Object
+    # Load JSON formatted String from API. This will be piped into Javascript as a JS Object accessible in that scope
     measurement_types_and_info = get_all_measurement_info()
 
     # Load JSON into Python dict with only Byte values, for use in populating dropdowns
