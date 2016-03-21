@@ -108,6 +108,8 @@ def analyzeGraph():
 
     # Load JSON into Python dict with only Byte values, for use in populating dropdowns
     measurement_types = json_loads_byteified(measurement_types_and_info)['measurement_info']
+    measurement_names = measurement_types.keys()
+    measurement_names.sort()
 
     selected_systemID_list = json.dumps(request.form.get('selectedSystems')).translate(None, '\"\\').split(",")
     systems_and_measurements_json = get_readings_for_tsplot(selected_systemID_list, msr_id_list)

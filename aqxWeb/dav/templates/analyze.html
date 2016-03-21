@@ -27,8 +27,8 @@
                     <label class="control-label">Select X Axis</label>
                     <select class="dropdown" id="selectXAxis">
                         <option name="xAxisTypes" value="time" selected="selected">Time</option>
-                        {% for key, value in measurement_types.iteritems() %}
-                            <option name="xAxisTypes" value="{{key}}">{{ key }}</option>
+                        {% for name in measurement_names %}
+                            <option name="xAxisTypes" value="{{ name }}">{{ name }}</option>
                         {% endfor %}
                     </select>
                 </div>
@@ -37,8 +37,8 @@
                 <div class="form-group">
                     <label class="control-label">Select Y Axis</label>
                     <select class="js-example-basic-multiple dropdown" multiple="multiple" id="selectYAxis">
-                        {% for key, value in measurement_types.iteritems() %}
-                            {% if not key == 'time' %}<option value="{{key}}">{{ key }}</option>{% endif %}
+                        {% for name in measurement_names %}
+                            {% if not name == 'time' %}<option value="{{ name }}">{{ name }}</option>{% endif %}
                         {% endfor %}
                     </select>
                 </div>
@@ -69,7 +69,7 @@
     <script src="http://code.highcharts.com/highcharts.js"></script>
     <script src="http://code.highcharts.com/modules/exporting.js"></script>
     <script type="text/javascript" src="{{ url_for('dav.static', filename='js/export-csv.js') }}"></script>
- <script type="text/javascript" src="{{ url_for('dav.static', filename='js/underscore-min.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('dav.static', filename='js/underscore-min.js') }}"></script>
     <script src="{{ url_for('dav.static', filename='js/aqxGraph.js') }}"></script>
     <script>
         var systems_and_measurements = {{ systems_and_measurements_json | safe }};

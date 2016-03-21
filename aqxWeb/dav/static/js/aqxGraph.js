@@ -42,6 +42,10 @@ var drawChart = function(){
 
     // Get measurement types to display on the y-axis
     var yTypes = $(".js-example-basic-multiple").select2().val();
+    //var yTypes = $(".js-example-basic-multiple").select2("data");
+    //yTypes = _.map(yTypes, function(x){ return x.id });
+    //console.log(yTypes);
+
 
     // Generate a data Series for each y-value type, and assign them all to the CHART
     updateChartDataPointsHC(CHART, xType, yTypes, graphType).redraw();
@@ -309,6 +313,7 @@ var getDataPoints = function(systemName, dataPoints, graphType, id, linkedTo, i,
  */
 var createYAxis = function(yType, axisNum, units){
     var unitLabel = (units) ? units : "";
+    unitLabel = (_.isEqual(unitLabel, "celsius")) ? "°C" : unitLabel;
     return { // Primary yAxis
         title:
         {
@@ -410,14 +415,15 @@ window.onload = function() {
             }
         },
         tooltip: {
+            // TODO: Maybe init units first then we can cut out a line here.
             formatter: function() {
                 var tooltipInfo = this.series.name.split(",");
                 var yVal = tooltipInfo[1];
                 var yValCap = yVal.charAt(0).toUpperCase() + yVal.slice(1);
                 var units = measurement_types_and_info[yVal]['unit'];
                 units = (units) ? units : "";
+                units = (_.isEqual(units, "celsius")) ? "°C" : units;
                 var datetime = this.point.date.split(" ");
-                //console.log(this.point.date);
                 return '<b>' + tooltipInfo[0] + '</b>' +
                     '<br><p>' + yValCap + ": " + this.y + ' ' + units + '</p>' +
                     '<br><p>Hours in cycle: ' + this.x + '</p>' +
