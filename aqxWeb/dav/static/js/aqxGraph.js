@@ -61,6 +61,11 @@ var getDataPoints = function(systemName, dataPoints, graphType, id, linkedTo, i,
     return series;
 };
 
+var getAlertHTMLString = function(missingYTypes){
+    return '<div class="alert alert-danger"><a class="close" data-dismiss="alert">×</a><span>Missing values for: '
+        + _.uniq(missingYTypes).toString() + '</span></div>'
+};
+
 
 // TODO: This will need to be re-evaluated to incorporate non-time x-axis values. For now, stubbing xType for this.
 /**
@@ -79,19 +84,16 @@ var getDataPointsForPlotHC = function(chart, xType, yTypeList, graphType){
     // Each measurementType should have a unique marker type
 
     var missingYTypes = [];
-
-
-    // TODO: If we add new divs, we can make a new warning per system, and list the specific missing data for that system
+    var numAxes = 0;
     var axes = {};
     _.each(yTypeList, function(axis, i){
        axes[axis] = {isAxis:false};
-    })
-    var numAxes = 0;
+    });
+
     _.each(systems_and_measurements, function(system, j){
         var measurements = system.measurement;
         // Used to link measurements to system
         var linkedTo = false;
-
         _.each(yTypeList, function(yType) {
             _.each(measurements, function(measurement){
                 if (_.isEqual(measurement.type.toLowerCase(), yType.toLowerCase())) {
@@ -113,9 +115,8 @@ var getDataPointsForPlotHC = function(chart, xType, yTypeList, graphType){
             });
         });
     });
-    console.log(axes);
     if (missingYTypes.length > 0){
-        $('#alert_placeholder').html('<div class="alert alert-danger"><a class="close" data-dismiss="alert">×</a><span>Missing values for: ' + _.uniq(missingYTypes).toString() + '</span></div>');
+        $('#alert_placeholder').html(getAlertHTMLString(missingYTypes));
     }
     return dataPointsList;
 };
@@ -124,28 +125,28 @@ var getDataPointsForPlotHC = function(chart, xType, yTypeList, graphType){
 /**
  *
  * @param yType
- * @param numAxes
+ * @param axisNum
  * @param units
  * @returns {{title: {text: *}, labels: {format: string, style: {color: *}}, opposite: boolean}}
  */
-var createYAxis = function(yType, numAxes, units){
+var createYAxis = function(yType, axisNum, units){
     var unitLabel = (units) ? units : "";
     return { // Primary yAxis
         title:
         {
             text: yType,
-            style: {color: COLORS[numAxes]}
+            style: {color: COLORS[axisNum]}
         },
         labels:
         {
             format: '{value} ' + unitLabel,
-            style: {color: COLORS[numAxes] }
+            style: {color: COLORS[axisNum] }
         },
         showEmpty: false,
         lineWidth: 1,
         tickWidth: 1,
         gridLineWidth: 1,
-        opposite: !(numAxes % 2 === 0),
+        opposite: !(axisNum % 2 === 0),
         gridLineColor: '#707073',
         lineColor: '#707073',
         minorGridLineColor: '#505053',
