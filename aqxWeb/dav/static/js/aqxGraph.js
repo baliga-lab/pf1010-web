@@ -79,35 +79,55 @@ var getAlertHTMLString = function(missingYTypes){
  */
 var getDataPointsForPlotHC = function(chart, xType, yTypeList, graphType){
 
+    // DataPoints to add to chart
     var dataPointsList = [];
-    // Every system should be represented by unique color
-    // Each measurementType should have a unique marker type
 
+    // Any y variables and systems that have missing data
     var missingYTypes = [];
+
+    // Assign each axis a variable and an id
     var numAxes = 0;
+
+    // Axis dict ensures that each variable is plotted to the same, unique axis for that variable
     var axes = {};
     _.each(yTypeList, function(axis, i){
-       axes[axis] = {isAxis:false};
+        axes[axis] = {isAxis:false};
     });
 
+    // Begin iterating through the systems
     _.each(systems_and_measurements, function(system, j){
+
         var measurements = system.measurement;
-        // Used to link measurements to system
+        // Used to link measurements to the same system
         var linkedTo = false;
+
+        // Loop through selected measurement types
         _.each(yTypeList, function(yType) {
+
+            // Then find matching types in the systems_and_measurements object
             _.each(measurements, function(measurement){
                 if (_.isEqual(measurement.type.toLowerCase(), yType.toLowerCase())) {
                     var systemId = system.system_uid;
+
+                    // Check if there is data for this system and measurement type
                     if (measurement.values.length > 0){
+
+                        // Has this variable been assigned an axis yet?
+                        // If not, create the axis and assign to a variable. This variables isAxis is now true,
+                        // an axis is assigned, and the numAxes increments
                         if (!axes[yType].isAxis) {
                             chart.addAxis(createYAxis(yType, numAxes, measurement_types_and_info[yType]['unit']));
                             axes[yType].isAxis = true;
                             axes[yType].axis = numAxes++;
                         }
+
+                        // Push valid dataPoints and their configs to the list of dataPoints to plot
                         dataPointsList.push(
                             getDataPoints(system.name, measurement.values, graphType, systemId,linkedTo, axes[yType].axis, j, yType));
                         linkedTo = true;
                     }
+
+                    // If there is no data, we will warn the user for this system and variable
                     else{
                         missingYTypes.push(system.name + "-" + yType);
                     }
@@ -115,6 +135,8 @@ var getDataPointsForPlotHC = function(chart, xType, yTypeList, graphType){
             });
         });
     });
+
+    // Warn the user about missing data
     if (missingYTypes.length > 0){
         $('#alert_placeholder').html(getAlertHTMLString(missingYTypes));
     }
@@ -155,6 +177,50 @@ var createYAxis = function(yType, axisNum, units){
 
 };
 
+
+/**
+ *
+ * @param data
+ */
+var addNewMeasurementData = function(data){
+    console.log('success',data);
+    var systems = data.response;
+
+    // Loop through existing systems in the systems_and_measurements object
+    _.each(systems, function(system){
+        var systemMeasurements = system.measurement;
+        _.each(systems_and_measurements, function(existingSystem){
+            // Match systems in the new data by id, and then add the new measurements
+            // to the list of existing measurements
+            if (_.isEqual(existingSystem.system_uid, system.system_uid)){
+                existingSystem.measurement = existingSystem.measurement.concat(systemMeasurements);
+            }
+        });
+    });
+};
+
+
+/**
+ *
+ * @param measurementIDList
+ */
+var callAPIForNewData = function(measurementIDList){
+    $(function(){
+        $.ajax({
+            type: 'POST',
+            contentType: 'application/json;charset=UTF-8',
+            dataType: 'json',
+            async: false,
+            url: '/dav/aqxapi/get/readings/time_series_plot',
+            data: JSON.stringify({systems: selectedSystemIDs, measurements: measurementIDList}, null, '\t'),
+            success: function(data){
+                addNewMeasurementData(data);
+            }
+        });
+    });
+};
+
+
 /**
  *
  * @param chart - A CanvasJS chart
@@ -163,40 +229,29 @@ var createYAxis = function(yType, axisNum, units){
  * @param graphType - The graph type chosen from dropdown
  */
 var updateChartDataPointsHC = function(chart, xType, yTypeList, graphType){
+
+    // Clear the old chart's yAxis and dataPoints. Unfortunately this must be done manually.
+    chart = clearOldGraphValues(chart);
+
+    // Determine if any measurements are not already tracked in systems_and_measurements
     var activeMeasurements = getAllActiveMeasurements();
     var measurementsToFetch = _.difference(yTypeList, activeMeasurements);
-    var measurementIDList = [];
-    _.each(measurementsToFetch, function(measurement){
-        measurementIDList.push(measurement_types_and_info[measurement]['id']);
-    });
-    chart = clearOldGraphValues(chart);
+
+    // If there are any measurements to fetch, get the ids then pass those to the API along with the system names
+    // and add the new dataPoints to the systems_and_measurements object
     if (measurementsToFetch.length > 0) {
-        console.log("Call API for " + measurementsToFetch);
-        $(function(){
-            $.ajax({
-                type: 'POST',
-                contentType: 'application/json;charset=UTF-8',
-                dataType: 'json',
-                async: false,
-                url: '/dav/aqxapi/get/readings/time_series_plot',
-                data: JSON.stringify({systems: selectedSystemIDs, measurements: measurementIDList}, null, '\t'),
-                success: function(data){
-                    console.log('success',data);
-                    var systems = data.response;
-                    _.each(systems, function(system){
-                        var systemMeasurements = system.measurement;
-                        _.each(systems_and_measurements, function(existingSystem){
-                            if (_.isEqual(existingSystem.system_uid, system.system_uid)){
-                                existingSystem.measurement = existingSystem.measurement.concat(systemMeasurements);
-                            }
-                        });
-                    });
-                    console.log(systems_and_measurements);
-                }
-            });
+        var measurementIDList = [];
+        _.each(measurementsToFetch, function(measurement){
+            measurementIDList.push(measurement_types_and_info[measurement]['id']);
         });
+        console.log("Call API for " + measurementsToFetch);
+        callAPIForNewData(measurementIDList);
     }
+
+    // Handle the x axis, for now just using time
     chart.xAxis[0].setTitle({ text: "hours since creation" });
+
+    // Get dataPoints and their configs for the chart, using systems_and_measurements and add them
     var newDataSeries = getDataPointsForPlotHC(chart, xType, yTypeList, graphType);
     _.each(newDataSeries, function(series) {
         chart.addSeries(series);
