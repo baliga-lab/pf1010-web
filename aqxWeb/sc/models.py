@@ -996,8 +996,8 @@ class System:
         MATCH (user:User), (system:System)-[r1:SYS_POSTED]->(post:SystemPost)-[r:HAS]->(comment:SystemComment)
         WHERE system.system_uid = {system_uid}
         and user.sql_id = comment.user_sql_id
-        RETURN post.id AS postid, comment
-        order by comment.modified_time desc
+        RETURN post.id AS postid, user, comment
+        order by comment.creation_time
         """
         try:
             comments = getGraphConnectionURI().cypher.execute(query, system_uid=system_uid)
