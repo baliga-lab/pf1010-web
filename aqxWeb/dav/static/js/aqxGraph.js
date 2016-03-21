@@ -78,33 +78,45 @@ var getDataPointsForPlotHC = function(chart, xType, yTypeList, graphType){
     // Every system should be represented by unique color
     // Each measurementType should have a unique marker type
 
-    var axes = [false, false, false, false];
+    var missingYTypes = [];
+
+
+    // TODO: If we add new divs, we can make a new warning per system, and list the specific missing data for that system
+    var axes = {};
+    _.each(yTypeList, function(axis, i){
+       axes[axis] = {isAxis:false};
+    })
+    var numAxes = 0;
     _.each(systems_and_measurements, function(system, j){
         var measurements = system.measurement;
         // Used to link measurements to system
         var linkedTo = false;
-        var i = 0;
+
         _.each(yTypeList, function(yType) {
             _.each(measurements, function(measurement){
                 if (_.isEqual(measurement.type.toLowerCase(), yType.toLowerCase())) {
                     var systemId = system.system_uid;
                     if (measurement.values.length > 0){
-                        if (!axes[i]) {
-                            chart.addAxis(createYAxis(yType, i, measurement_types_and_info[yType]['unit']));
-                            axes[i] = true;
+                        if (!axes[yType].isAxis) {
+                            chart.addAxis(createYAxis(yType, numAxes, measurement_types_and_info[yType]['unit']));
+                            axes[yType].isAxis = true;
+                            axes[yType].axis = numAxes++;
                         }
                         dataPointsList.push(
-                            getDataPoints(system.name, measurement.values, graphType, systemId,linkedTo, i, j, yType));
+                            getDataPoints(system.name, measurement.values, graphType, systemId,linkedTo, axes[yType].axis, j, yType));
                         linkedTo = true;
-                        i += 1;
                     }
                     else{
-                        console.log("No measurements for " + yType);
+                        missingYTypes.push(system.name + "-" + yType);
                     }
                 }
             });
         });
     });
+    console.log(axes);
+    if (missingYTypes.length > 0){
+        $('#alert_placeholder').html('<div class="alert alert-danger"><a class="close" data-dismiss="alert">×</a><span>Missing values for: ' + _.uniq(missingYTypes).toString() + '</span></div>');
+    }
     return dataPointsList;
 };
 
@@ -282,6 +294,8 @@ var main = function(){
         $('#selectGraphType option').prop(SELECTED, function() {
             return this.defaultSelected;
         });
+
+        $('#alert_placeholder').empty();
 
         // Select the default y-axis value
         setDefaultYAxis();
