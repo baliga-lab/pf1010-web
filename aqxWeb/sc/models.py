@@ -3,7 +3,6 @@ import time
 import datetime
 import uuid
 
-
 # Initialize the app_instance and graph_instance
 def init_sc_app(app):
     global app_instance
@@ -11,11 +10,9 @@ def init_sc_app(app):
     app_instance = app
     graph_instance = Graph(get_app_instance().config['CONNECTIONSETTING'])
 
-
 # Return the app_instance
 def get_app_instance():
     return app_instance
-
 
 # Create / Load graph with the connection settings
 def getGraphConnectionURI():
@@ -181,8 +178,7 @@ class User:
             raise "Exception occured in function edit_post"
 
 
-            ############################################################################
-
+    ############################################################################
     # function : get_user_sql_id
     # purpose : get users sql id
     # params :
@@ -219,7 +215,7 @@ class User:
         try:
             getGraphConnectionURI().cypher.execute(deleteCommentsQuery, postid=postid)
         except cypher.CypherError, cypher.CypherTransactionError:
-            raise "Exception occured in function like_post : deleteCommentsQuery "
+            raise "Exception occured in function delete_post : deleteCommentsQuery "
 
         # Deletes posts and all related relationships
 
@@ -231,7 +227,7 @@ class User:
         try:
             getGraphConnectionURI().cypher.execute(deletePostQuery, postid=postid)
         except cypher.CypherError, cypher.CypherTransactionError:
-            raise "Exception occured in function like_post : deletePostQuery "
+            raise "Exception occured in function delete_post : deletePostQuery "
 
     ############################################################################
     # function : add_comment
@@ -892,6 +888,64 @@ class System:
         self.system_uid = None
 
     ############################################################################
+    # function : find
+    # purpose : function used to find user name based on sql_id
+    # params : self (User)
+    # returns : User node
+    # Exceptions : cypher.CypherError, cypher.CypherTransactionError
+    ############################################################################
+
+    def find(self, system_uid):
+        try:
+            system = getGraphConnectionURI().find_one("System", "system_uid", system_uid)
+            return system
+        except cypher.CypherError, cypher.CypherTransactionError:
+            raise "Exception occured in function User.find()"
+
+    ############################################################################
+    # function : get_system_recent_posts
+    # purpose : gets all posts from db
+    # params : None
+    # returns : set of usernames and posts
+    # Exceptions : cypher.CypherError, cypher.CypherTransactionError
+    ############################################################################
+
+    def get_system_recent_posts(self, system_uid):
+        query = """
+        MATCH (system:System)-[r1:SYS_POSTED]->(post:SystemPost)<-[r2:USER_POSTED]-(user:User)
+        WHERE system.system_uid = {system_uid}
+        RETURN user.displayName AS displayName, user, post
+        ORDER BY post.modified_time DESC
+        """
+        try:
+            posts = getGraphConnectionURI().cypher.execute(query, system_uid=system_uid)
+            return posts
+        except cypher.CypherError, cypher.CypherTransactionError:
+            raise "Exception occured in function get_system_recent_posts "
+
+     ############################################################################
+    # function : get_system_recent_comments
+    # purpose : gets all system comments from db
+    # params : system_uid : uid of system
+    # returns : set of usernames and posts
+    # Exceptions : cypher.CypherError, cypher.CypherTransactionError
+    ############################################################################
+
+    def get_system_recent_comments(self, system_uid):
+        query = """
+        MATCH (user:User), (system:System)-[r1:SYS_POSTED]->(post:SystemPost)-[r:HAS]->(comment:SystemComment)
+        WHERE system.system_uid = {system_uid}
+        and user.sql_id = comment.user_sql_id
+        RETURN post.id AS postid, comment
+        order by comment.modified_time desc
+        """
+        try:
+            comments = getGraphConnectionURI().cypher.execute(query, system_uid=system_uid)
+            return comments
+        except cypher.CypherError, cypher.CypherTransactionError:
+            raise "Exception occured in function get_system_recent_comments "
+
+    ############################################################################
     # function : get_system_by_name
     # purpose : gets the system details for the matched system name from neo4j database
     # params : systemName
@@ -1484,6 +1538,104 @@ class System:
             raise "Exception occured in function get_recommended_systems"
 
     ############################################################################
+    # function : add_system_post
+    # purpose : adds post related to a system with user_id and post content in neo4j database
+    # params : system_uid, user_sql_id, text, privacy, link
+    # returns : None
+    # Exceptions : cypher.CypherError, cypher.CypherTransactionError
+    ############################################################################
+    def add_system_post(self, system_uid, user_sql_id, text, privacy, link):
+        systemnew = System().find(system_uid)
+        print(systemnew)
+        user = User(user_sql_id).find()
+        post = Node(
+            "SystemPost",
+            id=str(uuid.uuid4()),
+            text=text,
+            link=link,
+            privacy=privacy,
+            userid = user_sql_id,
+            creation_time=timestamp(),
+            modified_time=timestamp(),
+            date=date()
+        )
+        sys_syspost_relationship = Relationship(systemnew, "SYS_POSTED", post)
+        user_syspost_relationship = Relationship(user, "USER_POSTED", post)
+        try:
+            getGraphConnectionURI().create(sys_syspost_relationship)
+            getGraphConnectionURI().create(user_syspost_relationship)
+        except cypher.CypherError, cypher.CypherTransactionError:
+            raise "Exception occured in function add_system_post "
+
+    ############################################################################
+    # function : like_system_post
+    # purpose : creates a unique LIKED relationship between User and Post
+    # params : user_sql_id : user id
+    #        system_postid : post id for which user liked
+    # returns : None
+    # Exceptions : cypher.CypherError, cypher.CypherTransactionError
+    ############################################################################
+
+    def like_system_post(self, user_sql_id, system_postid):
+        user = User(user_sql_id).find()
+        post = getGraphConnectionURI().find_one("SystemPost", "id", system_postid)
+        rel = Relationship(user, 'SYS_LIKED', post)
+        try:
+            getGraphConnectionURI().create_unique(rel)
+        except cypher.CypherError, cypher.CypherTransactionError:
+            raise "Exception occured in function like_post "
+
+    ############################################################################
+    # function : add_system_comment
+    # purpose : Adds new comment node in neo4j with the given information and creates
+    #            POSTED relationship between Post and User node
+    # params :
+    #        newcomment : contains the data shared in comment
+    #        postid : post id for which the comment has been added
+    # Exceptions : cypher.CypherError, cypher.CypherTransactionError
+    # returns : None
+    ############################################################################
+
+    def add_system_comment(self, user_sql_id, newcomment, system_postid):
+        user = User(user_sql_id).find()
+        post = getGraphConnectionURI().find_one("SystemPost", "id", system_postid)
+        print(user)
+        comment = Node(
+            "SystemComment",
+            id=str(uuid.uuid4()),
+            content=newcomment,
+            user_sql_id=user_sql_id,
+            user_display_name=user['displayName'],
+            creation_time=timestamp(),
+            modified_time=timestamp())
+        rel = Relationship(post, 'HAS', comment)
+        try:
+            getGraphConnectionURI().create(rel)
+        except cypher.CypherError, cypher.CypherTransactionError:
+            raise "Exception occured in function add_system_comment "
+
+    ############################################################################
+    # function : unlike_post
+    # purpose : removes LIKED relationship between User and Post
+    # params :
+    #        postid : post id for which user liked
+    # returns : None
+    # Exceptions : cypher.CypherError, cypher.CypherTransactionError
+    ############################################################################
+
+    def unlike_system_post(self, user_sql_id, system_postid):
+        user = User(user_sql_id).find()
+        post = getGraphConnectionURI().find_one("SystemPost", "id", system_postid)
+        query = """
+            MATCH (u:User)-[r:SYS_LIKED]->(p:SystemPost)
+            WHERE p.id= {postid} and u.sql_id = {userSqlId}
+            DELETE r
+        """
+        try:
+            getGraphConnectionURI().cypher.execute(query, postid=system_postid, userSqlId=user_sql_id);
+        except cypher.CypherError, cypher.CypherTransactionError:
+            raise "Exception occured in function get_search_friends"
+    ############################################################################
     # function : get_mutual_system_between_friends
     # purpose : gets the mutual system between friends from neo4j database
     # params : Row(s) containing friend and his/her system, minimum_depth_level
@@ -1551,6 +1703,7 @@ class System:
             raise "Exception occured in function get_all_systems"
 
         raise "Exception occured in function get_all_systems"
+
 
 
 ################################################################################
