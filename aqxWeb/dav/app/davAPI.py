@@ -507,9 +507,9 @@ class DavAPI:
         measurement_names = {}
         for m in meas:
             measurement_names[m[1]] = {}
-            measurement_names[m[1]]["id"] = str(m[0])
-            measurement_names[m[1]]["unit"] = str(m[2])
-            measurement_names[m[1]]["min"] = str(m[3])
-            measurement_names[m[1]]["max"] = str(m[4])
-        return json.dumps(measurement_names)
+            measurement_names[m[1]]["id"] = (m[0])
+            measurement_names[m[1]]["unit"] = (m[2])
+            measurement_names[m[1]]["min"] = (m[3])
+            measurement_names[m[1]]["max"] = (m[4])
+        return json.dumps({"measurement_info": measurement_names})
 
