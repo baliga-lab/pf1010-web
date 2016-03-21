@@ -45,7 +45,7 @@ var MARKERTYPES = ["circle", "square", "diamond", "triangle", "triangle-down"];
  * @returns {{name: *, type: *, data: *, color: *, id: *}|*}
  */
 var getDataPoints = function(systemName, dataPoints, color, graphType, id, linkedTo, yAxis, dashStyle, markerType) {
-    series = { name: systemName + "poop",
+    series = { name: systemName,
         type: graphType,
         data: dataPoints,
         color: color,
