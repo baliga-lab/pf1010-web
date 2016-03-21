@@ -37,23 +37,23 @@ var MARKERTYPES = ["circle", "square", "diamond", "triangle", "triangle-down"];
  *
  * @param systemName - name of system
  * @param dataPoints - array of values for graph; [{x:"", y: "", date: "", marker: ""}]
- * @param color - color of the series
- * @param graphType - Line or Scatter or Barchart
- * @param id - systemId
+ * @param graphType
+ * @param id
  * @param linkedTo - used to group series to a system
- * @param yAxis - The axis these graph will be plotted against
- * @returns {{name: *, type: *, data: *, color: *, id: *}|*}
+ * @param i - The iterator for a measurement
+ * @param j - The iterator for a system
+ * @param yType - The measurement type name
+ * @returns {{name: string, type: *, data: *, color: string, id: *, yAxis: *, dashStyle: string, marker: {symbol: string}}|*}
  */
-// TODO: Make more efficient. Just pass an iterator that determines yAxis, dashStyle, marker.symbol, and color.
-var getDataPoints = function(systemName, dataPoints, color, graphType, id, linkedTo, yAxis, dashStyle, markerType, yType) {
+var getDataPoints = function(systemName, dataPoints, graphType, id, linkedTo, i, j, yType) {
     series = { name: systemName + ',' + yType,
         type: graphType,
         data: dataPoints,
-        color: color,
+        color: COLORS[i],
         id: id,
-        yAxis: yAxis,
-        dashStyle: dashStyle,
-        marker: {symbol: markerType}
+        yAxis: i,
+        dashStyle: DASHSTYLES[j],
+        marker: {symbol: MARKERTYPES[j]}
     };
     if(linkedTo) {
         series.linkedTo = id;
@@ -90,12 +90,11 @@ var getDataPointsForPlotHC = function(chart, xType, yTypeList, graphType){
                     var systemId = system.system_uid;
                     if (measurement.values.length > 0){
                         if (!axes[i]) {
-                            chart.addAxis(createYAxis(yType, i, COLORS[i], measurement_types_and_info[yType]['unit']));
+                            chart.addAxis(createYAxis(yType, i, measurement_types_and_info[yType]['unit']));
                             axes[i] = true;
                         }
                         dataPointsList.push(
-                            getDataPoints(system.name, measurement.values, COLORS[i],
-                                graphType, systemId,linkedTo, i, DASHSTYLES[j], MARKERTYPES[j], yType));
+                            getDataPoints(system.name, measurement.values, graphType, systemId,linkedTo, i, j, yType));
                         linkedTo = true;
                         i += 1;
                     }
@@ -114,21 +113,21 @@ var getDataPointsForPlotHC = function(chart, xType, yTypeList, graphType){
  *
  * @param yType
  * @param numAxes
- * @param color - index number that is mapped to COLORS[] array
+ * @param units
  * @returns {{title: {text: *}, labels: {format: string, style: {color: *}}, opposite: boolean}}
  */
-var createYAxis = function(yType, numAxes, color, units){
+var createYAxis = function(yType, numAxes, units){
     var unitLabel = (units) ? units : "";
     return { // Primary yAxis
         title:
         {
             text: yType,
-            style: {color: color}
+            style: {color: COLORS[numAxes]}
         },
         labels:
         {
             format: '{value} ' + unitLabel,
-            style: {color: color }
+            style: {color: COLORS[numAxes] }
         },
         showEmpty: false,
         lineWidth: 1,
