@@ -54,7 +54,7 @@ def create_conn(app):
 @dav.route('/explore')
 def explore():
     systems_and_info_json = get_all_systems_info()
-    systems = json.loads(systems_and_info_json)['systems']
+    # systems = json.loads(systems_and_info_json)['systems']
     metadata_json = get_all_aqx_metadata()
     return render_template("explore.html", **locals())
 
@@ -77,7 +77,7 @@ def index():
 @dav.route('/analyzeGraph', methods=['POST'])
 def analyzeGraph():
     msr_id_list = [6, 7, 2, 1, 9, 8, 10]
-    measurement_types_and_ids = {	'alkalinity': 1,
+    measurement_types_and_ids = {'alkalinity': 1,
                              'ammonium': 2,
                              'chlorine': 3,
                              'hardness': 4,
@@ -89,6 +89,8 @@ def analyzeGraph():
                              'temp': 10,
                              'time': 11
                              }
+    measurement_types_and_info = get_all_measurement_info()
+    # print measurement_types_and_info
 
 
     selected_systemID_list = json.dumps(request.form.get('selectedSystems')).translate(None, '\"\\').split(",")
