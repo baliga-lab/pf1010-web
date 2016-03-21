@@ -345,6 +345,7 @@ var main = function(){
 
     // When the submit button is clicked, redraw the graph based on user selections
     $('#submitbtn').click(function() {
+        $('#alert_placeholder').empty();
         drawChart();
         //setDefaultYAxis();
     });
