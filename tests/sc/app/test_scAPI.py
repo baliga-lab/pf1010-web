@@ -40,6 +40,7 @@ class ScAPITest(unittest.TestCase):
     global system_id
     global system_uid
     global systemJSONObject
+    global update_systemJSONObject
     system_id = 4209
     system_uid = "1abcd948a5afe11e5a2ac000c29b92d09"
     system_json = {
@@ -51,19 +52,33 @@ class ScAPITest(unittest.TestCase):
     }
     systemJSONObject = json.dumps({'user': sql_id, 'system': system_json})
 
+    update_system_json = {
+        "system_id": system_id,
+        "system_uid": system_uid,
+        "name": "Test SC API System Updated",
+        "description": "Test SC API System Description Updated",
+        "status": 0
+    }
+    update_systemJSONObject = json.dumps({'system': update_system_json})
+
     # Ensure /social/aqxapi/delete/user/<sql_id> works as expected
-    def test_07_delete_user(self):
+    def test_08_delete_user(self):
         with app.test_client() as client:
             with client.session_transaction() as session:
                 session['siteadmin'] = "true"
             response = client.delete('/social/aqxapi/delete/user/' + str(sql_id))
 
     # Ensure /social/aqxapi/delete/system/<system_id> works as expected
-    def test_06_delete_system(self):
+    def test_07_delete_system(self):
         with app.test_client() as client:
             with client.session_transaction() as session:
                 session['siteadmin'] = "true"
             response = client.delete('/social/aqxapi/delete/system/' + str(system_id))
+
+    # Ensure /social/aqxapi/post/system works as expected
+    def test_06_update_system(self):
+        with app.test_client() as client:
+            response = client.post('/social/aqxapi/post/system', data=update_systemJSONObject, content_type='application/json')
 
     # Ensure /social/aqxapi/put/system works as expected
     def test_05_create_system(self):

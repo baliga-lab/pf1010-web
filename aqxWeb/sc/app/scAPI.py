@@ -157,6 +157,27 @@ class ScAPI:
             return json.dumps({'error': result})
 
     ###############################################################################
+    # function : update_system_with_system_uid
+    # purpose : function used to update system node in the Neo4J database
+    # params : User jsonObject
+    # returns : Success/Error status
+    # Exceptions : General Exception
+    ###############################################################################
+    def update_system_with_system_uid(self, jsonObject):
+        try:
+            system = jsonObject.get('system')
+            if system is not None:
+                SystemDAO(self.graph).update_system_with_system_uid(jsonObject)
+                result = {'status': "System Node Successfully Updated in Neo4J Database"}
+                return json.dumps({'success': result})
+            else:
+                result = {'status': "Invalid System JSON Object"}
+                return json.dumps({'error': result})
+        except Exception as e:
+            result = {'status': "Exception Occurred While Updating System Node in Neo4J Database: " + str(e)}
+            return json.dumps({'error': result})
+
+    ###############################################################################
     # function : delete_system_by_system_id
     # purpose : function used to delete system in the Neo4J database for the specified system_id
     # params : system_id

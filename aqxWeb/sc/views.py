@@ -1173,6 +1173,15 @@ def create_system():
 
 
 ######################################################################
+# API call to update system node in the Neo4J database using system_uid
+######################################################################
+@social.route('/aqxapi/post/system', methods=['POST'])
+def update_system():
+    jsonObject = request.get_json()
+    return ScAPI(getGraphConnectionURI()).update_system_with_system_uid(jsonObject)
+
+
+######################################################################
 # API call to delete system node in the Neo4J database
 ######################################################################
 @social.route('/aqxapi/delete/system/<system_id>', methods=['DELETE'])
