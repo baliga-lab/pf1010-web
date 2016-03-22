@@ -529,7 +529,7 @@ def recofriends():
 @social.route('/searchFriends', methods=['GET'])
 def searchFriends():
     if session.get('uid') is not None:
-        return render_template("searchFriends.html")
+        return render_template("SearchFriends.html")
     else:
         return render_template("/home.html")
 
@@ -970,12 +970,11 @@ def add_post():
             flash('Post cannot be empty.')
             return redirect(url_for('social.index'))
 
-        if not page_id or session.get('uid') == page_id:
-            user.add_post(text, privacy, link)
-        else:
-            user_profile = User(page_id)
-            post = user.add_post(text, privacy, link)
-            user_profile.add_post_to(post)
+        # if not page_id or session.get('uid') == page_id:
+        user.add_post(text, privacy, link)
+        # else:
+        #     user.add_post(text, privacy, link)
+        #     user.add_post_to(session.get('uid'), page_id)
         flash('Your post has been shared')
     return redirect(url_for('social.index'))
 

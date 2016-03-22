@@ -42,7 +42,7 @@
         <div id="systems">
             <h5><b>Participant Systems</b></h5>
             <ul class="nav nav-pills nav-stacked">
-                {% if subscribed_systems %}
+                {% if participated_systems %}
                     <li><a href="{{ url_for('social.view_system',system_uid=participated_systems[0][0]['system_uid']) }}">{{ participated_systems[0][0]['name'] }}</a></li>
                 {% else %}
                     <li>None</li>
