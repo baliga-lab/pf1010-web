@@ -211,7 +211,7 @@ def get_google_profile(google_id):
         }
 
         google_response = json.loads(r.content)
-        if google_response:
+        if google_response and not google_response.get('error'):
             logging.debug("profile of: %s", str(google_response))
 
             img_url = None
@@ -322,9 +322,9 @@ def profile(google_id):
         else:
             # accessing google API to retrieve profile data
             google_profile = get_google_profile(google_id)
-            if google_profile is None:
+            if not google_profile:
                 display_name = user_profile[0]['user']['displayName']
-                if display_name is None or len(display_name) < 3:
+                if not display_name:
                     display_name = user_profile[0]['user']['email']
                     display_name = display_name.split('@', 1)[0]
                 google_profile = {

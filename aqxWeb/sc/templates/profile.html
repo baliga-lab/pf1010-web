@@ -13,10 +13,13 @@
 
     <div class="col-sm-3">
         <div class="row">
-            <img class="imgstyle" id="userImage" src="{{ google_profile['img_url'] }}" width="200"/> <br/>
-            <h3 class="username">  {{ google_profile['displayName'] }} </h3>
-            <a id="profileLink" class="btn mycolor" target="_blank"
-               href="{{ google_profile['plus_url'] }}">Google Plus Profile</a>
+            <img class="imgstyle" id="userImage" src="{{ google_profile['img_url'] or user_profile['image_url'] }}"
+                 width="200"/> <br/>
+            <h3 class="username">  {{ user_profile['displayName'] }} </h3>
+            {% if google_profile['plus_url'] %}
+                <a id="profileLink" class="btn mycolor" target="_blank"
+                   href="{{ google_profile['plus_url'] }}">Google Plus Profile</a>
+            {% endif %}
             <input id="googleId" type="hidden" value="{{ google_profile['google_id'] }}"/>
 
 
