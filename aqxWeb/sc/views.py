@@ -206,26 +206,31 @@ def get_google_profile(google_id):
         access_token = access_token[0]
         r = requests.get('https://www.googleapis.com/plus/v1/people/' + google_id + '?access_token=' + access_token)
 
-        google_response = json.loads(r.content)
-        logging.debug("profile of: %s", str(google_response))
-
-        img_url = None
-        google_plus_account_url = google_response.get("url", None)
-        plus_url = ""
-        # getting image url
-        if 'image' in google_response:
-            image = google_response['image']
-            img_url = image['url'].replace('?sz=50', '')
-
-        if google_plus_account_url is not None:
-            plus_url = google_response['url']
-
         google_profile = {
-            "displayName": google_response['displayName'],
-            "google_id": google_response['id'],
-            "plus_url": plus_url,
-            "img_url": img_url
+            "google_id": google_id
         }
+
+        google_response = json.loads(r.content)
+        if google_response:
+            logging.debug("profile of: %s", str(google_response))
+
+            img_url = None
+            google_plus_account_url = google_response.get("url", None)
+            plus_url = ""
+            # getting image url
+            if 'image' in google_response:
+                image = google_response['image']
+                img_url = image['url'].replace('?sz=50', '')
+
+            if google_plus_account_url is not None:
+                plus_url = google_response.get('url')
+
+            google_profile = {
+                "google_id": google_id,
+                "displayName": google_response.get('displayName'),
+                "plus_url": plus_url,
+                "img_url": img_url
+            }
 
         return google_profile
     except Exception as e:
@@ -1436,17 +1441,17 @@ def checkStatus(user_sql_id):
     sentreq_res, receivedreq_res, frnds_res = User(session['uid']).get_friends_and_sentreq()
     for sf in sentreq_res:
         sf_id = sf[0]
-        if (user_sql_id == sf_id):
+        if user_sql_id == sf_id:
             friend_status = "Sent Friend Request"
     for rf in receivedreq_res:
         rf_id = rf[0]
-        if (user_sql_id == rf_id):
+        if user_sql_id == rf_id:
             friend_status = "Received Friend Request"
     for fr in frnds_res:
         fr_id = fr[0]
-        if (user_sql_id == fr_id):
+        if user_sql_id == fr_id:
             friend_status = "Friends"
-    if (user_sql_id == session['uid']):
+    if user_sql_id == session['uid']:
         friend_status ="Me"
     return friend_status
 
