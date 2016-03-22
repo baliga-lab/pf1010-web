@@ -1,0 +1,27 @@
+Having trouble building because of mysql-connector-python? Try this.
+
+Make sure requirements.txt is in aqxWeb-NEU (like next to setup.py, aqxWeb directory, etc.)
+edit requirements.txt and REMOVE the line mysql-connector-python==2.1.3
+
+Now you should be good to install all the other libraries.
+
+Go into .../aqxWeb-NEU/
+If you haven't yet built a virtualenv, do this...
+
+(aqxWeb-venv)$ virtualenv aqxWeb-venv
+(aqxWeb-venv)$ source ./aqxWeb-venv/bin/activate
+(aqxWeb-venv)$ pip install requirements.txt
+
+Now exit your venv or just open a new command line...
+To exit a venv just type...
+
+(aqxWeb-venv)$ deactivate
+
+Anyways, go to https://dev.mysql.com/downloads/file/?id=458966 and download the tarball (tar.gz file)
+Go back to your virtualenv and activate it. Then do
+
+(aqxWeb-venv)$ pip install .../Downloads/mysql-connector-python-2.1.3.tar.gz --egg
+
+Confirm the install
+
+(aqxWeb-venv)$ pip freeze
