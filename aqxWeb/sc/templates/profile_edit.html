@@ -1,5 +1,7 @@
 {% extends "base.html" %}
 
+{% block title %}Edit Profile{% endblock %}
+
 {% block content %}
 
     {% if session.uid %}
@@ -10,7 +12,7 @@
                     <img class="imgstyle" id="userImage" src="{{ user['image_url'] }}"
                          height="200" width="200"/> <br/>
                     <a id="profileLink" class="btn btn-blue" target="_blank"
-                       href= "{{ "http://plus.google.com/" +  user['google_id'] }}">
+                       href="{{ "http://plus.google.com/" +  user['google_id'] }}">
                         My Google Plus Profile</a>
                 </div>
 
@@ -104,7 +106,7 @@
 
 {% block scripts %}
     {{ super() }}
-    <!-- jQuery Script To Display Logged In User Profile Details
-    <script type="text/javascript" src="{{ url_for('social.static', filename='js/profile_edit.js') }}"></script>-->
+    <!-- jQuery Script To Display Logged In User Profile Details -->
+    <script type="text/javascript" src="{{ url_for('social.static', filename='js/profile_edit.js') }}"></script>
 {% endblock %}
 
