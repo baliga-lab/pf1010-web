@@ -1,50 +1,181 @@
-{% extends "layout.html" %}
+{% extends "base.html" %}
 
-{% block script %}
+{% block title %}User Profile{% endblock %}
 
-    <!-- jQuery Script For DOM Manipulation In Profile Page -->
-    <script type="text/javascript" src="{{ url_for('social.static', filename='js/profile.js') }}"></script>
-
+{% block styles %}
+    {{ super() }}
+    <link rel="stylesheet" type="text/css" href="{{ url_for('social.static', filename='css/layout.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('social.static', filename='css/newsfeed.css') }}">
 {% endblock %}
 
-{% block body %}
 
-    <div class="container profileDiv">
+{% block content %}
 
-        <div class="col-md-3 leftPaneDiv">
-
-            <div class="row">
-                <img class="imgstyle" id="userImage" src="" width="200"/> <br/>
-                <h3 class="username">  {{ user_profile[0][0]['displayName'] }} </h3>
-                <a id="profileLink" class="btn mycolor" target="_blank" href="#">Google Plus Profile</a>
-                <input id="googleId" type="hidden" value="{{ user_profile[0][0]['google_id'] }}"/>
-                <br/>
-            </div>
-
-            <br/>
-
-        </div>
-
-        <!-- You could work on this centerPaneDiv for user posts -->
-        <div class="col-md-6 centerPaneDiv">
-
-            <div class="row">
-
-                <p>Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas.
-                    Vestibulum tortor quam, feugiat vitae, ultricies eget, tempor sit amet, ante. Donec eu libero sit
-                    amet quam egestas semper. Aenean ultricies mi vitae est. Mauris placerat eleifend leo. Quisque sit
-                    amet est et sapien ullamcorper pharetra. Vestibulum erat wisi, condimentum sed, commodo vitae,
-                    ornare sit amet, wisi. Aenean fermentum, elit eget tincidunt condimentum, eros ipsum rutrum orci,
-                    sagittis tempus lacus enim ac dui. Donec non enim in turpis pulvinar facilisis. Ut felis. Praesent
-                    dapibus, neque id cursus faucibus, tortor neque egestas augue, eu vulputate magna eros eu erat.
-                    Aliquam erat volutpat. Nam dui mi, tincidunt quis, accumsan porttitor, facilisis luctus, metus</p>
-
-            </div>
+    <div class="col-sm-3">
+        <div class="row">
+            <img class="imgstyle" id="userImage" src="{{ google_profile['img_url'] or user_profile['image_url'] }}"
+                 width="200"/> <br/>
+            <h3 class="username">  {{ user_profile['displayName'] }} </h3>
+            {% if google_profile['plus_url'] %}
+                <a id="profileLink" class="btn mycolor" target="_blank"
+                   href="{{ google_profile['plus_url'] }}">Google Plus Profile</a>
+            {% endif %}
+            <input id="googleId" type="hidden" value="{{ google_profile['google_id'] }}"/>
 
 
         </div>
+        {% if status=="Sent Friend Request" %}
+            <a type="button" class="btn btn-info btn-sm" disabled>Friend Request Sent</a>
+        {% endif %}
+        {% if status=="Friends" %}
+            <a type="button" class="btn btn-info btn-sm" href="{{ url_for('social.delete_friend', u_sql_id=sqlId) }}">Unfriend
+            </a>
+        {% endif %}
+        {% if status=="Me" %}
 
 
+        {% endif %}
+        {% if status=="Add friend" %}
+            <a type="button" class="btn btn-info btn-sm" href="{{ url_for('social.send_friend_request', u_sql_id=sqlId) }}">Add friend
+            </a>
+        {% endif %}
+        <div id="systems">
+            <h5><b>Participant Systems</b></h5>
+            <ul class="nav nav-pills nav-stacked">
+                {% if subscribed_systems %}
+                    <li><a href="{{ url_for('social.view_system',system_uid=participated_systems[0][0]['system_uid']) }}">{{ participated_systems[0][0]['name'] }}</a></li>
+                {% else %}
+                    <li>None</li>
+                {% endif %}
+            </ul>
+            <h5><b>Subscribed Systems</b></h5>
+            <ul class="nav nav-pills nav-stacked">
+                {% if subscribed_systems %}
+                    <li><a href="{{ url_for('social.view_system',system_uid=subscribed_systems[0][0]['system_uid']) }}">{{ subscribed_systems[0][0]['name'] }}</a></li>
+                {% else %}
+                    <li>None</li>
+                {% endif %}
+            </ul>
+           <h5> <b>Admin Systems</b></h5>
+            <ul class="nav nav-pills nav-stacked">
+                {% if admin_systems %}
+                    <li><a href="{{ url_for('social.view_system',system_uid=admin_systems[0][0]['system_uid']) }}">{{ admin_systems[0][0]['name'] }}</a></li>
+                {% else %}
+                    <li>None</li>
+                {% endif %}
+            </ul>
+
+            <button type="button" class="btn btn-info btn-sm" data-toggle="modal" data-target="#myModal">See all
+                systems
+            </button>
+        </div>
+
+        <div id="friends">
+            <h4>Friends</h4>
+            <ul class="nav nav-pills nav-stacked">
+                {% if friends %}
+                    <li>
+                        <a href="{{ url_for('social.profile',google_id=friends[0][0]['google_id']) }}">{{ friends[0][0]['displayName'] }}</a>
+                    </li>
+                {% else %}
+                    <li>None</li>
+                {% endif %}
+            </ul>
+            <button type="button" class="btn btn-info btn-sm" data-toggle="modal" data-target="#myFriendModal">See all
+                Friends
+            </button>
+
+        </div>
+
+        <br/>
+    </div>
+
+    {# NEWSFEED #}
+    <div class="main col-sm-9">
+        {% include "post_form.html" %}
+
+        <h3>User Posts</h3>
+        {% include "display_profile_posts.html" %}
+    </div>
+
+    <!-- Modal for System-->
+    <div id="myModal" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">Systems</h4>
+                </div>
+                <div class="modal-body">
+                    <h3>Participant Systems</h3>
+                    <ul>
+                        {% if participated_systems %}
+                            {% for row in participated_systems %}
+                                <li><a href="{{ url_for('social.view_system',system_uid=row[0]['system_uid']) }}">{{ row[0]['name'] }}</a></li>
+                            {% endfor %}
+                        {% else %}
+                            <li>None</li>
+                        {% endif %}
+                    </ul>
+                    <h3>Subscribed Systems</h3>
+                    <ul>
+                        {% if subscribed_systems %}
+                            {% for row in subscribed_systems %}
+                                <li><a href="{{ url_for('social.view_system',system_uid=row[0]['system_uid']) }}">{{ row[0]['name'] }}</a></li>
+                            {% endfor %}
+                        {% else %}
+                            <li>None</li>
+                        {% endif %}
+                    </ul>
+                    <h3>Admin Systems</h3>
+                    <ul>
+                        {% if admin_systems %}
+                            {% for row in admin_systems %}
+                                <li><a href="{{ url_for('social.view_system',system_uid=row[0]['system_uid']) }}">{{ row[0]['name'] }}</a></li>
+                            {% endfor %}
+                        {% else %}
+                            <li>None</li>
+                        {% endif %}
+                    </ul>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+                <!-- Modal -->
+            </div>
+        </div>
+    </div>
+
+    <div id="myFriendModal" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">Friends</h4>
+                </div>
+                <div class="modal-body">
+                {% if friends %}
+                    {% for row in friends %}
+                        <div class="row">
+                            <ul>
+                                <li>
+                                    <a href="{{ url_for('social.profile',google_id=row[0]['google_id']) }}">{{ row[0]['displayName'] }}</a>
+                                </li>
+                            </ul>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
     </div>
 
 

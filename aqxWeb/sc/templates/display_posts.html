@@ -3,12 +3,17 @@
     {% if posts %}
         {% for row in posts %}
             <div class="post detail-box">
-
                 {# USER OF POST #}
                 <div class="media-left">
-                    <a href="#"> {# LINK TO USER'S PROFILE #}
+                {# LINK TO USER'S PROFILE #}
+                    <a href="/social/profile/{% if row.user %}{{ row.user.google_id }}{% endif %}">
+                        {% if row.user.image_url %}
+                        <img class="media-object" src="{{ row.user.image_url }}" alt="{{ row.displayName }}'s Picture">
+                            {# PLACEHOLDER IMAGE FOR USER'S PROFILE PIC #}
+                        {% else %}
                         <img class="media-object" src="{{ url_for('frontend.static', filename='images/users/oddish.png') }}"
-                             alt=""> {# PLACEHOLDER IMAGE FOR USER'S PROFILE PIC #}
+                             alt="User has no profile picture"> {# PLACEHOLDER IMAGE FOR USER WITH NO PROFILE PICTURE #}
+                        {% endif %}
                     </a>
                 </div>
 
@@ -16,13 +21,49 @@
                 <div class="media-body">
                     <h4>
                         {{ row.displayName }}
-                        <span class="date sub-text">on {{ row.post.date }}</span>
+                         <span class="date sub-text">posted on {{ row.post.date }}</span>
                     </h4>
+                    {% for po in postOwners %}
+                        {% if po.postid == row.post.id and po.userid == session['uid'] %}
+
+                        {% endif %}
+                    {% endfor %}
                     <p>{{ row.post.text }}</p>
+                    {% for po in postOwners %}
+                        {% if po.postid == row.post.id and po.userid == session['uid'] %}
+                            <div class="form-controls" style=" text-align: right;">
+                                <form action="{{ url_for('social.delete_post') }}" method="post">
+                                    <input type="hidden" name="postid" value="{{ row.post.id }}">
+                                    <button type="submit" name="submit" class="btn btn-danger"
+                                            aria-label="Left Align" value="deletePost">
+                                       Delete <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
+                                    </button>
+                                </form>
+                            </div>
+                            <div class="form-controls" style=" text-align: right;">
+                                <button type="submit" class="btn btn-warning" name="submit"
+                                    value="edit" aria-label="Left Align" onclick="showEditCommentDiv('{{ row.post.id }}')">
+                                 Edit <span class="glyphicon glyphicon-pencil" aria-hidden="true" ></span>
+                                </button>
+                                <div id="{{ row.post.id }}" class="form-controls"
+                                     style="display:none; width: 100% ; text-align:left">
+                                    <form action="{{ url_for('social.edit_post') }}" method="post">
+                                        <input type="hidden" name="postid" value="{{ row.post.id }}">
+                                        <input id="editedpost" name="editedpost" style="width: 100%"
+                                               value="{{ row.post.text }}"
+                                               placeholder="Edit Post">
+                                        <button type="submit" class="btn btn-green" name="submit"
+                                                value="editComment" aria-label="right Align">
+                                            Update <span class="glyphicon glyphicon-ok" aria-hidden="true" ></span>
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        {% endif %}
+                    {% endfor %}
 
                     {% if row.post.link %}
-
-                        {# image/gif content #}
+                     {# image/gif content #}
                         {% if row.post.link.endswith(".jpg") or row.post.link.endswith(".png") or row.post.link.endswith(".gif") %}
                             <img class="attachedImg" src="{{ row.post.link }}"
                                  onclick="window.open('{{ row.post.link }}', '_blank');"/>
@@ -42,40 +83,33 @@
 
                 {# POST OPTIONS #}
                 <div class="options">
-
-                    {# delete #}
-                    <form action="{{ url_for('social.delete_post') }}" method="post">
-                        <div class="form-controls" style=" text-align: right;">
-                            <input type="hidden" name="postid" value="{{ row.post.id }}">
-                            <button type="submit" class="btn btn-danger" aria-label="Left Align">
-                                <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
-                            </button>
-                        </div>
-                    </form>
-
-                    {# like #}
-                    <form action="{{ url_for('social.like_post') }}" method="post">
-                        <div class="form-controls" style=" text-align: right;">
+                    <div class="form-controls" style=" text-align: right;">
+                        <form action="{{ url_for('social.like_or_unlike_post') }}"
+                                          method="post">
                             <input type="hidden" name="postid" value="{{ row.post.id }}">
 
-                            <button type="submit" class="btn btn-success" aria-label="Left Align">
+                            <button type="submit" name="submit" class="btn btn-success" aria-label="Left Align" value="likePost">
+                                Like
+                                {% for i in totalLikes %}
+                                   {% if i.postid == row.post.id %}
+                                        {{i.likecount}}
+                                    {% endif %}
+                                {% endfor %}
                                 <span class="glyphicon glyphicon-thumbs-up" aria-hidden="true"></span>
                             </button>
-                        </div>
-                    </form>
-
-                    {# unlike #}
-                    <form action="{{ url_for('social.unlike_post') }}" method="post">
-                        <div class="form-controls" style=" text-align: right;">
-                            <input type="hidden" name="postid" value="{{ row.post.id }}">
-
-                            <button type="submit" class="btn btn-danger" aria-label="Left Align">
-                                <span class="glyphicon glyphicon-thumbs-down" aria-hidden="true"></span>
-                            </button>
-                        </div>
-                    </form>
+                            {% for l in likes %}
+                                {% if l.postid == row.post.id %}
+                                    {% if l.userid == session['uid'] %}
+                                        <button type="submit" name="submit" class="btn btn-danger" aria-label="Left Align" value="unlikePost">
+                                        Unlike <span class="glyphicon glyphicon-thumbs-down" aria-hidden="true"></span>
+                                        </button>
+                                    {% endif %}
+                                {% endif %}
+                            {% endfor %}
+                        </form>
+                    </div>
                 </div>
-
+                Comments:
                 {# POST'S COMMENTS #}
                 <div class="comment comment-box">
                     <ul class="comment-list">
@@ -84,9 +118,15 @@
                                 <li>
                                     <div class="media-left">
                                         <a href="#"> {# LINK TO USER'S PROFILE #}
+                                            {% if row.user and row.user.image_url %}
+                                            <img class="media-object" src="{{ cmt.user.image_url }}"
+                                                 alt="{{ cmt.displayName }}'s Picture"/>
+                                                {# PLACEHOLDER IMAGE FOR USER'S PROFILE PIC #}
+                                            {% else %}
                                             <img class="media-object"
                                                  src="{{ url_for('frontend.static', filename='images/users/gloom.png') }}"
-                                                 alt=""> {# PLACEHOLDER IMAGE FOR USER'S PROFILE PIC #}
+                                                 alt=""/> {# PLACEHOLDER IMAGE FOR USER'S PROFILE PIC #}
+                                            {% endif %}
                                         </a>
                                     </div>
                                     <div class="media-body">
@@ -94,37 +134,41 @@
                                             <b>{{ cmt.comment.user_display_name }}</b>
                                             <span class="date sub-text">replied with</span>
                                         </h5>
-                                        <p>{{ cmt.comment.content }}</p>
+                                        <div class="input-group col-md-12">
+                                            <p>{{ cmt.comment.content }}</p>
+                                            {% if cmt.comment.user_sql_id == session['uid'] %}
+                                                <button type="submit" class="btn btn-warning" name="submit"
+                                                    value="edit"
+                                                    aria-label="Left Align"
+                                                    onclick="showEditCommentDiv('{{ cmt.comment.id }}')">
+                                                    Edit <span class="glyphicon glyphicon-pencil" aria-hidden="true" ></span>
+                                                </button>
+
+                                            <div id="{{ cmt.comment.id }}" class="form-controls"
+                                                 style="display:none; width: 100% ; text-align:left">
+                                                <form action="{{ url_for('social.edit_or_delete_comment') }}" method="post">
+                                                    <input type="hidden" name="commentid" value="{{ cmt.comment.id }}">
+                                                    <input id="editedcomment" name="editedcomment" style="width: 100%"
+                                                           value="{{ cmt.comment.content }}"
+                                                           placeholder="Edit comment">
+                                                    <button type="submit" class="btn btn-green" name="submit"
+                                                            value="editComment" aria-label="right Align">
+                                                        Update <span class="glyphicon glyphicon-ok" aria-hidden="true" ></span>
+                                                    </button>
+                                                    <button type="submit" class="btn btn-danger" name="submit"
+                                                            value="deleteComment" aria-label="right Align">
+                                                        Delete <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
+                                                    </button>
+                                                </form>
+                                            </div>
+                                        {% endif %}
+                                            </div>
                                     </div>
                                 </li>
                             {% endif %}
 
                             {# edit comment #}
-                            <button type="submit" class="btn btn-warning" aria-label="Left Align">
-                                Edit
-                            </button>
-                            {% if cmt.comment.user_sql_id == session['uid'] %}
-                                <form action="{{ url_for('social.edit_comment') }}" method="post">
-                                    <div class="form-controls" style="width: 100% ; text-align:left">
-                                        <input type="hidden" name="commentid" value="{{ cmt.comment.id }}">
-                                        <input id="editedcomment" name="editedcomment" cols="60"
-                                               style="width: 100%"
-                                               placeholder="Share comment">
-                                        <button type="submit" class="btn btn-warning" aria-label="Left Align">
-                                            <span class="glyphicon glyphicon-ok" aria-hidden="true"></span>
-                                        </button>
-                                    </div>
-                                </form>
-                                <form action="{{ url_for('social.delete_comment') }}" method="post">
-                                    <div class="form-controls" style="width: 100% ; text-align:left">
-                                        <input type="hidden" name="commentid" value="{{ cmt.comment.id }}">
-                                        <button type="submit" class="btn btn-danger" aria-label="Left Align">
-                                            <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
-                                        </button>
 
-                                    </div>
-                                </form>
-                            {% endif %}
                         {% endfor %}
                     </ul>
                 </div>
@@ -147,4 +191,12 @@
         <p>There are no posts yet!</p>
     {% endif %}
 
+{% endblock %}
+{% block scripts %}
+    <script>
+    function showEditCommentDiv(id) {
+    console.log(id)
+        document.getElementById(id).style.display = "block";
+    }
+    </script>
 {% endblock %}

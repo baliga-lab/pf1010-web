@@ -1,3 +1,4 @@
+
 from flask import Blueprint, render_template,request,url_for
 from mysql.connector.pooling import MySQLConnectionPool
 import os
@@ -14,11 +15,9 @@ def home():
 # To hold db connection pool
 pool = None
 
-# Creating object for dav api
-davAPI = DavAPI()
-
 # Connect to the database
 def init_app(app):
+    app.debug = True
     app.config.from_envvar('AQUAPONICS_SETTINGS')
     create_conn(app)
 
@@ -71,60 +70,49 @@ def index():
     return 'Index'
 
 
+def json_loads_byteified(json_text):
+    return _byteify(
+        json.loads(json_text, object_hook=_byteify),
+        ignore_dicts=True
+    )
+
+def _byteify(data, ignore_dicts = False):
+    # if this is a unicode string, return its string representation
+    if isinstance(data, unicode):
+        return data.encode('utf-8')
+    # if this is a list of values, return list of byteified values
+    if isinstance(data, list):
+        return [ _byteify(item, ignore_dicts=True) for item in data ]
+    # if this is a dictionary, return dictionary of byteified keys and values
+    # but only if we haven't already byteified it
+    if isinstance(data, dict) and not ignore_dicts:
+        return {
+            _byteify(key, ignore_dicts=True): _byteify(value, ignore_dicts=True)
+            for key, value in data.iteritems()
+        }
+    # if it's anything else, return it in its original form
+    return data
+
+
+
 ######################################################################
 # Interactive graph analysis of system measurements
 ######################################################################
 
 @dav.route('/analyzeGraph', methods=['POST'])
 def analyzeGraph():
+    msr_id_list = [6, 7, 2, 1, 9, 8, 10]
 
-    systems_and_measurements_json = \
-        {'response':
-            [
-                { 'name': 'system_12345' ,
-                  'measurement': [
-                      { 'type': 'pH',
-                        'values':
-                            [{ 'x' : 0, 'y' : 7.0, 'date': '03:03:16:00' },
-                             { 'x' : 1, 'y' : 11.0, 'date': '03:03:16:01'},
-                             { 'x' : 2, 'y' : 9.2, 'date': '03:03:16:02' }]
-                        },
-                      { 'type': 'nitrate',
-                        'values':
-                            [{ 'x' : 8, 'y' : 3.5, 'date': '03:01:16:12'},
-                             { 'x' : 16, 'y' : 0.5, 'date': '03:02:00:12'}]
-                        }
-                  ]
-                  },
-                { 'name': 'system_23145',
-                  'measurement':
-                      [
-                          { 'type': 'pH',
-                            'values':
-                                [{ 'x' : 0, 'y' : 6.0, 'date': '03:03:16:00' },
-                                 { 'x' : 1, 'y' : 9.0, 'date': '03:03:16:01' },
-                                 { 'x' : 2, 'y' : 14.0, 'date': '03:03:16:02' }]
-                            },
-                          { 'type': 'nitrate',
-                            'values':
-                                [{ 'x' : 1, 'y' : 6.5, 'date': '03:01:16:12'},
-                                 { 'x' : 7, 'y' : 6.5, 'date': '03:01:22:12'},
-                                 { 'x' : 9, 'y' : 1.5, 'date': '03:02:00:12'}]
-                            }
-                      ]
-                  }
-            ]
-        }
+    # Load JSON formatted String from API. This will be piped into Javascript as a JS Object accessible in that scope
+    measurement_types_and_info = get_all_measurement_info()
 
-    systems_and_measurements_json = systems_and_measurements_json['response']
-    selected_systemID_list = ["system_12345", "system_54321"]
-    measurement_types = ["Nitrate", "Nitrite", "Hardness", "Chlorine", "Alkalinity", "pH", "Ammonia", "Water Temp", "Light intensity",
-                         "Light wavelength","Light intensity","DO","NO3","NH4","Day length","Conductivity"]
+    # Load JSON into Python dict with only Byte values, for use in populating dropdowns
+    measurement_types = json_loads_byteified(measurement_types_and_info)['measurement_info']
+    measurement_names = measurement_types.keys()
+    measurement_names.sort()
 
-    # get measurement information
-    # text = request.form['text']
-    # content = request.json
-    # data = json.dumps(request.form.get('selectedSystems'))
+    selected_systemID_list = json.dumps(request.form.get('selectedSystems')).translate(None, '\"\\').split(",")
+    systems_and_measurements_json = get_readings_for_tsplot(selected_systemID_list, msr_id_list)
 
     return render_template("analyze.html", **locals())
 
@@ -139,7 +127,8 @@ def analyzeGraph():
 #                            the name of the system.
 @dav.route('/aqxapi/get/system/meta/<system_uid>', methods=['GET'])
 def get_metadata(system_uid):
-    return davAPI.get_system_metadata(get_conn(), system_uid)
+    davAPI = DavAPI(get_conn())
+    return davAPI.get_system_metadata(system_uid)
 
 
 ######################################################################
@@ -150,7 +139,8 @@ def get_metadata(system_uid):
 #                          object.
 @dav.route('/aqxapi/get/systems/metadata')
 def get_all_systems_info():
-    return davAPI.get_all_systems_info(get_conn())
+    davAPI = DavAPI(get_conn())
+    return davAPI.get_all_systems_info()
 
 
 ######################################################################
@@ -161,7 +151,8 @@ def get_all_systems_info():
 #                        to filter the displayed systems.
 @dav.route('/aqxapi/get/systems/filters')
 def get_all_aqx_metadata():
-    return davAPI.get_all_filters_metadata(get_conn())
+    davAPI = DavAPI(get_conn())
+    return davAPI.get_all_filters_metadata()
 
 
 ######################################################################
@@ -170,7 +161,8 @@ def get_all_aqx_metadata():
 
 @dav.route('/aqxapi/get/user/<uid>', methods=['GET'])
 def get_user(uid):
-    return davAPI.get_user(get_conn(), uid)
+    davAPI = DavAPI(get_conn())
+    return davAPI.get_user(uid)
 
 
 ######################################################################
@@ -179,8 +171,9 @@ def get_user(uid):
 
 @dav.route('/aqxapi/put/user', methods=['POST'])
 def put_user():
+    davAPI = DavAPI(get_conn())
     user = request.get_json()
-    return davAPI.put_user(get_conn(), user)
+    return davAPI.put_user(user)
 
 
 ######################################################################
@@ -190,7 +183,76 @@ def put_user():
 
 @dav.route('/aqxapi/get/system/measurements/<system_uid>', methods=['GET'])
 def get_system_measurements(system_uid):
-    return davAPI.get_system_measurements(get_conn(), system_uid)
+    davAPI = DavAPI(get_conn())
+    return davAPI.get_system_measurements(system_uid)
+
+
+######################################################################
+# API call to get latest record of a given measurement of a given
+# system
+######################################################################
+
+@dav.route('/aqxapi/system/<system_uid>/measurement/<measurement_id>', methods=['GET'])
+def get_system_light_measurement(system_uid, measurement_id):
+    davAPI = DavAPI(get_conn())
+    return davAPI.get_system_measurement(system_uid, measurement_id)
+
+
+######################################################################
+# API call to put a record of a given measurement of a given system
+######################################################################
+
+@dav.route('/aqxapi/put/system/measurement', methods=['POST'])
+def put_system_measurement():
+    davAPI = DavAPI(get_conn())
+    data = request.get_json()
+    return davAPI.put_system_measurement(data)
+
+
+######################################################################
+# API to get the readings of the time series plot
+######################################################################
+
+@dav.route('/aqxapi/get/readings/tsplot/systems/<system_uid_list>/measurements/<msr_id_list>', methods=['GET'])
+def get_readings_for_tsplot(system_uid_list,msr_id_list):
+    davAPI = DavAPI(get_conn())
+    return davAPI.get_readings_for_plot(system_uid_list,msr_id_list)
+
+@dav.route('/aqxapi/get/readings/time_series_plot', methods=['POST'])
+def get_readings_for_plot():
+    davAPI = DavAPI(get_conn())
+    measurements = request.json['measurements']
+    systems_uid = request.json['systems']
+    return davAPI.get_readings_for_plot(systems_uid, measurements)
+
+##### REQUEST WITH POST
+#@dav.route('/aqxapi/get/readings/time_series_plot', methods=['POST'])
+#def get_readings_for_plot():
+# def get_readings_for_plot():
+#     davAPI = DavAPI(get_conn())
+#     data = request.get_json()
+#     return davAPI.get_readings_for_plot(data)
+
+######################################################################
+# API to get all measurements for picking axis in graph
+######################################################################
+
+@dav.route('/aqxapi/get/system/measurement_types', methods=['GET'])
+def get_all_measurement_names():
+    davAPI = DavAPI(get_conn())
+    return davAPI.get_all_measurement_names()
+
+######################################################################
+# API to get all measurements' information: id, name, units, min and
+# max
+######################################################################
+
+@dav.route('/aqxapi/get/system/measurement_info', methods = ['GET'])
+def get_all_measurement_info():
+    davAPI = DavAPI(get_conn())
+    return davAPI.get_all_measurement_info()
+
+
 
 if __name__ == '__main__':
     init_app()
