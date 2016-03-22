@@ -125,8 +125,35 @@ class User:
         rel = Relationship(user, "POSTED", post)
         try:
             getGraphConnectionURI().create(rel)
+            return post
         except cypher.CypherError, cypher.CypherTransactionError:
             raise "Exception occured in function add_post "
+
+
+    ############################################################################
+    # function : add_post_to
+    # purpose : Adds new post node in neo4j with the given information and creates
+    #            POSTED relationship between Post and User node
+    # params :
+    #        text : contains the data shared in post
+    #        privacy : privacy level of the post
+    #        link : contains the link information
+    #        page_type: type of page where it was posted to
+    #        page_id: id of user whose timeline this was posted to
+    # returns : None
+    # Exceptions : cypher.CypherError, cypher.CypherTransactionError
+    ############################################################################
+
+    def add_post_to(self, post):
+        user = self.find()
+        rel = Relationship(post, "POSTED_TO", user)
+        try:
+            getGraphConnectionURI().create(rel)
+            rel = Relationship(post, "POSTED_TO", user)
+            getGraphConnectionURI().create(rel)
+        except cypher.CypherError, cypher.CypherTransactionError:
+            raise "Exception occured in function add_post "
+
 
     ############################################################################
     # function : test_add_post
@@ -659,6 +686,27 @@ class User:
         except cypher.CypherError, cypher.CypherTransactionError:
             raise "Exception occured in function get_my_friends"
 
+
+    ############################################################################
+    # function : is_friend
+    # purpose : to get whether two users are friends or not
+    # params : None
+    # returns : boolean, true iff the two users are friends
+    # Exceptions : cypher.CypherError, cypher.CypherTransactionError
+    ############################################################################
+    def is_friend(self, u_sql_id1, u_sql_id2):
+        query = """
+        MATCH (n:User)-[r:FRIENDS]-(f:User)
+        WHERE n.sql_id = {sql_id1} and f.sql_id = {sql_id2} and r.blocker_id = {blocker_id}
+        return r
+        """
+        try:
+            friend = getGraphConnectionURI().cypher.execute(query, {'sql_id1': u_sql_id1, 'sql_id2': u_sql_id2,
+                                                                    'blocker_id': ""})
+            return friend
+        except cypher.CypherError, cypher.CypherTransactionError:
+            raise "Exception occured in function is_friend"
+
     ############################################################################
     # function : get_my_blocked_friends
     # purpose : to get the logged in user's friend list
@@ -730,6 +778,32 @@ def get_all_recent_posts():
         return posts
     except cypher.CypherError, cypher.CypherTransactionError:
         raise "Exception occured in function get_all_recent_posts "
+
+
+############################################################################
+# function : get_all_timeline_posts
+# purpose : gets all posts posted in a timeline
+# params : user_id
+# returns : set of usernames and posts
+# Exceptions : cypher.CypherError, cypher.CypherTransactionError
+############################################################################
+def get_all_profile_posts(user_id):
+    query = """
+    MATCH (myself:User {sql_id:{sql_id}}), (user:User)-[rel:POSTED]->(post:Post),
+    (post)-[:HAS]->(comment:Comment), (commentedBy:User {sql_id: comment.user_sql_id})
+    WHERE ((not exists((post)-[:POSTED_TO]-(myself)) AND (myself)-[rel]->(post)) OR (post)-[:POSTED_TO]-(myself))
+    WITH post, rel, user, collect({post_id: post.id, comment: {id: comment.id, content: comment.content},
+    user_sql_id: commentedBy.sql_id, displayName: commentedBy.displayName, image_url: commentedBy.image_url,
+    google_id: commentedBy.google_id}) as comments
+    RETURN post, user, comments
+    ORDER BY post.modified_time DESC
+    """
+
+    try:
+        posts = getGraphConnectionURI().cypher.execute(query, {'sql_id': user_id})
+        return posts
+    except cypher.CypherError, cypher.CypherTransactionError:
+        raise "Exception occured in function get_all_profile_posts"
 
 
 ############################################################################
@@ -1560,6 +1634,7 @@ class System:
 ################################################################################
 class Privacy:
     # Constants Definition
+    # Privacy Options
     FRIENDS = "Friends"
     PRIVATE = "Private"
     PUBLIC = "Public"
@@ -1569,6 +1644,7 @@ class Privacy:
     ADMIN_APPROVAL = "Approval"     # Needs to be approved by Admin
     SPECIFIED = "Specified"         # Defined per post by User
 
+
     ############################################################################
     # function : __init__
     # purpose : main function sets default privacy and possible privacy options
@@ -1577,6 +1653,10 @@ class Privacy:
     # returns : None
     # Exceptions : None
     ############################################################################
-    def __init__(self, privacy_options, default_privacy):
+    def __init__(self, privacy_options, default_privacy, page_type, page_id):
         self.privacy_options = privacy_options
         self.default_privacy = default_privacy
+        self.page_type = page_type
+        self.page_id = page_id
+        self.user_relation = Privacy.PUBLIC
+

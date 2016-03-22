@@ -3,6 +3,7 @@ from models import User, get_all_recent_posts, get_all_recent_comments, get_all_
 from models import get_total_likes_for_posts, get_all_post_owners
 from models import System, Privacy
 from models import get_app_instance, getGraphConnectionURI
+from models import get_all_profile_posts
 from py2neo import cypher
 from app.scAPI import ScAPI
 from flask_login import login_required
@@ -81,12 +82,16 @@ def trial():
 # returns: home.html, posts and comments
 #######################################################################################
 def index():
+    if session.get('uid') is None:
+        return redirect(url_for('index')) # if no session, return to login
     posts = get_all_recent_posts()
     comments = get_all_recent_comments()
     likes = get_all_recent_likes()
     totalLikes = get_total_likes_for_posts()
     postOwners = get_all_post_owners()
-    privacy = Privacy([Privacy.FRIENDS, Privacy.PUBLIC], Privacy.FRIENDS)
+    privacy = Privacy([Privacy.FRIENDS, Privacy.PUBLIC], Privacy.FRIENDS,
+                      'home', session['uid']) # info about timeline/page)
+    privacy.user_relation = None
     return render_template('home.html', posts=posts, comments=comments,
                            privacy_info=privacy, likes=likes,
                            totalLikes=totalLikes, postOwners=postOwners)
@@ -282,42 +287,39 @@ def profile(google_id):
     if session.get('uid') is None:
         return redirect(url_for('social.index'))
     try:
-        # accessing google API to retrieve profile data
-        google_profile = get_google_profile(google_id)
-
         # getting data from neo4j
         if google_id == "me":
-            user_profile = User(session['uid']).find()
+            sql_id = session['uid']
             admin_systems = System().get_admin_systems(session['uid'])
-            privacy = Privacy([Privacy.FRIENDS, Privacy.PUBLIC], Privacy.FRIENDS)
             participated_systems = System().get_participated_systems(session['uid'])
             subscribed_systems = System().get_subscribed_systems(session['uid'])
         else:
-            sqlId = get_sqlId(google_id)
-            if not sqlId:
+            sql_id = get_sqlId(google_id)
+            if not sql_id:
                 return redirect(url_for('social.Home'))
             else:
-                id = sqlId[0]["sql_id"]
-                admin_systems = System().get_admin_systems(id)
-                participated_systems = System().get_participated_systems(id)
-                subscribed_systems = System().get_subscribed_systems(id)
+                sql_id = sql_id[0]["sql_id"]
+                admin_systems = System().get_admin_systems(sql_id)
+                participated_systems = System().get_participated_systems(sql_id)
+                subscribed_systems = System().get_subscribed_systems(sql_id)
                 print(participated_systems)
                 print(subscribed_systems)
                 print(admin_systems.records == [])
 
-            user_profile = User(session['uid']).get_user_by_google_id(google_id)
-            privacy = Privacy([Privacy.FRIENDS, Privacy.PRIVATE, Privacy.PRIVATE], Privacy.FRIENDS)
-
-        if admin_systems.records == []:
+        if not admin_systems.records:
             admin_systems = "None"
-        if participated_systems.records == []:
+        if not participated_systems.records:
             participated_systems = "None"
-        if subscribed_systems.records == []:
+        if not subscribed_systems.records:
             subscribed_systems = "None"
-        # Invalid User ID
+
+        # Invalid User
+        user_profile = User(sql_id).find()
         if user_profile is None:
             return redirect(url_for('social.home'))
         else:
+            # accessing google API to retrieve profile data
+            google_profile = get_google_profile(google_id)
             if google_profile is None:
                 display_name = user_profile[0]['user']['displayName']
                 if display_name is None or len(display_name) < 3:
@@ -329,13 +331,28 @@ def profile(google_id):
                     "plus_url": "#",
                     "img_url": ""
                 }
-            posts = get_all_recent_posts()
-            comments = get_all_recent_comments()
+
+            privacy_default = Privacy.FRIENDS
+            user_relation = Privacy.PUBLIC
+            if sql_id == session.get('uid'):
+                privacy_options = [Privacy.FRIENDS, Privacy.PUBLIC]
+                user_relation = Privacy.PRIVATE # profile of logged user can access private posts
+            else:
+                if User(sql_id).is_friend(sql_id, session.get('uid')):
+                    privacy_options = [Privacy.FRIENDS, Privacy.PRIVATE, Privacy.PUBLIC]
+                    user_relation = Privacy.FRIENDS # user is friend with profile's user
+                else:
+                    privacy_options = [Privacy.PRIVATE]
+                    privacy_default = Privacy.PRIVATE
+
+            privacy = Privacy(privacy_options, privacy_default, 'user_profile', sql_id) # info about timeline/page
+            privacy.user_relation = user_relation.lower()
+
+            posts = get_all_profile_posts(sql_id)
 
             return render_template("profile.html", user_profile=user_profile, google_profile=google_profile,
-                                   posts=posts, comments=comments, privacy_info=privacy,
-                                   participated_systems=participated_systems
-                                   , subscribed_systems=subscribed_systems, admin_systems=admin_systems)
+                                   posts=posts, privacy_info=privacy, participated_systems=participated_systems,
+                                   subscribed_systems=subscribed_systems, admin_systems=admin_systems)
     except Exception as e:
         logging.exception("Exception at view_profile: " + str(e))
 
@@ -928,13 +945,23 @@ def delete_comment():
 def add_post():
     if session.get('uid') is not None:
         privacy = request.form['privacy']
-        text = request.form['text']
         link = request.form['link']
+        page_type = request.form.get('page_type')
+        page_id = request.form.get('page_id')
+        user = User(session['uid'])
+        text = request.form['text']
+
         if text == "":
             flash('Post cannot be empty.')
+            return redirect(url_for('social.index'))
+
+        if not page_id or session.get('uid') == page_id:
+            user.add_post(text, privacy, link)
         else:
-            User(session['uid']).add_post(text, privacy, link)
-            flash('Your post has been shared')
+            user_profile = User(page_id)
+            post = user.add_post(text, privacy, link)
+            user_profile.add_post_to(post)
+        flash('Your post has been shared')
     return redirect(url_for('social.index'))
 
 

@@ -1,6 +1,9 @@
             <form action="{{ url_for('social.add_post') }}" method="post">
                 <textarea id="new_post" name="text" rows="3" class="form-control"
                           placeholder="Share what you are doing.."></textarea>
+
+                <input type="hidden" name="page_type" value="{{ privacy_info.page_type }}"/>
+                <input type="hidden" name="page_id" value="{{ privacy_info.page_id }}"/>
                 <div class="share">
                     <div class="links">
                         <input type="hidden" name="link" value=""/>
