@@ -119,6 +119,7 @@
                 {# POST'S COMMENTS #}
                 <div class="comment comment-box">
                     <ul class="comment-list">
+                    {% if row.comments %}
                         {% for cmt in row.comments|sort(attribute='creation_time') %}
                             {% if cmt.post_id == row.post.id %}
                                 <li>
@@ -175,8 +176,8 @@
                             {% endif %}
 
                             {# edit comment #}
-
                         {% endfor %}
+                    {% endif %}
                     </ul>
                 </div>
 

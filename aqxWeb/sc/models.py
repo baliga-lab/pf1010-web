@@ -790,7 +790,7 @@ def get_all_profile_posts(user_id):
     WHERE ((not exists((post)-[:POSTED_TO]-(myself)) AND (myself)-[rel]->(post)) OR (post)-[:POSTED_TO]-(myself))
     WITH post, rel, user, collect({post_id: post.id, comment: {id: comment.id, content: comment.content},
     user_sql_id: commentedBy.sql_id, displayName: commentedBy.displayName, image_url: commentedBy.image_url,
-    google_id: commentedBy.google_id, modified_time: commentedBy.modified_time }) as comments
+    google_id: commentedBy.google_id, creation_time: comment.creation_time }) as comments
     RETURN post, user, comments
     ORDER BY post.modified_time DESC
     """
