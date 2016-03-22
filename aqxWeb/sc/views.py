@@ -429,10 +429,6 @@ def unblock_friend(u_sql_id):
       flash('Friend Blocked');
       return redirect(url_for('social.friends'))
 
-
-
-
-
 #######################################################################################
 # function : delete_friend
 # purpose : deletes friend
@@ -446,7 +442,6 @@ def delete_friend(u_sql_id):
     User(session['uid']).delete_friend(accepted_sql_id)
     flash('Friend  Deleted');
     return redirect(url_for('social.friends'))
-
 
 #######################################################################################
 # function : myFriends
@@ -473,12 +468,6 @@ def friends():
 
     else:
         return render_template("/home.html")
-
-
-#######################################################################################
-
-
-
 
 #######################################################################################
 # function : pendingRequest
@@ -523,7 +512,6 @@ def recofriends():
     else:
         return render_template("/home.html")
 
-
 #######################################################################################
 # function : searchFriends
 # purpose : lets the user search for friends and add them if necessary
@@ -539,7 +527,6 @@ def searchFriends():
     else:
         return render_template("/home.html")
 
-
 #######################################################################################
 # function : send_friend_request
 # purpose : send a friend request to a user clicked on the UI
@@ -552,7 +539,6 @@ def send_friend_request(u_sql_id):
     receiver_sql_id = u_sql_id
     User(session['uid']).send_friend_request(receiver_sql_id)
     return redirect(url_for('social.friends'))
-
 
 #######################################################################################
 # function : search_systems
@@ -590,7 +576,6 @@ def search_systems():
             return render_template("system_search.html", admin_systems=admin_systems,
                                    participated_systems=participated_systems, subscribed_systems=subscribed_systems,
                                    recommended_systems=recommended_systems, all_systems=all_systems)
-
 
 #######################################################################################
 # function : view_system
@@ -673,7 +658,6 @@ def approve_reject_system_participant():
     else:
         return redirect(url_for('social.search_systems'))
 
-
 #######################################################################################
 @social.route('/systems/participate_subscribe_leave', methods=['POST'])
 # function : join_system
@@ -703,7 +687,6 @@ def participate_subscribe_leave_system():
         return redirect(url_for('social.view_system', system_uid=system_uid))
     else:
         return redirect(url_for('social.search_systems'))
-
 
 #######################################################################################
 # function : search_systems
@@ -739,7 +722,6 @@ def manage_system(system_uid):
     elif request.method == 'POST':
         return render_template("system_manage.html")
 
-
 #######################################################################################
 @social.route('/manage/systems/delete_system_participant_or_make_admin', methods=['POST'])
 # function : delete_or_make_admin_system_participant
@@ -767,7 +749,6 @@ def delete_system_participant_or_make_admin():
     else:
         return redirect(url_for('social.search_systems'))
 
-
 #######################################################################################
 @social.route('/manage/systems/delete_admin', methods=['POST'])
 # function : make_or_delete_system_admin
@@ -790,7 +771,6 @@ def delete_system_admin():
         return redirect(url_for('social.manage_system', system_uid=system_uid))
     else:
         return redirect(url_for('social.search_systems'))
-
 
 #######################################################################################
 @social.route('/manage/systems/delete_system_subscriber_or_make_admin', methods=['POST'])
@@ -819,9 +799,7 @@ def delete_system_subscriber_or_make_admin():
     else:
         return redirect(url_for('social.search_systems'))
 
-
 #######################################################################################
-
 @social.route('/add_comment', methods=['POST'])
 #######################################################################################
 # function : add_comment
@@ -844,7 +822,6 @@ def add_comment():
         flash('Your comment has been posted')
     return redirect(url_for('social.index'))
 
-
 @social.route('/edit_or_delete_comment', methods=['POST'])
 #######################################################################################
 # function : edit_or_delete_comment
@@ -856,6 +833,7 @@ def add_comment():
 def edit_or_delete_comment():
     if session.get('uid') is not None:
         commentid = request.form['commentid']
+        system_uid = request.form["system_uid"]
         if commentid == "" or commentid == None:
             flash('Comment not found to edit')
             redirect(url_for('social.index'))
@@ -873,10 +851,35 @@ def edit_or_delete_comment():
                     flash('Your comment has been updated')
     return redirect(url_for('social.index'))
 
+@social.route('/edit_or_delete_system_comment', methods=['POST'])
+#######################################################################################
+# function : edit_or_delete_system_comment
+# purpose : edits or delete existing comments using unique comment id
+# parameters : None
+# returns: calls index function
+# Exception : None
+#######################################################################################
+def edit_or_delete_system_comment():
+    if session.get('uid') is not None:
+        commentid = request.form['commentid']
+        system_uid = request.form['system_uid']
+        if commentid == "" or commentid == None:
+            flash('Comment not found to edit')
+            return redirect(url_for('social.view_system', system_uid=system_uid))
+        else:
+            comment = request.form['editedcomment']
+            if request.form['submit'] == 'deleteComment':
+                System().delete_system_comment(commentid)
+                flash('Your post has been deleted')
+            elif request.form['submit'] == 'editComment':
+                if comment == "" or comment == None:
+                    flash('Comment can not be empty')
+                else:
+                    System().edit_system_comment(comment, commentid)
+                    flash('Your comment has been updated')
+    return redirect(url_for('social.view_system', system_uid=system_uid))
 
 social.route('/edit_comment', methods=['POST'])
-
-
 #######################################################################################
 # function : edit_comment
 # purpose : edits comments using unique comment id
@@ -922,7 +925,6 @@ def edit_post():
         flash('Your comment has been updated')
     return redirect(url_for('social.index'))
 
-
 @social.route('/delete_comment', methods=['POST'])
 #######################################################################################
 # function : delete_comment
@@ -940,7 +942,6 @@ def delete_comment():
         User(session['uid']).delete_comment(commentid)
         flash('Your comment has been updated')
     return redirect(url_for('social.index'))
-
 
 @social.route('/add_post', methods=['POST'])
 #######################################################################################
@@ -1069,6 +1070,51 @@ def add_system_comment():
         flash('Your comment has been posted')
     return redirect(url_for('social.view_system', system_uid=system_uid))
 
+
+@social.route('/edit_system_post', methods=['POST'])
+#######################################################################################
+# function : edit_system_post
+# purpose : edits existing system comments using unique comment id
+# parameters : None
+# returns: calls index function
+# Exception : None
+#######################################################################################
+def edit_system_post():
+    newpost = request.form['editedpost']
+    postid = request.form['postid']
+    system_uid = request.form['system_uid']
+
+    if newpost == "" or newpost == None:
+        flash('New post can not be empty')
+        redirect(url_for('social.view_system', system_uid=system_uid))
+    elif postid == "" or postid == None:
+        flash('Post not found to edit')
+        redirect(url_for('social.view_system', system_uid=system_uid))
+    else:
+        System().edit_system_post(newpost, postid)
+        flash('Your comment has been updated')
+    return redirect(url_for('social.view_system', system_uid=system_uid))
+
+
+@social.route('/delete_system_post', methods=['POST'])
+#######################################################################################
+# function : delete_system_post
+# purpose : deletes existing system post using unique post id
+# parameters : None
+# returns: calls system timeline function
+# Exception : None
+#######################################################################################
+def delete_system_post():
+    postid = request.form['postid']
+    system_uid = request.form['system_uid']
+    if postid == "" or postid == None:
+        flash('Post not found to delete')
+        redirect(url_for('social.view_system', system_uid=system_uid))
+    else:
+        System().delete_system_post(postid)
+        flash('Your comment has been updated')
+    return redirect(url_for('social.view_system', system_uid=system_uid))
+
 @social.route('/like_or_unlike_system_post', methods=['POST'])
 #######################################################################################
 # function : like_or_unlike_system_post
@@ -1097,7 +1143,7 @@ def like_or_unlike_system_post():
                 elif request.form['submit'] == 'unlikePost':
                     System().unlike_system_post(userid,postid)
                     flash('You unliked the post')
-            return redirect(url_for('social.view_system', system_uid=system_uid))
+    return redirect(url_for('social.view_system', system_uid=system_uid))
 
 @social.route('/like_system_post', methods=['POST'])
 #######################################################################################
@@ -1152,7 +1198,6 @@ def unlike_post():
         return redirect(url_for('social.index'))
     else:
         return render_template("/home.html")
-
 
 #######################################################################################
 # function : getfriends

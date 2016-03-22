@@ -36,8 +36,9 @@
                     {% for po in postOwners %}
                         {% if po.postid == row.post.id and po.userid == session['uid'] %}
                             <div class="form-controls" style=" text-align: right;">
-                                <form action="{{ url_for('social.delete_post') }}" method="post">
+                                <form action="{{ url_for('social.delete_system_post') }}" method="post">
                                     <input type="hidden" name="postid" value="{{ row.post.id }}">
+                                    <input type="hidden" name="system_uid" value="{{ system_uid }}">
                                     <button type="submit" name="submit" class="btn btn-danger"
                                             aria-label="Left Align" value="deletePost">
                                        Delete <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
@@ -51,8 +52,9 @@
                                 </button>
                                 <div id="{{ row.post.id }}" class="form-controls"
                                      style="display:none; width: 100% ; text-align:left">
-                                    <form action="{{ url_for('social.edit_post') }}" method="post">
+                                    <form action="{{ url_for('social.edit_system_post') }}" method="post">
                                         <input type="hidden" name="postid" value="{{ row.post.id }}">
+                                        <input type="hidden" name="system_uid" value="{{ system_uid }}">
                                         <input id="editedpost" name="editedpost" style="width: 100%"
                                                value="{{ row.post.text }}"
                                                placeholder="Edit Post">
@@ -150,8 +152,9 @@
 
                                             <div id="{{ cmt.comment.id }}" class="form-controls"
                                                  style="display:none; width: 100% ; text-align:left">
-                                                <form action="{{ url_for('social.edit_or_delete_comment') }}" method="post">
+                                                <form action="{{ url_for('social.edit_or_delete_system_comment') }}" method="post">
                                                     <input type="hidden" name="commentid" value="{{ cmt.comment.id }}">
+                                                    <input type="hidden" name="system_uid" value="{{ system_uid }}">
                                                     <input id="editedcomment" name="editedcomment" style="width: 100%"
                                                            value="{{ cmt.comment.content }}"
                                                            placeholder="Edit comment">

@@ -1628,6 +1628,109 @@ class System:
             raise "Exception occured in function add_system_post "
 
     ############################################################################
+    # function : delete_system_comment
+    # purpose : deletes system comment node in neo4j with the given id
+    # params :
+    #        commentid : comment id which is being added
+    # Exceptions : cypher.CypherError, cypher.CypherTransactionError
+    # returns : None
+    ############################################################################
+
+    def delete_system_comment(self, commentid):
+        print("Comment id" + str(commentid))
+        query = """
+        MATCH (comment:SystemComment)
+        WHERE comment.id = {commentid}
+        DETACH DELETE comment
+        """
+        try:
+            getGraphConnectionURI().cypher.execute(query, commentid=commentid);
+        except cypher.CypherError, cypher.CypherTransactionError:
+            raise "Exception occured in function delete_system_comment "
+
+    ############################################################################
+    # function : edit_system_comment
+    # purpose : Edits comment node in neo4j with the given id
+    # params :
+    #        newcomment : contains the data shared in comment
+    #        commentid : comment id which is being added
+    # Exceptions : cypher.CypherError, cypher.CypherTransactionError
+    # returns : None
+    ############################################################################
+
+    def edit_system_comment(self, newcomment, commentid):
+        print(commentid)
+        query = """
+        MATCH (comment:SystemComment)
+        WHERE comment.id = {commentid}
+        SET comment.content = {newcomment}
+        RETURN comment
+        """
+        try:
+            getGraphConnectionURI().cypher.execute(query, commentid=commentid, newcomment=newcomment);
+        except cypher.CypherError, cypher.CypherTransactionError:
+            raise "Exception occured in function edit_system_comment"
+
+    ############################################################################
+    # function : edit_system_post
+    # purpose : Edits post node in neo4j with the given id
+    # params :
+    #        newcontent : contains the data shared in comment
+    #        postid : comment id which is being added
+    # Exceptions : cypher.CypherError, cypher.CypherTransactionError
+    # returns : None
+    ############################################################################
+
+    def edit_system_post(self, newcontent, postid):
+        query = """
+        MATCH (post:SystemPost)
+        WHERE post.id = {postid}
+        SET post.text = {newcontent}
+        RETURN post
+        """
+        try:
+            getGraphConnectionURI().cypher.execute(query, postid=postid, newcontent=newcontent);
+        except cypher.CypherError, cypher.CypherTransactionError:
+            raise "Exception occured in function edit_system_post"
+
+    ############################################################################
+    # function : delete_system_post
+    # purpose : deletes comments and all related relationships first
+    #           and then deletes post and all relationships
+    # params :
+    #        postid : post id for which user liked
+    # returns : None
+    # Exceptions : cypher.CypherError, cypher.CypherTransactionError
+    ############################################################################
+
+    def delete_system_post(self, postid):
+        post = getGraphConnectionURI().find_one("Post", "id", postid)
+
+        # Deletes comments and all related relationships
+
+        deleteSystemCommentsQuery = """
+            MATCH (post:SystemPost)-[r:HAS]->(comment:SystemComment)
+            WHERE post.id= {postid}
+            DETACH DELETE comment
+            """
+        try:
+            getGraphConnectionURI().cypher.execute(deleteSystemCommentsQuery, postid=postid)
+        except cypher.CypherError, cypher.CypherTransactionError:
+            raise "Exception occured in function delete_system_post : deleteSystemCommentsQuery "
+
+        # Deletes posts and all related relationships
+
+        deleteSystemPostQuery = """
+            MATCH (post:SystemPost)
+            WHERE post.id= {postid}
+            DETACH DELETE post
+            """
+        try:
+            getGraphConnectionURI().cypher.execute(deleteSystemPostQuery, postid=postid)
+        except cypher.CypherError, cypher.CypherTransactionError:
+            raise "Exception occured in function delete_system_post :deleteSystemPostQuery "
+
+    ############################################################################
     # function : like_system_post
     # purpose : creates a unique LIKED relationship between User and Post
     # params : user_sql_id : user id
