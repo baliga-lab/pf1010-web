@@ -59,7 +59,7 @@ def getToken():
 @google.authorized_handler
 def authorized(resp):
     access_token = resp['access_token']
-    print(access_token)
+    #print(access_token)
     session['access_token'] = access_token, ''
     session['token'] = access_token
     return redirect(url_for('social.Home'))
@@ -150,10 +150,10 @@ def signin():
         access_token = access_token[0]
         r = requests.get('https://www.googleapis.com/plus/v1/people/me?access_token=' + access_token)
         # content=r.content
-        print(r.content)
+       # print(r.content)
         googleAPIResponse = json.loads(r.content)
         # googleAPIResponsev=json.loads(googleAPIResponse)
-        print(googleAPIResponse)
+        #print(googleAPIResponse)
         logging.debug("signed in: %s", str(googleAPIResponse))
         google_id = googleAPIResponse['id']
         if 'image' in googleAPIResponse:
@@ -286,6 +286,7 @@ def updateprofile():
 def profile(google_id):
     if session.get('uid') is None:
         return redirect(url_for('social.index'))
+
     try:
         # getting data from neo4j
         if google_id == "me":
@@ -293,25 +294,21 @@ def profile(google_id):
             admin_systems = System().get_admin_systems(session['uid'])
             participated_systems = System().get_participated_systems(session['uid'])
             subscribed_systems = System().get_subscribed_systems(session['uid'])
+            Friends = User(session['uid']).get_my_friends(session['uid']);
+            status="Me"
+            id=session['uid']
         else:
+
             sql_id = get_sqlId(google_id)
             if not sql_id:
                 return redirect(url_for('social.Home'))
             else:
                 sql_id = sql_id[0]["sql_id"]
+                status=checkStatus(sql_id)
                 admin_systems = System().get_admin_systems(sql_id)
                 participated_systems = System().get_participated_systems(sql_id)
                 subscribed_systems = System().get_subscribed_systems(sql_id)
-                print(participated_systems)
-                print(subscribed_systems)
-                print(admin_systems.records == [])
-
-        if not admin_systems.records:
-            admin_systems = "None"
-        if not participated_systems.records:
-            participated_systems = "None"
-        if not subscribed_systems.records:
-            subscribed_systems = "None"
+                Friends = User(session['uid']).get_my_friends(sql_id)
 
         # Invalid User
         user_profile = User(sql_id).find()
@@ -352,7 +349,9 @@ def profile(google_id):
 
             return render_template("profile.html", user_profile=user_profile, google_profile=google_profile,
                                    posts=posts, privacy_info=privacy, participated_systems=participated_systems,
-                                   subscribed_systems=subscribed_systems, admin_systems=admin_systems)
+                                   subscribed_systems=subscribed_systems, admin_systems=admin_systems,
+                                   friends=Friends,status=status, sqlId=sql_id)
+
     except Exception as e:
         logging.exception("Exception at view_profile: " + str(e))
 
@@ -431,10 +430,6 @@ def unblock_friend(u_sql_id):
       flash('Friend Blocked');
       return redirect(url_for('social.friends'))
 
-
-
-
-
 #######################################################################################
 # function : delete_friend
 # purpose : deletes friend
@@ -448,7 +443,6 @@ def delete_friend(u_sql_id):
     User(session['uid']).delete_friend(accepted_sql_id)
     flash('Friend  Deleted');
     return redirect(url_for('social.friends'))
-
 
 #######################################################################################
 # function : myFriends
@@ -475,12 +469,6 @@ def friends():
 
     else:
         return render_template("/home.html")
-
-
-#######################################################################################
-
-
-
 
 #######################################################################################
 # function : pendingRequest
@@ -525,7 +513,6 @@ def recofriends():
     else:
         return render_template("/home.html")
 
-
 #######################################################################################
 # function : searchFriends
 # purpose : lets the user search for friends and add them if necessary
@@ -541,7 +528,6 @@ def searchFriends():
     else:
         return render_template("/home.html")
 
-
 #######################################################################################
 # function : send_friend_request
 # purpose : send a friend request to a user clicked on the UI
@@ -549,12 +535,11 @@ def searchFriends():
 # returns: calls index function
 # Exception : None
 #######################################################################################
-@social.route('/send_friend_request/<u_sql_id>', methods=['POST'])
+@social.route('/send_friend_request/<u_sql_id>', methods=['GET','POST'])
 def send_friend_request(u_sql_id):
     receiver_sql_id = u_sql_id
     User(session['uid']).send_friend_request(receiver_sql_id)
     return redirect(url_for('social.friends'))
-
 
 #######################################################################################
 # function : search_systems
@@ -593,7 +578,6 @@ def search_systems():
                                    participated_systems=participated_systems, subscribed_systems=subscribed_systems,
                                    recommended_systems=recommended_systems, all_systems=all_systems)
 
-
 #######################################################################################
 # function : view_system
 # purpose : renders system_social.html
@@ -630,12 +614,22 @@ def view_system(system_uid):
                 system_subscribers = system.get_system_subscribers(system_uid)
                 participants_pending_approval = system.get_participants_pending_approval(system_uid)
                 subscribers_pending_approval = system.get_subscribers_pending_approval(system_uid)
+                privacy_options = {"Members", "Public"}
+                posts = system.get_system_recent_posts(system_uid)
+                comments = system.get_system_recent_comments(system_uid)
+                likes = system.get_system_recent_likes(system_uid)
+                totalLikes = system.get_total_likes_for_system_posts(system_uid)
+                postOwners = system.get_system_post_owners(system_uid)
+
                 return render_template("system_social.html", system_neo4j=system_neo4j, system_mysql=system_mysql,
                                        logged_in_user=logged_in_user, created_date=created_date,
                                        user_privilege=user_privilege, system_admins=system_admins,
                                        system_participants=system_participants, system_subscribers=system_subscribers,
                                        participants_pending_approval=participants_pending_approval,
-                                       subscribers_pending_approval=subscribers_pending_approval)
+                                       subscribers_pending_approval=subscribers_pending_approval,
+                                       system_uid=system_uid, privacy_options=privacy_options,
+                                       posts=posts, comments=comments,likes=likes,
+                                       totalLikes=totalLikes, postOwners=postOwners)
     except Exception as e:
         logging.exception("Exception at view_system: " + str(e))
 
@@ -664,7 +658,6 @@ def approve_reject_system_participant():
         return redirect(url_for('social.view_system', system_uid=system_uid))
     else:
         return redirect(url_for('social.search_systems'))
-
 
 #######################################################################################
 @social.route('/systems/participate_subscribe_leave', methods=['POST'])
@@ -695,7 +688,6 @@ def participate_subscribe_leave_system():
         return redirect(url_for('social.view_system', system_uid=system_uid))
     else:
         return redirect(url_for('social.search_systems'))
-
 
 #######################################################################################
 # function : search_systems
@@ -731,7 +723,6 @@ def manage_system(system_uid):
     elif request.method == 'POST':
         return render_template("system_manage.html")
 
-
 #######################################################################################
 @social.route('/manage/systems/delete_system_participant_or_make_admin', methods=['POST'])
 # function : delete_or_make_admin_system_participant
@@ -759,7 +750,6 @@ def delete_system_participant_or_make_admin():
     else:
         return redirect(url_for('social.search_systems'))
 
-
 #######################################################################################
 @social.route('/manage/systems/delete_admin', methods=['POST'])
 # function : make_or_delete_system_admin
@@ -782,7 +772,6 @@ def delete_system_admin():
         return redirect(url_for('social.manage_system', system_uid=system_uid))
     else:
         return redirect(url_for('social.search_systems'))
-
 
 #######################################################################################
 @social.route('/manage/systems/delete_system_subscriber_or_make_admin', methods=['POST'])
@@ -811,9 +800,7 @@ def delete_system_subscriber_or_make_admin():
     else:
         return redirect(url_for('social.search_systems'))
 
-
 #######################################################################################
-
 @social.route('/add_comment', methods=['POST'])
 #######################################################################################
 # function : add_comment
@@ -836,7 +823,6 @@ def add_comment():
         flash('Your comment has been posted')
     return redirect(url_for('social.index'))
 
-
 @social.route('/edit_or_delete_comment', methods=['POST'])
 #######################################################################################
 # function : edit_or_delete_comment
@@ -848,6 +834,7 @@ def add_comment():
 def edit_or_delete_comment():
     if session.get('uid') is not None:
         commentid = request.form['commentid']
+        system_uid = request.form["system_uid"]
         if commentid == "" or commentid == None:
             flash('Comment not found to edit')
             redirect(url_for('social.index'))
@@ -865,10 +852,35 @@ def edit_or_delete_comment():
                     flash('Your comment has been updated')
     return redirect(url_for('social.index'))
 
+@social.route('/edit_or_delete_system_comment', methods=['POST'])
+#######################################################################################
+# function : edit_or_delete_system_comment
+# purpose : edits or delete existing comments using unique comment id
+# parameters : None
+# returns: calls index function
+# Exception : None
+#######################################################################################
+def edit_or_delete_system_comment():
+    if session.get('uid') is not None:
+        commentid = request.form['commentid']
+        system_uid = request.form['system_uid']
+        if commentid == "" or commentid == None:
+            flash('Comment not found to edit')
+            return redirect(url_for('social.view_system', system_uid=system_uid))
+        else:
+            comment = request.form['editedcomment']
+            if request.form['submit'] == 'deleteComment':
+                System().delete_system_comment(commentid)
+                flash('Your post has been deleted')
+            elif request.form['submit'] == 'editComment':
+                if comment == "" or comment == None:
+                    flash('Comment can not be empty')
+                else:
+                    System().edit_system_comment(comment, commentid)
+                    flash('Your comment has been updated')
+    return redirect(url_for('social.view_system', system_uid=system_uid))
 
 social.route('/edit_comment', methods=['POST'])
-
-
 #######################################################################################
 # function : edit_comment
 # purpose : edits comments using unique comment id
@@ -914,7 +926,6 @@ def edit_post():
         flash('Your comment has been updated')
     return redirect(url_for('social.index'))
 
-
 @social.route('/delete_comment', methods=['POST'])
 #######################################################################################
 # function : delete_comment
@@ -932,7 +943,6 @@ def delete_comment():
         User(session['uid']).delete_comment(commentid)
         flash('Your comment has been updated')
     return redirect(url_for('social.index'))
-
 
 @social.route('/add_post', methods=['POST'])
 #######################################################################################
@@ -964,6 +974,41 @@ def add_post():
         flash('Your post has been shared')
     return redirect(url_for('social.index'))
 
+#######################################################################################
+# function : add_system_post
+# purpose : renders system_social.html
+# parameters : system_uid
+# returns: system_social.html
+# Exception : General Exception
+#######################################################################################
+
+@social.route('/systems/add_system_post', methods=['POST'])
+def add_system_post():
+    user_sql_id = session.get('uid')
+    if user_sql_id is None:
+        return redirect(url_for('social.systems'))
+    system = System()
+    if request.method == 'POST':
+        system_uid = request.form['system_uid']
+        print("Creating the new system post")
+        print(system_uid)
+        system_neo4j = system.get_system_by_uid(system_uid)
+        # InValid System_UID
+        if not system_neo4j:
+            flash('System not found in neo4j.')
+            return redirect(url_for('social.view_system', system_uid=system_uid))
+            # Valid System_UID
+        else:
+            logged_in_user = User(user_sql_id).find()
+            created_date = convertMilliSecondsToNormalDate(system_neo4j[0][0]['creation_time'])
+            privacy = request.form['privacy']
+            text = request.form['text']
+            link = request.form['link']
+            if text == "":
+                flash('Post cannot be empty.')
+            else:
+                System().add_system_post(system_uid, user_sql_id, text, privacy, link)
+    return redirect(url_for('social.view_system', system_uid=system_uid))
 
 @social.route('/like_or_unlike_post', methods=['POST'])
 #######################################################################################
@@ -1012,6 +1057,125 @@ def delete_post():
     return redirect(url_for('social.index'))
 
 
+@social.route('/add_system_comment', methods=['POST'])
+#######################################################################################
+# function : add_system_comment
+# purpose : adds comments to the post
+# parameters : None
+# returns: calls index function
+# Exception : None
+#######################################################################################
+def add_system_comment():
+    comment = request.form['newcomment']
+    postid = request.form['postid']
+    userid = session['uid']
+    system_uid = request.form['system_uid']
+    if comment == "" or comment == None:
+        flash('Comment can not be empty')
+        redirect(url_for('social.view_system', system_uid=system_uid))
+    elif postid == "" or postid == None:
+        flash('Post not found to comment on')
+        redirect(url_for('social.view_system', system_uid=system_uid))
+    else:
+        System().add_system_comment(userid,comment,postid)
+        flash('Your comment has been posted')
+    return redirect(url_for('social.view_system', system_uid=system_uid))
+
+
+@social.route('/edit_system_post', methods=['POST'])
+#######################################################################################
+# function : edit_system_post
+# purpose : edits existing system comments using unique comment id
+# parameters : None
+# returns: calls index function
+# Exception : None
+#######################################################################################
+def edit_system_post():
+    newpost = request.form['editedpost']
+    postid = request.form['postid']
+    system_uid = request.form['system_uid']
+
+    if newpost == "" or newpost == None:
+        flash('New post can not be empty')
+        redirect(url_for('social.view_system', system_uid=system_uid))
+    elif postid == "" or postid == None:
+        flash('Post not found to edit')
+        redirect(url_for('social.view_system', system_uid=system_uid))
+    else:
+        System().edit_system_post(newpost, postid)
+        flash('Your comment has been updated')
+    return redirect(url_for('social.view_system', system_uid=system_uid))
+
+
+@social.route('/delete_system_post', methods=['POST'])
+#######################################################################################
+# function : delete_system_post
+# purpose : deletes existing system post using unique post id
+# parameters : None
+# returns: calls system timeline function
+# Exception : None
+#######################################################################################
+def delete_system_post():
+    postid = request.form['postid']
+    system_uid = request.form['system_uid']
+    if postid == "" or postid == None:
+        flash('Post not found to delete')
+        redirect(url_for('social.view_system', system_uid=system_uid))
+    else:
+        System().delete_system_post(postid)
+        flash('Your comment has been updated')
+    return redirect(url_for('social.view_system', system_uid=system_uid))
+
+@social.route('/like_or_unlike_system_post', methods=['POST'])
+#######################################################################################
+# function : like_or_unlike_system_post
+# purpose : like or unlike existing post using unique post id
+# parameters : None
+# returns: calls index function
+# Exception : None
+#######################################################################################
+def like_or_unlike_system_post():
+    if request.method == 'POST':
+        if session.get('uid') is not None:
+            postid = request.form['postid']
+            print('This is a post i')
+            print(postid)
+            userid = session['uid']
+            system_uid = request.form['system_uid']
+            print("User id = " + str(userid))
+            print("system_uid id = " + str(system_uid))
+            print(request.form['submit'])
+            if postid == "":
+                flash('Can not find the post to delete.')
+            else:
+                if request.form['submit'] == 'likePost':
+                    System().like_system_post(userid, postid)
+                    flash('You liked the post')
+                elif request.form['submit'] == 'unlikePost':
+                    System().unlike_system_post(userid,postid)
+                    flash('You unliked the post')
+    return redirect(url_for('social.view_system', system_uid=system_uid))
+
+@social.route('/like_system_post', methods=['POST'])
+#######################################################################################
+# function : like_system_post
+# purpose : like system posts previously created by user
+# parameters : None
+# returns: calls index function
+# Exception : None
+#######################################################################################
+def like_system_post():
+    if session.get('uid') is not None:
+        userid = session.get('uid')
+        postid = request.form['postid']
+        system_uid = request.form['system_uid']
+        System().like_system_post(userid,postid)
+        flash('You liked the post')
+        return redirect(url_for('social.view_system', system_uid=system_uid))
+    else:
+        return render_template("/home.html")
+
+
 @social.route('/like_post', methods=['POST'])
 #######################################################################################
 # function : like_post
@@ -1029,7 +1193,6 @@ def like_post():
     else:
         return render_template("/home.html")
 
-
 @social.route('/unlike_post', methods=['POST'])
 #######################################################################################
 # function : unlike_post
@@ -1046,7 +1209,6 @@ def unlike_post():
         return redirect(url_for('social.index'))
     else:
         return render_template("/home.html")
-
 
 #######################################################################################
 # function : getfriends
@@ -1261,3 +1423,32 @@ def test_add_comment():
         User(session['uid']).test_add_comment(comment, postid)
         flash('Your comment has been posted')
     return redirect(url_for('social.index'))
+
+#######################################################################################
+# function : checkStatus
+# purpose : check the status of a user with another user
+# parameters : None
+# returns: if the user is friend,pending friend,add as a friend.
+# Exception : None
+#######################################################################################
+def checkStatus(user_sql_id):
+    friend_status="Add friend"
+    sentreq_res, receivedreq_res, frnds_res = User(session['uid']).get_friends_and_sentreq()
+    for sf in sentreq_res:
+        sf_id = sf[0]
+        if (user_sql_id == sf_id):
+            friend_status = "Sent Friend Request"
+    for rf in receivedreq_res:
+        rf_id = rf[0]
+        if (user_sql_id == rf_id):
+            friend_status = "Received Friend Request"
+    for fr in frnds_res:
+        fr_id = fr[0]
+        if (user_sql_id == fr_id):
+            friend_status = "Friends"
+    if (user_sql_id == session['uid']):
+        friend_status ="Me"
+    return friend_status
+
+
+

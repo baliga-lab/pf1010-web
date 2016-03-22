@@ -2,22 +2,21 @@
 
     {% if posts %}
         {% for row in posts %}
-            {% if row.post and (not privacy_info.user_relation or (row.post.privacy == "public"
-                or privacy_info.user_relation.lower() == row.post.privacy
-                or (row.post.privacy == "friends" and privacy_info.user_relation == "private"))) %}
+            <br>
             <div class="post detail-box">
                 {# USER OF POST #}
                 <div class="media-left">
                 {# LINK TO USER'S PROFILE #}
-                    <a href="{% if row.user %}/social/profile/{{ row.user.google_id }}{% else %}#{% endif %}">
+                    <a href="/social/profile/{% if row.user %}{{ row.user.google_id }}{% endif %}">
                         {% if row.user.image_url %}
-                        <img class="media-object" src="{{ row.user.image_url }}"
-                             alt="{{ row.user.displayName }}'s Picture">
-                            {# PLACEHOLDER IMAGE FOR USER'S PROFILE PIC #}
+                        <img class="media-object" src="{{ row.user.image_url }}" alt="{{ row.displayName }}'s Picture"
+                        height="32" width="32">
+						{# PLACEHOLDER IMAGE FOR USER'S PROFILE PIC #}
                         {% else %}
-                        <img class="media-object"
-                             src="{{ url_for('frontend.static', filename='images/users/oddish.png') }}"
-                             alt="User has no profile picture"> {# PLACEHOLDER IMAGE FOR USER WITH NO PROFILE PICTURE #}
+                        <img class="media-object" src="{{ url_for('frontend.static', filename='images/users/oddish.png') }}"
+                             alt="User has no profile picture"
+                        height="32" width="32">
+                        {# PLACEHOLDER IMAGE FOR USER WITH NO PROFILE PICTURE #}
                         {% endif %}
                     </a>
                 </div>
@@ -25,9 +24,8 @@
                 {# POST CONTENT #}
                 <div class="media-body">
                     <h4>
-                        {{ row.user.displayName }}
+                        {{ row.displayName }}
                          <span class="date sub-text">posted on {{ row.post.date }}</span>
-                        <span class="privacy sub-text">@{{ row.post.privacy }}</span>
                     </h4>
                     {% for po in postOwners %}
                         {% if po.postid == row.post.id and po.userid == session['uid'] %}
@@ -38,8 +36,9 @@
                     {% for po in postOwners %}
                         {% if po.postid == row.post.id and po.userid == session['uid'] %}
                             <div class="form-controls" style=" text-align: right;">
-                                <form action="{{ url_for('social.delete_post') }}" method="post">
+                                <form action="{{ url_for('social.delete_system_post') }}" method="post">
                                     <input type="hidden" name="postid" value="{{ row.post.id }}">
+                                    <input type="hidden" name="system_uid" value="{{ system_uid }}">
                                     <button type="submit" name="submit" class="btn btn-danger"
                                             aria-label="Left Align" value="deletePost">
                                        Delete <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
@@ -53,8 +52,9 @@
                                 </button>
                                 <div id="{{ row.post.id }}" class="form-controls"
                                      style="display:none; width: 100% ; text-align:left">
-                                    <form action="{{ url_for('social.edit_post') }}" method="post">
+                                    <form action="{{ url_for('social.edit_system_post') }}" method="post">
                                         <input type="hidden" name="postid" value="{{ row.post.id }}">
+                                        <input type="hidden" name="system_uid" value="{{ system_uid }}">
                                         <input id="editedpost" name="editedpost" style="width: 100%"
                                                value="{{ row.post.text }}"
                                                placeholder="Edit Post">
@@ -72,7 +72,7 @@
                      {# image/gif content #}
                         {% if row.post.link.endswith(".jpg") or row.post.link.endswith(".png") or row.post.link.endswith(".gif") %}
                             <img class="attachedImg" src="{{ row.post.link }}"
-                                 onclick="window.open('{{ row.post.link }}', '_blank');"/>
+                                 onclick="window.open('{{ row.post.link }}', '_blank');" height="32" width="32"/>
 
                             {# video content #}
                         {% else %}
@@ -90,10 +90,10 @@
                 {# POST OPTIONS #}
                 <div class="options">
                     <div class="form-controls" style=" text-align: right;">
-                        <form action="{{ url_for('social.like_or_unlike_post') }}"
+                        <form action="{{ url_for('social.like_or_unlike_system_post') }}"
                                           method="post">
                             <input type="hidden" name="postid" value="{{ row.post.id }}">
-
+                            <input type="hidden" name="system_uid" value="{{ system_uid }}">
                             <button type="submit" name="submit" class="btn btn-success" aria-label="Left Align" value="likePost">
                                 Like
                                 {% for i in totalLikes %}
@@ -118,32 +118,31 @@
                 Comments:
                 {# POST'S COMMENTS #}
                 <div class="comment comment-box">
-                    <ul class="comment-list">
-                        {% for cmt in row.comments|sort(attribute='creation_time') %}
-                            {% if cmt.post_id == row.post.id %}
+                    <ul class="comment-list nav nav-pills nav-stacked">
+                        {% for cmt in comments %}
+                            {% if cmt.postid == row.post.id %}
                                 <li>
                                     <div class="media-left">
-                                        <a href="{% if cmt.google_id %}/social/profile/{{ cmt.google_id }}{% else %}#{% endif %}">
-                                            {# LINK TO USER'S PROFILE #}
-                                            {% if cmt.image_url %}
-                                            <img class="media-object" src="{{ cmt.image_url }}"
-                                                 alt="{{ cmt.displayName }}'s Picture"/>
+                                        <a href="#"> {# LINK TO USER'S PROFILE #}
+                                            {% if row.user and row.user.image_url %}
+                                            <img class="media-object" src="{{ cmt.user.image_url }}"
+                                                 alt="{{ cmt.displayName }}'s Picture" height="32" width="32"/>
                                                 {# PLACEHOLDER IMAGE FOR USER'S PROFILE PIC #}
                                             {% else %}
                                             <img class="media-object"
                                                  src="{{ url_for('frontend.static', filename='images/users/gloom.png') }}"
-                                                 alt=""/> {# PLACEHOLDER IMAGE FOR USER'S PROFILE PIC #}
+                                                 alt="" height="32" width="32"/> {# PLACEHOLDER IMAGE FOR USER'S PROFILE PIC #}
                                             {% endif %}
                                         </a>
                                     </div>
                                     <div class="media-body">
                                         <h5>
-                                            <b>{{ cmt.displayName }}</b>
+                                            <b>{{ cmt.comment.user_display_name }}</b>
                                             <span class="date sub-text">replied with</span>
                                         </h5>
                                         <div class="input-group col-md-12">
                                             <p>{{ cmt.comment.content }}</p>
-                                            {% if cmt.user_sql_id == session['uid'] %}
+                                            {% if cmt.comment.user_sql_id == session['uid'] %}
                                                 <button type="submit" class="btn btn-warning" name="submit"
                                                     value="edit"
                                                     aria-label="Left Align"
@@ -153,8 +152,9 @@
 
                                             <div id="{{ cmt.comment.id }}" class="form-controls"
                                                  style="display:none; width: 100% ; text-align:left">
-                                                <form action="{{ url_for('social.edit_or_delete_comment') }}" method="post">
+                                                <form action="{{ url_for('social.edit_or_delete_system_comment') }}" method="post">
                                                     <input type="hidden" name="commentid" value="{{ cmt.comment.id }}">
+                                                    <input type="hidden" name="system_uid" value="{{ system_uid }}">
                                                     <input id="editedcomment" name="editedcomment" style="width: 100%"
                                                            value="{{ cmt.comment.content }}"
                                                            placeholder="Edit comment">
@@ -181,9 +181,10 @@
                 </div>
 
                 {# ADD COMMENT #}
-                <form action="{{ url_for('social.add_comment') }}" method="post">
+                <form action="{{ url_for('social.add_system_comment') }}" method="post">
                     <div class="input-group col-md-12">
                         <input type="hidden" name="postid" value="{{ row.post.id }}">
+                        <input type="hidden" name="system_uid" value="{{ system_uid }}">
                         <input id="newcomment" name="newcomment" class="form-control" placeholder="Share comment">
                         <span class="input-group-btn">
                             <input type="submit" class="btn btn-green" value="Comment">
@@ -191,7 +192,6 @@
                     </div>
                 </form>
             </div>
-            {% endif %}
         {% endfor %}
     {% endif %}
 
