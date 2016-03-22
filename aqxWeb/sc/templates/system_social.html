@@ -1,6 +1,5 @@
 {% extends "base.html" %}
 
-
 {% block styles %}
     {{ super() }}
     <link rel="stylesheet" href="{{ url_for('social.static', filename='css/system_social.css') }}">
@@ -9,116 +8,280 @@
 
 {% block content %}
 
+    <!-- Div for Systems Pane - Container Div -->
     <div class="container systemDiv">
 
+        <!-- ---------------------------------------------------------  -->
+
+        <!-- Div for Left Pane - Systems Page -->
         <div class="col-md-3 leftPaneDiv">
 
+            <!-- Div for System Description (Name, Creation Time, Location and Description -->
             <div class="row systemDescription">
-                <h3 class="systemName">  {{ system_neo4j[0][0]['name'] }} </h3>
-                <br/>
-                <h5 class="systemCreated"> Created On: {{ system_neo4j[0][0]['creation_time'] }}</h5>
+                <h4 class="systemName">  {{ system_neo4j[0][0]['name'] }} </h4>
+                <h5 class="systemCreated" id="systemCreatedTime"><b>Created On: </b>
+                    {{ created_date }}
+                </h5>
+                <h5 class="systemLocation"><b> Location: </b> Northeastern University, Boston</h5>
+                <h5 class="systemDescription"><b> Description: </b> {{ system_neo4j[0][0]['description'] }}</h5>
             </div>
+            <!-- End of Div for System Description (Name, Creation Time, Location and Description -->
 
-            <br/>
-            <div class="row participants">
 
-                <p>Participants (10)</p>
-                <div class="row participantsImage">
-                    <img class="imgstyle" id="userImage"
-                         src="{{ url_for('social.static', filename='images/default_profile_pic.png') }}" height="40"
-                         width="40">
+            <!-- Div for Participants (List of Participants) -->
+            <div class="row">
+                <h4 class="participantTitle"> Participants ({{ system_participants | length }}) </h4>
+            </div>
+            <div class="row participantDiv">
+                {% if system_participants %}
+                    {% for participant in system_participants %}
+                        <div>
+                            <!-- Only Admin and Participants Has The Privilege To View The Picture & Name Of All Participants-->
+                            {% if user_privilege == "SYS_ADMIN" or user_privilege == "SYS_PARTICIPANT" %}
+                                <a href="{{ url_for('social.profile', google_id=participant[0]["google_id"]) }}">
+                                    <img class="participantImage" src="{{ participant[0]["image_url"] }}">
+                                    {% if participant[0]["displayName"] is not none %}
+                                        {{ participant[0]["displayName"] }}
+                                    {% else %}
+                                        No Display Name
+                                    {% endif %}
+                                </a>
+                                <!-- Guest, Subscribers & Pending Users Shall Not Be Able To See The Picture & Name Of All Participants-->
+                            {% else %}
+                                <img class="participantImage"
+                                     src="{{ url_for('social.static', filename='images/default_profile_pic.png') }}">
+                                Anonymous
+                            {% endif %}
+                        </div>
+                        <br/>
+                    {% endfor %}  
+                {% else %}
+                    <span>
+                        <h5>Currently, there are no participants for the system</h5>
+                    </span>
+                {% endif %}
+            </div>
+            <!-- End of Div for Participants (List of Participants) -->
 
-                    <img class="imgstyle" id="userImage"
-                         src="{{ url_for('social.static', filename='images/default_profile_pic.png') }}" height="40"
-                         width="40">
+
+            <!-- Div for Subscribers (List of Subscribers) -->
+            <div class="row">
+                <h4 class="subscriberTitle"> Subscribers ({{ system_subscribers | length }}) </h4>
+            </div>
+            <div class="row subscriberDiv">
+                {% if system_subscribers %}
+                    {% for subscriber in system_subscribers %}
+                        <div>
+                            <!-- Only Admin and Participants Has The Privilege To View The Picture & Name Of All Participants-->
+                            {% if user_privilege == "SYS_ADMIN" or user_privilege == "SYS_PARTICIPANT" %}
+                                <a href="{{ url_for('social.profile', google_id=subscriber[0]["google_id"]) }}">
+                                    <img class="participantImage" src="{{ subscriber[0]["image_url"] }}">
+                                    {% if subscriber[0]["displayName"] is not none %}
+                                        {{ subscriber[0]["displayName"] }}
+                                    {% else %}
+                                        No Display Name
+                                    {% endif %}
+                                </a>
+                                <!-- Guest, Subscribers & Pending Users Shall Not Be Able To See The Picture & Name Of All Participants-->
+                            {% else %}
+                                <!-- The subscriber will be able to see his/her own name and picture -->
+                                {% if subscriber[0]["sql_id"] == logged_in_user["sql_id"] %}
+                                    <a href="{{ url_for('social.profile', google_id=subscriber[0]["google_id"]) }}">
+                                    <img class="participantImage" src="{{ session["img"] }}">
+                                    {% if subscriber[0]["displayName"] is not none %}
+                                        {{ subscriber[0]["displayName"] }}
+                                    {% else %}
+                                        No Display Name
+                                    {% endif %}
+                                    </a>
+                                {% else %}
+                                <img class="participantImage"
+                                     src="{{ url_for('social.static', filename='images/default_profile_pic.png') }}">
+                                Anonymous
+                                {% endif %}
+                            {% endif %}
+                        </div>
+                    {% endfor %}  
+                {% else %}
+                    <span>
+                        <h5>Currently, there are no subscribers for the system</h5>
+                    </span>
+                {% endif %}
+            </div>
+            <!-- End of Div for Subscribers (List of Subscribers) -->
+
+
+            <!-- Div for Managing Pending Requests (Approve/Reject) Button. Manage System Settings Too -->
+            {% if user_privilege == "SYS_ADMIN" %}
+
+                <div class="row pendingRequestsTitleDiv">
+                    <h4>Participants Request ({{ participants_pending_approval | length }})</h4>
                 </div>
 
-            </div>
+                <div class="row pendingRequests">
+                    <!-- Iterate Over Pending Approval Participants -->
+                    {% if participants_pending_approval %}
+                        {% for pending_participants in participants_pending_approval %}
+                            <form action="{{ url_for('social.approve_reject_system_participant') }}" method="post">
+                                <div class="pendingRequestElements">
+                                    <input type="hidden" name="google_id"
+                                           value="{{ pending_participants[0]["google_id"] }}">
+                                    <input type="hidden" name="system_uid"
+                                           value="{{ system_neo4j[0][0]["system_uid"] }}">
+                                    <a href="{{ url_for('social.profile', google_id=pending_participants[0]["google_id"]) }}">
+                                        <img class="pendingParticipantImage"
+                                             src="{{ pending_participants[0]["image_url"] }}">
+                                        {% if pending_participants[0]["displayName"] is not none %}
+                                            {{ pending_participants[0]["displayName"] }}
+                                        {% else %}
+                                            {{ "No Display Name" }}
+                                        {% endif %}
+                                    </a>
+                                    <button type="submit" name="submit" value="Approve" class="btn btn-success">
+                                        Approve
+                                    </button>
+                                    <button type="submit" name="submit" value="Reject" class="btn btn-danger">
+                                        Reject
+                                    </button>
+                                </div>
+                            </form>
+                        {% endfor %}
+                        <!-- There exists No Pending Approval Participants -->
+                    {% else %}
+                        <span>
+                                <h5>Currently, there are no pending participants for the system</h5>
+                            </span>
+                    {% endif %}
+                </div>
+
+                <!-- Div for Manage Settings/Adding Admin(s) To The Systems -->
+                <div class="row">
+                    <span>
+                        <a href="{{ url_for('social.manage_system', system_uid= system_neo4j[0][0]["system_uid"]) }}">
+                            <img class="cogWheelIcon" src="{{ url_for('social.static', filename='images/system_settings.png') }}">
+                            Manage System
+                        </a>
+                    </span>
+                </div>
+                <!-- End Of Div for Manage Settings/Adding Admin(s) To The Systems -->
+
+            {% endif %}
+            <!-- End of Div for Managing Pending Requests (Approve/Reject) Button. Manage System Settings Too -->
 
             <br/>
 
-            <div class="row pendingRequests">
-
-                <p>Pending Requests (5)</p>
-                <div class="row pendingRequestElements">
-                    <img class="imgstyle" id="userImage"
-                         src="{{ url_for('social.static', filename='images/default_profile_pic.png') }}" height="40"
-                         width="40">
-                    <button type="submit" class="btn btn-default">Approve</button>
-                    <button type="submit" class="btn btn-default">Reject</button>
+            <!-- Div for Subscribe / Request to Join Button-->
+            <form id ="participate_subscribe_leave_system_form" action="{{ url_for('social.participate_subscribe_leave_system') }}" method="post">
+                <div class="row sendRequests">
+                    <input type="hidden" name="google_id"
+                           value="{{ logged_in_user["google_id"] }}">
+                    <input type="hidden" name="system_uid"
+                           value="{{ system_neo4j[0][0]["system_uid"] }}">
+                    {% if user_privilege is none %}
+                        <button type="submit" name="submit" value="Subscribe" class="btn btn-success">Subscribe</button>
+                        <button type="submit" name="submit" value="Participate" class="btn btn-success">Participate
+                        </button>
+                    {% else %}
+                        {% if user_privilege == "SYS_ADMIN" or user_privilege == "SYS_PARTICIPANT" or
+                                user_privilege == "SYS_SUBSCRIBER" or user_privilege == "SYS_PENDING_PARTICIPANT"
+                                or user_privilege == "SYS_PENDING_SUBSCRIBER" %}
+                            <button type="submit" name="submit" value="Leave" id="btnLeave"
+                                    onclick="return getUserConsent()" class="btn btn-danger">Leave System
+                            </button>
+                        {% endif %}
+                    {% endif %}
                 </div>
-                <br/>
-                <div class="row pendingRequestElements">
-                    <img class="imgstyle" id="userImage"
-                         src="{{ url_for('social.static', filename='images/default_profile_pic.png') }}" height="40"
-                         width="40">
-                    <button type="submit" class="btn btn-default">Approve</button>
-                    <button type="submit" class="btn btn-default">Reject</button>
-                </div>
-
-            </div>
+            </form>
+            <!-- End Of Div for Subscribe / Request to Join Button-->
 
             <br/>
-
-            <div class="row manageRequests">
-                <button type="submit" class="btn btn-default">Subscribe</button>
-                <br/>
-                <br/>
-                <button type="submit" class="btn btn-default">Request to Join</button>
-                <br/>
-                <br/>
-            </div>
 
 
         </div>
+        <!-- End Div for Left Pane (System, Participant, Manage Requests) - Systems Page -->
+
+
+        <!-- ---------------------------------------------------------  -->
+
 
         <!-- This centerPaneDiv for system posts -->
         <div class="col-md-6 centerPaneDiv">
-
             <div class="row">
+            {# NEWSFEED #}
+                    {% include "post_system_form.html" %}
 
-                <p>Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas.
-                    Vestibulum tortor quam, feugiat vitae, ultricies eget, tempor sit amet, ante. Donec eu libero sit
-                    amet quam egestas semper. Aenean ultricies mi vitae est. Mauris placerat eleifend leo. Quisque sit
-                    amet est et sapien ullamcorper pharetra. Vestibulum erat wisi, condimentum sed, commodo vitae,
-                    ornare sit amet, wisi. Aenean fermentum, elit eget tincidunt condimentum, eros ipsum rutrum orci,
-                    sagittis tempus lacus enim ac dui. Donec non enim in turpis pulvinar facilisis. Ut felis. Praesent
-                    dapibus, neque id cursus faucibus, tortor neque egestas augue, eu vulputate magna eros eu erat.
-                    Aliquam erat volutpat. Nam dui mi, tincidunt quis, accumsan porttitor, facilisis luctus, metus</p>
-
+                    <h3>Recent Posts</h3>
+                    {% include "display_system_posts.html" %}
             </div>
-
-
         </div>
+        <!-- End Div for Center Pane (System Posts) - Systems Page -->
+
+
+        <!-- ---------------------------------------------------------  -->
+
 
         <!-- This is the rightPaneDiv for system data -->
         <div class="col-md-3 rightPaneDiv">
 
             <div class="row">
 
-                <p>Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas.
-                    Vestibulum tortor quam, feugiat vitae, ultricies eget, tempor sit amet, ante. Donec eu libero sit
-                    amet quam egestas semper. Aenean ultricies mi vitae est. Mauris placerat eleifend leo. Quisque sit
-                    amet est et sapien ullamcorper pharetra. Vestibulum erat wisi, condimentum sed, commodo vitae,
-                    ornare sit amet, wisi. Aenean fermentum, elit eget tincidunt condimentum, eros ipsum rutrum orci,
-                    sagittis tempus lacus enim ac dui. Donec non enim in turpis pulvinar facilisis. Ut felis. Praesent
-                    dapibus, neque id cursus faucibus, tortor neque egestas augue, eu vulputate magna eros eu erat.
-                    Aliquam erat volutpat. Nam dui mi, tincidunt quis, accumsan porttitor, facilisis luctus, metus</p>
-
+                <h2> Summary</h2>
+                <div class="table-responsive">
+                  <table class="table">
+                    <thead>
+                      <tr>
+                        <th>Name</th>
+                        <th>Value</th>
+                        <th>Last Updated</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td>Alkalinity</td>
+                        <td>60.00</td>
+                        <td>2016-01-14 20:00:00</td>
+                      </tr>
+                      <tr>
+                        <td>Ammonium</td>
+                        <td>0E-10</td>
+                        <td>2016-01-14 20:00:00</td>
+                      </tr>
+                      <tr>
+                        <td>Chlorine</td>
+                        <td>0E-10</td>
+                        <td>2016-01-14 20:00:00</td>
+                      </tr>
+                      <tr>
+                        <td>Hardness</td>
+                        <td>300.00</td>
+                        <td>2016-01-14 20:00:00</td>
+                      </tr>
+                      <tr>
+                        <td>Light</td>
+                        <td>0E-10</td>
+                        <td>2016-01-14 20:00:00</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                  </div>
             </div>
 
 
         </div>
+        <!-- End Div for Right Pane (System Data) - Systems Page -->
+
+        <!-- ---------------------------------------------------------  -->
+
 
     </div>
+    <!-- End of Div for Systems Pane - Container Div -->
 
 
 {% endblock %}
 
 
-{% block script %}
+{% block scripts %}
     {{ super() }}
     <!-- jQuery Script For DOM Manipulation In Systems Page -->
     <script type="text/javascript" src="{{ url_for('social.static', filename='js/system_social.js') }}"></script>
-
 {% endblock %}

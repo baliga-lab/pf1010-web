@@ -74,12 +74,13 @@ class UserDAO:
                 familyName = user.get('familyName')
                 displayName = user.get('displayName')
                 user_type = user.get('user_type')
+                image_url = user.get('image_url')
                 organization = user.get('organization')
                 dob = user.get('dob')
                 gender = user.get('gender')
                 status = user.get('status')
                 userNode = Node("User", sql_id=sql_id, google_id=google_id, email=email, givenName=givenName,
-                                familyName=familyName, displayName=displayName, user_type=user_type,
+                                familyName=familyName, displayName=displayName, user_type=user_type, image_url=image_url,
                                 organization=organization, creation_time=timestamp(), modified_time=timestamp(),
                                 dob=dob, gender=gender, status=status)
                 self.graph.create(userNode)

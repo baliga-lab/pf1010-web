@@ -1,23 +1,27 @@
 import os
 import unittest
-from flask import Flask, url_for
-from aqxWeb.sc.models import init_sc_app
-from aqxWeb.sc.views import social
-
-app = Flask(__name__)
-app.config.from_pyfile("../../aqxWeb/sc/settings.cfg")
-app.secret_key = os.urandom(24)
-app.register_blueprint(social, url_prefix='/social')
-init_sc_app(app)
+from aqxWeb import run
 
 
 class FlaskTestCase(unittest.TestCase):
+
+    def setUp(self):
+        run
+        self.app = run.app.test_client()
+
     # Ensure that the homepage loads correctly
     def test_home_page_loads(self):
+        rv = self.app.get('/social/trial')
+        print rv.data
+        '''
         tester = app.test_client(self)
-        response = tester.get("/", content_type="html/text")
-        self.assertTrue('Recent Posts', response.data)
+        response = tester.get("/index", content_type="html/text")
+        print "hi"
+        print response.data
+        #self.assertTrue('Recent Posts', response.data)
+        '''
 
+    '''
     # Ensure that flask was setup correctly
     def test_index(self):
         tester = app.test_client(self)
@@ -30,7 +34,7 @@ class FlaskTestCase(unittest.TestCase):
             with client.session_transaction() as sess:
                 sess['username'] = "nisha"
             res = client.post(
-                "/add_post",
+                "/test_add_post",
                 data=dict(privacy="public", text="unittest", link="")
             )
             self.assertTrue(res is not None)
@@ -42,7 +46,29 @@ class FlaskTestCase(unittest.TestCase):
                 sess['username'] = "nisha"
             res = client.post(
                 "/add_comment",
-                data=dict(newcomment="This is a comment", postid="704b4616-d14e-46a4-ac6e-6d607d86b154")
+                data=dict(newcomment="This is a comment", postid="1")
+            )
+            self.assertTrue(res is not None)
+
+    # Ensure that edit_comment works correctly
+    def test_edit_comment(self):
+        with app.test_client() as client:
+            with client.session_transaction() as sess:
+                sess['username'] = "nisha"
+            res = client.post(
+                "/edit_comment",
+                data=dict(editedcomment="This is a comment", commentid="1")
+            )
+            self.assertTrue(res is not None)
+
+    # Ensure that delete_comment works correctly
+    def test_delete_comment(self):
+        with app.test_client() as client:
+            with client.session_transaction() as sess:
+                sess['username'] = "nisha"
+            res = client.post(
+                "/delete_comment",
+                data=dict(commentid="1")
             )
             self.assertTrue(res is not None)
 
@@ -53,7 +79,40 @@ class FlaskTestCase(unittest.TestCase):
                 sess['username'] = "nisha"
             res = client.post(
                 "/like_post",
-                data=dict(postid="704b4616-d14e-46a4-ac6e-6d607d86b154")
+                data=dict(postid="1")
+            )
+            self.assertTrue(res is not None)
+
+    # Ensure that unlike_post works correctly
+    def test_unlike_post(self):
+        with app.test_client() as client:
+            with client.session_transaction() as sess:
+                sess['username'] = "nisha"
+            res = client.post(
+                "/unlike_post",
+                data=dict(postid="1")
+            )
+            self.assertTrue(res is not None)
+
+    # Ensure that delete_post works correctly
+    def test_edit_post(self):
+        with app.test_client() as client:
+            with client.session_transaction() as sess:
+                sess['username'] = "nisha"
+            res = client.post(
+                "/edit_post",
+                data=dict(postid="1",editedpost="This is edited post")
+            )
+            self.assertTrue(res is not None)
+
+    # Ensure that delete_post works correctly
+    def test_delete_post(self):
+        with app.test_client() as client:
+            with client.session_transaction() as sess:
+                sess['username'] = "nisha"
+            res = client.post(
+                "/delete_post",
+                data=dict(postid="1")
             )
             self.assertTrue(res is not None)
 
@@ -121,6 +180,7 @@ class FlaskTestCase(unittest.TestCase):
             )
             self.assert_(searchParam in response.data,
                          "There should be system in the Neo4J database with the name: " + searchParam)
+                         '''
 
     if __name__ == "__main__":
         unittest.main()

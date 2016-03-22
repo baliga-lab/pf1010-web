@@ -2,16 +2,21 @@
 
     {% if posts %}
         {% for row in posts %}
+            {% if row.post and (not privacy_info.user_relation or (row.post.privacy == "public"
+                or privacy_info.user_relation.lower() == row.post.privacy
+                or (row.post.privacy == "friends" and privacy_info.user_relation == "private"))) %}
             <div class="post detail-box">
                 {# USER OF POST #}
                 <div class="media-left">
                 {# LINK TO USER'S PROFILE #}
-                    <a href="/social/profile/{% if row.user %}{{ row.user.google_id }}{% endif %}">
+                    <a href="{% if row.user %}/social/profile/{{ row.user.google_id }}{% else %}#{% endif %}">
                         {% if row.user.image_url %}
-                        <img class="media-object" src="{{ row.user.image_url }}" alt="{{ row.displayName }}'s Picture">
+                        <img class="media-object" src="{{ row.user.image_url }}"
+                             alt="{{ row.user.displayName }}'s Picture">
                             {# PLACEHOLDER IMAGE FOR USER'S PROFILE PIC #}
                         {% else %}
-                        <img class="media-object" src="{{ url_for('frontend.static', filename='images/users/oddish.png') }}"
+                        <img class="media-object"
+                             src="{{ url_for('frontend.static', filename='images/users/oddish.png') }}"
                              alt="User has no profile picture"> {# PLACEHOLDER IMAGE FOR USER WITH NO PROFILE PICTURE #}
                         {% endif %}
                     </a>
@@ -20,8 +25,9 @@
                 {# POST CONTENT #}
                 <div class="media-body">
                     <h4>
-                        {{ row.displayName }}
+                        {{ row.user.displayName }}
                          <span class="date sub-text">posted on {{ row.post.date }}</span>
+                        <span class="privacy sub-text">@{{ row.post.privacy }}</span>
                     </h4>
                     {% for po in postOwners %}
                         {% if po.postid == row.post.id and po.userid == session['uid'] %}
@@ -113,13 +119,15 @@
                 {# POST'S COMMENTS #}
                 <div class="comment comment-box">
                     <ul class="comment-list">
-                        {% for cmt in comments %}
-                            {% if cmt.postid == row.post.id %}
+                    {% if row.comments %}
+                        {% for cmt in row.comments|sort(attribute='creation_time') %}
+                            {% if cmt.post_id == row.post.id %}
                                 <li>
                                     <div class="media-left">
-                                        <a href="#"> {# LINK TO USER'S PROFILE #}
-                                            {% if row.user and row.user.image_url %}
-                                            <img class="media-object" src="{{ cmt.user.image_url }}"
+                                        <a href="{% if cmt.google_id %}/social/profile/{{ cmt.google_id }}{% else %}#{% endif %}">
+                                            {# LINK TO USER'S PROFILE #}
+                                            {% if cmt.image_url %}
+                                            <img class="media-object" src="{{ cmt.image_url }}"
                                                  alt="{{ cmt.displayName }}'s Picture"/>
                                                 {# PLACEHOLDER IMAGE FOR USER'S PROFILE PIC #}
                                             {% else %}
@@ -131,12 +139,12 @@
                                     </div>
                                     <div class="media-body">
                                         <h5>
-                                            <b>{{ cmt.comment.user_display_name }}</b>
+                                            <b>{{ cmt.displayName }}</b>
                                             <span class="date sub-text">replied with</span>
                                         </h5>
                                         <div class="input-group col-md-12">
                                             <p>{{ cmt.comment.content }}</p>
-                                            {% if cmt.comment.user_sql_id == session['uid'] %}
+                                            {% if cmt.user_sql_id == session['uid'] %}
                                                 <button type="submit" class="btn btn-warning" name="submit"
                                                     value="edit"
                                                     aria-label="Left Align"
@@ -168,8 +176,8 @@
                             {% endif %}
 
                             {# edit comment #}
-
                         {% endfor %}
+                    {% endif %}
                     </ul>
                 </div>
 
@@ -184,6 +192,7 @@
                     </div>
                 </form>
             </div>
+            {% endif %}
         {% endfor %}
     {% endif %}
 

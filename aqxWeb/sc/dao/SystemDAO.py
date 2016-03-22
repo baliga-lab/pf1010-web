@@ -14,7 +14,7 @@ class SystemDAO:
     # purpose : function used to create System node in the Neo4J Database
     # params : self, system JSON Object
     # returns : None
-    # Exceptions : cypher.CypherError, cypher.CypherTransactionError
+    # Exceptions : Exception
     def create_system(self, jsonObject):
         try:
             sql_id = jsonObject.get('user')
@@ -30,26 +30,56 @@ class SystemDAO:
                 system_uid = system.get('system_uid')
                 name = system.get('name')
                 description = system.get('description')
+                status = system.get('status')
                 systemNode = Node("System", system_id=system_id, system_uid=system_uid, name=name,
-                                  description=description,
+                                  description=description, status=status,
                                   creation_time=timestamp(), modified_time=timestamp())
                 self.graph.create(systemNode)
                 relationship = Relationship(is_existing_user, "SYS_ADMIN", systemNode)
                 self.graph.create(relationship)
-        except cypher.CypherError, cypher.CypherTransactionError:
-            raise "Exception occured in function create_system"
+        except Exception as e:
+            raise "Exception occured in function create_system " + str(e)
+
+    ###############################################################################
+    # function : update_system_with_system_uid
+    # purpose : function used to update System node in the Neo4J Database
+    # params : self, system JSON Object
+    # returns : None
+    # Exceptions : Exception
+    def update_system_with_system_uid(self, jsonObject):
+        try:
+            system = jsonObject.get('system')
+            system_uid = system.get('system_uid')
+            is_existing_system = self.graph.find_one("System", "system_uid", system_uid)
+            # Create System node in the Neo4J database, only when there is no system with the provided system_id
+            if is_existing_system is not None:
+                name = system.get('name')
+                description = system.get('description')
+                status = system.get('status')
+                update_system_query = """
+                MATCH(s:System)
+                WHERE s.system_uid = {system_uid}
+                SET s.name = {name}, s.description = {description},
+                s.status = {status}, s.modified_time = {modified_time}
+                """
+                self.graph.cypher.execute(update_system_query, system_uid=system_uid, name=name,
+                                          description=description, status=status,
+                                          modified_time=timestamp())
+        except Exception as e:
+            raise "Exception occured in function update_system_with_system_uid " + str(e)
 
     ###############################################################################
     # function : delete_system_by_system_id
     # purpose : function used to delete the system from Neo4J Database based on system_id
     # params : self, system_id
     # returns : None
-    # Exceptions : cypher.CypherError, cypher.CypherTransactionError
+    # Exceptions : Exception
     def delete_system_by_system_id(self, system_id):
         try:
             system = self.graph.find_one("System", "system_id", system_id)
             self.graph.delete(system)
-        except cypher.CypherError, cypher.CypherTransactionError:
-            raise "Exception occured in function delete_system_by_system_id"
+        # except cypher.CypherError, cypher.CypherTransactionError:
+        except Exception as e:
+            raise "Exception occured in function delete_system_by_system_id " + str(e)
 
             ###############################################################################

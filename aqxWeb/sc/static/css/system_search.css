@@ -1,18 +1,42 @@
 
+/* Systems Heading Color */
+.page-header, h4{
+    color: #449d44;
+}
+
 /* Center the search control */
 .systemSearchDiv {
     margin: auto;
 }
 
-
 /* Horizontal Rule Styling */
-hr{
+hr {
     display: block;
     border-width: 1px;
     border-top: 1px solid #001a00;
 }
 
 /* Border the divs */
-.systemSearchResults, .adminSystem, .particpatedSystem, .subscribedSystem, .recommendedSystem {
+.adminSystem, .particpatedSystem, .subscribedSystem, .recommendedSystem {
     border: 1px solid #23434d;
+    overflow-y: auto;
+    overflow-x: hidden;
+    height: 150px;
+}
+
+.systemSearchResults {
+    overflow-y: auto;
+    overflow-x: hidden;
+    height: 150px;
+    background-color: rgba(51, 75, 120, 0.08);
+}
+
+.allSystemResults {
+    overflow-y: auto;
+    overflow-x: hidden;
+    height: 150px;
+}
+
+#allSystemsTab {
+    background-color: rgba(51, 75, 120, 0.08);
 }

@@ -9,7 +9,7 @@
 
     <!-- Entire Page Div Container -->
     <div class="container" id="searchSystemsTab">
-        <h1 class="page-header">Systems</h1>
+        <h3 class="page-header">Systems</h3>
         <ul class="nav nav-tabs" id="tab-headers">
             <li><a href="#mySystemsTab">My Systems</a></li>
             <li><a href="#allSystemsTab">All Systems</a></li>
@@ -41,13 +41,14 @@
             {% if post_method %}
                 <br/><br/>
                 <!-- Search Results Div -->
+                <h4 class="page-header" style="padding-left: 10px">Search Results:</h4>
                 <div class="row systemSearchResults">
-                    <h4 class="page-header" style="padding-left: 10px">Search Results:</h4>
                     {% if system_search_results %}
                         {% for row in system_search_results %}
                             <div class="row">
                                 <ul class="pull-left">
-                                    <img src="static/images/default_system_thumbnail.png" alt="System" height="32"
+                                    <img src="{{ url_for('social.static', filename='images/default_system_thumbnail.png') }}"
+                                         alt="System" height="32"
                                          width="32">
                                 </ul>
                                 <br/>
@@ -59,7 +60,7 @@
                     {% else %}
                         <div class="row">
                             <ul class="pull-left">
-                                <img src="static/images/sad_smiley.png" alt="System" height="32"
+                                <img src="{{ url_for('social.static', filename='images/sad_smiley.png') }}" alt="System" height="32"
                                      width="32">
                             </ul>
                             <br/>
@@ -72,7 +73,6 @@
                 <!-- End of Search Results Div -->
             {% endif %}
 
-            <br/>
             <br/>
 
             <!-- Div To Display System Where The Logged In User Is Administrator/Participant For That System -->
@@ -222,7 +222,7 @@
                             </ul>
                             <br/>
                             <ul>
-                                We did not find any recommended system.
+                                Sorry, We did not find any recommended system.
                             </ul>
                         </div>
                     {% endif %}
@@ -243,9 +243,7 @@
         <!-- All Systems Div -->
         <div class="row" id="allSystemsTab">
             <!-- Search Results Div -->
-            <div class="row systemSearchResults">
-                <h4 style="padding-left: 20px">All Systems:</h4>
-                <hr>
+            <div class="row allSystemResults">
                 {% if all_systems %}
                     {% for row in all_systems %}
                         <div class="row">
@@ -269,7 +267,7 @@
                         </ul>
                         <br/>
                         <ul>
-                            Sorry, there is no system present in the database.
+                            Sorry, there are no system in the database.
                         </ul>
                     </div>
                 {% endif %}
