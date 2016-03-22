@@ -1,4 +1,7 @@
 {% extends "base.html" %}
+
+{% block title %}Pending Requests{% endblock %}
+
 {% block content %}
 
     <div class="container">
@@ -18,21 +21,25 @@
                 <hr>
                 {% if pendingRequests %}
                     <thead>
-                      <tr>
-                       <th class="col-sm-1"></th>
-                       <th>Username</th>
-                       <th>Option</th>
-                      </tr>
+                    <tr>
+                        <th class="col-sm-1"></th>
+                        <th>Username</th>
+                        <th>Option</th>
+                    </tr>
                     </thead>
                     <tbody>
                     {% for row in pendingRequests %}
                         <tr>
-                         <td><img src="{{ url_for('frontend.static', filename='images/users/vileplume.png') }}"></td>
-                         <td>{{ row.n.displayName}}</td>
-                         <td>
-                            <a type="button" href = {{ url_for('social.accept_friend_request', u_sql_id=row.n.sql_id) }}  class="btn btn-primary">Confirm</button>
-                            <a type="button" href={{ url_for('social.decline_friend_request', u_sql_id=row.n.sql_id) }} class="btn btn-primary">Delete</button>
-                         </td>
+                            <td><img src="{{ url_for('frontend.static', filename='images/users/vileplume.png') }}"></td>
+                            <td>{{ row.n.displayName }}</td>
+                            <td>
+                                <a type="button"
+                                   href={{ url_for('social.accept_friend_request', u_sql_id=row.n.sql_id) }}  class="btn
+                                   btn-primary">Confirm</button>
+                                <a type="button"
+                                   href={{ url_for('social.decline_friend_request', u_sql_id=row.n.sql_id) }} class="btn
+                                   btn-primary">Delete</button>
+                            </td>
                         </tr>
 
                     {% endfor %}
@@ -41,23 +48,19 @@
                 {% else %}
                     <div class="row">
                         <ul class="pull-left">
-                            <img src="{{ url_for('social.static', filename='images/sad_smiley.png') }}" alt="FriendRequest"
+                            <img src="{{ url_for('social.static', filename='images/sad_smiley.png') }}"
+                                 alt="FriendRequest"
                                  height="32"
                                  width="32">
                         </ul>
                         <br/>
                         <ul>
-                             Oops! No Pending Friend Requests!
+                            Oops! No Pending Friend Requests!
                         </ul>
                     </div>
                 {% endif %}
             </div>
-            </table>
-
-        </div>
-
-
-
-
+        </table>
+    </div>
 
 {% endblock %}

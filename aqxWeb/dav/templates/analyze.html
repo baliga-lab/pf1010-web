@@ -2,7 +2,6 @@
 
 {% block styles %}
     {{ super() }}
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.2/css/select2.min.css" rel="stylesheet" />
     <link rel="stylesheet"  href="{{ url_for('dav.static', filename='css/select2-skins.min.css')}}">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap-theme.min.css" integrity="sha384-fLW2N01lMqjakBkx3l/M9EahuwpSfeNvV63J5ezn3uZzapT0u7EYsXMjQV+0En5r" crossorigin="anonymous">
@@ -25,7 +24,7 @@
             <div style="width: 30%;">
                 <div class="form-group">
                     <label class="control-label">Select X Axis</label>
-                    <select class="dropdown" id="selectXAxis">
+                    <select class="explore-dropdown" id="selectXAxis">
                         <option name="xAxisTypes" value="time" selected="selected">Time</option>
                         {% for name in measurement_names %}
                             <option name="xAxisTypes" value="{{ name }}">{{ name }}</option>
@@ -36,7 +35,7 @@
             <div style="width: 30%;">
                 <div class="form-group">
                     <label class="control-label">Select Y Axis</label>
-                    <select class="js-example-basic-multiple dropdown" multiple="multiple" id="selectYAxis">
+                    <select class="js-example-basic-multiple explore-dropdown" multiple="multiple" id="selectYAxis">
                         {% for name in measurement_names %}
                             {% if not name == 'time' %}<option value="{{ name }}">{{ name }}</option>{% endif %}
                         {% endfor %}
@@ -47,7 +46,7 @@
             <div style="width: 30%;">
                 <div id="graphType" style="height: 100%; width: 100%;">
                     <label class="control-label">Select Graph Type</label>
-                    <select class="dropdown" id="selectGraphType">
+                    <select class="explore-dropdown" id="selectGraphType">
                         <option value="line">Line Chart</option>
                         <option value="scatter">Scatter Plot</option>
                         <option value="spline">Spline</option>

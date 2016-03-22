@@ -1,5 +1,7 @@
 {% extends "base.html" %}
 
+{% block title %}Recommended Friends{% endblock %}
+
 {% block content %}
 
     <div class="container">
@@ -17,18 +19,18 @@
             <div class="row">
                 {% if recolist %}
                     <thead>
-                      <tr>
-                       <th class="col-sm-1"></th>
-                       <th><b>Recommended Friend Name</b></th>
-                       <th><b>Mutual Friends</b></th>
-                      </tr>
+                    <tr>
+                        <th class="col-sm-1"></th>
+                        <th><b>Recommended Friend Name</b></th>
+                        <th><b>Mutual Friends</b></th>
+                    </tr>
                     </thead>
                     <tbody>
                     {% for row in recolist %}
                         <tr>
                             <td><img src="{{ url_for('frontend.static', filename='images/users/vileplume.png') }}"></td>
                             <td>
-                                <a href="profile/{{ row['r_friend'].gid }}">{{ row['r_friend'].FriendName}}</a>
+                                <a href="profile/{{ row['r_friend'].gid }}">{{ row['r_friend'].FriendName }}</a>
                                 {% if (row['r_friend'].Num_Mutual_Friends) == 1 %}
                                     <p>{{ row['r_friend'].Num_Mutual_Friends }} Mutual Friend</p>
                                 {% else %}
@@ -39,7 +41,7 @@
                                 {% for m_row in row['m_info'] %}
                                     <ul>
                                         <li>
-                                            <a href="profile/{{ m_row.mf_gid }}">{{ m_row.mf_name}}</a>
+                                            <a href="profile/{{ m_row.mf_gid }}">{{ m_row.mf_name }}</a>
                                         </li>
                                     </ul>
                                 {% endfor %}
@@ -51,19 +53,19 @@
                 {% else %}
                     <div class="row">
                         <ul class="pull-left">
-                            <img src="{{ url_for('social.static', filename='images/sad_smiley.png') }}" alt="FriendRequest"
+                            <img src="{{ url_for('social.static', filename='images/sad_smiley.png') }}"
+                                 alt="FriendRequest"
                                  height="32"
                                  width="32">
                         </ul>
                         <br/>
                         <ul>
-                             Oops! Your friends have no recommended friends!
+                            Oops! Your friends have no recommended friends!
                         </ul>
                     </div>
                 {% endif %}
             </div>
-            </table>
-
-        </div>
+        </table>
+    </div>
 
 {% endblock %}

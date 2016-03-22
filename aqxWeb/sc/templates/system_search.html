@@ -1,5 +1,7 @@
 {% extends "base.html" %}
 
+{% block title %}Search Systems{% endblock %}
+
 {% block styles %}
     {{ super() }}
     <link rel="stylesheet" href="{{ url_for('social.static', filename='css/system_search.css') }}">
@@ -9,7 +11,7 @@
 
     <!-- Entire Page Div Container -->
     <div class="container" id="searchSystemsTab">
-        <h3 class="page-header">Systems</h3>
+        <h1 class="page-header">Systems</h1>
         <ul class="nav nav-tabs" id="tab-headers">
             <li><a href="#mySystemsTab">My Systems</a></li>
             <li><a href="#allSystemsTab">All Systems</a></li>
@@ -60,7 +62,8 @@
                     {% else %}
                         <div class="row">
                             <ul class="pull-left">
-                                <img src="{{ url_for('social.static', filename='images/sad_smiley.png') }}" alt="System" height="32"
+                                <img src="{{ url_for('social.static', filename='images/sad_smiley.png') }}" alt="System"
+                                     height="32"
                                      width="32">
                             </ul>
                             <br/>
@@ -280,8 +283,6 @@
     <!-- End of Entire Page Div Container -->
 
     <br/><br/>
-
-
 {% endblock %}
 
 {% block scripts %}

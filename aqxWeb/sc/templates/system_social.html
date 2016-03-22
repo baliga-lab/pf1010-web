@@ -1,10 +1,11 @@
 {% extends "base.html" %}
 
+{% block title %}System{% endblock %}
+
 {% block styles %}
     {{ super() }}
     <link rel="stylesheet" href="{{ url_for('social.static', filename='css/system_social.css') }}">
 {% endblock %}
-
 
 {% block content %}
 
@@ -265,13 +266,10 @@
                   </table>
                   </div>
             </div>
-
-
         </div>
         <!-- End Div for Right Pane (System Data) - Systems Page -->
 
         <!-- ---------------------------------------------------------  -->
-
 
     </div>
     <!-- End of Div for Systems Pane - Container Div -->

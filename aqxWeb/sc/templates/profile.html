@@ -36,14 +36,17 @@
 
         {% endif %}
         {% if status=="Add friend" %}
-            <a type="button" class="btn btn-info btn-sm" href="{{ url_for('social.send_friend_request', u_sql_id=sqlId) }}">Add friend
+            <a type="button" class="btn btn-info btn-sm"
+               href="{{ url_for('social.send_friend_request', u_sql_id=sqlId) }}">Add friend
             </a>
         {% endif %}
         <div id="systems">
             <h5><b>Participant Systems</b></h5>
             <ul class="nav nav-pills nav-stacked">
                 {% if subscribed_systems %}
-                    <li><a href="{{ url_for('social.view_system',system_uid=participated_systems[0][0]['system_uid']) }}">{{ participated_systems[0][0]['name'] }}</a></li>
+                    <li>
+                        <a href="{{ url_for('social.view_system',system_uid=participated_systems[0][0]['system_uid']) }}">{{ participated_systems[0][0]['name'] }}</a>
+                    </li>
                 {% else %}
                     <li>None</li>
                 {% endif %}
@@ -51,15 +54,19 @@
             <h5><b>Subscribed Systems</b></h5>
             <ul class="nav nav-pills nav-stacked">
                 {% if subscribed_systems %}
-                    <li><a href="{{ url_for('social.view_system',system_uid=subscribed_systems[0][0]['system_uid']) }}">{{ subscribed_systems[0][0]['name'] }}</a></li>
+                    <li>
+                        <a href="{{ url_for('social.view_system',system_uid=subscribed_systems[0][0]['system_uid']) }}">{{ subscribed_systems[0][0]['name'] }}</a>
+                    </li>
                 {% else %}
                     <li>None</li>
                 {% endif %}
             </ul>
-           <h5> <b>Admin Systems</b></h5>
+            <h5><b>Admin Systems</b></h5>
             <ul class="nav nav-pills nav-stacked">
                 {% if admin_systems %}
-                    <li><a href="{{ url_for('social.view_system',system_uid=admin_systems[0][0]['system_uid']) }}">{{ admin_systems[0][0]['name'] }}</a></li>
+                    <li>
+                        <a href="{{ url_for('social.view_system',system_uid=admin_systems[0][0]['system_uid']) }}">{{ admin_systems[0][0]['name'] }}</a>
+                    </li>
                 {% else %}
                     <li>None</li>
                 {% endif %}
@@ -113,7 +120,9 @@
                     <ul>
                         {% if participated_systems %}
                             {% for row in participated_systems %}
-                                <li><a href="{{ url_for('social.view_system',system_uid=row[0]['system_uid']) }}">{{ row[0]['name'] }}</a></li>
+                                <li>
+                                    <a href="{{ url_for('social.view_system',system_uid=row[0]['system_uid']) }}">{{ row[0]['name'] }}</a>
+                                </li>
                             {% endfor %}
                         {% else %}
                             <li>None</li>
@@ -123,7 +132,9 @@
                     <ul>
                         {% if subscribed_systems %}
                             {% for row in subscribed_systems %}
-                                <li><a href="{{ url_for('social.view_system',system_uid=row[0]['system_uid']) }}">{{ row[0]['name'] }}</a></li>
+                                <li>
+                                    <a href="{{ url_for('social.view_system',system_uid=row[0]['system_uid']) }}">{{ row[0]['name'] }}</a>
+                                </li>
                             {% endfor %}
                         {% else %}
                             <li>None</li>
@@ -133,7 +144,9 @@
                     <ul>
                         {% if admin_systems %}
                             {% for row in admin_systems %}
-                                <li><a href="{{ url_for('social.view_system',system_uid=row[0]['system_uid']) }}">{{ row[0]['name'] }}</a></li>
+                                <li>
+                                    <a href="{{ url_for('social.view_system',system_uid=row[0]['system_uid']) }}">{{ row[0]['name'] }}</a>
+                                </li>
                             {% endfor %}
                         {% else %}
                             <li>None</li>
@@ -158,17 +171,17 @@
                     <h4 class="modal-title">Friends</h4>
                 </div>
                 <div class="modal-body">
-                {% if friends %}
-                    {% for row in friends %}
-                        <div class="row">
-                            <ul>
-                                <li>
-                                    <a href="{{ url_for('social.profile',google_id=row[0]['google_id']) }}">{{ row[0]['displayName'] }}</a>
-                                </li>
-                            </ul>
-                        </div>
-                    {% endfor %}
-                {% endif %}
+                    {% if friends %}
+                        {% for row in friends %}
+                            <div class="row">
+                                <ul>
+                                    <li>
+                                        <a href="{{ url_for('social.profile',google_id=row[0]['google_id']) }}">{{ row[0]['displayName'] }}</a>
+                                    </li>
+                                </ul>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
                 </div>
 
                 <div class="modal-footer">
@@ -177,6 +190,5 @@
             </div>
         </div>
     </div>
-
 
 {% endblock %}

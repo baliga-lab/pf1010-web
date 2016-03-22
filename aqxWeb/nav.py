@@ -1,5 +1,6 @@
+from flask import session
 from flask_nav import Nav
-from flask_nav.elements import Navbar, View, Subgroup, Link, Text, Separator
+from flask_nav.elements import Navbar, View, Subgroup, Link, Text, Separator, RawTag
 from flask_bootstrap.nav import BootstrapRenderer
 from hashlib import sha1
 from dominate import tags
@@ -38,12 +39,17 @@ class SidedLink(Link):
         self.dest = dest
         self.left = left
 
+class SidedSearchBox(RawTag):
+    def __init__(self, left):
+        self.content = 'searchBox'
+        self.left = left
+
 
 @nav.navigation('guest')
 def guest():
     return Navbar(
-        SidedViewImage('https://aquaponics.systemsbiology.net/static/images/pflogo2.png', 'Project Feed 1010', True, '.index'),
-        SidedLink('Login with Google+', 'social/Home', False),
+        SidedViewImage('https://aquaponics.systemsbiology.net/static/images/pflogo2.png', 'Project Feed 1010', True, 'frontend.index'),
+        SidedLink('Login with Google+', 'https://accounts.google.com/o/oauth2/auth?response_type=token&client_id=757190606234-pnqru7tabom1p1hhvpm0d3c3lnjk2vv4.apps.googleusercontent.com&redirect_uri=http://127.0.0.1:5000/social/Home&scope=https://www.googleapis.com/auth/plus.login https://www.googleapis.com/auth/userinfo.email', False),
         View('Home', 'frontend.index'),
         View('About', 'frontend.about'),
         View('Explore', 'dav.explore')
@@ -53,7 +59,7 @@ def guest():
 @nav.navigation('member')
 def member():
     return Navbar(
-        SidedViewImage('https://aquaponics.systemsbiology.net/static/images/pflogo2.png', 'Project Feed 1010', True, '.index'),
+        SidedViewImage('https://aquaponics.systemsbiology.net/static/images/pflogo2.png', 'Project Feed 1010', True, 'social.index'),
         View('Home', 'social.index'),
         View('Profile', 'frontend.coming'),
         View('Explore', 'dav.explore'),
@@ -64,7 +70,8 @@ def member():
             View('Challenges', 'frontend.coming'),
             View('Documents', 'frontend.coming')
         ),
-        SidedSubgroup('Oddish', False,
+        SidedSearchBox(False),
+        SidedSubgroup(session['displayName'], False,
             View('Edit Profile', 'social.editprofile'),
             View('Settings', 'frontend.settings'),
             Separator(),
@@ -133,3 +140,12 @@ class NavRenderer(BootstrapRenderer):
                 bar_left.add(self.visit(item))
 
         return root
+
+    def visit_RawTag(self, node):
+        if node.content == 'searchBox':
+            item = tags.li(_class='navbar-form')
+            inputGroup = item.add(tags.div(_class='input-group'))
+            searchBox = inputGroup.add(tags.input(id='searchBox', _type='text', placeholder='Search', _class='form-control'))
+            searchButton = inputGroup.add(tags.a(_class='input-group-addon', style='padding: 4px 12px;'))
+            searchButton.add(tags.i(_class='fa fa-search'))
+            return item
