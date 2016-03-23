@@ -122,7 +122,6 @@ class User:
         rel = Relationship(user, "POSTED", post)
         try:
             getGraphConnectionURI().create(rel)
-            return post
         except cypher.CypherError, cypher.CypherTransactionError:
             raise "Exception occured in function add_post "
 
@@ -141,15 +140,22 @@ class User:
     # Exceptions : cypher.CypherError, cypher.CypherTransactionError
     ############################################################################
 
-    def add_post_to(self, post):
-        user = self.find()
-        rel = Relationship(post, "POSTED_TO", user)
+    def add_post_to(self, user_id, posted_to_id):
+        query = """
+        MATCH (u:User {sql_id: {sql_id}})-[:POSTED]->(post:Post)
+        RETURN ID(post) as post_id
+        ORDER BY post.creation_time DESC limit 1
+        """
+        command = """
+        MATCH (u:User {sql_id: {sql_id}}), (post:Post)
+        WHERE ID(post) = {post_id}
+        CREATE (p)-[:POSTED_TO]->(u)"
+        """
         try:
-            getGraphConnectionURI().create(rel)
-            rel = Relationship(post, "POSTED_TO", user)
-            getGraphConnectionURI().create(rel)
+            post_node = getGraphConnectionURI().cypher.execute(query, {'sql_id': user_id})
+            getGraphConnectionURI().cypher.execute(command, {'sql_id': posted_to_id, 'post_id': post_node[0]['post_id']})
         except cypher.CypherError, cypher.CypherTransactionError:
-            raise "Exception occured in function add_post "
+            raise "Exception occured in function add_post_to "
 
 
     ############################################################################
@@ -784,6 +790,7 @@ def get_all_recent_posts():
 # Exceptions : cypher.CypherError, cypher.CypherTransactionError
 ############################################################################
 def get_all_profile_posts(user_id):
+    # WITH post, rel, user, collect({post_id: post.id, comment: {id: comment.id, content: comment.content},
     query = """
     MATCH (myself:User {sql_id:{sql_id}}), (user:User)-[rel:POSTED]->(post:Post),
     (post)-[:HAS]->(comment:Comment), (commentedBy:User {sql_id: comment.user_sql_id})

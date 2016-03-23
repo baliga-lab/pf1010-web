@@ -49,7 +49,7 @@ class SidedSearchBox(RawTag):
 def guest():
     return Navbar(
         SidedViewImage('https://aquaponics.systemsbiology.net/static/images/pflogo2.png', 'Project Feed 1010', True, 'frontend.index'),
-        SidedLink('Login with Google+', 'https://accounts.google.com/o/oauth2/auth?response_type=token&client_id=757190606234-pnqru7tabom1p1hhvpm0d3c3lnjk2vv4.apps.googleusercontent.com&redirect_uri=http://127.0.0.1:5000/social/Home&scope=https://www.googleapis.com/auth/plus.login https://www.googleapis.com/auth/userinfo.email', False),
+        SidedLink('Login with Google+', 'social/Home', False),
         View('Home', 'frontend.index'),
         View('About', 'frontend.about'),
         View('Explore', 'dav.explore')
@@ -61,7 +61,7 @@ def member():
     return Navbar(
         SidedViewImage('https://aquaponics.systemsbiology.net/static/images/pflogo2.png', 'Project Feed 1010', True, 'social.index'),
         View('Home', 'social.index'),
-        View('Profile', 'frontend.coming'),
+        View('Profile', 'social.profile', google_id = 'me'),
         View('Explore', 'dav.explore'),
         Subgroup('Collaborate',
             View('Friends', 'social.friends'),
