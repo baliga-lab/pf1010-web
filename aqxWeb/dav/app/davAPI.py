@@ -1,3 +1,6 @@
+
+from django.core.serializers.json import DjangoJSONEncoder
+
 from aqxWeb.dav.dao.MeasurementsDAO import MeasurementsDAO
 from aqxWeb.dav.dao.systemsDAO import SystemsDAO
 from aqxWeb.dav.dao.MetaDataDAO import MetadataDAO
@@ -511,5 +514,5 @@ class DavAPI:
             measurement_names[m[1]]["unit"] = (m[2])
             measurement_names[m[1]]["min"] = (m[3])
             measurement_names[m[1]]["max"] = (m[4])
-        return json.dumps({"measurement_info": measurement_names})
+        return json.dumps({"measurement_info": measurement_names}, cls=DjangoJSONEncoder)
 
