@@ -1,7 +1,6 @@
 from aqxWeb.dao.metasystemsDAO import MetaSystemsDAO
 from aqxWeb.dao.MetaDataDAO import MetadataDAO
 from aqxWeb.dao.UserDAO import UserDAO
-from aqxWeb.dao.systemsDAO import SystemsDAO
 from collections import defaultdict
 import json
 
@@ -9,14 +8,7 @@ import json
 # user interface data access api
 
 
-class UiAPI:
-
-    def __init__(self, conn):
-        self.conn = conn
-        self.sys = SystemsDAO(self.conn)
-        self.user = UserDAO(self.conn)
-        self.metaData = MetadataDAO(self.conn)
-        self.metaSys = MetaSystemsDAO(self.conn)
+class uiAPI:
 
     ###############################################################################
     # get_system_metadata
@@ -27,8 +19,8 @@ class UiAPI:
     #                                   parameter and returns the metadata for the
     #                                   given system.
 
-    def get_system_metadata(self, system_id):
-        s = MetaSystemsDAO(self.conn)
+    def get_system_metadata(self, conn, system_id):
+        s = MetaSystemsDAO(conn)
         result = s.get_metadata(system_id)
 
         return json.dumps({'system': result})
@@ -41,10 +33,9 @@ class UiAPI:
     # get_all_systems_info() - It returns the system information as a JSON
     #                          object.
 
-    def get_all_systems_info(self):
-        systems = self.sys.get_all_systems_info()
-        if 'error' in systems:
-            return json.dumps(systems)
+    def get_all_systems_info(self, conn):
+        s = MetaSystemsDAO(conn)
+        systems = s.get_all_systems_info()
 
         # Create a list of systems
         systems_list = []
@@ -75,10 +66,9 @@ class UiAPI:
     # get_all_filters_metadata - It returns all the metadata that are needed
     #                            to filter the displayed systems.
 
-    def get_all_filters_metadata(self):
-        results = self.metaData.get_all_filters()
-        if 'error' in results:
-            return json.dumps(results)
+    def get_all_filters_metadata(self, conn):
+        m = MetadataDAO(conn)
+        results = m.get_all_filters()
         vals = defaultdict(list)
         for result in results:
             type = result[0]
@@ -94,18 +84,15 @@ class UiAPI:
     # param user_id : user's google id
     # get_user - It returns user details based on google id.
 
-    def get_user(self, user_id):
-        u = UserDAO(self.conn)
-        result_temp = u.get_user(user_id)
-        if 'error' in result_temp:
-            return json.dumps(result_temp)
-        result = result_temp[0]
+    def get_user(self, conn, user_id):
+        u = UserDAO(conn)
+        result = u.get_user(user_id)
         user = {
             "id" : result[0],
-            "google_id": result[1],
-            "email": result[2],
-            "latitude": str(result[3]),
-            "longitude":str(result[4])
+            "google_id" : result[1],
+            "email" : result[2],
+            "latitude" : str(result[3]),
+            "longitude" :str(result[4])
         }
         return json.dumps({'user': user})
 
@@ -117,12 +104,9 @@ class UiAPI:
     # param user_id : user's google id
     # get_user_with_google_id - It returns user details using google id.
 
-    def get_user_with_google_id(self, google_id):
-        u = UserDAO(self.conn)
-        result_temp = u.get_user(google_id)
-        if 'error' in result_temp:
-            return json.dumps(result_temp)
-        result = result_temp[0]
+    def get_user_with_google_id(self, conn, google_id):
+        u = UserDAO(conn)
+        result = u.get_user(google_id)
         user = {
             "id" : result[0],
             "google_id" : result[1],
@@ -141,11 +125,11 @@ class UiAPI:
     # param user : user details in the form of a json structure
     # get_user - It inserts the user details into the users table
 
-    def put_user(self, user):
-        u = UserDAO(self.conn)
+    def put_user(self, conn, user):
+        u = UserDAO(conn)
         result = u.put_user(user)
         message = {
-            "message": result
+            "message" : result
         }
         return json.dumps({'status': message})
 
@@ -157,8 +141,8 @@ class UiAPI:
     # param user : user details in the form of a json structure
     # insert_user - It inserts the user details into the users table
 
-    def insert_user(self, user):
-        u = UserDAO(self.conn)
+    def insert_user(self, conn, user):
+        u = UserDAO(conn)
         result = u.put_user(user)
         message = {
             "message" : result
@@ -173,10 +157,9 @@ class UiAPI:
     # get_all_systems() - It returns List of all aquaponics systems, system_uid,name,user_id owning
     # the system longitude and latitude of system's location as a JSON object.
 
-    def get_all_systems(self):
-        systems = self.sys.get_all_systems_info()
-        if 'error' in systems:
-            return json.dumps(systems)
+    def get_all_systems(self, conn):
+        s = MetaSystemsDAO(conn)
+        systems = s.get_all_systems_info()
 
         # Create a list of systems
         systems_list = []
@@ -202,9 +185,10 @@ class UiAPI:
     #If system does not exist:
     #{"status":"False"}
 
-    def check_system_exists(self, system_uid):
+    def check_system_exists(self, conn, system_uid):
         status = False
-        system = self.sys.get_metadata(self, system_uid)
+        s = SystemsDAO(conn)
+        system = s.get_system_metadata(self, conn, system_uid)
         if system is not "null":
             status = True
         return json.dumps({"status": str(status)})
