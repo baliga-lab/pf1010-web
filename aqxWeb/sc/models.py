@@ -107,7 +107,7 @@ class User:
     # Exceptions : cypher.CypherError, cypher.CypherTransactionError
     ############################################################################
 
-    def add_post(self, text, privacy, link):
+    def add_post(self, text, privacy, link, profile=None):
         user = self.find()
         post = Node(
             "Post",
@@ -119,9 +119,16 @@ class User:
             modified_time=timestamp(),
             date=date()
         )
-        rel = Relationship(user, "POSTED", post)
+
+        rel_post = Relationship(user, "POSTED", post)
+        # if it is published in someone else's profile page
+        if profile:
+            rel_posted_to = Relationship(post, "POSTED_TO", profile)
         try:
-            getGraphConnectionURI().create(rel)
+            getGraphConnectionURI().create(rel_post)
+            # if it is published in someone else's profile page
+            if profile:
+                getGraphConnectionURI().create(rel_posted_to)
         except cypher.CypherError, cypher.CypherTransactionError:
             raise "Exception occured in function add_post "
 
@@ -772,6 +779,7 @@ class User:
 def get_all_recent_posts():
     query = """
     MATCH (user:User)-[:POSTED]->(post:Post)
+    WHERE not (post)-[:POSTED_TO]->()
     RETURN user.displayName AS displayName, user, post
     ORDER BY post.modified_time DESC
     """
@@ -790,13 +798,13 @@ def get_all_recent_posts():
 # Exceptions : cypher.CypherError, cypher.CypherTransactionError
 ############################################################################
 def get_all_profile_posts(user_id):
-    # WITH post, rel, user, collect({post_id: post.id, comment: {id: comment.id, content: comment.content},
     query = """
-    MATCH (myself:User {sql_id:{sql_id}}), (user:User)-[rel:POSTED]->(post:Post),
-    (post)-[:HAS]->(comment:Comment), (commentedBy:User {sql_id: comment.user_sql_id})
-    WHERE ((not exists((post)-[:POSTED_TO]-(myself)) AND (myself)-[rel]->(post)) OR (post)-[:POSTED_TO]-(myself))
-    WITH post, rel, user, collect({post_id: post.id, comment: {id: comment.id, content: comment.content},
-    user_sql_id: commentedBy.sql_id, displayName: commentedBy.displayName, image_url: commentedBy.image_url,
+    MATCH (myself:User {sql_id:{sql_id}}), (user:User)-[rel:POSTED]->(post:Post)
+    WHERE (post)-[:POSTED_TO]-(myself) OR (not exists((post)-[:POSTED_TO]-()) AND (myself)-[rel]->(post))
+    OPTIONAL MATCH (post)-[:HAS]->(comment:Comment),
+    (commentedBy:User {sql_id: comment.user_sql_id})
+    WITH post, rel, user, collect({post_id: post.id,
+    comment: comment, user_sql_id: commentedBy.sql_id, displayName: commentedBy.displayName, image_url: commentedBy.image_url,
     google_id: commentedBy.google_id, creation_time: comment.creation_time }) as comments
     RETURN post, user, comments
     ORDER BY post.modified_time DESC

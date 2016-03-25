@@ -299,21 +299,19 @@ def profile(google_id):
             admin_systems = System().get_admin_systems(session['uid'])
             participated_systems = System().get_participated_systems(session['uid'])
             subscribed_systems = System().get_subscribed_systems(session['uid'])
-            Friends = User(session['uid']).get_my_friends(session['uid']);
+            friends = User(session['uid']).get_my_friends(session['uid']);
             status="Me"
-            id=session['uid']
         else:
-
-            sql_id = get_sqlId(google_id)
-            if not sql_id:
+            result = get_sqlId(google_id)
+            if not (result and result.one):
                 return redirect(url_for('social.Home'))
             else:
-                sql_id = sql_id[0]["sql_id"]
+                sql_id = result.one
                 status=checkStatus(sql_id)
                 admin_systems = System().get_admin_systems(sql_id)
                 participated_systems = System().get_participated_systems(sql_id)
                 subscribed_systems = System().get_subscribed_systems(sql_id)
-                Friends = User(session['uid']).get_my_friends(sql_id)
+                friends = User(session['uid']).get_my_friends(sql_id)
 
         # Invalid User
         user_profile = User(sql_id).find()
@@ -322,14 +320,14 @@ def profile(google_id):
         else:
             # accessing google API to retrieve profile data
             google_profile = get_google_profile(google_id)
-            if not google_profile:
-                display_name = user_profile[0]['user']['displayName']
+            if not (google_profile and google_profile.get('displayName')):
+                display_name = user_profile['displayName']
                 if not display_name:
-                    display_name = user_profile[0]['user']['email']
+                    display_name = user_profile['email']
                     display_name = display_name.split('@', 1)[0]
                 google_profile = {
                     "display_name": display_name,
-                    "google_id": user_profile[0]['user']['google_id'],
+                    "google_id": user_profile['google_id'],
                     "plus_url": "#",
                     "img_url": ""
                 }
@@ -347,7 +345,7 @@ def profile(google_id):
                     privacy_options = [Privacy.PRIVATE]
                     privacy_default = Privacy.PRIVATE
 
-            privacy = Privacy(privacy_options, privacy_default, 'user_profile', sql_id) # info about timeline/page
+            privacy = Privacy(privacy_options, privacy_default, 'profile', sql_id) # info about timeline/page
             privacy.user_relation = user_relation.lower()
 
             posts = get_all_profile_posts(sql_id)
@@ -355,7 +353,7 @@ def profile(google_id):
             return render_template("profile.html", user_profile=user_profile, google_profile=google_profile,
                                    posts=posts, privacy_info=privacy, participated_systems=participated_systems,
                                    subscribed_systems=subscribed_systems, admin_systems=admin_systems,
-                                   friends=Friends,status=status, sqlId=sql_id)
+                                   friends=friends,status=status, sqlId=sql_id)
 
     except Exception as e:
         logging.exception("Exception at view_profile: " + str(e))
@@ -958,25 +956,49 @@ def delete_comment():
 # Exception : None
 #######################################################################################
 def add_post():
-    if session.get('uid') is not None:
-        privacy = request.form['privacy']
-        link = request.form['link']
-        page_type = request.form.get('page_type')
-        page_id = request.form.get('page_id')
-        user = User(session['uid'])
-        text = request.form['text']
+    if session.get('uid') is None:
+        return redirect_to_page('home')
+    # getting profile's google id and checking if it is a post
+    google_id = request.form.get('google_id')
+    # getting page type: home or profile
+    page_type = request.form.get('page_type')
+    if request.method != 'POST':
+        return redirect_to_page(page_type, google_id)
 
-        if text == "":
-            flash('Post cannot be empty.')
-            return redirect(url_for('social.index'))
+    user = User(session['uid'])
+    privacy = request.form['privacy']
+    link = request.form['link']
+    page_id = request.form.get('page_id')
+    profile = user.get_user_by_google_id(google_id)
+    text = request.form['text']
 
-        # if not page_id or session.get('uid') == page_id:
-        user.add_post(text, privacy, link)
-        # else:
-        #     user.add_post(text, privacy, link)
-        #     user.add_post_to(session.get('uid'), page_id)
-        flash('Your post has been shared')
-    return redirect(url_for('social.index'))
+    if text == "":
+        flash('Post cannot be empty.')
+        return redirect_to_page(page_type, google_id)
+
+    # if not page_id or session.get('uid') == page_id:
+    if profile and profile.one:
+        user.add_post(text, privacy, link, profile.one)
+    # else:
+    #     user.add_post(text, privacy, link)
+    #     user.add_post_to(session.get('uid'), page_id)
+    flash('Your post has been shared')
+    return redirect_to_page(page_type, google_id)
+
+
+#######################################################################################
+# function : redirect_to_page
+# purpose : returns the redirection url for the given parameters
+# parameters : page, argument
+# returns: response object (a WSGI application)
+# Exception : None
+#######################################################################################
+def redirect_to_page(page, argument=""):
+    if page == "home":
+        return redirect(url_for('social.index'))
+    if page == "profile":
+        return redirect(url_for('social.profile', google_id=argument))
+
 
 #######################################################################################
 # function : add_system_post
@@ -985,7 +1007,6 @@ def add_post():
 # returns: system_social.html
 # Exception : General Exception
 #######################################################################################
-
 @social.route('/systems/add_system_post', methods=['POST'])
 def add_system_post():
     user_sql_id = session.get('uid')

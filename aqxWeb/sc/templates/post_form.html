@@ -6,6 +6,7 @@
 
         <input type="hidden" name="page_type" value="{{ privacy_info.page_type }}"/>
         <input type="hidden" name="page_id" value="{{ privacy_info.page_id }}"/>
+        <input type="hidden" name="google_id" value="{{ (google_profile or {}).google_id }}"/>
         <div class="share">
             <div class="links">
                 <input type="hidden" name="link" value=""/>
