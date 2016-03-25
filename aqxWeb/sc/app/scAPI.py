@@ -30,6 +30,7 @@ class ScAPI:
                 "displayName": str(user['displayName']),
                 "gender": str(user['gender']),
                 "dob": str(user['dob']),
+                "image_url": str(user['image_url']),
                 "user_type": str(user['user_type']),
                 "status": str(user['status'])
             }
@@ -56,6 +57,7 @@ class ScAPI:
                 "displayName": str(user['displayName']),
                 "gender": str(user['gender']),
                 "dob": str(user['dob']),
+                "image_url": str(user['image_url']),
                 "user_type": str(user['user_type']),
                 "status": str(user['status'])
             }
@@ -84,6 +86,7 @@ class ScAPI:
                     "displayName": str(user['displayName']),
                     "gender": str(user['gender']),
                     "dob": str(user['dob']),
+                    "image_url": str(user['image_url']),
                     "user_type": str(user['user_type']),
                     "status": str(user['status'])
                 }
