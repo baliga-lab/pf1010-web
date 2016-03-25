@@ -2,7 +2,8 @@
 
     {% if posts %}
         {% for row in posts %}
-            {% if row.post and (not privacy_info.user_relation or (row.post.privacy == "public"
+            {% if row.post and row.user and (row.user.sql_id == session['uid']
+                or not privacy_info.user_relation or (row.post.privacy == "public"
                 or privacy_info.user_relation.lower() == row.post.privacy
                 or (row.post.privacy == "friends" and privacy_info.user_relation == "private"))) %}
                 <div class="post detail-box">
