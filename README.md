@@ -1,6 +1,9 @@
 How to Run ?   
 
-First-time install, use the -i option:
+Make sure you have permissions to run start-aqxWeb.sh as an executable
+$ chmod +x ./start-aqxWeb.sh
+
+For first-time install, use the -i option:
 $ ./start-aqxWeb.sh -i
 
 Otherwise run start-aqxWeb.sh with no options
