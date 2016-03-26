@@ -18,28 +18,28 @@
                 <select class="explore-dropdown" id="selectTechnique">
                     <option value="" selected="selected">Choose an Aquaponics Technique</option>
                     {% for technique in metadata_dict['aqx_techniques'] %}
-                        <option value={{ technique }}>{{ technique }}</option>
+                        <option value="{{ technique }}">{{ technique }}</option>
                     {% endfor %}
                 </select>
                 <br><br>
                 <select class="explore-dropdown" id="selectOrganism">
                     <option value="" selected="selected">Choose an Aquatic Organism</option>
                     {% for organism in metadata_dict['aqx_organisms'] %}
-                        <option value={{ organism|safe }}>{{ organism }}</option>
+                        <option value="{{organism}}">{{ organism }}</option>
                     {% endfor %}
                 </select>
                 <br><br>
                 <select class="explore-dropdown" id="selectCrop">
                     <option value="" selected="selected">Choose a Crop</option>
                     {% for crop in metadata_dict['crops'] %}
-                        <option value={{ crop }}>{{ crop }}</option>
+                        <option value="{{crop}}">{{ crop }}</option>
                     {% endfor %}
                 </select>
                 <br><br>
                 <select class="explore-dropdown" id="selectGrowbedMedium">
                     <option value="" selected="selected">Choose a Growbed Medium</option>
                     {% for medium in metadata_dict['growbed_media'] %}
-                        <option value={{ medium }}>{{ medium }}</option>
+                        <option value="{{medium}}">{{ medium }}</option>
                     {% endfor %}
                 </select>
                 <br><br>
