@@ -72,23 +72,6 @@ var buildContentString = function(system) {
 };
 
 /**
- * Populates dropdown menus for each metadata category
- *
- * @param key Identifies a metadata category that will populate the dropdown
- * @param elementId Identifies the dropdown to populate
- * @param meta_data_object Key value pairs from API for populating dropdowns 
- */
-var populateDropdown = function(key, elementId, meta_data_object){
-    var select = document.getElementById(elementId);
-    _.each(meta_data_object[key], function(meta_data){
-        var el = document.createElement(OPTION);
-        el.textContent = meta_data;
-        el.value = meta_data;
-        select.appendChild(el);
-    });
-};
-
-/**
  * Populates the given CheckList with the names of all visible Markers
  *
  * @param systems_and_info_object - Object containing systems and their metadata
@@ -183,9 +166,8 @@ function reset() {
  * then populates the metadata dropdowns, and the checklist of visible system names
  *
  * @param system_and_info_object - Object containing systems and their metadata
- * @param meta_data_object -  Object containing all unique metadata values
  */
-var main = function(system_and_info_object, meta_data_object) {
+var main = function(system_and_info_object) {
     var map;
     var infoWindow;
 
@@ -282,12 +264,6 @@ var main = function(system_and_info_object, meta_data_object) {
         });
     }
     initializeMap();
-
-    // Populate dropdowns
-    populateDropdown(AQX_TECHNIQUES, SELECT_TECHNIQUE, meta_data_object);
-    populateDropdown(AQX_ORGANISMS, SELECT_ORGANISM, meta_data_object);
-    populateDropdown(CROPS, SELECT_CROP, meta_data_object);
-    populateDropdown(GROWBED_MEDIA, SELECT_GROWBED_MEDIUM, meta_data_object);
 
     // Populate the checklist
     // All systems are visible at this point, so this list contains each system name

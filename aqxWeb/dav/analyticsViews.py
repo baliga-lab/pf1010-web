@@ -55,7 +55,8 @@ def create_conn(app):
 def explore():
     systems_and_info_json = get_all_systems_info()
     systems = json.loads(systems_and_info_json)['systems']
-    metadata_json = get_all_aqx_metadata()
+    metadata_dict = json_loads_byteified(get_all_aqx_metadata())['filters']
+    print metadata_dict;
     return render_template("explore.html", **locals())
 
 

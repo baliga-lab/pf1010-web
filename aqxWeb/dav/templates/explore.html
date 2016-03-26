@@ -17,23 +17,32 @@
                 <br>
                 <select class="explore-dropdown" id="selectTechnique">
                     <option value="" selected="selected">Choose an Aquaponics Technique</option>
-
+                    {% for technique in metadata_dict['aqx_techniques'] %}
+                        <option value={{ technique }}>{{ technique }}</option>
+                    {% endfor %}
                 </select>
                 <br><br>
                 <select class="explore-dropdown" id="selectOrganism">
                     <option value="" selected="selected">Choose an Aquatic Organism</option>
+                    {% for organism in metadata_dict['aqx_organisms'] %}
+                        <option value={{ organism|safe }}>{{ organism }}</option>
+                    {% endfor %}
                 </select>
                 <br><br>
                 <select class="explore-dropdown" id="selectCrop">
                     <option value="" selected="selected">Choose a Crop</option>
+                    {% for crop in metadata_dict['crops'] %}
+                        <option value={{ crop }}>{{ crop }}</option>
+                    {% endfor %}
                 </select>
                 <br><br>
                 <select class="explore-dropdown" id="selectGrowbedMedium">
                     <option value="" selected="selected">Choose a Growbed Medium</option>
+                    {% for medium in metadata_dict['growbed_media'] %}
+                        <option value={{ medium }}>{{ medium }}</option>
+                    {% endfor %}
                 </select>
-
                 <br><br>
-
                 <input class="btn btn-green" type="submit" id="submitbtn" name="mysubmit" value="Submit" onclick="filterSystemsBasedOnDropdownValues()"/>
                 <input class="btn btn-blue" type="button" id="resetbtn" name="reset" value="Reset" onclick="reset()"/>
             </div>
@@ -72,8 +81,6 @@
     <script>
         var system_and_info_object = {{ systems_and_info_json|safe }};
         system_and_info_object = system_and_info_object.systems;
-        var meta_data_object = {{ metadata_json|safe }};
-        meta_data_object = meta_data_object.filters;
-        $(document).ready(main(system_and_info_object, meta_data_object));
+        $(document).ready(main(system_and_info_object));
     </script>
 {% endblock %}
