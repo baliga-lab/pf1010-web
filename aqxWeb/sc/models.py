@@ -291,9 +291,10 @@ class User:
             user_display_name=user['displayName'],
             creation_time=timestamp(),
             modified_time=timestamp())
-        post = getGraphConnectionURI().find_one("Post", "id", postid)
-        rel = Relationship(post, 'HAS', comment)
+
         try:
+            post = getGraphConnectionURI().find_one("Post", "id", postid)
+            rel = Relationship(post, 'HAS', comment)
             getGraphConnectionURI().create(rel)
         except cypher.CypherError, cypher.CypherTransactionError:
             raise "Exception occured in function add_comment "
@@ -776,15 +777,26 @@ class User:
 # Exceptions : cypher.CypherError, cypher.CypherTransactionError
 ############################################################################
 
-def get_all_recent_posts():
+def get_all_recent_posts(user_id):
+    # query restricting for friends posts
+    # query = """
+    # MATCH (myself:User {sql_id:{sql_id}}), (user:User)-[:POSTED]->(post:Post)
+    # WHERE not exists((post)-[:POSTED_TO]->()) and (post.privacy = 'public'
+    # or (post.privacy = 'friends' and (user)-[:FRIENDS]-(myself)))
+    # RETURN user.displayName AS displayName, user, post
+    # ORDER BY post.modified_time DESC
+    # """
     query = """
-    MATCH (user:User)-[:POSTED]->(post:Post)
-    WHERE not (post)-[:POSTED_TO]->()
-    RETURN user.displayName AS displayName, user, post
+    MATCH (myself:User {sql_id:32}), (user:User)-[:POSTED]->(post:Post)
+    WHERE post.privacy = 'public' or (post.privacy = 'friends' and (user)-[:FRIENDS]-(myself))
+    or (user.sql_id = myself.sql_id)
+    OPTIONAL MATCH (post)-[:POSTED_TO]-(profile_user:User)
+    RETURN user.displayName AS displayName, user, post, profile_user
     ORDER BY post.modified_time DESC
     """
+
     try:
-        posts = getGraphConnectionURI().cypher.execute(query)
+        posts = getGraphConnectionURI().cypher.execute(query, {'sql_id': user_id})
         return posts
     except cypher.CypherError, cypher.CypherTransactionError:
         raise "Exception occured in function get_all_recent_posts "
@@ -801,10 +813,9 @@ def get_all_profile_posts(user_id):
     query = """
     MATCH (myself:User {sql_id:{sql_id}}), (user:User)-[rel:POSTED]->(post:Post)
     WHERE (post)-[:POSTED_TO]-(myself) OR (not exists((post)-[:POSTED_TO]-()) AND (myself)-[rel]->(post))
-    OPTIONAL MATCH (post)-[:HAS]->(comment:Comment),
-    (commentedBy:User {sql_id: comment.user_sql_id})
-    WITH post, rel, user, collect({post_id: post.id,
-    comment: comment, user_sql_id: commentedBy.sql_id, displayName: commentedBy.displayName, image_url: commentedBy.image_url,
+    OPTIONAL MATCH (post)-[:HAS]->(comment:Comment), (commentedBy:User {sql_id: comment.user_sql_id})
+    WITH post, rel, user, collect({post_id: post.id, comment: {id: comment.id, content: comment.content},
+    user_sql_id: commentedBy.sql_id, displayName: commentedBy.displayName, image_url: commentedBy.image_url,
     google_id: commentedBy.google_id, creation_time: comment.creation_time }) as comments
     RETURN post, user, comments
     ORDER BY post.modified_time DESC

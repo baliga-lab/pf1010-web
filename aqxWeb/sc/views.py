@@ -84,7 +84,7 @@ def trial():
 def index():
     if session.get('uid') is None:
         return redirect(url_for('index')) # if no session, return to login
-    posts = get_all_recent_posts()
+    posts = get_all_recent_posts(session.get('uid'))
     comments = get_all_recent_comments()
     likes = get_all_recent_likes()
     totalLikes = get_total_likes_for_posts()
@@ -817,14 +817,16 @@ def add_comment():
     postid = request.form['postid']
     if comment == "" or comment == None:
         flash('Comment can not be empty')
-        redirect(url_for('social.index'))
+        redirect(request.referrer)
     elif postid == "" or postid == None:
         flash('Post not found to comment on')
-        redirect(url_for('social.index'))
+        redirect(request.referrer)
     else:
         User(session['uid']).add_comment(comment, postid)
         flash('Your comment has been posted')
-    return redirect(url_for('social.index'))
+
+    return redirect(request.referrer)
+
 
 @social.route('/edit_or_delete_comment', methods=['POST'])
 #######################################################################################
@@ -837,10 +839,9 @@ def add_comment():
 def edit_or_delete_comment():
     if session.get('uid') is not None:
         commentid = request.form['commentid']
-        system_uid = request.form["system_uid"]
+        #system_uid = request.form["system_uid"]
         if commentid == "" or commentid == None:
             flash('Comment not found to edit')
-            redirect(url_for('social.index'))
         else:
             comment = request.form['editedcomment']
             if request.form['submit'] == 'deleteComment':
@@ -849,11 +850,10 @@ def edit_or_delete_comment():
             elif request.form['submit'] == 'editComment':
                 if comment == "" or comment == None:
                     flash('Comment can not be empty')
-                    redirect(url_for('social.index'))
                 else:
                     User(session['uid']).edit_comment(comment, commentid)
                     flash('Your comment has been updated')
-    return redirect(url_for('social.index'))
+    return redirect(request.referrer)
 
 @social.route('/edit_or_delete_system_comment', methods=['POST'])
 #######################################################################################
@@ -903,7 +903,7 @@ def edit_comment():
             else:
                 User(session['uid']).edit_comment(comment, commentid)
                 flash('Your comment has been updated')
-    return redirect(url_for('social.index'))
+    return redirect(request.referrer)
 
 
 @social.route('/edit_post', methods=['POST'])
@@ -920,14 +920,12 @@ def edit_post():
 
     if newpost == "" or newpost == None:
         flash('New post can not be empty')
-        redirect(url_for('social.index'))
     elif postid == "" or postid == None:
         flash('Post not found to edit')
-        redirect(url_for('social.index'))
     else:
         User(session['uid']).edit_post(newpost, postid)
         flash('Your comment has been updated')
-    return redirect(url_for('social.index'))
+    return redirect(request.referrer)
 
 @social.route('/delete_comment', methods=['POST'])
 #######################################################################################
@@ -958,6 +956,7 @@ def delete_comment():
 def add_post():
     if session.get('uid') is None:
         return redirect_to_page('home')
+
     # getting profile's google id and checking if it is a post
     google_id = request.form.get('google_id')
     # getting page type: home or profile
@@ -965,27 +964,27 @@ def add_post():
     if request.method != 'POST':
         return redirect_to_page(page_type, google_id)
 
-    user = User(session['uid'])
-    privacy = request.form['privacy']
-    link = request.form['link']
-    page_id = request.form.get('page_id')
-    profile = user.get_user_by_google_id(google_id)
     text = request.form['text']
-
     if text == "":
         flash('Post cannot be empty.')
         return redirect_to_page(page_type, google_id)
 
-    # if not page_id or session.get('uid') == page_id:
-    if profile and profile.one:
-        user.add_post(text, privacy, link, profile.one)
-    # else:
-    #     user.add_post(text, privacy, link)
-    #     user.add_post_to(session.get('uid'), page_id)
+    user = User(session['uid'])
+    privacy = request.form['privacy']
+    link = request.form['link']
+
+    user_profile = None
+    if page_type == 'profile':
+        user_profile = user.get_user_by_google_id(google_id)
+    if user_profile and user_profile.one:
+        user_profile = user_profile.one
+
+    user.add_post(text, privacy, link, user_profile)
     flash('Your post has been shared')
     return redirect_to_page(page_type, google_id)
 
 
+#######################################################################################
 #######################################################################################
 # function : redirect_to_page
 # purpose : returns the redirection url for the given parameters
@@ -1060,7 +1059,7 @@ def like_or_unlike_post():
                 elif request.form['submit'] == 'unlikePost':
                     User(session['uid']).unlike_post(postid)
                     flash('You unliked the post')
-            return redirect(url_for('social.index'))
+            return redirect(request.referrer)
 
 
 @social.route('/delete_post', methods=['POST'])
@@ -1079,7 +1078,7 @@ def delete_post():
         else:
             User(session['uid']).delete_post(postid)
             flash('Your post has been deleted')
-    return redirect(url_for('social.index'))
+    return redirect(request.referrer)
 
 
 @social.route('/add_system_comment', methods=['POST'])

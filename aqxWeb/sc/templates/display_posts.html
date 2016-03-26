@@ -6,7 +6,7 @@
                 {# USER OF POST #}
                 <div class="media-left">
                     {# LINK TO USER'S PROFILE #}
-                    <a href="/social/profile/{% if row.user %}{{ row.user.google_id }}{% endif %}">
+                    <a href="{% if row.user %}/social/profile/{{ row.user.google_id }}{% else %}#{% endif %}">
                         {% if row.user.image_url %}
                             <img class="media-object" src="{{ row.user.image_url }}"
                                  alt="{{ row.displayName }}'s Picture">
@@ -24,6 +24,11 @@
                 <div class="media-body">
                     <h4>
                         {{ row.displayName }}
+                        {% if row.profile_user %}
+                            <span class="sub-text"> to </span>
+                            <a href="/social/profile/{{ row.profile_user.google_id }}">
+                                {{ row.profile_user.displayName }}</a>
+                        {% endif %}
                         <span class="date sub-text">posted on {{ row.post.date }}</span>
                     </h4>
                     {% for po in postOwners %}

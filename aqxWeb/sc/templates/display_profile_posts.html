@@ -3,9 +3,9 @@
     {% if posts %}
         {% for row in posts %}
             {% if row.post and row.user and (row.user.sql_id == session['uid']
-                or not privacy_info.user_relation or (row.post.privacy == "public"
+                or (not privacy_info.user_relation or (row.post.privacy == "public"
                 or privacy_info.user_relation.lower() == row.post.privacy
-                or (row.post.privacy == "friends" and privacy_info.user_relation == "private"))) %}
+                or (row.post.privacy == "friends" and privacy_info.user_relation == "private")))) %}
                 <div class="post detail-box">
                     {# USER OF POST #}
                     <div class="media-left">
@@ -128,7 +128,7 @@
                         <ul class="comment-list">
                             {% if row.comments %}
                                 {% for cmt in row.comments|sort(attribute='creation_time') %}
-                                    {% if cmt.post_id == row.post.id and cmt.comment %}
+                                    {% if cmt.post_id == row.post.id and cmt.comment and cmt.comment.content %}
                                         <li>
                                             <div class="media-left">
                                                 <a href="{% if cmt.google_id %}/social/profile/
