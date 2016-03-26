@@ -1,8 +1,4 @@
 /**
- * Created by Brian on 2/14/2016.
- */
-
-/**
  * An Icon that represents selected system Markers
  * @type {{url: string, scaledSize: google.maps.Size}}
  */
@@ -26,12 +22,10 @@ var MAP = 'map';
 var OPTION = 'option';
 var NOT_AVAILABLE = 'Not available';
 var LIST_OF_USER_SYSTEMS = "listOfUserSystems";
-var LIST_OF_MY_SYSTEMS = "listOfMySystems";
 var SELECT_TECHNIQUE = "selectTechnique";
 var SELECT_ORGANISM = "selectOrganism";
 var SELECT_CROP = "selectCrop";
 var SELECT_GROWBED_MEDIUM = "selectGrowbedMedium";
-var SPIDERFY = 'spiderfy';
 var MOUSEOVER = 'mouseover';
 var CLICK = 'dblclick';
 var CLUSTER_CLICK = 'clusterclick';
@@ -45,9 +39,8 @@ var GROWBED_MEDIA = "growbed_media";
 var MIN_CLUSTER_ZOOM = 15;
 
 // Markerclusterer and OverlappingMarkerSpiderfier need global scope
-var mc;
-var oms;
-
+var MC;
+var OMS;
 
 /**
  * Returns true if the given marker has the "starred" icon
@@ -65,11 +58,11 @@ var markerIsStarred = function(marker){
  * @return {String} The HTML that populates a System's InfoWindow
  */
 var buildContentString = function(system) {
-    var name = system.system_name == null ? NOT_AVAILABLE : system.system_name;
-    var technique = system.aqx_technique_name == null ? NOT_AVAILABLE : system.aqx_technique_name;
-    var organism = system.organism_name == null ? NOT_AVAILABLE : system.organism_name;
-    var growbed = system.growbed_media == null ? NOT_AVAILABLE : system.growbed_media;
-    var crop = system.crop_name == null ? NOT_AVAILABLE : system.crop_name;
+    var name = _.isNull(system.system_name) ? NOT_AVAILABLE : system.system_name;
+    var technique = _.isNull(system.aqx_technique_name) ? NOT_AVAILABLE : system.aqx_technique_name;
+    var organism = _.isNull(system.organism_name) ? NOT_AVAILABLE : system.organism_name;
+    var growbed = _.isNull(system.growbed_media) ? NOT_AVAILABLE : system.growbed_media;
+    var crop = _.isNull(system.crop_name) ? NOT_AVAILABLE : system.crop_name;
 
     return "<h2>" + name + "</h2>" +
         "<ul><li>Aquaponics Technique: " + technique + "</li>" +
@@ -81,10 +74,9 @@ var buildContentString = function(system) {
 /**
  * Populates dropdown menus for each metadata category
  *
- * @param key
- * Identifies a metadata category that will populate the dropdown
- * @param elementId
- * Identifies the dropdown to populate
+ * @param key Identifies a metadata category that will populate the dropdown
+ * @param elementId Identifies the dropdown to populate
+ * @param meta_data_object Key value pairs from API for populating dropdowns 
  */
 var populateDropdown = function(key, elementId, meta_data_object){
     var select = document.getElementById(elementId);
@@ -102,25 +94,33 @@ var populateDropdown = function(key, elementId, meta_data_object){
  * @param systems_and_info_object - Object containing systems and their metadata
  * @param elementID - ID of the checklist to populate
  */
-// TODO: Look into changing this similarly to the above fxn (as per Guna). It can definitely be done, just gotta research it.
 var populateCheckList = function(systems_and_info_object, elementID){
     var checkList = document.getElementById(elementID);
     checkList.innerHTML = "";
     _.each(systems_and_info_object, function(system) {
         if (system.marker.getVisible()) {
             if(markerIsStarred(system.marker)) {
-                checkList.innerHTML += "<li><input id=\"" + system.system_uid
-                    + "\" type=\"checkbox\" value=\"" + system.system_name + "\"checked>"
-                    + system.system_name + "</li>";
-            }else{
-                checkList.innerHTML += "<li><input id=\"" + system.system_uid
-                    + "\" type=\"checkbox\" value=\"" + system.system_name + "\">"
-                    + system.system_name + "</li>";
+                checkList.innerHTML += getCheckListInnerHtml(system.system_uid, system.system_name, true);
+            }else {
+                checkList.innerHTML += getCheckListInnerHtml(system.system_uid, system.system_name, false);
             }
         }
     });
 };
 
+/**
+ *
+ * @param systemId - SystemID
+ * @param systemName - System name
+ * @param isChecked - Checks the checkbox
+ * @returns {string}
+ */
+var getCheckListInnerHtml = function (systemId, systemName, isChecked) {
+    var checked =  isChecked ? "checked" : "" ;
+     return  "<li><input id=\"" + systemId +
+             "\" type=\"checkbox\" value=\"" + systemName +
+             "\"" + checked + ">" + systemName + "</li>";
+}
 /**
  * Flips the current Marker icon from SELECTED_ICON to DEFAULT_ICON
  * and vice versa. Used to "select" and "de-select" markers.
@@ -155,10 +155,10 @@ function reset() {
     });
 
     // Repaint the clusters on reset
-    mc.repaint();
+    MC.repaint();
 
     // Unspiderfy any currently spiderfied markers
-    oms.unspiderfy();
+    OMS.unspiderfy();
 
     // Now that all markers are visible, repopulate the checklist
     populateCheckList(system_and_info_object, LIST_OF_USER_SYSTEMS);
@@ -176,7 +176,7 @@ function reset() {
     $('#selectGrowbedMedium option').prop(SELECTED, function() {
         return this.defaultSelected;
     });
-};
+}
 
 /**
  * Prepares the page by initializing the Map and populating it with Markers,
@@ -212,13 +212,13 @@ var main = function(system_and_info_object, meta_data_object) {
         system.marker = marker;
 
         // Add marker to the OverlappingMarkerSpiderfier which handles selection of clustered Markers
-        oms.addMarker(marker);
+        OMS.addMarker(marker);
 
         // Add the marker to the MarkerClusterer which handles icon display for clustered Markers
-        mc.addMarker(marker);
+        MC.addMarker(marker);
 
         // Adds a listener that prevents the map from over-zooming on stacked Markers
-        google.maps.event.addListener(mc, CLUSTER_CLICK, function() {
+        google.maps.event.addListener(MC, CLUSTER_CLICK, function() {
             if(map.getZoom() > MIN_CLUSTER_ZOOM + 1)
                 map.setZoom(MIN_CLUSTER_ZOOM + 1);
         });
@@ -228,21 +228,21 @@ var main = function(system_and_info_object, meta_data_object) {
             return function () {
                 infoWindow.setContent(content);
                 infoWindow.open(map, marker);
-            }
+            };
         })(marker, content));
 
         // Add a listener that closes the infoWindow when the mouse moves away from the marker
         google.maps.event.addListener(marker, MOUSEOUT, (function () {
             return function () {
                 infoWindow.close();
-            }
+            };
         })(marker));
 
         // Add a listener that flips the Icon style of the marker on click
         google.maps.event.addListener(marker, CLICK, (function (marker) {
             return function () {
                 flipIcons(marker, system.system_uid);
-            }
+            };
         })(marker));
     }
 
@@ -259,17 +259,17 @@ var main = function(system_and_info_object, meta_data_object) {
         });
 
         /**
-         * Create an OverlappingMarkerSpiderfier object which will manage our clustered Markers
-         * @param markersWontMove Set to true, this frees oms from having to create closures that
+         * Create an OverlappingMarkerSpiderfier(OMS) object which will manage our clustered Markers
+         * @param markersWontMove Set to true, this frees OMS from having to create closures that
          *                        manage marker movements, which speeds things up a bit
          * @param keepSpiderfied Set to true so that spiderfied pins don't spontaneously close.
          *                       This setting is more conducive to allowing users to hover over
          *                       Markers to see their InfoWindows
          */
-        oms = new OverlappingMarkerSpiderfier(map, {markersWontMove : true, keepSpiderfied : true});
-        mc = new MarkerClusterer(map);
-        mc.setMaxZoom(MIN_CLUSTER_ZOOM);
-        mc.setIgnoreHidden(true);
+        OMS = new OverlappingMarkerSpiderfier(map, {markersWontMove : true, keepSpiderfied : true});
+        MC = new MarkerClusterer(map);
+        MC.setMaxZoom(MIN_CLUSTER_ZOOM);
+        MC.setIgnoreHidden(true);
 
         // Create a global InfoWindow
         infoWindow = new google.maps.InfoWindow();
@@ -283,7 +283,7 @@ var main = function(system_and_info_object, meta_data_object) {
     }
     initializeMap();
 
-    // Populate our dropdowns
+    // Populate dropdowns
     populateDropdown(AQX_TECHNIQUES, SELECT_TECHNIQUE, meta_data_object);
     populateDropdown(AQX_ORGANISMS, SELECT_ORGANISM, meta_data_object);
     populateDropdown(CROPS, SELECT_CROP, meta_data_object);
@@ -292,9 +292,6 @@ var main = function(system_and_info_object, meta_data_object) {
     // Populate the checklist
     // All systems are visible at this point, so this list contains each system name
     populateCheckList(_.sortBy(system_and_info_object,'system_name'), LIST_OF_USER_SYSTEMS);
-
-    // Populate a placeholder checklist for logged in User's sytems
-    populate_dummy_user_systems_checklist();
 };
 
 /**
@@ -308,10 +305,10 @@ var main = function(system_and_info_object, meta_data_object) {
  * @returns {boolean}
  */
 var systemMetadataMatchesAnyDropdown = function(system, dp1, dp2, dp3, dp4){
-    return ((!_.isEmpty(dp1) && system.aqx_technique_name != dp1)
-    || (!_.isEmpty(dp2) && system.organism_name != dp2)
-    || (!_.isEmpty(dp3) &&system.crop_name != dp3)
-    || (!_.isEmpty(dp4) && system.growbed_media != dp4))
+    return ((!_.isEmpty(dp1) && system.aqx_technique_name != dp1) ||
+            (!_.isEmpty(dp2) && system.organism_name != dp2) ||
+            (!_.isEmpty(dp3) &&system.crop_name != dp3) ||
+            (!_.isEmpty(dp4) && system.growbed_media != dp4));
 };
 
 /**
@@ -332,11 +329,11 @@ function filterSystemsBasedOnDropdownValues() {
     });
 
     // Repaint clustered markers now that we've filtered
-    mc.repaint();
+    MC.repaint();
 
     // Repopulate the checklist so only visible systems appear
     populateCheckList(system_and_info_object, LIST_OF_USER_SYSTEMS);
-};
+}
 
 /**
  * Whenever a checklist item is checked or unchecked, alter the marker icons
@@ -364,33 +361,6 @@ $('#listOfUserSystems').change(function() {
         }
     });
 });
-
-
-var populate_dummy_user_systems_checklist = function(){
-    var user_systems_and_info = {
-        "systems":
-            [
-                {"system_uid": "316f3f2e3fe411e597b1000c29b92d09",
-                    "growbed_media": null, "crop_count": 5, "organism_count": 12,
-                    "lat": "37.4142740000", "lng": "-122.0774090000", "organism_name": "Mozambique Tilapia",
-                    "system_name": "My first system", "user_id": 1,
-                    "aqx_technique_name": "Ebb and Flow (Media-based)",
-                    "crop_name": "Strawberry", "start_date": "2015-08-23"},
-                {"system_uid": "2e79ea8a411011e5aac7000c29b92d09", "growbed_media": null, "crop_count": 18,
-                    "organism_count": 20, "lat": "47.6225770000", "lng": "-122.3374360000",
-                    "organism_name": "Mozambique Tilapia", "system_name": "ISB 1", "user_id": 2,
-                    "aqx_technique_name": "Floating Raft", "crop_name": "Lettuce", "start_date": "2015-08-26"}
-            ]
-    };
-
-    var myCheckList = document.getElementById(LIST_OF_MY_SYSTEMS);
-    myCheckList.innerHTML = "";
-    _.each(user_systems_and_info.systems, function(system) {
-        myCheckList.innerHTML += "<li><input id=\"" + system.system_uid
-            + "\" type=\"checkbox\" value=\"" + system.system_name + "\">"
-            + system.system_name + "</li>";
-    });
-};
 
 $('#analyzeOptions').on('submit',function(e) {
     var systemsSelectedToAnalyze = [];

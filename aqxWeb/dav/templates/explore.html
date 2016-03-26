@@ -17,6 +17,7 @@
                 <br>
                 <select class="explore-dropdown" id="selectTechnique">
                     <option value="" selected="selected">Choose an Aquaponics Technique</option>
+
                 </select>
                 <br><br>
                 <select class="explore-dropdown" id="selectOrganism">
@@ -37,7 +38,7 @@
                 <input class="btn btn-blue" type="button" id="resetbtn" name="reset" value="Reset" onclick="reset()"/>
             </div>
             <div class="form-group" style="width: 75%; padding-top:2%;">
-                <label class="control-label">Select public systems</label>
+                <label class="control-label">Select up to 4 systems</label>
                 <ul id="listOfUserSystems" style="overflow-y: scroll; max-height: 110px;">
                     {#        {% for sys in systems %}#}
                     {#            <li><input type="checkbox" value="{{sys['system_name']}}">{{sys['system_name']}}</li>#}
