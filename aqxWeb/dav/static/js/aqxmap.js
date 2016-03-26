@@ -18,7 +18,7 @@ var DEFAULT_ICON = {
 // Define some global constants
 var DEFAULT_CENTER = {lat: 47.622577, lng: -122.337436};
 var DEFAULT_ZOOM = 3;
-var MAP = 'map';
+var MAPDIV = 'map';
 var OPTION = 'option';
 var NOT_AVAILABLE = 'Not available';
 var LIST_OF_USER_SYSTEMS = "listOfUserSystems";
@@ -41,6 +41,7 @@ var MIN_CLUSTER_ZOOM = 15;
 // Markerclusterer and OverlappingMarkerSpiderfier need global scope
 var MC;
 var OMS;
+var MAP;
 
 /**
  * Returns true if the given marker has the "starred" icon
@@ -172,7 +173,7 @@ function reset() {
  * @param system_and_info_object - Object containing systems and their metadata
  */
 var main = function(system_and_info_object) {
-    var map;
+    //var map;
     var infoWindow;
 
     /**
@@ -189,7 +190,7 @@ var main = function(system_and_info_object) {
         var marker = new google.maps.Marker({
             title: system.title,
             position: latLng,
-            map: map,
+            map: MAP,
             content: content,
             icon: DEFAULT_ICON,
             zIndex: google.maps.Marker.MIN_ZINDEX
@@ -205,15 +206,15 @@ var main = function(system_and_info_object) {
 
         // Adds a listener that prevents the map from over-zooming on stacked Markers
         google.maps.event.addListener(MC, CLUSTER_CLICK, function() {
-            if(map.getZoom() > MIN_CLUSTER_ZOOM + 1)
-                map.setZoom(MIN_CLUSTER_ZOOM + 1);
+            if(MAP.getZoom() > MIN_CLUSTER_ZOOM + 1)
+                MAP.setZoom(MIN_CLUSTER_ZOOM + 1);
         });
 
         // Add a listener for mouseover events that opens an infoWindow for the system
         google.maps.event.addListener(marker, MOUSEOVER, (function (marker, content) {
             return function () {
                 infoWindow.setContent(content);
-                infoWindow.open(map, marker);
+                infoWindow.open(MAP, marker);
             };
         })(marker, content));
 
@@ -239,7 +240,7 @@ var main = function(system_and_info_object) {
      */
     function initializeMap() {
         // Initialize and configure map with the given zoom and center
-        map = new google.maps.Map(document.getElementById(MAP), {
+        MAP = new google.maps.Map(document.getElementById(MAPDIV), {
             zoom: DEFAULT_ZOOM,
             center: DEFAULT_CENTER
         });
@@ -252,8 +253,8 @@ var main = function(system_and_info_object) {
          *                       This setting is more conducive to allowing users to hover over
          *                       Markers to see their InfoWindows
          */
-        OMS = new OverlappingMarkerSpiderfier(map, {markersWontMove : true, keepSpiderfied : true});
-        MC = new MarkerClusterer(map);
+        OMS = new OverlappingMarkerSpiderfier(MAP, {markersWontMove : true, keepSpiderfied : true});
+        MC = new MarkerClusterer(MAP);
         MC.setMaxZoom(MIN_CLUSTER_ZOOM);
         MC.setIgnoreHidden(true);
 
@@ -308,7 +309,7 @@ function filterSystemsBasedOnDropdownValues() {
         if (systemMetadataMatchesAnyDropdown(system, dp1, dp2, dp3, dp4)){
             system.marker.setVisible(false);
         } else {
-            //map.setCenter(system.marker.position);
+            MAP.panTo(system.marker.position);
             system.marker.setVisible(true);
             numVisible++;
         }
