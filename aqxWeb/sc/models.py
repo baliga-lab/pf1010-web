@@ -779,15 +779,8 @@ class User:
 
 def get_all_recent_posts(user_id):
     # query restricting for friends posts
-    # query = """
-    # MATCH (myself:User {sql_id:{sql_id}}), (user:User)-[:POSTED]->(post:Post)
-    # WHERE not exists((post)-[:POSTED_TO]->()) and (post.privacy = 'public'
-    # or (post.privacy = 'friends' and (user)-[:FRIENDS]-(myself)))
-    # RETURN user.displayName AS displayName, user, post
-    # ORDER BY post.modified_time DESC
-    # """
     query = """
-    MATCH (myself:User {sql_id:32}), (user:User)-[:POSTED]->(post:Post)
+    MATCH (myself:User {sql_id:{sql_id}}), (user:User)-[:POSTED]->(post:Post)
     WHERE post.privacy = 'public' or (post.privacy = 'friends' and (user)-[:FRIENDS]-(myself))
     or (user.sql_id = myself.sql_id)
     OPTIONAL MATCH (post)-[:POSTED_TO]-(profile_user:User)

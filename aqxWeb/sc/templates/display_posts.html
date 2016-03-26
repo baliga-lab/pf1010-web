@@ -2,6 +2,8 @@
 
     {% if posts %}
         {% for row in posts %}
+            {% if row.post and row.user and (row.user.sql_id == session['uid']
+            or row.profile_user.sql_id == session['uid'] or row.post.privacy != "private") %}
             <div class="post detail-box">
                 {# USER OF POST #}
                 <div class="media-left">
@@ -30,6 +32,7 @@
                                 {{ row.profile_user.displayName }}</a>
                         {% endif %}
                         <span class="date sub-text">posted on {{ row.post.date }}</span>
+                        <span class="privacy sub-text">@{{ row.post.privacy }}</span>
                     </h4>
                     {% for po in postOwners %}
                         {% if po.postid == row.post.id and po.userid == session['uid'] %}
@@ -203,6 +206,7 @@
                     </div>
                 </form>
             </div>
+            {% endif %}
         {% endfor %}
     {% endif %}
 
