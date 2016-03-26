@@ -103,7 +103,8 @@ var getCheckListInnerHtml = function (systemId, systemName, isChecked) {
      return  "<li><input id=\"" + systemId +
              "\" type=\"checkbox\" value=\"" + systemName +
              "\"" + checked + ">" + systemName + "</li>";
-}
+};
+
 /**
  * Flips the current Marker icon from SELECTED_ICON to DEFAULT_ICON
  * and vice versa. Used to "select" and "de-select" markers.
@@ -145,6 +146,9 @@ function reset() {
 
     // Now that all markers are visible, repopulate the checklist
     populateCheckList(system_and_info_object, LIST_OF_USER_SYSTEMS);
+
+    // Remove any active alerts
+    $('#alert_placeholder').empty();
 
     // For each dropdown, reset them to their default values
     $('#selectTechnique option').prop(SELECTED, function() {
@@ -287,6 +291,10 @@ var systemMetadataMatchesAnyDropdown = function(system, dp1, dp2, dp3, dp4){
             (!_.isEmpty(dp4) && system.growbed_media != dp4));
 };
 
+var getAlertHTMLString = function(visible, type){
+    return '<div class="alert alert-' + type + '"><a class="close" data-dismiss="alert">×</a><span>There are ' + visible+ ' visible pins.</span></div>'
+};
+
 /**
  * Filter systems based on dropdown values
  */
@@ -295,14 +303,22 @@ function filterSystemsBasedOnDropdownValues() {
     var dp2 = document.getElementById(SELECT_ORGANISM).value;
     var dp3 = document.getElementById(SELECT_CROP).value;
     var dp4 = document.getElementById(SELECT_GROWBED_MEDIUM).value;
-
+    var numVisible = 0;
     _.each(system_and_info_object, function(system) {
         if (systemMetadataMatchesAnyDropdown(system, dp1, dp2, dp3, dp4)){
             system.marker.setVisible(false);
         } else {
+            //map.setCenter(system.marker.position);
             system.marker.setVisible(true);
+            numVisible++;
         }
     });
+
+    if (numVisible > 0){
+        $('#alert_placeholder').html(getAlertHTMLString(numVisible, 'success'));
+    }else {
+        $('#alert_placeholder').html(getAlertHTMLString(numVisible, 'danger'));
+    }
 
     // Repaint clustered markers now that we've filtered
     MC.repaint();
