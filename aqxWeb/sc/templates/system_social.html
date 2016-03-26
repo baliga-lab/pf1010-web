@@ -88,17 +88,17 @@
                                 <!-- The subscriber will be able to see his/her own name and picture -->
                                 {% if subscriber[0]["sql_id"] == logged_in_user["sql_id"] %}
                                     <a href="{{ url_for('social.profile', google_id=subscriber[0]["google_id"]) }}">
-                                    <img class="participantImage" src="{{ session["img"] }}">
-                                    {% if subscriber[0]["displayName"] is not none %}
-                                        {{ subscriber[0]["displayName"] }}
-                                    {% else %}
-                                        No Display Name
-                                    {% endif %}
+                                        <img class="participantImage" src="{{ session["img"] }}">
+                                        {% if subscriber[0]["displayName"] is not none %}
+                                            {{ subscriber[0]["displayName"] }}
+                                        {% else %}
+                                            No Display Name
+                                        {% endif %}
                                     </a>
                                 {% else %}
-                                <img class="participantImage"
-                                     src="{{ url_for('social.static', filename='images/default_profile_pic.png') }}">
-                                Anonymous
+                                    <img class="participantImage"
+                                         src="{{ url_for('social.static', filename='images/default_profile_pic.png') }}">
+                                    Anonymous
                                 {% endif %}
                             {% endif %}
                         </div>
@@ -159,7 +159,8 @@
                 <div class="row">
                     <span>
                         <a href="{{ url_for('social.manage_system', system_uid= system_neo4j[0][0]["system_uid"]) }}">
-                            <img class="cogWheelIcon" src="{{ url_for('social.static', filename='images/system_settings.png') }}">
+                            <img class="cogWheelIcon"
+                                 src="{{ url_for('social.static', filename='images/system_settings.png') }}">
                             Manage System
                         </a>
                     </span>
@@ -172,7 +173,8 @@
             <br/>
 
             <!-- Div for Subscribe / Request to Join Button-->
-            <form id ="participate_subscribe_leave_system_form" action="{{ url_for('social.participate_subscribe_leave_system') }}" method="post">
+            <form id="participate_subscribe_leave_system_form"
+                  action="{{ url_for('social.participate_subscribe_leave_system') }}" method="post">
                 <div class="row sendRequests">
                     <input type="hidden" name="google_id"
                            value="{{ logged_in_user["google_id"] }}">
@@ -183,13 +185,15 @@
                         <button type="submit" name="submit" value="Participate" class="btn btn-success">Participate
                         </button>
                     {% else %}
-                        {% if user_privilege == "SYS_ADMIN" or user_privilege == "SYS_PARTICIPANT" or
-                                user_privilege == "SYS_SUBSCRIBER" or user_privilege == "SYS_PENDING_PARTICIPANT"
-                                or user_privilege == "SYS_PENDING_SUBSCRIBER" %}
-                            <button type="submit" name="submit" value="Leave" id="btnLeave"
-                                    onclick="return getUserConsent()" class="btn btn-danger">Leave System
-                            </button>
-                        {% endif %}
+                        <button type="submit" name="submit" value="Leave" id="btnLeave"
+                                onclick="return getUserConsent()" class="btn btn-danger">
+                            {% if user_privilege == "SYS_ADMIN" or user_privilege == "SYS_PARTICIPANT" or
+                                user_privilege == "SYS_SUBSCRIBER" %}
+                                Leave System
+                            {% else %}
+                                Cancel Participant Request
+                            {% endif %}
+                        </button>
                     {% endif %}
                 </div>
             </form>
@@ -208,11 +212,11 @@
         <!-- This centerPaneDiv for system posts -->
         <div class="col-md-6 centerPaneDiv">
             <div class="row">
-            {# NEWSFEED #}
-                    {% include "post_system_form.html" %}
+                {# NEWSFEED #}
+                {% include "post_system_form.html" %}
 
-                    <h3>Recent Posts</h3>
-                    {% include "display_system_posts.html" %}
+                <h3>Recent Posts</h3>
+                {% include "display_system_posts.html" %}
             </div>
         </div>
         <!-- End Div for Center Pane (System Posts) - Systems Page -->
@@ -228,43 +232,43 @@
 
                 <h2> Summary</h2>
                 <div class="table-responsive">
-                  <table class="table">
-                    <thead>
-                      <tr>
-                        <th>Name</th>
-                        <th>Value</th>
-                        <th>Last Updated</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr>
-                        <td>Alkalinity</td>
-                        <td>60.00</td>
-                        <td>2016-01-14 20:00:00</td>
-                      </tr>
-                      <tr>
-                        <td>Ammonium</td>
-                        <td>0E-10</td>
-                        <td>2016-01-14 20:00:00</td>
-                      </tr>
-                      <tr>
-                        <td>Chlorine</td>
-                        <td>0E-10</td>
-                        <td>2016-01-14 20:00:00</td>
-                      </tr>
-                      <tr>
-                        <td>Hardness</td>
-                        <td>300.00</td>
-                        <td>2016-01-14 20:00:00</td>
-                      </tr>
-                      <tr>
-                        <td>Light</td>
-                        <td>0E-10</td>
-                        <td>2016-01-14 20:00:00</td>
-                      </tr>
-                    </tbody>
-                  </table>
-                  </div>
+                    <table class="table">
+                        <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Value</th>
+                            <th>Last Updated</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr>
+                            <td>Alkalinity</td>
+                            <td>60.00</td>
+                            <td>2016-01-14 20:00:00</td>
+                        </tr>
+                        <tr>
+                            <td>Ammonium</td>
+                            <td>0E-10</td>
+                            <td>2016-01-14 20:00:00</td>
+                        </tr>
+                        <tr>
+                            <td>Chlorine</td>
+                            <td>0E-10</td>
+                            <td>2016-01-14 20:00:00</td>
+                        </tr>
+                        <tr>
+                            <td>Hardness</td>
+                            <td>300.00</td>
+                            <td>2016-01-14 20:00:00</td>
+                        </tr>
+                        <tr>
+                            <td>Light</td>
+                            <td>0E-10</td>
+                            <td>2016-01-14 20:00:00</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
         <!-- End Div for Right Pane (System Data) - Systems Page -->
