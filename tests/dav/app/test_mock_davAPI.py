@@ -13,7 +13,9 @@ class DavTests(unittest.TestCase):
         d = DavAPI(Mock())
         d.mea = Mock()
         result = ((321321,10),(321321,10))
+        measurement_info = [(1, u'alkalinity', u'mg/L', u'60', u'140'), (2, u'ammonium', u'mg/L', u'0', u'1'), (3, u'chlorine', u'mg/L', None, None), (4, u'hardness', u'mg/L', u'60', u'140'), (5, u'light', None, None, None), (6, u'nitrate', u'mg/L', u'5', u'150'), (7, u'nitrite', u'mg/L', u'0', u'0.25'), (8, u'o2', u'mg/L', None, None), (9, u'ph', None, u'6.0', u'7.0'), (10, u'temp', u'celsius', u'22', u'30'), (11, u'time', None, None, None)]
         a = tuple(("light",))
+        d.mea.get_all_measurement_info.return_value= tuple(measurement_info)
         d.mea.get_latest_value.return_value = tuple(result)
         d.mea.get_measurement_name.return_value = tuple(("light",))
         result = d.get_system_measurement('555d0cfe9ebc11e58153000c29b92d09','9')

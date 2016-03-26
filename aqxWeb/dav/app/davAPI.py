@@ -211,11 +211,37 @@ class DavAPI:
     # get_system_measurement - It returns the latest recorded values of the
     #                           given system.
     def get_system_measurement(self,system_uid, measurement_id):
-        # Fetch the name of the measurement
-        measurement = self.mea.get_measurement_name(measurement_id)
+        # Encode the measurement_id
+        measurement_id_encoded = measurement_id.encode('utf-8')
+        # Check if the encoded value is a valid number
+        is_given_measurement_id_digit = measurement_id_encoded.isdigit()
+        # If the given measurement_id is a valid number, convert it to an integer,
+        # Else it is an invalid measurement_id
+        if is_given_measurement_id_digit:
+            measurement_id_encoded_int = int(measurement_id_encoded)
+        else:
+            return json.dumps({'error': 'Invalid measurement id'})
+        # Fetch the measurement information of all the measurements
+        measurement_info = self.mea.get_all_measurement_info()
+        # List that stores all the measurement ids
+        measurement_id_list = []
+        # For each measurement in the measure_info, fetch the measurement id and
+        # append to the measurement_id_list
+        for each_measurement in measurement_info:
+            measurement_id_info = each_measurement[0]
+            measurement_id_list.append(measurement_id_info)
+        # If the given measurement_id (encoded) in present in the measurement_id_list,
+        # then it is a valid id. Else it is an invalid id.
+        if measurement_id_encoded_int in measurement_id_list:
+            # Fetch the name of the measurement
+            measurement = self.mea.get_measurement_name(measurement_id)
+        else:
+            return json.dumps({'error': 'Invalid measurement id'})
         if 'error' in measurement:
                     return json.dumps(measurement)
-        #measurement_name = self.get_measurement_name(measurement)
+        # Number of latest recorded to be returned
+        # Light: 7
+        # All other measurements: 1
         if measurement[0] == 'light':
             num_of_records = 7
         else:
