@@ -69,6 +69,7 @@
     <script src="http://code.highcharts.com/modules/exporting.js"></script>
     <script type="text/javascript" src="{{ url_for('dav.static', filename='js/export-csv.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('dav.static', filename='js/underscore-min.js') }}"></script>
+    <script src="{{ url_for('dav.static', filename='js/highChartsTheme.js') }}"></script>
     <script src="{{ url_for('dav.static', filename='js/aqxGraph.js') }}"></script>
     <script>
         var systems_and_measurements = {{ systems_and_measurements_json | safe }};
