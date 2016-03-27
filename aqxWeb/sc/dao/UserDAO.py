@@ -2,6 +2,7 @@ from py2neo import Node, cypher
 from flask import session
 from aqxWeb.sc.models import timestamp
 
+
 # DAO for User Node in the Neo4J database
 class UserDAO:
     # constructor to set connection
@@ -79,7 +80,8 @@ class UserDAO:
                 gender = user.get('gender')
                 status = user.get('status')
                 userNode = Node("User", sql_id=sql_id, google_id=google_id, email=email, givenName=givenName,
-                                familyName=familyName, displayName=displayName, user_type=user_type, image_url=image_url,
+                                familyName=familyName, displayName=displayName, user_type=user_type,
+                                image_url=image_url,
                                 organization=organization, creation_time=timestamp(), modified_time=timestamp(),
                                 dob=dob, gender=gender, status=status)
                 self.graph.create(userNode)
@@ -105,7 +107,8 @@ class UserDAO:
 
             ###############################################################################
 
- ###############################################################################
+            ###############################################################################
+
     # function : get_unblocked_friends_by_sql_id
     # purpose : function used to find unblocked friends based on sql_id of the user
     # params : self, sql_id
@@ -121,14 +124,15 @@ class UserDAO:
         """
 
         try:
-            friendlist = self.graph.cypher.execute(query, sql_id = my_sql_id, blocker_id="");
+            friendlist = self.graph.cypher.execute(query, sql_id=my_sql_id, blocker_id="");
             return friendlist
         except cypher.CypherError, cypher.CypherTransactionError:
             raise "Exception occured in function get_unblocked_friends_by_sql_id"
 
-    ###############################################################################
+            ###############################################################################
 
-###############################################################################
+        ###############################################################################
+
     # function : get_blocked_friends_by_sql_id
     # purpose : function used to find blocked friends based on sql_id of the user
     # params : self, sql_id
@@ -145,11 +149,9 @@ class UserDAO:
         """
 
         try:
-            friendlist = self.graph.cypher.execute(query, sql_id = my_sql_id, blocker_id= my_sql_id);
+            friendlist = self.graph.cypher.execute(query, sql_id=my_sql_id, blocker_id=my_sql_id);
             return friendlist
         except cypher.CypherError, cypher.CypherTransactionError:
             raise "Exception occured in function get_blocked_friends_by_sql_id"
 
-    ###############################################################################
-
-
+            ###############################################################################

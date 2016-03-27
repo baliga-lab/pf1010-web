@@ -211,7 +211,6 @@ class ScAPI:
             if system_results is not None:
                 systems_list = []
                 for system in system_results:
-                    print system
                     result = {
                         "system_id": system[0]['system_id'],
                         "system_uid": system[0]['system_uid'],

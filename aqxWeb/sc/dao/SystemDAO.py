@@ -84,7 +84,6 @@ class SystemDAO:
 
             ###############################################################################
 
-
     ###############################################################################
     # function : get_system_for_user
     # purpose : function to return the systems from Neo4J database where the user is related to
@@ -100,9 +99,9 @@ class SystemDAO:
             RETURN s
             ORDER BY s.name
             """
-            system = self.graph.cypher.execute(query, sql_id = sql_id);
+            system = self.graph.cypher.execute(query, sql_id=sql_id);
             return system
         except Exception as e:
             raise "Exception occured in function get_system_for_user " + str(e)
 
-    ###############################################################################
+            ###############################################################################
