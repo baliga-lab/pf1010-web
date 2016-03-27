@@ -1,7 +1,7 @@
-from py2neo import Node, cypher
+from py2neo import Graph, Node, Relationship, cypher
 from flask import session
 from aqxWeb.sc.models import timestamp
-
+from aqxWeb.sc.models import getGraphConnectionURI
 
 # DAO for User Node in the Neo4J database
 class UserDAO:
@@ -105,3 +105,52 @@ class UserDAO:
             raise "Exception occured in function delete_user_by_sql_id"
 
             ###############################################################################
+
+ ###############################################################################
+    # function : get_unblocked_friends_by_sql_id
+    # purpose : function used to find unblocked friends based on sql_id of the user
+    # params : self, sql_id
+    # returns : User node
+    # Exceptions : cypher.CypherError, cypher.CypherTransactionError
+    def get_unblocked_friends_by_sql_id(self, sql_id):
+        my_sql_id = sql_id
+        query = """
+            MATCH (n:User)-[r:FRIENDS]-(n1:User)
+            WHERE n1.sql_id = {sql_id} and r.blocker_id = {blocker_id}
+            return n
+            ORDER BY n.givenName
+        """
+
+        try:
+            friendlist = getGraphConnectionURI().cypher.execute(query, sql_id = my_sql_id, blocker_id="");
+            return friendlist
+        except cypher.CypherError, cypher.CypherTransactionError:
+            raise "Exception occured in function get_unblocked_friends_by_sql_id"
+
+    ###############################################################################
+
+###############################################################################
+    # function : get_blocked_friends_by_sql_id
+    # purpose : function used to find blocked friends based on sql_id of the user
+    # params : self, sql_id
+    # returns : User node
+    # Exceptions : cypher.CypherError, cypher.CypherTransactionError
+    def get_blocked_friends_by_sql_id(self, sql_id):
+        my_sql_id = sql_id
+
+        query = """
+            MATCH (n:User)-[r:FRIENDS]-(n1:User)
+            WHERE n1.sql_id = {sql_id} and r.blocker_id = {blocker_id}
+            return n
+            ORDER BY n.givenName
+        """
+
+        try:
+            friendlist = getGraphConnectionURI().cypher.execute(query, sql_id = my_sql_id, blocker_id= my_sql_id);
+            return friendlist
+        except cypher.CypherError, cypher.CypherTransactionError:
+            raise "Exception occured in function get_blocked_friends_by_sql_id"
+
+    ###############################################################################
+
+
