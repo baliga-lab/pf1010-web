@@ -299,24 +299,29 @@ var getDataPoints = function(systemName, dataPoints, graphType, id, linkedTo, i,
  * @returns {{title: {text: *}, labels: {format: string, style: {color: *}}, opposite: boolean}}
  */
 var createYAxis = function(yType, axisNum, units){
-    var unitLabel = (units) ? units : "";
-    unitLabel = (_.isEqual(unitLabel, "celsius")) ? "°C" : unitLabel;
+    var unitLabel;
+    if (units){
+        unitLabel = (_.isEqual(units, "celsius")) ? "°C" : units;
+    }else{
+        unitLabel = "";
+    }
+    var color = COLORS[axisNum];
     return { // Primary yAxis
         title:
         {
             text: yType,
-            style: {color: COLORS[axisNum]}
+            style: {color: color}
         },
         labels:
         {
             format: '{value} ' + unitLabel,
-            style: {color: COLORS[axisNum] }
+            style: {color: color}
         },
         showEmpty: false,
         lineWidth: 1,
         tickWidth: 1,
         gridLineWidth: 1,
-        opposite: (axisNum % 2 === 1),
+        opposite: axisNum % 2,
         gridLineColor: '#707073',
         lineColor: '#707073',
         minorGridLineColor: '#505053',
