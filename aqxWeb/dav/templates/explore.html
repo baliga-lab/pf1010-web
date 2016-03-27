@@ -49,9 +49,11 @@
                 <input class="btn btn-blue" type="button" id="resetbtn" name="reset" value="Reset" onclick="reset()"/>
             </div>
             <div class="form-group" style="width: 75%; padding-top:2%;">
-                <label class="control-label">Select up to 4 systems</label>
+                <label class="control-label">Select up to 5 systems</label>
                 <select class="ui fluid search dropdown" multiple="" id="pickSystems">
-
+                    {% for sys in systems | sort(attribute='system_name') %}
+                        <option value="{{sys['system_uid']}}">{{sys['system_name']}}</option>
+                    {% endfor %}
                 </select>
                 <ul id="listOfUserSystems" style="overflow-y: scroll; max-height: 110px;">
                     {#        {% for sys in systems %}#}
@@ -67,7 +69,7 @@
                 </div>
             {% endif %}
             <form id="analyzeOptions" action="analyzeGraph" method="POST">
-                <input  name="selectedSystems" type="hidden" id="selectedSystems" value="Guna"/>
+                <input  name="selectedSystems" type="hidden" id="selectedSystems" value="abc"/>
                 <input class="btn btn-green" type="submit" value="Analyze" id="analyzebtn"/>
             </form>
         </div>

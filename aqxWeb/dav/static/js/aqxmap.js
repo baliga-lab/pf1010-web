@@ -90,9 +90,9 @@ var populateCheckList = function(systems_and_info_object, elementID) {
             } else {
                 checkList.innerHTML += getCheckListInnerHtml(system.system_uid, system.system_name, false);
             }
-            $('#pickSystems').append($("<option></option>")
-                             .attr("value",system.system_uid)
-                             .text(system.system_name));
+            //$('#pickSystems').append($("<option></option>")
+            //                 .attr("value",system.system_uid)
+            //                 .text(system.system_name));
             //selectList.append("<option id='"+system.system_uid +"' value=" +system.system_name+ ">"+ system.system_name+ "</option>");
         }
     });
@@ -121,23 +121,25 @@ var getCheckListInnerHtml = function (systemId, systemName, isChecked) {
  * @param systemID The System_UID for the system represented by marker
  */
 var flipIcons = function(marker, systemID) {
-    if (!markerIsStarred(marker)) {
-        marker.setZIndex(google.maps.Marker.MAX_ZINDEX + 1);
-        marker.setIcon(SELECTED_ICON);
-         $('#pickSystems').dropdown('set selected', systemID);
-        $("#" + systemID).prop(CHECKED, true);
-    }
-    else {
-        marker.setZIndex(google.maps.Marker.MIN_ZINDEX);
-        marker.setIcon(DEFAULT_ICON);
-        var selectedSystems = $('#pickSystems').val();
+    var selectedSystems = _.isNull($('#pickSystems').val()) ? [] : $('#pickSystems').val();
+    if(selectedSystems.length >=5) {
+        $('#alert_placeholder').html(getAlertHTMLString("You can select up to 5 systems", 'danger'));
+    } else {
         $('#pickSystems').dropdown('clear');
-        selectedSystems = _.reject(selectedSystems, function(id) {
-            return _.isEqual(id, systemID);
-        });
+        if (!markerIsStarred(marker)) {
+            marker.setZIndex(google.maps.Marker.MAX_ZINDEX + 1);
+            marker.setIcon(SELECTED_ICON);
+            selectedSystems.push(systemID);
+            $("#" + systemID).prop(CHECKED, true);
+        } else {
+            marker.setZIndex(google.maps.Marker.MIN_ZINDEX);
+            marker.setIcon(DEFAULT_ICON);
+            selectedSystems = _.reject(selectedSystems, function (id) {
+                return _.isEqual(id, systemID);
+            });
+            $("#" + systemID).prop(CHECKED, false);
+        }
         $('#pickSystems').dropdown('set selected', selectedSystems);
-
-        $("#" + systemID).prop(CHECKED, false);
     }
 };
 
@@ -161,7 +163,7 @@ function reset() {
 
     // Now that all markers are visible, repopulate the checklist
     $('#pickSystems').dropdown('clear');
-    populateCheckList(system_and_info_object, LIST_OF_USER_SYSTEMS);
+    //populateCheckList(system_and_info_object, LIST_OF_USER_SYSTEMS);
 
     // Remove any active alerts
     $('#alert_placeholder').empty();
@@ -294,7 +296,8 @@ var main = function(system_and_info_object) {
             pickSystemChanged();
         }
     });
-    populateCheckList(_.sortBy(system_and_info_object,'system_name'), LIST_OF_USER_SYSTEMS);
+
+    //populateCheckList(_.sortBy(system_and_info_object,'system_name'), LIST_OF_USER_SYSTEMS);
 };
 
 /**
@@ -314,8 +317,8 @@ var systemMetadataMatchesAnyDropdown = function(system, dp1, dp2, dp3, dp4){
             (!_.isEmpty(dp4) && system.growbed_media != dp4));
 };
 
-var getAlertHTMLString = function(visible, type){
-    return '<div class="alert alert-' + type + '"><a class="close" data-dismiss="alert">×</a><span>There are ' + visible+ ' visible pins.</span></div>'
+var getAlertHTMLString = function(alertText, type){
+    return '<div class="alert alert-' + type + '"><a class="close" data-dismiss="alert">×</a><span>' +alertText + '</span></div>'
 };
 
 /**
@@ -338,16 +341,16 @@ function filterSystemsBasedOnDropdownValues() {
     });
 
     if (numVisible > 0){
-        $('#alert_placeholder').html(getAlertHTMLString(numVisible, 'success'));
+        $('#alert_placeholder').html(getAlertHTMLString("There are "+ numVisible + " visible pins.", 'success'));
     }else {
-        $('#alert_placeholder').html(getAlertHTMLString(numVisible, 'danger'));
+        $('#alert_placeholder').html(getAlertHTMLString("There are "+ numVisible + " visible pins.", 'danger'));
     }
 
     // Repaint clustered markers now that we've filtered
     MC.repaint();
 
     // Repopulate the checklist so only visible systems appear
-    populateCheckList(system_and_info_object, LIST_OF_USER_SYSTEMS);
+    //populateCheckList(system_and_info_object, LIST_OF_USER_SYSTEMS);
 }
 
 /**
@@ -380,14 +383,16 @@ $('#listOfUserSystems').change(function() {
 var pickSystemChanged = function() {
     // Generate the list of selected System Names
     var checkedNames = $('#pickSystems').val();
-
+    if(checkedNames.length <= 5) {
+        $('#alert_placeholder').empty();
+    }
     // For each System, if its name is in the checkedNames list, give it the star Icon
     // otherwise ensure it has the default Icon
     _.each(system_and_info_object, function (system) {
         if (_.contains(checkedNames, system.system_uid)) {
             system.marker.setIcon(SELECTED_ICON);
             system.marker.setZIndex(google.maps.Marker.MAX_ZINDEX + 1);
-        }else{
+        } else {
             system.marker.setIcon(DEFAULT_ICON);
             system.marker.setZIndex(google.maps.Marker.MIN_ZINDEX - 1);
         }
