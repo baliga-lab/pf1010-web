@@ -8,7 +8,7 @@ from py2neo import cypher
 from app.scAPI import ScAPI
 from flask_login import login_required
 from flask_googlelogin import LoginManager, make_secure_token, GoogleLogin
-from models import convertMilliSecondsToNormalDate, get_sqlId
+from models import convert_milliseconds_to_normal_date, get_sqlId
 import mysql.connector
 import requests
 import aqxdb
@@ -614,7 +614,7 @@ def view_system(system_uid):
             # Valid System_UID
             else:
                 logged_in_user = User(sql_id).find()
-                created_date = convertMilliSecondsToNormalDate(system_neo4j[0][0]['creation_time'])
+                created_date = convert_milliseconds_to_normal_date(system_neo4j[0][0]['creation_time'])
                 # system_mysql = System().get_mysql_system_by_uid(system_uid)
                 system_mysql = system_neo4j
                 # measurements = analyticsViews.get_system_measurements(sql_id)
@@ -1046,7 +1046,7 @@ def add_system_post():
             # Valid System_UID
         else:
             logged_in_user = User(user_sql_id).find()
-            created_date = convertMilliSecondsToNormalDate(system_neo4j[0][0]['creation_time'])
+            created_date = convert_milliseconds_to_normal_date(system_neo4j[0][0]['creation_time'])
             privacy = request.form['privacy']
             text = request.form['text']
             link = request.form['link']

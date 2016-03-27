@@ -916,17 +916,17 @@ def timestamp():
 
 
 ############################################################################
-# function : convertMilliSecondsToNormalDate
+# function : convert_milliseconds_to_normal_date
 # purpose : function to convert milliseconds to normal date time
 # params : milliseconds
 # returns : returns date
 # Exceptions : None
 ############################################################################
 
-def convertMilliSecondsToNormalDate(milliseconds):
+def convert_milliseconds_to_normal_date(milliseconds):
     seconds = milliseconds / 1000.0
-    normalDateTime = datetime.datetime.fromtimestamp(seconds).strftime('%Y-%m-%d %H:%M:%S.%f')
-    return normalDateTime
+    normal_date_time = datetime.datetime.fromtimestamp(seconds).strftime('%m-%d-%Y %H:%M')
+    return normal_date_time
 
 
 ############################################################################
