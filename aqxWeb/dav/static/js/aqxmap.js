@@ -80,24 +80,25 @@ var buildContentString = function(system) {
  */
 var populateCheckList = function(systems_and_info_object, elementID) {
     var checkList = document.getElementById(elementID);
-    //var selectList = document.getElementById("pickSystems");
+    //var selectList = document.getElementById("analyzeSystems");
     checkList.innerHTML = "";
     _.each(systems_and_info_object, function(system) {
         if (system.marker.getVisible()) {
             if(markerIsStarred(system.marker)) {
-                $('#pickSystems').dropdown('set selected', system.system_uid);
+                $('#analyzeSystems').dropdown('set selected', system.system_uid);
                 checkList.innerHTML += getCheckListInnerHtml(system.system_uid, system.system_name, true);
             } else {
                 checkList.innerHTML += getCheckListInnerHtml(system.system_uid, system.system_name, false);
             }
-            //$('#pickSystems').append($("<option></option>")
-            //                 .attr("value",system.system_uid)
-            //                 .text(system.system_name));
-            //selectList.append("<option id='"+system.system_uid +"' value=" +system.system_name+ ">"+ system.system_name+ "</option>");
         }
     });
 };
 
+var addSystemToAnalyzeSystemDropdown = function(system) {
+    $('#analyzeSystems').append($("<option></option>")
+                        .attr("value",system.system_uid)
+                        .text(system.system_name));
+};
 /**
  *
  * @param systemId - SystemID
@@ -121,11 +122,11 @@ var getCheckListInnerHtml = function (systemId, systemName, isChecked) {
  * @param systemID The System_UID for the system represented by marker
  */
 var flipIcons = function(marker, systemID) {
-    var selectedSystems = _.isNull($('#pickSystems').val()) ? [] : $('#pickSystems').val();
+    var selectedSystems = getAnalyzeSystemValues();
     if(selectedSystems.length >=5) {
         $('#alert_placeholder').html(getAlertHTMLString("You can select up to 5 systems", 'danger'));
     } else {
-        $('#pickSystems').dropdown('clear');
+        $('#analyzeSystems').dropdown('clear');
         if (!markerIsStarred(marker)) {
             marker.setZIndex(google.maps.Marker.MAX_ZINDEX + 1);
             marker.setIcon(SELECTED_ICON);
@@ -139,20 +140,32 @@ var flipIcons = function(marker, systemID) {
             });
             $("#" + systemID).prop(CHECKED, false);
         }
-        $('#pickSystems').dropdown('set selected', selectedSystems);
+        $('#analyzeSystems').dropdown('set selected', selectedSystems);
     }
 };
 
+/**
+ * Returns selected system's Id from dropdown or []
+ */
+function getAnalyzeSystemValues() {
+    var systemIds = $('#analyzeSystems').val();
+    return _.isNull(systemIds) ? [] : systemIds;
+}
 /**
  * Resets all markers to a visible state, and resets dropdowns
  * to their default values.
  */
 function reset() {
 
+    // AnalyzeSystems dropdown has to be flushed first
+    $('#analyzeSystems').dropdown('clear');
+    $('#analyzeSystems').empty();
+
     // Sets all markers as visible and gives them the default Marker icon
-    _.each(system_and_info_object, function(system) {
+    _.each(_.sortBy(system_and_info_object,'system_name'), function(system) {
         system.marker.setVisible(true);
         system.marker.setIcon(DEFAULT_ICON);
+        addSystemToAnalyzeSystemDropdown(system);
     });
 
     // Repaint the clusters on reset
@@ -162,7 +175,7 @@ function reset() {
     OMS.unspiderfy();
 
     // Now that all markers are visible, repopulate the checklist
-    $('#pickSystems').dropdown('clear');
+
     //populateCheckList(system_and_info_object, LIST_OF_USER_SYSTEMS);
 
     // Remove any active alerts
@@ -290,10 +303,10 @@ var main = function(system_and_info_object) {
 
     // Populate the checklist
     // All systems are visible at this point, so this list contains each system name
-    $('#pickSystems').dropdown({
+    $('#analyzeSystems').dropdown({
         maxSelections: 5,
         onChange: function(value, text) {
-            pickSystemChanged();
+            updateAnalyzeSystems();
         }
     });
 
@@ -310,10 +323,10 @@ var main = function(system_and_info_object) {
  * @param dp4 The value from the fourth dropdown for Growbed Media
  * @returns {boolean}
  */
-var systemMetadataMatchesAnyDropdown = function(system, dp1, dp2, dp3, dp4){
+var systemMetadataDoesNotMatchesAnyDropdown = function(system, dp1, dp2, dp3, dp4){
     return ((!_.isEmpty(dp1) && system.aqx_technique_name != dp1) ||
             (!_.isEmpty(dp2) && system.organism_name != dp2) ||
-            (!_.isEmpty(dp3) &&system.crop_name != dp3) ||
+            (!_.isEmpty(dp3) && system.crop_name != dp3) ||
             (!_.isEmpty(dp4) && system.growbed_media != dp4));
 };
 
@@ -330,20 +343,22 @@ function filterSystemsBasedOnDropdownValues() {
     var dp3 = document.getElementById(SELECT_CROP).value;
     var dp4 = document.getElementById(SELECT_GROWBED_MEDIUM).value;
     var numVisible = 0;
-    _.each(system_and_info_object, function(system) {
-        if (systemMetadataMatchesAnyDropdown(system, dp1, dp2, dp3, dp4)){
+    $('#analyzeSystems').empty();
+    _.each(_.sortBy(system_and_info_object,'system_name'), function(system) {
+        if (systemMetadataDoesNotMatchesAnyDropdown(system, dp1, dp2, dp3, dp4)){
             system.marker.setVisible(false);
         } else {
             MAP.panTo(system.marker.position);
             system.marker.setVisible(true);
+            addSystemToAnalyzeSystemDropdown(system);
             numVisible++;
         }
     });
 
     if (numVisible > 0){
-        $('#alert_placeholder').html(getAlertHTMLString("There are "+ numVisible + " visible pins.", 'success'));
+        $('#alert_placeholder').html(getAlertHTMLString("Found "+ numVisible + " systems based on filtering criteria.", 'success'));
     }else {
-        $('#alert_placeholder').html(getAlertHTMLString("There are "+ numVisible + " visible pins.", 'danger'));
+        $('#alert_placeholder').html(getAlertHTMLString("No system(s) found. Please select a different filtering criteria and try again.", 'danger'));
     }
 
     // Repaint clustered markers now that we've filtered
@@ -380,9 +395,12 @@ $('#listOfUserSystems').change(function() {
     });
 });
 
-var pickSystemChanged = function() {
+/**
+ * Change the marker type of selected system in Map
+ */
+var updateAnalyzeSystems = function() {
     // Generate the list of selected System Names
-    var checkedNames = $('#pickSystems').val();
+    var checkedNames = getAnalyzeSystemValues();
     if(checkedNames.length <= 5) {
         $('#alert_placeholder').empty();
     }
@@ -402,7 +420,7 @@ var pickSystemChanged = function() {
 
 
 $('#analyzeOptions').on('submit',function(e) {
-    var systemsSelectedToAnalyze = $('#pickSystems').val();
+    var systemsSelectedToAnalyze = getAnalyzeSystemValues();
     //_.each($('#listOfUserSystems input:checked'), function(checkedInput){
     //    systemsSelectedToAnalyze.push(checkedInput.id);
     //});

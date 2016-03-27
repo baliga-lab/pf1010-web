@@ -50,7 +50,7 @@
             </div>
             <div class="form-group" style="width: 75%; padding-top:2%;">
                 <label class="control-label">Select up to 5 systems</label>
-                <select class="ui fluid search dropdown" multiple="" id="pickSystems">
+                <select class="ui fluid search dropdown" multiple="" id="analyzeSystems">
                     {% for sys in systems | sort(attribute='system_name') %}
                         <option value="{{sys['system_uid']}}">{{sys['system_name']}}</option>
                     {% endfor %}
