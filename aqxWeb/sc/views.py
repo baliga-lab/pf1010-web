@@ -1429,6 +1429,12 @@ def delete_system_by_system_id(system_id):
     if session.get('siteadmin') is not None:
         return ScAPI(getGraphConnectionURI()).delete_system_by_system_id(system_id)
 
+######################################################################
+# API call to get the system(s) node for the user related to from the Neo4J database
+######################################################################
+@social.route('/aqxapi/get/system/for_user/<sql_id>', methods=['GET'])
+def get_system_for_user(sql_id):
+    return ScAPI(getGraphConnectionURI()).get_system_for_user(sql_id)
 
 #######################################################################################
 

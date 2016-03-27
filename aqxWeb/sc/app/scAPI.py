@@ -32,7 +32,7 @@ class ScAPI:
                 "dob": str(user['dob']),
                 "image_url": str(user['image_url']),
                 "user_type": str(user['user_type']),
-                "status": str(user['status'])
+                "status": user['status']
             }
             return json.dumps({'user': result})
         else:
@@ -59,7 +59,7 @@ class ScAPI:
                 "dob": str(user['dob']),
                 "image_url": str(user['image_url']),
                 "user_type": str(user['user_type']),
-                "status": str(user['status'])
+                "status": user['status']
             }
             return json.dumps({'user': result})
         else:
@@ -88,7 +88,7 @@ class ScAPI:
                     "dob": str(user['dob']),
                     "image_url": str(user['image_url']),
                     "user_type": str(user['user_type']),
-                    "status": str(user['status'])
+                    "status": user['status']
                 }
                 return json.dumps({'user': result})
             else:
@@ -195,5 +195,38 @@ class ScAPI:
             return json.dumps({'success': result})
         except ValueError:
             result = {"status": "system_id should be integer value. Provided value: " + str(system_id)}
+            return json.dumps({'error': result})
+
+    ###############################################################################
+    # function : get_system_for_user
+    # purpose : function to return the systems from Neo4J database where the user is related to
+    # params : self, sql_id
+    # returns : Success/Error status
+    # Exceptions : ValueError
+    ###############################################################################
+    def get_system_for_user(self, sql_id):
+        try:
+            sql_id = int(sql_id)
+            system_results = SystemDAO(self.graph).get_system_for_user(sql_id)
+            if system_results is not None:
+                systems_list = []
+                for system in system_results:
+                    print system
+                    result = {
+                        "system_id": system[0]['system_id'],
+                        "system_uid": system[0]['system_uid'],
+                        "name": system[0]['name'],
+                        "description": system[0]['description'],
+                        "creation_time": system[0]['creation_time'],
+                        "modified_time": system[0]['modified_time'],
+                        "status": system[0]['status']
+                    }
+                    systems_list.append(result)
+                return json.dumps({'system': systems_list})
+            else:
+                result = {}
+                return json.dumps({'system': result})
+        except ValueError:
+            result = {"status": "sql_id should be integer value. Provided value: " + str(sql_id)}
             return json.dumps({'error': result})
             ###############################################################################

@@ -83,3 +83,26 @@ class SystemDAO:
             raise "Exception occured in function delete_system_by_system_id " + str(e)
 
             ###############################################################################
+
+
+    ###############################################################################
+    # function : get_system_for_user
+    # purpose : function to return the systems from Neo4J database where the user is related to
+    # params : self, sql_id
+    # returns : None
+    # Exceptions : Exception
+    def get_system_for_user(self, sql_id):
+        try:
+            query = """
+            MATCH (u:User)-[rel]-(s:System)
+            WHERE u.sql_id = {sql_id} and
+            NOT (type(rel) = "SYS_PENDING_PARTICIPANT")
+            RETURN s
+            ORDER BY s.name
+            """
+            system = self.graph.cypher.execute(query, sql_id = sql_id);
+            return system
+        except Exception as e:
+            raise "Exception occured in function get_system_for_user " + str(e)
+
+    ###############################################################################

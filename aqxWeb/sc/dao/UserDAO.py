@@ -1,7 +1,6 @@
-from py2neo import Graph, Node, Relationship, cypher
+from py2neo import Node, cypher
 from flask import session
 from aqxWeb.sc.models import timestamp
-from aqxWeb.sc.models import getGraphConnectionURI
 
 # DAO for User Node in the Neo4J database
 class UserDAO:
@@ -122,7 +121,7 @@ class UserDAO:
         """
 
         try:
-            friendlist = getGraphConnectionURI().cypher.execute(query, sql_id = my_sql_id, blocker_id="");
+            friendlist = self.graph.cypher.execute(query, sql_id = my_sql_id, blocker_id="");
             return friendlist
         except cypher.CypherError, cypher.CypherTransactionError:
             raise "Exception occured in function get_unblocked_friends_by_sql_id"
@@ -146,7 +145,7 @@ class UserDAO:
         """
 
         try:
-            friendlist = getGraphConnectionURI().cypher.execute(query, sql_id = my_sql_id, blocker_id= my_sql_id);
+            friendlist = self.graph.cypher.execute(query, sql_id = my_sql_id, blocker_id= my_sql_id);
             return friendlist
         except cypher.CypherError, cypher.CypherTransactionError:
             raise "Exception occured in function get_blocked_friends_by_sql_id"
