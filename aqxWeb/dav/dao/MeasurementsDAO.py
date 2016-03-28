@@ -160,7 +160,7 @@ class MeasurementsDAO:
                 cursor.execute(query)
                 payload[system] = cursor.fetchall()
         except Error as e:
-            return {'error': e.msg}
+            return {'error': e.msg + "system: :" + str(system) + "  measurements: " + str(measurements)}
         finally:
             cursor.close()
 

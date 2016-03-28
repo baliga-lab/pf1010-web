@@ -270,16 +270,25 @@ class DavAPI:
     ###############################################################################
     # Retrieve the readings for input system and type of measurements
     ###############################################################################
-    # param conn : db connection
     # param system_uid_list : List of system unique IDs
-    # param measurement_type_list: List of measurement_IDs
+    # param measurement_id_list: List of measurement_IDs
     # get_readings_for_plot - It returns the readings of all the input system uids
     #                         for all input measurement ids
     def get_readings_for_plot(self,system_uid_list,measurement_id_list):
         # Form a list of names from the list of ids
         measurement_type_list = self.mea.get_measurement_name_list(measurement_id_list)
+
+        # Return if there is any error in getting the measurement type names
         if 'error' in measurement_type_list:
-                    return json.dumps(measurement_type_list)
+                    error_msg = measurement_type_list
+                    return json.dumps(error_msg )
+
+        # If there is no type for given id throw an exception
+        if not measurement_type_list:
+            error_msg = "No data found for " + "measurement_id_list: " + str(measurement_id_list)
+            raise ValueError(error_msg)
+
+        # Returned list is list of tuples. Separating measurement type names from tuple
         measurement_name_list  = []
         for name in measurement_type_list:
              measurement_name_list.append(str(name[0]))
@@ -303,9 +312,8 @@ class DavAPI:
     ###############################################################################
     # Form the system's measurement reading json
     ###############################################################################
-    # param conn : db connection
     # param system_uid  : Unique id of system
-    # param readings  : all readings for the input system_uid
+    # param readings    : all readings for the input system_uid
     # param measurement_type_list : list of measurement types in the request
     # form_system_measurement_json  - It returns the json for all information needed
     # for the plot for the input system_uid
@@ -372,7 +380,7 @@ class DavAPI:
                     reading = all_readings[i]
                     curDate = reading[1]
                     # Calculate the difference in hours from previous reading
-                    x = self.calcDiffInHours(curDate,startDate)
+                    x = self.calc_diff_hours(curDate,startDate)
                 # If x >  prevX, build the values object and append to the values list
                 if x > prevX:
 
@@ -413,7 +421,6 @@ class DavAPI:
 
             except ValueError as err:
                 raise ValueError('Error in preparing values list',measurement_type,reading)
-                print(err.args)
 
         return valuesList
     ###############################################################################
@@ -449,9 +456,9 @@ class DavAPI:
     ###############################################################################
     # param curDate    : date of current reading
     # param  startDate : date of first reading
-    # calcDiffInHours  : It returns the difference in hours between two input dates
+    # calc_diff_hours  : It returns the difference in hours between two input dates
     @staticmethod
-    def calcDiffInHours(curDate,startDate):
+    def calc_diff_hours(curDate,startDate):
         if(curDate < startDate ):
             raise ValueError('Current date is lesser than previous date',curDate,startDate)
         else:
