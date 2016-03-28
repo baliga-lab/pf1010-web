@@ -11,7 +11,6 @@ pool = None
 
 # Connect to the database
 def init_app(app):
-    #app.debug = True
     app.config.from_envvar('AQUAPONICS_SETTINGS')
     create_conn(app)
 
