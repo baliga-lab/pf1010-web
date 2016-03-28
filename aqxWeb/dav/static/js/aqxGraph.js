@@ -3,22 +3,9 @@
  ################################################################################################################### */
 
 var XAXIS = "selectXAxis";
-var YAXIS = "selectYAxis";
-var XAXISVALUE = "";
-var YAXISVALUE = "";
-var OPTION = 'option';
 var CHART = "";
-var SHOW_IN_LEGEND = true;
 var GRAPH_TYPE = "selectGraphType";
-var CURSOR_TYPE = "pointer";
-var ZOOM_ENABLED = true;
-var TIME = "time";
 var SELECTED = 'selected';
-var CHECKED = "checked";
-var UNCHECKED = "unchecked";
-var LINE = "line";
-var SCATTER = "scatter";
-var BAR_CHART = "barchart";
 var DEFAULT_Y_TEXT = "Nitrate";
 var DEFAULT_Y_VALUE = DEFAULT_Y_TEXT.toLowerCase();
 var CHART_TITLE = "System Analyzer";
@@ -26,8 +13,13 @@ var HC_OPTIONS;
 var COLORS = ["lime", "orange", '#f7262f', "lightblue"];
 var DASHSTYLES = ['Solid', 'LongDash', 'ShortDashDot', 'ShortDot', 'LongDashDotDot'];
 var MARKERTYPES = ["circle", "square", "diamond", "triangle", "triangle-down"];
-
-
+var BACKGROUND = {
+    linearGradient: { x1: 0, y1: 0, x2: 1, y2: 1 },
+    stops: [
+        [0, '#2a2a2b'],
+        [1, '#3e3e40']
+    ]
+};
 
 /* ##################################################################################################################
  MAIN CHART LOADING FUNCTIONS
@@ -42,10 +34,6 @@ var drawChart = function(){
 
     // Get measurement types to display on the y-axis
     var yTypes = $(".js-example-basic-multiple").select2().val();
-    //var yTypes = $(".js-example-basic-multiple").select2("data");
-    //yTypes = _.map(yTypes, function(x){ return x.id });
-    //console.log(yTypes);
-
 
     // Generate a data Series for each y-value type, and assign them all to the CHART
     updateChartDataPointsHC(CHART, xType, yTypes, graphType).redraw();
@@ -73,9 +61,8 @@ var updateChartDataPointsHC = function(chart, xType, yTypeList, graphType){
     if (measurementsToFetch.length > 0) {
         var measurementIDList = [];
         _.each(measurementsToFetch, function(measurement){
-            measurementIDList.push(measurement_types_and_info[measurement]['id']);
+            measurementIDList.push(measurement_types_and_info[measurement].id);
         });
-        console.log("Call API for " + measurementsToFetch);
         callAPIForNewData(measurementIDList);
     }
 
@@ -116,7 +103,7 @@ var getDataPointsForPlotHC = function(chart, xType, yTypeList, graphType){
 
     // Axis dict ensures that each variable is plotted to the same, unique axis for that variable
     var axes = {};
-    _.each(yTypeList, function(axis, i){
+    _.each(yTypeList, function(axis){
         axes[axis] = {isAxis:false};
     });
 
@@ -142,14 +129,14 @@ var getDataPointsForPlotHC = function(chart, xType, yTypeList, graphType){
                         // If not, create the axis and assign to a variable. This variables isAxis is now true,
                         // an axis is assigned, and the numAxes increments
                         if (!axes[yType].isAxis) {
-                            chart.addAxis(createYAxis(yType, numAxes, measurement_types_and_info[yType]['unit']));
+                            chart.addAxis(createYAxis(yType, numAxes, measurement_types_and_info[yType].unit));
                             axes[yType].isAxis = true;
                             axes[yType].axis = numAxes++;
                         }
 
                         // Push valid dataPoints and their configs to the list of dataPoints to plot
                         dataPointsList.push(
-                            getDataPoints(system.name, measurement.values, graphType, systemId,linkedTo, axes[yType].axis, j, yType));
+                            getDataPoints(system.name, measurement.values, graphType, systemId, linkedTo, axes[yType].axis, j, yType));
                         linkedTo = true;
                     }
 
@@ -271,8 +258,8 @@ var setDefaultYAxis = function() {
  * @returns {string}
  */
 var getAlertHTMLString = function(missingYTypes){
-    return '<div class="alert alert-danger"><a class="close" data-dismiss="alert">×</a><span>Missing values for: '
-        + _.uniq(missingYTypes).toString() + '</span></div>'
+    return '<div class="alert alert-danger"><a class="close" data-dismiss="alert">×</a><span>Missing values for: ' +
+        _.uniq(missingYTypes).toString() + '</span></div>';
 };
 
 /**
@@ -312,30 +299,34 @@ var getDataPoints = function(systemName, dataPoints, graphType, id, linkedTo, i,
  * @returns {{title: {text: *}, labels: {format: string, style: {color: *}}, opposite: boolean}}
  */
 var createYAxis = function(yType, axisNum, units){
-    var unitLabel = (units) ? units : "";
-    unitLabel = (_.isEqual(unitLabel, "celsius")) ? "°C" : unitLabel;
+    var unitLabel;
+    if (units){
+        unitLabel = (_.isEqual(units, "celsius")) ? "°C" : units;
+    }else{
+        unitLabel = "";
+    }
+    var color = COLORS[axisNum];
     return { // Primary yAxis
         title:
         {
             text: yType,
-            style: {color: COLORS[axisNum]}
+            style: {color: color}
         },
         labels:
         {
             format: '{value} ' + unitLabel,
-            style: {color: COLORS[axisNum] }
+            style: {color: color}
         },
         showEmpty: false,
         lineWidth: 1,
         tickWidth: 1,
         gridLineWidth: 1,
-        opposite: !(axisNum % 2 === 0),
+        opposite: axisNum % 2,
         gridLineColor: '#707073',
         lineColor: '#707073',
         minorGridLineColor: '#505053',
-        tickColor: '#707073',
-    }
-
+        tickColor: '#707073'
+    };
 };
 
 
@@ -348,19 +339,18 @@ var createYAxis = function(yType, axisNum, units){
  */
 var main = function(){
 
-    // When the submit button is clicked, redraw the graph based on user selections
-    $('#submitbtn').click(function() {
-        $('#alert_placeholder').empty();
-        drawChart();
-        //setDefaultYAxis();
-    });
-
     $.fn.select2.defaults.set("maximumSelectionLength", 4);
 
     // Select the default y-axis value
     setDefaultYAxis();
 
-    // Reset button, returns dropdowns to default, clears checklist, and displays defuault nitrate vs time graph
+    // When the submit button is clicked, redraw the graph based on user selections
+    $('#submitbtn').click(function() {
+        $('#alert_placeholder').empty();
+        drawChart();
+    });
+
+    // Reset button, returns dropdowns to default, clears checklist, and displays default nitrate vs time graph
     $('#resetbtn').click(function(){
 
         // Reset X Axis selection to default
@@ -394,13 +384,7 @@ window.onload = function() {
             renderTo: 'analyzeContainer',
             type: 'line',
             zoomType: 'xy',
-            backgroundColor: {
-                linearGradient: { x1: 0, y1: 0, x2: 1, y2: 1 },
-                stops: [
-                    [0, '#2a2a2b'],
-                    [1, '#3e3e40']
-                ]
-            },
+            backgroundColor: BACKGROUND,
             plotBorderColor: '#606063'
         },
         title: {
@@ -415,21 +399,7 @@ window.onload = function() {
             }
         },
         tooltip: {
-            // TODO: Maybe init units first then we can cut out a line here.
-            formatter: function() {
-                var tooltipInfo = this.series.name.split(",");
-                var yVal = tooltipInfo[1];
-                var units = measurement_types_and_info[yVal]['unit'];
-                units = (units) ? units : "";
-                units = (_.isEqual(units, "celsius")) ? "°C" : units;
-                yVal = yVal.charAt(0).toUpperCase() + yVal.slice(1);
-                var datetime = this.point.date.split(" ");
-                return '<b>' + tooltipInfo[0] + '</b>' +
-                    '<br><p>' + yVal + ": " + this.y + ' ' + units + '</p>' +
-                    '<br><p>Hours in cycle: ' + this.x + '</p>' +
-                    '<br><p>Measured on: ' + datetime[0] + '</p>' +
-                    '<br><p>At time: ' + datetime[1] +'</p>';
-            },
+            formatter: tooltipFormatter,
             crosshairs: [true,true]
         },
         legend: {
@@ -463,187 +433,17 @@ window.onload = function() {
     drawChart();
 };
 
-
-/* ##################################################################################################################
- HIGHCHARTS THEME
- #################################################################################################################### */
-
-
-Highcharts.theme = {
-    colors: ["#2b908f", "#90ee7e", "#f45b5b", "#7798BF", "#aaeeee", "#ff0066", "#eeaaee",
-        "#55BF3B", "#DF5353", "#7798BF", "#aaeeee"],
-    chart: {
-        backgroundColor: {
-            linearGradient: { x1: 0, y1: 0, x2: 1, y2: 1 },
-            stops: [
-                [0, '#2a2a2b'],
-                [1, '#3e3e40']
-            ]
-        },
-        plotBorderColor: '#606063'
-    },
-    title: {
-        style: {
-            color: '#E0E0E3',
-            textTransform: 'uppercase',
-            fontSize: '20px'
-        }
-    },
-    subtitle: {
-        style: {
-            color: '#E0E0E3',
-            textTransform: 'uppercase'
-        }
-    },
-    xAxis: {
-        gridLineColor: '#707073',
-        labels: {
-            style: {
-                color: '#E0E0E3'
-            }
-        },
-        lineColor: '#707073',
-        minorGridLineColor: '#505053',
-        tickColor: '#707073',
-        title: {
-            style: {
-                color: '#A0A0A3'
-
-            }
-        }
-    },
-    tooltip: {
-        backgroundColor: 'rgba(0, 0, 0, 0.85)',
-        style: {
-            color: '#F0F0F0'
-        }
-    },
-    plotOptions: {
-        series: {
-            dataLabels: {
-                color: '#B0B0B3'
-            },
-            marker: {
-                lineColor: '#333'
-            }
-        },
-        boxplot: {
-            fillColor: '#505053'
-        },
-        candlestick: {
-            lineColor: 'white'
-        },
-        errorbar: {
-            color: 'white'
-        }
-    },
-    legend: {
-        itemStyle: {
-            color: '#E0E0E3'
-        },
-        itemHoverStyle: {
-            color: '#FFF'
-        },
-        itemHiddenStyle: {
-            color: '#606063'
-        }
-    },
-    credits: {
-        style: {
-            color: '#666'
-        }
-    },
-    labels: {
-        style: {
-            color: '#707073'
-        }
-    },
-
-    drilldown: {
-        activeAxisLabelStyle: {
-            color: '#F0F0F3'
-        },
-        activeDataLabelStyle: {
-            color: '#F0F0F3'
-        }
-    },
-
-    navigation: {
-        buttonOptions: {
-            symbolStroke: '#DDDDDD',
-            theme: {
-                fill: '#505053'
-            }
-        }
-    },
-
-    // scroll charts
-    rangeSelector: {
-        buttonTheme: {
-            fill: '#505053',
-            stroke: '#000000',
-            style: {
-                color: '#CCC'
-            },
-            states: {
-                hover: {
-                    fill: '#707073',
-                    stroke: '#000000',
-                    style: {
-                        color: 'white'
-                    }
-                },
-                select: {
-                    fill: '#000003',
-                    stroke: '#000000',
-                    style: {
-                        color: 'white'
-                    }
-                }
-            }
-        },
-        inputBoxBorderColor: '#505053',
-        inputStyle: {
-            backgroundColor: '#333',
-            color: 'silver'
-        },
-        labelStyle: {
-            color: 'silver'
-        }
-    },
-
-    navigator: {
-        handles: {
-            backgroundColor: '#666',
-            borderColor: '#AAA'
-        },
-        outlineColor: '#CCC',
-        maskFill: 'rgba(255,255,255,0.1)',
-        series: {
-            color: '#7798BF',
-            lineColor: '#A6C7ED'
-        },
-        xAxis: {
-            gridLineColor: '#505053'
-        }
-    },
-
-    scrollbar: {
-        barBackgroundColor: '#808083',
-        barBorderColor: '#808083',
-        buttonArrowColor: '#CCC',
-        buttonBackgroundColor: '#606063',
-        buttonBorderColor: '#606063',
-        rifleColor: '#FFF',
-        trackBackgroundColor: '#404043',
-        trackBorderColor: '#404043'
-    },
-
-    // special colors for some of the
-    legendBackgroundColor: 'rgba(0, 0, 0, 0.5)',
-    background2: '#505053',
-    dataLabelsColor: '#B0B0B3',
-    textColor: '#C0C0C0',
-    contrastTextColor: '#F0F0F3',
-    maskColor: 'rgba(255,255,255,0.3)'
+var tooltipFormatter = function(){
+    var tooltipInfo = this.series.name.split(",");
+    var yVal = tooltipInfo[1];
+    var units = measurement_types_and_info[yVal].unit;
+    units = (units) ? units : "";
+    units = (_.isEqual(units, "celsius")) ? "°C" : units;
+    yVal = yVal.charAt(0).toUpperCase() + yVal.slice(1);
+    var datetime = this.point.date.split(" ");
+    return '<b>' + tooltipInfo[0] + '</b>' +
+        '<br><p>' + yVal + ": " + this.y + ' ' + units + '</p>' +
+        '<br><p>Hours in cycle: ' + this.x + '</p>' +
+        '<br><p>Measured on: ' + datetime[0] + '</p>' +
+        '<br><p>At time: ' + datetime[1] +'</p>';
 };

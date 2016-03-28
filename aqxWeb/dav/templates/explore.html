@@ -3,6 +3,7 @@
 {% block styles %}
     {{ super() }}
     <link rel="stylesheet" href="{{ url_for('dav.static', filename='css/explore.css') }}">
+    <link rel="stylesheet" href="{{ url_for('dav.static', filename='css/semantic.min.css') }}">
 {% endblock %}
 
 {% block title %}Explore{% endblock %}
@@ -10,6 +11,7 @@
 {% block content %}
     <h1 class="page-header">Explore</h1>
     <div class="container" style="width: 100%; margin-top: 2%; margin-left: 2%">
+        <div id = "alert_placeholder" style="width: 93%"></div>
         <div style="width: 70%; float: left; position: relative; overflow: hidden; background-color: rgb(229, 227, 223);" id="map"></div>
         <div style="width: 30%; padding-left:2%; float:left;">
             <div style="width: 75%;" class="form-group">
@@ -17,27 +19,42 @@
                 <br>
                 <select class="explore-dropdown" id="selectTechnique">
                     <option value="" selected="selected">Choose an Aquaponics Technique</option>
+                    {% for technique in metadata_dict['aqx_techniques'] %}
+                        <option value="{{ technique }}">{{ technique }}</option>
+                    {% endfor %}
                 </select>
                 <br><br>
                 <select class="explore-dropdown" id="selectOrganism">
                     <option value="" selected="selected">Choose an Aquatic Organism</option>
+                    {% for organism in metadata_dict['aqx_organisms'] %}
+                        <option value="{{organism}}">{{ organism }}</option>
+                    {% endfor %}
                 </select>
                 <br><br>
                 <select class="explore-dropdown" id="selectCrop">
                     <option value="" selected="selected">Choose a Crop</option>
+                    {% for crop in metadata_dict['crops'] %}
+                        <option value="{{crop}}">{{ crop }}</option>
+                    {% endfor %}
                 </select>
                 <br><br>
                 <select class="explore-dropdown" id="selectGrowbedMedium">
                     <option value="" selected="selected">Choose a Growbed Medium</option>
+                    {% for medium in metadata_dict['growbed_media'] %}
+                        <option value="{{medium}}">{{ medium }}</option>
+                    {% endfor %}
                 </select>
-
                 <br><br>
-
                 <input class="btn btn-green" type="submit" id="submitbtn" name="mysubmit" value="Submit" onclick="filterSystemsBasedOnDropdownValues()"/>
                 <input class="btn btn-blue" type="button" id="resetbtn" name="reset" value="Reset" onclick="reset()"/>
             </div>
             <div class="form-group" style="width: 75%; padding-top:2%;">
-                <label class="control-label">Select public systems</label>
+                <label class="control-label">Select up to 5 systems</label>
+                <select class="ui fluid search dropdown" multiple="" id="analyzeSystems">
+                    {% for sys in systems | sort(attribute='system_name') %}
+                        <option value="{{sys['system_uid']}}">{{sys['system_name']}}</option>
+                    {% endfor %}
+                </select>
                 <ul id="listOfUserSystems" style="overflow-y: scroll; max-height: 110px;">
                     {#        {% for sys in systems %}#}
                     {#            <li><input type="checkbox" value="{{sys['system_name']}}">{{sys['system_name']}}</li>#}
@@ -52,7 +69,7 @@
                 </div>
             {% endif %}
             <form id="analyzeOptions" action="analyzeGraph" method="POST">
-                <input  name="selectedSystems" type="hidden" id="selectedSystems" value="Guna"/>
+                <input  name="selectedSystems" type="hidden" id="selectedSystems" value="abc"/>
                 <input class="btn btn-green" type="submit" value="Analyze" id="analyzebtn"/>
             </form>
         </div>
@@ -64,15 +81,13 @@
     {{ super() }}
     <script type="text/javascript" src="http://maps.googleapis.com/maps/api/js"></script>
     <script type="text/javascript" src="{{ url_for('dav.static', filename='js/underscore-min.js') }}"></script>
-    <script type="text/javascript" src="{{ url_for('dav.static',filename='js/markerclusterer-min.js') }}"></script>
-    <script type="text/javascript" src="{{ url_for('dav.static',filename='js/oms-min.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('dav.static', filename='js/markerclusterer-min.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('dav.static', filename='js/oms-min.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('dav.static', filename='js/semantic.min.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('dav.static', filename='js/aqxmap.js') }}"></script>
-
     <script>
         var system_and_info_object = {{ systems_and_info_json|safe }};
         system_and_info_object = system_and_info_object.systems;
-        var meta_data_object = {{ metadata_json|safe }};
-        meta_data_object = meta_data_object.filters;
-        $(document).ready(main(system_and_info_object, meta_data_object));
+        $(document).ready(main(system_and_info_object));
     </script>
 {% endblock %}
