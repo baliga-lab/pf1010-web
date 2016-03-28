@@ -6,6 +6,7 @@
     <link rel="stylesheet"  href="{{ url_for('dav.static', filename='css/select2-skins.min.css')}}">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap-theme.min.css" integrity="sha384-fLW2N01lMqjakBkx3l/M9EahuwpSfeNvV63J5ezn3uZzapT0u7EYsXMjQV+0En5r" crossorigin="anonymous">
     <link rel="stylesheet" href="{{ url_for('dav.static', filename='css/explore.css') }}">
+    <link rel="stylesheet" href="{{ url_for('dav.static', filename='css/semantic.min.css') }}">
 {% endblock %}
 
 {% block title %}Analyze{% endblock %}
@@ -35,7 +36,7 @@
             <div style="width: 30%;">
                 <div class="form-group">
                     <label class="control-label">Select Y Axis</label>
-                    <select class="js-example-basic-multiple explore-dropdown" multiple="multiple" id="selectYAxis">
+                    <select class="ui fluid search dropdown" multiple="" id="selectYAxis">
                         {% for name in measurement_names %}
                             {% if not name == 'time' %}<option value="{{ name }}">{{ name }}</option>{% endif %}
                         {% endfor %}
@@ -69,6 +70,7 @@
     <script src="http://code.highcharts.com/modules/exporting.js"></script>
     <script type="text/javascript" src="{{ url_for('dav.static', filename='js/export-csv.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('dav.static', filename='js/underscore-min.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('dav.static', filename='js/semantic.min.js') }}"></script>
     <script src="{{ url_for('dav.static', filename='js/highChartsTheme.js') }}"></script>
     <script src="{{ url_for('dav.static', filename='js/aqxGraph.js') }}"></script>
     <script>

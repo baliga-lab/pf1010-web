@@ -33,7 +33,7 @@ var drawChart = function(){
     var xType = document.getElementById(XAXIS).value;
 
     // Get measurement types to display on the y-axis
-    var yTypes = $(".js-example-basic-multiple").select2().val();
+    var yTypes = $("#selectYAxis").val();
 
     // Generate a data Series for each y-value type, and assign them all to the CHART
     updateChartDataPointsHC(CHART, xType, yTypes, graphType).redraw();
@@ -247,8 +247,11 @@ var clearOldGraphValues = function(chart) {
  * Returns the Y Axis text selector to default
  */
 var setDefaultYAxis = function() {
-    $(".js-example-basic-multiple").select2();
-    $(".js-example-basic-multiple").val(DEFAULT_Y_VALUE).trigger("change");
+    $("#selectYAxis").dropdown({
+        maxSelections: 4
+    });
+    $("#selectYAxis").dropdown('clear');
+    $("#selectYAxis").dropdown('set selected', DEFAULT_Y_VALUE);
 };
 
 
@@ -338,8 +341,6 @@ var createYAxis = function(yType, axisNum, units){
  *  main - Sets behaviors for Submit and Reset buttons, populates x-axis dropdown, and checks nitrate as default y-axis
  */
 var main = function(){
-
-    $.fn.select2.defaults.set("maximumSelectionLength", 4);
 
     // Select the default y-axis value
     setDefaultYAxis();

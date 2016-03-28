@@ -157,7 +157,7 @@ function getAnalyzeSystemValues() {
  */
 function reset() {
 
-    // AnalyzeSystems dropdown has to be flushed first
+    // AnalyzeSystem dropdown values has to be flushed before resetting the marker property
     $('#analyzeSystems').dropdown('clear');
     $('#analyzeSystems').empty();
 
