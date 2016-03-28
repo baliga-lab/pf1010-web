@@ -9,8 +9,7 @@ from sc.views import social
 
 # UI imports
 from flask_bootstrap import Bootstrap
-#from aqxWeb import frontend
-from frontend import frontend #Chris wants me to use this one. i am lost:(
+from frontend import frontend
 from nav import nav
 
 os.environ['AQUAPONICS_SETTINGS'] = "dav/system_db.cfg"
@@ -36,7 +35,6 @@ def index():
 if __name__ == "__main__":
     # Initialize the aquaponics db connection
     analyticsViews.init_app(app)
-    frontend.init_app(app)
     # Intialize the social component global app instance
     init_sc_app(app)
     # Initialise UI's nav routing
