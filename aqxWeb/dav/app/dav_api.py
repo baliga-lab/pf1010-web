@@ -4,7 +4,6 @@ from django.core.serializers.json import DjangoJSONEncoder
 from aqxWeb.dav.dao.measurements_dao import MeasurementsDAO
 from aqxWeb.dav.dao.systemsDAO import SystemsDAO
 from aqxWeb.dav.dao.MetaDataDAO import MetadataDAO
-from aqxWeb.dav.dao.UserDAO import UserDAO
 from collections import defaultdict
 import json
 import re
@@ -90,41 +89,6 @@ class DavAPI:
             vals[type].append(value)
         return json.dumps({'filters': vals})
 
-    ###############################################################################
-    # fetch user data
-    ###############################################################################
-    # param conn : db connection
-    # param user_id : user's google id
-    # get_user - It returns user details based on google id.
-    def get_user(self, user_id):
-        u = UserDAO(self.conn)
-        result_temp = u.get_user(user_id)
-        if 'error' in result_temp:
-            return json.dumps(result_temp)
-        result = result_temp[0]
-        user = {
-            "id" : result[0],
-            "google_id": result[1],
-            "email": result[2],
-            "latitude": str(result[3]),
-            "longitude":str(result[4])
-        }
-        return json.dumps({'user': user})
-
-    ###############################################################################
-    # insert user data
-    ###############################################################################
-    # param conn : db connection
-    # param user : user details in the form of a json structure
-    # get_user - It inserts the user details into the users table
-
-    def put_user(self, user):
-        u = UserDAO(self.conn)
-        result = u.put_user(user)
-        message = {
-            "message": result
-        }
-        return json.dumps({'status': message})
 
     ###############################################################################
     # fetch latest recorded values of measurements for a given system

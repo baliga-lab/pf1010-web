@@ -157,27 +157,6 @@ def get_all_aqx_metadata():
 
 
 ######################################################################
-# API call to get user data
-######################################################################
-
-@dav.route('/aqxapi/get/user/<uid>', methods=['GET'])
-def get_user(uid):
-    davAPI = DavAPI(get_conn())
-    return davAPI.get_user(uid)
-
-
-######################################################################
-# API call to put user data
-######################################################################
-
-@dav.route('/aqxapi/put/user', methods=['POST'])
-def put_user():
-    davAPI = DavAPI(get_conn())
-    user = request.get_json()
-    return davAPI.put_user(user)
-
-
-######################################################################
 # API call to get latest recorded values of all measurements of a
 # given system
 ######################################################################
