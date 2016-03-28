@@ -1,7 +1,7 @@
 
 from django.core.serializers.json import DjangoJSONEncoder
 
-from aqxWeb.dav.dao.MeasurementsDAO import MeasurementsDAO
+from aqxWeb.dav.dao.measurements_dao import MeasurementsDAO
 from aqxWeb.dav.dao.systemsDAO import SystemsDAO
 from aqxWeb.dav.dao.MetaDataDAO import MetadataDAO
 from aqxWeb.dav.dao.UserDAO import UserDAO

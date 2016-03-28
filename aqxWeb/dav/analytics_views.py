@@ -3,7 +3,7 @@ from flask import Blueprint, render_template,request,url_for
 from mysql.connector.pooling import MySQLConnectionPool
 import os
 import json
-from app.davAPI import DavAPI
+from app.dav_api import DavAPI
 
 dav = Blueprint('dav', __name__, template_folder='templates',static_folder='static')
 

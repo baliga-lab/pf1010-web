@@ -2,8 +2,8 @@ import os
 
 from flask import Flask, render_template
 
-from dav import analyticsViews
-from dav.analyticsViews import dav
+from dav import analytics_views
+from dav.analytics_views import dav
 from sc.models import init_sc_app
 from sc.views import social
 
@@ -34,7 +34,7 @@ def index():
 # Common init method for application
 if __name__ == "__main__":
     # Initialize the aquaponics db connection
-    analyticsViews.init_app(app)
+    analytics_views.init_app(app)
     # Intialize the social component global app instance
     init_sc_app(app)
     # Initialise UI's nav routing

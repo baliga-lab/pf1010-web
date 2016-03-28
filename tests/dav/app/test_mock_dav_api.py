@@ -2,7 +2,7 @@ import datetime
 from decimal import Decimal
 from mock import Mock
 import unittest
-from aqxWeb.dav.app.davAPI import DavAPI
+from aqxWeb.dav.app.dav_api import DavAPI
 
 
 class DavTests(unittest.TestCase):

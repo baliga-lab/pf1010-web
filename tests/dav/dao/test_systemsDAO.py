@@ -1,6 +1,6 @@
 import unittest
 from aqxWeb import run
-from aqxWeb.dav import analyticsViews
+from aqxWeb.dav import analytics_views
 from aqxWeb.dav.dao.systemsDAO import SystemsDAO
 
 # test DAO for systems table
@@ -10,8 +10,8 @@ class SystemsDAOTest(unittest.TestCase):
 
     def setUp(self):
         self.app = run.app.test_client()
-        analyticsViews.init_app(run.app)
-        self.conn = analyticsViews.get_conn()
+        analytics_views.init_app(run.app)
+        self.conn = analytics_views.get_conn()
 
     def tearDown(self):
         pass
