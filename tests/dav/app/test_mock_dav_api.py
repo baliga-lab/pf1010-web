@@ -92,3 +92,15 @@ class DavTests(unittest.TestCase):
         result = d.get_system_measurement('2','1')
         self.assertEquals('{"error": "Table \'projectfeed.aqxs_alkalinity_2\' doesn\'t exist"}', result)
 
+    # mock method for get_system_measurement (when an invalid measurement_id is given)
+
+    def test_get_system_measurement_with_invalid_measurement_id(self):
+        d = DavAPI(Mock())
+        d.mea = Mock()
+        measurement_info = [(1, u'alkalinity', u'mg/L', u'60', u'140'), (2, u'ammonium', u'mg/L', u'0', u'1'), (3, u'chlorine', u'mg/L', None, None), (4, u'hardness', u'mg/L', u'60', u'140'), (5, u'light', None, None, None), (6, u'nitrate', u'mg/L', u'5', u'150'), (7, u'nitrite', u'mg/L', u'0', u'0.25'), (8, u'o2', u'mg/L', None, None), (9, u'ph', None, u'6.0', u'7.0'), (10, u'temp', u'celsius', u'22', u'30'), (11, u'time', None, None, None)]
+        d.mea.get_all_measurement_info.return_value= tuple(measurement_info)
+        # measurement_id: 100 = invalid measurement_id
+        result = d.get_system_measurement('555d0cfe9ebc11e58153000c29b92d09','100')
+        self.assertEquals('{"error": "Invalid measurement id"}', result)
+
+
