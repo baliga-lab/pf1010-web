@@ -642,7 +642,8 @@ class User:
             NOT (me)-[:SentRequest]-(friend_of_friend)
             RETURN friend_of_friend.givenName+ " " + friend_of_friend.familyName AS FriendName,
             COUNT(*) AS Num_Mutual_Friends, friend_of_friend.google_id AS gid,
-            friend_of_friend.sql_id AS sid
+            friend_of_friend.sql_id AS sid,
+            friend_of_friend.image_url AS friend_image
             ORDER BY COUNT(*) DESC , FriendName
             """
 
@@ -693,7 +694,6 @@ class User:
 
         try:
             friendlist = getGraphConnectionURI().cypher.execute(query, sql_id=my_sql_id, blocker_id="");
-
             return friendlist
         except cypher.CypherError, cypher.CypherTransactionError:
             raise "Exception occured in function get_my_friends"
