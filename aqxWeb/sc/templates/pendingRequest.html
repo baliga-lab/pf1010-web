@@ -34,11 +34,11 @@
                             <td><a href="profile/{{ row.n.google_id }}">{{ row.n.displayName }}</a></td>
                             <td>
                                 <a type="button"
-                                   href={{ url_for('social.accept_friend_request', u_sql_id=row.n.sql_id) }}  class="btn
-                                   btn-primary">Confirm</button>
+                                   href="{{ url_for('social.accept_friend_request', u_sql_id=row.n.sql_id) }}"  class="btn
+                                   btn-primary">Confirm</a>
                                 <a type="button"
-                                   href={{ url_for('social.decline_friend_request', u_sql_id=row.n.sql_id) }} class="btn
-                                   btn-primary">Delete</button>
+                                   href="{{ url_for('social.decline_friend_request', u_sql_id=row.n.sql_id) }}" class="btn
+                                   btn-primary">Delete</a>
                             </td>
                         </tr>
 
