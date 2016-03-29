@@ -65,3 +65,17 @@ class DavTests(unittest.TestCase):
         actual_result = d.get_all_measurement_info()
         self.assertEquals('{"measurement_info": {"temp": {"max": "30", "id": 10, "unit": "celsius", "min": "22"}, "light": {"max": null, "id": 5, "unit": null, "min": null}, "alkalinity": {"max": "140", "id": 1, "unit": "mg/L", "min": "60"}, "ammonium": {"max": "1", "id": 2, "unit": "mg/L", "min": "0"}, "nitrite": {"max": "0.25", "id": 7, "unit": "mg/L", "min": "0"}, "chlorine": {"max": null, "id": 3, "unit": "mg/L", "min": null}, "time": {"max": null, "id": 11, "unit": null, "min": null}, "nitrate": {"max": "150", "id": 6, "unit": "mg/L", "min": "5"}, "ph": {"max": "7.0", "id": 9, "unit": null, "min": "6.0"}, "o2": {"max": null, "id": 8, "unit": "mg/L", "min": null}, "hardness": {"max": "140", "id": 4, "unit": "mg/L", "min": "60"}}}', actual_result)
 
+    # mock method for get_system_measurements (when system with the given system_uid does not exist)
+
+    def test_get_system_measurements_with_nonexistent_system_uid(self):
+        d = DavAPI(Mock())
+        d.mea = Mock()
+        all_measurement_names = ((u'o2',), (u'ph',), (u'temp',), (u'alkalinity',), (u'ammonium',), (u'chlorine',), (u'hardness',), (u'light',), (u'nitrate',), (u'time',))
+        d.mea.get_all_measurement_names.return_value = tuple(all_measurement_names)
+        latest_value = {'error': u"Table 'projectfeed.aqxs_o2_2' doesn't exist"}
+        d.mea.get_latest_value.return_value = latest_value
+        # system_uid = 2 does not exist
+        result = d.get_system_measurements('2')
+        print result
+        self.assertEquals('{"error": "Table \'projectfeed.aqxs_o2_2\' doesn\'t exist"}', result)
+
