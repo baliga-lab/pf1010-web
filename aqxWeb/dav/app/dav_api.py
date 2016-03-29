@@ -1,21 +1,20 @@
+import datetime
+import json
+import random
+import re
+from collections import defaultdict
 
 from django.core.serializers.json import DjangoJSONEncoder
 
+from aqxWeb.dav.dao.MetaDataDAO import MetadataDAO
 from aqxWeb.dav.dao.measurements_dao import MeasurementsDAO
 from aqxWeb.dav.dao.systemsDAO import SystemsDAO
-from aqxWeb.dav.dao.MetaDataDAO import MetadataDAO
-from collections import defaultdict
-import json
-import re
-import random
-import datetime
 
 
 # data analysis and viz data access api
 
 
 class DavAPI:
-
     ###############################################################################
     # get_system_metadata
     ###############################################################################
@@ -31,13 +30,6 @@ class DavAPI:
         self.sys = SystemsDAO(self.conn)
         self.met = MetadataDAO(self.conn)
         self.mea = MeasurementsDAO(self.conn)
-
-
-    def get_system_metadata(self,system_id):
-        s = SystemsDAO(self.conn)
-        result = s.get_metadata(system_id)
-
-        return result
 
     ###############################################################################
     # get_all_systems_info
@@ -88,7 +80,6 @@ class DavAPI:
             value = result[1]
             vals[type].append(value)
         return json.dumps({'filters': vals})
-
 
     ###############################################################################
     # fetch latest recorded values of measurements for a given system
@@ -152,7 +143,6 @@ class DavAPI:
     def get_measurement_name(name):
         return re.findall(r"\(u'(.*?)',\)", str(name))[0]
 
-
     ###############################################################################
     # Get name of the measurement table for a given system
     ###############################################################################
@@ -174,7 +164,7 @@ class DavAPI:
     # param measurement_id: ID of a measurement
     # get_system_measurement - It returns the latest recorded values of the
     #                           given system.
-    def get_system_measurement(self,system_uid, measurement_id):
+    def get_system_measurement(self, system_uid, measurement_id):
         # Encode the measurement_id
         measurement_id_encoded = measurement_id.encode('utf-8')
         # Check if the encoded value is a valid number
@@ -202,7 +192,7 @@ class DavAPI:
         else:
             return json.dumps({'error': 'Invalid measurement id'})
         if 'error' in measurement:
-                    return json.dumps(measurement)
+            return json.dumps(measurement)
         # Number of latest recorded to be returned
         # Light: 7
         # All other measurements: 1
@@ -215,7 +205,7 @@ class DavAPI:
         # Get the latest value recorded in that table
         result = self.mea.get_latest_value(table_name, num_of_records)
         if 'error' in result:
-                    return json.dumps(result)
+            return json.dumps(result)
         values = []
         for result_temp in result:
             values_temp = {
@@ -245,13 +235,13 @@ class DavAPI:
         value = data.get('value')
         measurement = self.mea.get_measurement_name(measurement_id)
         if 'error' in measurement:
-                    return json.dumps(measurement)
+            return json.dumps(measurement)
         measurement_name = self.get_measurement_name(measurement)
         # Create the name of the table
         table_name = self.get_measurement_table_name(measurement_name, system_uid)
         result = self.mea.put_system_measurement(table_name, time, value)
         if 'error' in result:
-                    return json.dumps(result)
+            return json.dumps(result)
         message = {
             "message": result
         }
@@ -264,14 +254,14 @@ class DavAPI:
     # param measurement_id_list: List of measurement_IDs
     # get_readings_for_plot - It returns the readings of all the input system uids
     #                         for all input measurement ids
-    def get_readings_for_plot(self,system_uid_list,measurement_id_list):
+    def get_readings_for_plot(self, system_uid_list, measurement_id_list):
         # Form a list of names from the list of ids
         measurement_type_list = self.mea.get_measurement_name_list(measurement_id_list)
 
         # Return if there is any error in getting the measurement type names
         if 'error' in measurement_type_list:
-                    error_msg = measurement_type_list
-                    return json.dumps(error_msg )
+            error_msg = measurement_type_list
+            return json.dumps(error_msg)
 
         # If there is no type for given id throw an exception
         if not measurement_type_list:
@@ -279,12 +269,12 @@ class DavAPI:
             raise ValueError(error_msg)
 
         # Returned list is list of tuples. Separating measurement type names from tuple
-        measurement_name_list  = []
+        measurement_name_list = []
         for name in measurement_type_list:
-             measurement_name_list.append(str(name[0]))
+            measurement_name_list.append(str(name[0]))
 
         # Retrieve the measurements calling DAO
-        data_retrieved = self.mea.get_measurements(system_uid_list,measurement_name_list)
+        data_retrieved = self.mea.get_measurements(system_uid_list, measurement_name_list)
         if 'error' in data_retrieved:
             return json.dumps(data_retrieved)
 
@@ -292,12 +282,11 @@ class DavAPI:
 
         for system_uid in system_uid_list:
             readings = data_retrieved[system_uid]
-            system_measurement_json = self.form_system_measurement_json(system_uid,readings,
-                                                                         measurement_name_list)
+            system_measurement_json = self.form_system_measurement_json(system_uid, readings,
+                                                                        measurement_name_list)
             system_measurement_list.append(system_measurement_json)
 
         return json.dumps({"response": system_measurement_list})
-
 
     ###############################################################################
     # Form the system's measurement reading json
@@ -308,28 +297,28 @@ class DavAPI:
     # form_system_measurement_json  - It returns the json for all information needed
     # for the plot for the input system_uid
     #
-    def form_system_measurement_json(self,system_uid,readings,measurement_type_list):
+    def form_system_measurement_json(self, system_uid, readings, measurement_type_list):
         measurement_list = []
 
         # For each measurement type, form the list of readings
         for measurement_type in measurement_type_list:
 
-            valueList=[]
+            valueList = []
 
             if readings:
                 if readings[measurement_type]:
-                    valueList = self.form_values_list(self,measurement_type,readings[measurement_type])
+                    valueList = self.form_values_list(self, measurement_type, readings[measurement_type])
                 else:
-                    valueList=[]
+                    valueList = []
 
             measurement = {
-                "type" : measurement_type,
+                "type": measurement_type,
                 "values": valueList
             }
             measurement_list.append(measurement)
         system_measurement = {
-            "system_uid" : system_uid,
-            "name" : self.sys.get_system_name(system_uid),
+            "system_uid": system_uid,
+            "name": self.sys.get_system_name(system_uid),
             "measurement": measurement_list
         }
 
@@ -344,8 +333,8 @@ class DavAPI:
     # readings. ALl the readings that fall in 1-hour bucket from time of first reading
     # are averaged and readings is timestamped with latest timestamp in the bucket.
     @staticmethod
-    def form_values_list(self,measurement_type,all_readings):
-        valuesList=[]
+    def form_values_list(self, measurement_type, all_readings):
+        valuesList = []
 
         # Initialize the variables
         startDate = all_readings[0][1]
@@ -358,10 +347,10 @@ class DavAPI:
         # Every time  'values' is formed for previous reading if it falls outside the bucket, otherwise averaging is
         # done, over the bucket
 
-        for i in range (1,len(all_readings) + 1):
+        for i in range(1, len(all_readings) + 1):
             try:
                 # This condition takes care of the last reading, which gets left out
-                if(i == len(all_readings)):
+                if (i == len(all_readings)):
                     # By incrementing x deliberately, we enforce the 'values' formation for the very last reading
                     reading = prev_reading
                     x = prevX + 1
@@ -370,19 +359,19 @@ class DavAPI:
                     reading = all_readings[i]
                     curDate = reading[1]
                     # Calculate the difference in hours from previous reading
-                    x = self.calc_diff_hours(curDate,startDate)
+                    x = self.calc_diff_hours(curDate, startDate)
                 # If x >  prevX, build the values object and append to the values list
                 if x > prevX:
 
                     # If counter > 0, there were readings from 1-hour bucket and values should be averaged
-                    if(counter > 0):
-                        sum =  sum + prev_reading[2]
+                    if (counter > 0):
+                        sum = sum + prev_reading[2]
                         counter = counter + 1
 
-                        avg= sum / counter
+                        avg = sum / counter
                         lastValDate = prev_reading[1]
 
-                        values= self.build_values(prevX,avg,lastValDate)
+                        values = self.build_values(prevX, avg, lastValDate)
 
                         # Reset Average in a 1-hour bucket params
                         sum = 0
@@ -390,29 +379,30 @@ class DavAPI:
                     # Otherwise, simply build values from previous reading
                     else:
                         y = prev_reading[2]
-                        values = self.build_values(prevX,y, prev_reading[1])
+                        values = self.build_values(prevX, y, prev_reading[1])
 
-                    #   Append the current values to valuelist
+                    # Append the current values to valuelist
                     valuesList.append(values)
 
                     prev_reading = reading
                     prevX = x
 
                 else:
-                     # if reading falls in same bucket, accumulate the reading value to average later
-                     if x == prevX:
-                        sum =  sum + prev_reading[2]
+                    # if reading falls in same bucket, accumulate the reading value to average later
+                    if x == prevX:
+                        sum = sum + prev_reading[2]
                         counter = counter + 1
                         prevX = x
                         prev_reading = reading
-                     # Skip the reading if the readings are not in order. This is unlikely to occur.
-                     else:
-                         print("Skipped Value for ",measurement_type,curDate)
+                    # Skip the reading if the readings are not in order. This is unlikely to occur.
+                    else:
+                        print("Skipped Value for ", measurement_type, curDate)
 
             except ValueError as err:
-                raise ValueError('Error in preparing values list',measurement_type,reading)
+                raise ValueError('Error in preparing values list', measurement_type, reading)
 
         return valuesList
+
     ###############################################################################
     # Build the values object
     ###############################################################################
@@ -421,12 +411,12 @@ class DavAPI:
     # param reading_date  : date of reading
     #  build_values - It returns the values object formed from x,y and reading date
     @staticmethod
-    def build_values(x,y,reading_date):
-        values={
-                    "x": x,
-                    "y": round(y,2),
-                    "date": str(reading_date)
-                }
+    def build_values(x, y, reading_date):
+        values = {
+            "x": x,
+            "y": round(y, 2),
+            "date": str(reading_date)
+        }
         return values
 
     ###############################################################################
@@ -437,7 +427,7 @@ class DavAPI:
     # get_system_name  - It returns the name of the system
     #
     @staticmethod
-    def get_system_name(conn,system_id):
+    def get_system_name(conn, system_id):
         s = SystemsDAO(conn)
         return s.get_system_name(system_id)
 
@@ -448,13 +438,12 @@ class DavAPI:
     # param  startDate : date of first reading
     # calc_diff_hours  : It returns the difference in hours between two input dates
     @staticmethod
-    def calc_diff_hours(curDate,startDate):
-        if(curDate < startDate ):
-            raise ValueError('Current date is lesser than previous date',curDate,startDate)
+    def calc_diff_hours(curDate, startDate):
+        if (curDate < startDate):
+            raise ValueError('Current date is lesser than previous date', curDate, startDate)
         else:
             diff = curDate - startDate
-            return diff.days*24 + diff.seconds/3600
-
+            return diff.days * 24 + diff.seconds / 3600
 
     ###############################################################################
     # get all measurement types
@@ -464,14 +453,12 @@ class DavAPI:
     def get_all_measurement_names(self):
         meas = self.mea.get_all_measurement_names()
         if 'error' in meas:
-                    return json.dumps(meas)
+            return json.dumps(meas)
         mlist = []
         for m in meas:
             mlist.append(m)
         mlist.append('time')
-        return json.dumps({"types":mlist})
-
-
+        return json.dumps({"types": mlist})
 
     ################################################################################
     # method to generate test data
@@ -482,18 +469,18 @@ class DavAPI:
     # meas - list of measurements
     ################################################################################
 
-    def generate_data(self,minrange,maxrange,systems,meas):
+    def generate_data(self, minrange, maxrange, systems, meas):
         for s in systems:
-            d = datetime.datetime(2015,1,1,0,0,0)
-            for i in range(1,6,1):
-                for j in range(0,24,1):
-                    d = datetime.datetime(2015,1,i,j,0,0)
+            d = datetime.datetime(2015, 1, 1, 0, 0, 0)
+            for i in range(1, 6, 1):
+                for j in range(0, 24, 1):
+                    d = datetime.datetime(2015, 1, i, j, 0, 0)
                     for m in meas:
-                        d = datetime.datetime(2015,1,i,j,0,0)
+                        d = datetime.datetime(2015, 1, i, j, 0, 0)
                         table_name = self.get_measurement_table_name(m, s)
                         time = d.strftime('%Y-%m-%d %H:%M:%S')
-                        val = random.uniform(minrange,maxrange)
-                        self.mea.put_system_measurement(table_name,time,val)
+                        val = random.uniform(minrange, maxrange)
+                        self.mea.put_system_measurement(table_name, time, val)
 
     ###############################################################################
     # get all measurement information: id, name, units, min, max
@@ -503,7 +490,7 @@ class DavAPI:
     def get_all_measurement_info(self):
         meas = self.mea.get_all_measurement_info()
         if 'error' in meas:
-                    return json.dumps(meas)
+            return json.dumps(meas)
         measurement_names = {}
         for m in meas:
             measurement_names[m[1]] = {}
@@ -512,4 +499,3 @@ class DavAPI:
             measurement_names[m[1]]["min"] = (m[3])
             measurement_names[m[1]]["max"] = (m[4])
         return json.dumps({"measurement_info": measurement_names}, cls=DjangoJSONEncoder)
-

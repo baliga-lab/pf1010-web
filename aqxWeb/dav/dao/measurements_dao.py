@@ -35,7 +35,7 @@ class MeasurementsDAO:
                     "ORDER BY time DESC " \
                     "LIMIT %%s" % table_name
         try:
-            cursor.execute(query_get, (num_of_records, ))
+            cursor.execute(query_get, (num_of_records,))
             value = cursor.fetchall()
         except Error as e:
             return {'error': e.msg}
@@ -85,7 +85,7 @@ class MeasurementsDAO:
                      "FROM %s " \
                      "WHERE time = %%s" % table_name
         try:
-            cursor.execute(query_time, (time, ))
+            cursor.execute(query_time, (time,))
             recorded_time = cursor.fetchall()
         except Error as e:
             return {'error': e.msg}
@@ -97,7 +97,7 @@ class MeasurementsDAO:
     # get_all_measurement_names: method to fetch the names of all the measurements
     # param - id_list: list of the measurement ids
     # returns: list of measurement names for the given ids.
-    def get_measurement_name_list(self,id_list):
+    def get_measurement_name_list(self, id_list):
         cursor = self.conn.cursor()
 
         id_list_str = "("
@@ -135,7 +135,7 @@ class MeasurementsDAO:
                       "FROM measurement_types "
                       "WHERE id = %s;")
         try:
-            cursor.execute(query_name, (measurement_id, ))
+            cursor.execute(query_name, (measurement_id,))
             measurement_name, = cursor.fetchall()
         except Error as e:
             return {'error': e.msg}
@@ -156,7 +156,7 @@ class MeasurementsDAO:
         cursor = self.conn.cursor()
         try:
             for system in systems:
-                query = self.create_query1(system,measurements)
+                query = self.create_query1(system, measurements)
                 cursor.execute(query)
                 payload[system] = cursor.fetchall()
         except Error as e:
@@ -195,7 +195,7 @@ class MeasurementsDAO:
         tables = " from aqxs_" + measurements[0] + "_" + system + " " + measurements[0] + ","
         where = " where HOUR(" + measurements[0] + ".time) ="
         for i in range(1, len(measurements)):
-            if i == len(measurements)-1:
+            if i == len(measurements) - 1:
                 fields += measurements[i] + ".value as " + measurements[i]
                 tables += "aqxs_" + measurements[i] + "_" + system + " " + measurements[i]
                 where += " HOUR(" + measurements[i] + ".time) "
@@ -207,7 +207,6 @@ class MeasurementsDAO:
         q = fields + tables + where + "group by " + measurements[0] + ".time " + "order by " + measurements[0] + ".time"
         return q
 
-
     ###############################################################################
 
     # create_query1: method to create query to fetch measurements from a system
@@ -215,18 +214,19 @@ class MeasurementsDAO:
     # param measurements list of measurements
     # return query
     def create_query1(self, system, measurements):
-        query= ""
+        query = ""
         for i in range(0, len(measurements)):
-            if i == len(measurements)-1:
-                query += "select \'"+ measurements[i] + "\'," + measurements[i] + ".time as time," \
-                 + measurements[i] + ".value as value from aqxs_" + measurements[i] + "_" + system \
-                     + " " + measurements[i] + " order by time "
+            if i == len(measurements) - 1:
+                query += "select \'" + measurements[i] + "\'," + measurements[i] + ".time as time," \
+                         + measurements[i] + ".value as value from aqxs_" + measurements[i] + "_" + system \
+                         + " " + measurements[i] + " order by time "
             else:
-                query += "select \'"+ measurements[i] + "\'," + measurements[i] + ".time as time," \
-                 + measurements[i] + ".value as value from aqxs_" + measurements[i] + "_" + system \
-                     + " " + measurements[i] + " union "
+                query += "select \'" + measurements[i] + "\'," + measurements[i] + ".time as time," \
+                         + measurements[i] + ".value as value from aqxs_" + measurements[i] + "_" + system \
+                         + " " + measurements[i] + " union "
 
         return query
+
     ###############################################################################
 
     # get_all_measurement_info: method to fetch the id, name, units, min and max
