@@ -31,7 +31,7 @@
                     {% for row in pendingRequests %}
                         <tr>
                             <td><img src="{{ row.n.image_url }}" class="img-circle" alt="User Image" width="60" height="60"></td>
-                            <td>{{ row.n.displayName }}</td>
+                            <td><a href="profile/{{ row.n.google_id }}">{{ row.n.displayName }}</a></td>
                             <td>
                                 <a type="button"
                                    href={{ url_for('social.accept_friend_request', u_sql_id=row.n.sql_id) }}  class="btn
