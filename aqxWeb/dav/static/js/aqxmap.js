@@ -79,16 +79,10 @@ var buildContentString = function(system) {
  * @param elementID - ID of the checklist to populate
  */
 var populateCheckList = function(systems_and_info_object, elementID) {
-    var checkList = document.getElementById(elementID);
-    //var selectList = document.getElementById("analyzeSystems");
-    checkList.innerHTML = "";
     _.each(systems_and_info_object, function(system) {
         if (system.marker.getVisible()) {
             if(markerIsStarred(system.marker)) {
                 $('#analyzeSystems').dropdown('set selected', system.system_uid);
-                checkList.innerHTML += getCheckListInnerHtml(system.system_uid, system.system_name, true);
-            } else {
-                checkList.innerHTML += getCheckListInnerHtml(system.system_uid, system.system_name, false);
             }
         }
     });
@@ -98,19 +92,6 @@ var addSystemToAnalyzeSystemDropdown = function(system) {
     $('#analyzeSystems').append($("<option></option>")
                         .attr("value",system.system_uid)
                         .text(system.system_name));
-};
-/**
- *
- * @param systemId - SystemID
- * @param systemName - System name
- * @param isChecked - Checks the checkbox
- * @returns {string}
- */
-var getCheckListInnerHtml = function (systemId, systemName, isChecked) {
-    var checked =  isChecked ? "checked" : "" ;
-     return  "<li><input id=\"" + systemId +
-             "\" type=\"checkbox\" value=\"" + systemName +
-             "\"" + checked + ">" + systemName + "</li>";
 };
 
 /**
@@ -131,14 +112,12 @@ var flipIcons = function(marker, systemID) {
             marker.setZIndex(google.maps.Marker.MAX_ZINDEX + 1);
             marker.setIcon(SELECTED_ICON);
             selectedSystems.push(systemID);
-            $("#" + systemID).prop(CHECKED, true);
         } else {
             marker.setZIndex(google.maps.Marker.MIN_ZINDEX);
             marker.setIcon(DEFAULT_ICON);
             selectedSystems = _.reject(selectedSystems, function (id) {
                 return _.isEqual(id, systemID);
             });
-            $("#" + systemID).prop(CHECKED, false);
         }
         $('#analyzeSystems').dropdown('set selected', selectedSystems);
     }
@@ -173,10 +152,6 @@ function reset() {
 
     // Unspiderfy any currently spiderfied markers
     OMS.unspiderfy();
-
-    // Now that all markers are visible, repopulate the checklist
-
-    //populateCheckList(system_and_info_object, LIST_OF_USER_SYSTEMS);
 
     // Remove any active alerts
     $('#alert_placeholder').empty();
@@ -309,8 +284,6 @@ var main = function(system_and_info_object) {
             updateAnalyzeSystems();
         }
     });
-
-    //populateCheckList(_.sortBy(system_and_info_object,'system_name'), LIST_OF_USER_SYSTEMS);
 };
 
 /**
@@ -363,37 +336,7 @@ function filterSystemsBasedOnDropdownValues() {
 
     // Repaint clustered markers now that we've filtered
     MC.repaint();
-
-    // Repopulate the checklist so only visible systems appear
-    //populateCheckList(system_and_info_object, LIST_OF_USER_SYSTEMS);
 }
-
-/**
- * Whenever a checklist item is checked or unchecked, alter the marker icons
- * to display the yellow star marker for checked items, and default marker
- * for unchecked items
- * @type {*|jQuery}
- */
-$('#listOfUserSystems').change(function() {
-
-    // Generate the list of selected System Names
-    var checkedNames = [];
-    _.each($('#listOfUserSystems input:checked'), function(checkedInput){
-        checkedNames.push(checkedInput.value);
-    });
-
-    // For each System, if its name is in the checkedNames list, give it the star Icon
-    // otherwise ensure it has the default Icon
-    _.each(system_and_info_object, function (system) {
-        if (_.contains(checkedNames, system.system_name)) {
-            system.marker.setIcon(SELECTED_ICON);
-            system.marker.setZIndex(google.maps.Marker.MAX_ZINDEX + 1);
-        }else{
-            system.marker.setIcon(DEFAULT_ICON);
-            system.marker.setZIndex(google.maps.Marker.MIN_ZINDEX - 1);
-        }
-    });
-});
 
 /**
  * Change the marker type of selected system in Map
@@ -417,13 +360,8 @@ var updateAnalyzeSystems = function() {
     });
 };
 
-
-
 $('#analyzeOptions').on('submit',function(e) {
     var systemsSelectedToAnalyze = getAnalyzeSystemValues();
-    //_.each($('#listOfUserSystems input:checked'), function(checkedInput){
-    //    systemsSelectedToAnalyze.push(checkedInput.id);
-    //});
     if(systemsSelectedToAnalyze.length <= 0) {
         alert("Please select systems from checkbox to analyze");
         return false;
