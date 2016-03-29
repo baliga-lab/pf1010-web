@@ -3,7 +3,7 @@ from decimal import Decimal
 from mock import Mock
 import unittest
 from aqxWeb.dav.app.dav_api import DavAPI
-import json
+from datetime import datetime
 
 
 class DavTests(unittest.TestCase):
@@ -113,5 +113,20 @@ class DavTests(unittest.TestCase):
         d.mea.put_system_measurement.return_value = 'Value at the given time already recorded'
         result = d.put_system_measurement(data)
         self.assertEquals('{"status": {"message": "Value at the given time already recorded"}}', result)
+
+    # mock method for put_system_measurement (when the value at the given time is current time)
+    def test_put_system_measurement_with_current_time(self):
+        d = DavAPI(Mock())
+        d.mea = Mock()
+        time_now = datetime.now()
+        data = {'system_uid': '555d0cfe9ebc11e58153000c29b92d09', 'measurement_id': '5', 'time': str(time_now),
+                'value': '111'}
+        d.mea.get_measurement_name.return_value = (u'light',)
+        d.mea.put_system_measurement.return_value = 'Record successfully inserted'
+        result = d.put_system_measurement(data)
+        self.assertEquals('{"status": {"message": "Record successfully inserted"}}', result)
+
+
+
 
 
