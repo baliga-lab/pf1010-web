@@ -76,6 +76,19 @@ class DavTests(unittest.TestCase):
         d.mea.get_latest_value.return_value = latest_value
         # system_uid = 2 does not exist
         result = d.get_system_measurements('2')
-        print result
         self.assertEquals('{"error": "Table \'projectfeed.aqxs_o2_2\' doesn\'t exist"}', result)
+
+    # mock method for get_system_measurement (when system with the given system_uid does not exist)
+
+    def test_get_system_measurement_with_nonexistent_system_uid(self):
+        d = DavAPI(Mock())
+        d.mea = Mock()
+        measurement_info = [(1, u'alkalinity', u'mg/L', u'60', u'140'), (2, u'ammonium', u'mg/L', u'0', u'1'), (3, u'chlorine', u'mg/L', None, None), (4, u'hardness', u'mg/L', u'60', u'140'), (5, u'light', None, None, None), (6, u'nitrate', u'mg/L', u'5', u'150'), (7, u'nitrite', u'mg/L', u'0', u'0.25'), (8, u'o2', u'mg/L', None, None), (9, u'ph', None, u'6.0', u'7.0'), (10, u'temp', u'celsius', u'22', u'30'), (11, u'time', None, None, None)]
+        d.mea.get_all_measurement_info.return_value= tuple(measurement_info)
+        d.mea.get_latest_value.return_value = {'error': u"Table 'projectfeed.aqxs_alkalinity_2' doesn't exist"}
+        d.mea.get_measurement_name.return_value = tuple(("alkalinity",))
+        # system_uid = 2 does not exist
+        # measurement_id: 1 = alkalinity
+        result = d.get_system_measurement('2','1')
+        self.assertEquals('{"error": "Table \'projectfeed.aqxs_alkalinity_2\' doesn\'t exist"}', result)
 
