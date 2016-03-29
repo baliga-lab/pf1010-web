@@ -59,8 +59,6 @@ class ScAPITest(unittest.TestCase):
         "system_uid": system_uid,
         "name": "Test SC API System Updated",
         "description": "Test SC API System Description Updated",
-        "location_lat": 42.33866,
-        "location_lng": -71.092186,
         "status": 0
     }
     update_systemJSONObject = json.dumps({'system': update_system_json})
@@ -71,6 +69,13 @@ class ScAPITest(unittest.TestCase):
             with client.session_transaction() as session:
                 session['siteadmin'] = "true"
             response = client.delete('/social/aqxapi/delete/user/' + str(sql_id))
+            result = json.loads(response.data)
+            # Failure Case
+            self.assert_('error' not in result.keys(),
+                         "Deletion of User Failed." + str(result))
+            # Success Case
+            self.assert_('success' in result.keys(),
+                         "Deletion of User Failed." + str(result))
 
     # Ensure /social/aqxapi/delete/system/<system_id> works as expected
     def test_07_delete_system(self):
@@ -78,17 +83,38 @@ class ScAPITest(unittest.TestCase):
             with client.session_transaction() as session:
                 session['siteadmin'] = "true"
             response = client.delete('/social/aqxapi/delete/system/' + str(system_id))
+            result = json.loads(response.data)
+            # Failure Case
+            self.assert_('error' not in result.keys(),
+                         "Deletion of System Failed." + str(result))
+            # Success Case
+            self.assert_('success' in result.keys(),
+                         "Deletion of System Failed." + str(result))
 
     # Ensure /social/aqxapi/post/system works as expected
     def test_06_update_system(self):
         with app.test_client() as client:
             response = client.post('/social/aqxapi/post/system', data=update_systemJSONObject,
                                    content_type='application/json')
+            result = json.loads(response.data)
+            # Failure Case
+            self.assert_('error' not in result.keys(),
+                         "Update of System Failed." + str(update_systemJSONObject))
+            # Success Case
+            self.assert_('success' in result.keys(),
+                         "Update of System Failed." + str(update_systemJSONObject))
 
     # Ensure /social/aqxapi/put/system works as expected
     def test_05_create_system(self):
         with app.test_client() as client:
             response = client.post('/social/aqxapi/put/system', data=systemJSONObject, content_type='application/json')
+            result = json.loads(response.data)
+            # Failure Case
+            self.assert_('error' not in result.keys(),
+                         "Creation of System Failed." + str(systemJSONObject))
+            # Success Case
+            self.assert_('success' in result.keys(),
+                         "Creation of System Succeeded." + str(systemJSONObject))
 
     # Ensure /social/aqxapi/get/user/by_google_id/<sql_id> works as expected
     def test_04_get_user_by_sql_id(self):
@@ -172,6 +198,14 @@ class ScAPITest(unittest.TestCase):
     def test_01_create_user(self):
         with app.test_client() as client:
             response = client.post('/social/aqxapi/put/user', data=userJSONObject, content_type='application/json')
+            result = json.loads(response.data)
+            # Failure Case
+            self.assert_('error' not in result.keys(),
+                         "Creation of User Failed." + str(result))
+            # Success Case
+            self.assert_('success' in result.keys(),
+                         "Creation of User Failed." + str(result))
+
 
     if __name__ == "__main__":
         unittest.main()

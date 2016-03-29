@@ -100,8 +100,12 @@ class UserDAO:
     # Exceptions : cypher.CypherError, cypher.CypherTransactionError
     def delete_user_by_sql_id(self, sql_id):
         try:
-            user = self.graph.find_one("User", "sql_id", sql_id)
-            self.graph.delete(user)
+            delete_user_query = """
+            MATCH(u:User)
+            WHERE u.sql_id = {sql_id}
+            DETACH DELETE u
+            """
+            self.graph.cypher.execute(delete_user_query, sql_id=sql_id)
         except cypher.CypherError, cypher.CypherTransactionError:
             raise "Exception occured in function delete_user_by_sql_id"
 

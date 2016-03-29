@@ -58,19 +58,15 @@ class SystemDAO:
             if is_existing_system is not None:
                 name = system.get('name')
                 description = system.get('description')
-                location_lat = system.get('location_lat')
-                location_lng = system.get('location_lng')
                 status = system.get('status')
                 update_system_query = """
                 MATCH(s:System)
                 WHERE s.system_uid = {system_uid}
                 SET s.name = {name}, s.description = {description},
-                s.location_lat = {location_lat}, s.location_lng = {location_lng},
                 s.status = {status}, s.modified_time = {modified_time}
                 """
                 self.graph.cypher.execute(update_system_query, system_uid=system_uid, name=name,
-                                          description=description, location_lat=location_lat,
-                                          location_lng=location_lng, status=status, modified_time=timestamp())
+                                          description=description, status=status, modified_time=timestamp())
         except Exception as e:
             raise "Exception occured in function update_system_with_system_uid " + str(e)
 
@@ -82,13 +78,14 @@ class SystemDAO:
     # Exceptions : Exception
     def delete_system_by_system_id(self, system_id):
         try:
-            system = self.graph.find_one("System", "system_id", system_id)
-            self.graph.delete(system)
-        # except cypher.CypherError, cypher.CypherTransactionError:
+            delete_system_query = """
+            MATCH(s:System)
+            WHERE s.system_id = {system_id}
+            DETACH DELETE s
+            """
+            self.graph.cypher.execute(delete_system_query, system_id=system_id)
         except Exception as e:
             raise "Exception occured in function delete_system_by_system_id " + str(e)
-
-            ###############################################################################
 
     ###############################################################################
     # function : get_system_for_user
