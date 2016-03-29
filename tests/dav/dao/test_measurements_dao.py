@@ -1,7 +1,7 @@
 import unittest
 from aqxWeb import run
-from aqxWeb.dav import analyticsViews
-from aqxWeb.dav.dao.MeasurementsDAO import MeasurementsDAO
+from aqxWeb.dav import analytics_views
+from aqxWeb.dav.dao.measurements_dao import MeasurementsDAO
 
 # test DAO for metadata tables
 
@@ -10,8 +10,8 @@ class MeasurementsDAOTest(unittest.TestCase):
     # Set up method
     def setUp(self):
         self.app = run.app.test_client()
-        analyticsViews.init_app(run.app)
-        self.conn = analyticsViews.get_conn()
+        analytics_views.init_app(run.app)
+        self.conn = analytics_views.get_conn()
 
     # Tear down method
     def tearDown(self):

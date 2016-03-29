@@ -1,19 +1,22 @@
-
-from flask import Blueprint, render_template,request,url_for
-from mysql.connector.pooling import MySQLConnectionPool
-import os
 import json
-from app.davAPI import DavAPI
+import os
+from mysql.connector.pooling import MySQLConnectionPool
 
-dav = Blueprint('dav', __name__, template_folder='templates',static_folder='static')
+from flask import Blueprint, render_template, request
+
+from app.dav_api import DavAPI
+
+dav = Blueprint('dav', __name__, template_folder='templates', static_folder='static')
 
 
 @dav.route('/home')
 def home():
     return "Data Analytics and Viz Homepage"
 
+
 # To hold db connection pool
 pool = None
+
 
 # Connect to the database
 def init_app(app):
@@ -35,17 +38,16 @@ def get_conn():
 ######################################################################
 
 def create_conn(app):
-
     global pool
     print("PID %d: initializing pool..." % os.getpid())
     dbconfig = {
-        "host":     app.config['HOST'],
-        "user":     app.config['USER'],
-        "passwd":   app.config['PASS'],
-        "db":       app.config['DB']
+        "host": app.config['HOST'],
+        "user": app.config['USER'],
+        "passwd": app.config['PASS'],
+        "db": app.config['DB']
     }
 
-    pool = MySQLConnectionPool(pool_name="mypool", pool_size = app.config['POOLSIZE'], **dbconfig)
+    pool = MySQLConnectionPool(pool_name="mypool", pool_size=app.config['POOLSIZE'], **dbconfig)
 
 
 ######################################################################
@@ -77,23 +79,23 @@ def json_loads_byteified(json_text):
         ignore_dicts=True
     )
 
-def _byteify(data, ignore_dicts = False):
+
+def _byteify(data, ignore_dicts=False):
     # if this is a unicode string, return its string representation
     if isinstance(data, unicode):
         return data.encode('utf-8')
     # if this is a list of values, return list of byteified values
     if isinstance(data, list):
-        return [ _byteify(item, ignore_dicts=True) for item in data ]
+        return [_byteify(item, ignore_dicts=True) for item in data]
     # if this is a dictionary, return dictionary of byteified keys and values
     # but only if we haven't already byteified it
     if isinstance(data, dict) and not ignore_dicts:
         return {
             _byteify(key, ignore_dicts=True): _byteify(value, ignore_dicts=True)
             for key, value in data.iteritems()
-        }
+            }
     # if it's anything else, return it in its original form
     return data
-
 
 
 ######################################################################
@@ -119,20 +121,6 @@ def analyzeGraph():
 
 
 ######################################################################
-# API call to get metadata of a given system
-######################################################################
-
-# get_metadata(system_uid) - It takes in the system_uid as the input
-#                            parameter and returns the metadata for the
-#                            given system. Currently, it returns only
-#                            the name of the system.
-@dav.route('/aqxapi/get/system/meta/<system_uid>', methods=['GET'])
-def get_metadata(system_uid):
-    davAPI = DavAPI(get_conn())
-    return davAPI.get_system_metadata(system_uid)
-
-
-######################################################################
 # API call to get metadata of all the systems
 ######################################################################
 
@@ -154,27 +142,6 @@ def get_all_systems_info():
 def get_all_aqx_metadata():
     davAPI = DavAPI(get_conn())
     return davAPI.get_all_filters_metadata()
-
-
-######################################################################
-# API call to get user data
-######################################################################
-
-@dav.route('/aqxapi/get/user/<uid>', methods=['GET'])
-def get_user(uid):
-    davAPI = DavAPI(get_conn())
-    return davAPI.get_user(uid)
-
-
-######################################################################
-# API call to put user data
-######################################################################
-
-@dav.route('/aqxapi/put/user', methods=['POST'])
-def put_user():
-    davAPI = DavAPI(get_conn())
-    user = request.get_json()
-    return davAPI.put_user(user)
 
 
 ######################################################################
@@ -215,9 +182,10 @@ def put_system_measurement():
 ######################################################################
 
 @dav.route('/aqxapi/get/readings/tsplot/systems/<system_uid_list>/measurements/<msr_id_list>', methods=['GET'])
-def get_readings_for_tsplot(system_uid_list,msr_id_list):
+def get_readings_for_tsplot(system_uid_list, msr_id_list):
     davAPI = DavAPI(get_conn())
-    return davAPI.get_readings_for_plot(system_uid_list,msr_id_list)
+    return davAPI.get_readings_for_plot(system_uid_list, msr_id_list)
+
 
 @dav.route('/aqxapi/get/readings/time_series_plot', methods=['POST'])
 def get_readings_for_plot():
@@ -226,13 +194,6 @@ def get_readings_for_plot():
     systems_uid = request.json['systems']
     return davAPI.get_readings_for_plot(systems_uid, measurements)
 
-##### REQUEST WITH POST
-#@dav.route('/aqxapi/get/readings/time_series_plot', methods=['POST'])
-#def get_readings_for_plot():
-# def get_readings_for_plot():
-#     davAPI = DavAPI(get_conn())
-#     data = request.get_json()
-#     return davAPI.get_readings_for_plot(data)
 
 ######################################################################
 # API to get all measurements for picking axis in graph
@@ -243,16 +204,16 @@ def get_all_measurement_names():
     davAPI = DavAPI(get_conn())
     return davAPI.get_all_measurement_names()
 
+
 ######################################################################
 # API to get all measurements' information: id, name, units, min and
 # max
 ######################################################################
 
-@dav.route('/aqxapi/get/system/measurement_info', methods = ['GET'])
+@dav.route('/aqxapi/get/system/measurement_info', methods=['GET'])
 def get_all_measurement_info():
     davAPI = DavAPI(get_conn())
     return davAPI.get_all_measurement_info()
-
 
 
 if __name__ == '__main__':
