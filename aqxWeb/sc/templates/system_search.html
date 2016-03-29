@@ -44,7 +44,7 @@
                 <br/><br/>
                 <!-- Search Results Div -->
                 <h4 class="page-header" style="padding-left: 10px">Search Results:</h4>
-                <div class="row systemSearchResults">
+                <div class="container systemSearchResults">
                     {% if system_search_results %}
                         {% for row in system_search_results %}
                             <div class="row">
@@ -60,7 +60,7 @@
                             </div>
                         {% endfor %}
                     {% else %}
-                        <div class="row">
+                        <div class="container">
                             <ul class="pull-left">
                                 <img src="{{ url_for('social.static', filename='images/sad_smiley.png') }}" alt="System"
                                      height="32"

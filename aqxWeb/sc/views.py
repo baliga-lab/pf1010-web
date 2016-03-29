@@ -8,7 +8,7 @@ from py2neo import cypher
 from app.scAPI import ScAPI
 from flask_login import login_required
 from flask_googlelogin import LoginManager, make_secure_token, GoogleLogin
-from models import convert_milliseconds_to_normal_date, get_sqlId
+from models import convert_milliseconds_to_normal_date, get_sqlId, get_address_from_lat_lng
 import mysql.connector
 import requests
 import aqxdb
@@ -600,8 +600,8 @@ def search_systems():
 @social.route('/systems/<system_uid>', methods=['GET', 'POST'])
 def view_system(system_uid):
     sql_id = session.get('uid')
-    # sql_id = 29
-    # system_uid = "2e79ea8a411011e5aac7000c29b92d09"
+    #sql_id = 29
+    #system_uid = "2e79ea8a411011e5aac7000c29b92d09"
     if sql_id is None:
         return redirect(url_for('social.search_systems'))
     try:
@@ -615,6 +615,8 @@ def view_system(system_uid):
             else:
                 logged_in_user = User(sql_id).find()
                 created_date = convert_milliseconds_to_normal_date(system_neo4j[0][0]['creation_time'])
+                system_location = get_address_from_lat_lng(system_neo4j[0][0]['location_lat'],
+                                                           system_neo4j[0][0]['location_lng'])
                 # system_mysql = System().get_mysql_system_by_uid(system_uid)
                 system_mysql = system_neo4j
                 # measurements = analyticsViews.get_system_measurements(sql_id)
@@ -634,6 +636,7 @@ def view_system(system_uid):
 
                 return render_template("system_social.html", system_neo4j=system_neo4j, system_mysql=system_mysql,
                                        logged_in_user=logged_in_user, created_date=created_date,
+                                       system_location=system_location,
                                        user_privilege=user_privilege, system_admins=system_admins,
                                        system_participants=system_participants, system_subscribers=system_subscribers,
                                        participants_pending_approval=participants_pending_approval,

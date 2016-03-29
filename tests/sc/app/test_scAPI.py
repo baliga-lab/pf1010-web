@@ -48,6 +48,8 @@ class ScAPITest(unittest.TestCase):
         "system_uid": system_uid,
         "name": "Test SC API System",
         "description": "Test SC API System Description",
+        "location_lat": 42.33866,
+        "location_lng": -71.092186,
         "status": 0
     }
     systemJSONObject = json.dumps({'user': sql_id, 'system': system_json})
@@ -57,6 +59,8 @@ class ScAPITest(unittest.TestCase):
         "system_uid": system_uid,
         "name": "Test SC API System Updated",
         "description": "Test SC API System Description Updated",
+        "location_lat": 42.33866,
+        "location_lng": -71.092186,
         "status": 0
     }
     update_systemJSONObject = json.dumps({'system': update_system_json})
@@ -78,7 +82,8 @@ class ScAPITest(unittest.TestCase):
     # Ensure /social/aqxapi/post/system works as expected
     def test_06_update_system(self):
         with app.test_client() as client:
-            response = client.post('/social/aqxapi/post/system', data=update_systemJSONObject, content_type='application/json')
+            response = client.post('/social/aqxapi/post/system', data=update_systemJSONObject,
+                                   content_type='application/json')
 
     # Ensure /social/aqxapi/put/system works as expected
     def test_05_create_system(self):

@@ -2,6 +2,9 @@ from py2neo import Graph, Node, Relationship, cypher
 import time
 import datetime
 import uuid
+import requests
+import json
+
 
 # Initialize the app_instance and graph_instance
 def init_sc_app(app):
@@ -10,9 +13,11 @@ def init_sc_app(app):
     app_instance = app
     graph_instance = Graph(get_app_instance().config['CONNECTIONSETTING'])
 
+
 # Return the app_instance
 def get_app_instance():
     return app_instance
+
 
 # Create / Load graph with the connection settings
 def getGraphConnectionURI():
@@ -132,7 +137,6 @@ class User:
         except cypher.CypherError, cypher.CypherTransactionError:
             raise "Exception occured in function add_post "
 
-
     ############################################################################
     # function : add_post_to
     # purpose : Adds new post node in neo4j with the given information and creates
@@ -160,10 +164,10 @@ class User:
         """
         try:
             post_node = getGraphConnectionURI().cypher.execute(query, {'sql_id': user_id})
-            getGraphConnectionURI().cypher.execute(command, {'sql_id': posted_to_id, 'post_id': post_node[0]['post_id']})
+            getGraphConnectionURI().cypher.execute(command,
+                                                   {'sql_id': posted_to_id, 'post_id': post_node[0]['post_id']})
         except cypher.CypherError, cypher.CypherTransactionError:
             raise "Exception occured in function add_post_to "
-
 
     ############################################################################
     # function : test_add_post
@@ -216,7 +220,6 @@ class User:
             getGraphConnectionURI().cypher.execute(query, postid=postid, newcontent=newcontent);
         except cypher.CypherError, cypher.CypherTransactionError:
             raise "Exception occured in function edit_post"
-
 
     ############################################################################
     # function : get_user_sql_id
@@ -478,7 +481,6 @@ class User:
         except cypher.CypherError, cypher.CypherTransactionError:
             raise "Exception occured in function send_friend_request "
 
-
     ############################################################################
     # function : accept_friend_request
     # purpose : accepts friend request from intended user in the system
@@ -501,7 +503,8 @@ class User:
         try:
             results = getGraphConnectionURI().cypher.execute(query, acceptor_sid=user.properties["sql_id"],
 
-                                                             accepted_sid=user2.properties["sql_id"],today = date(),blocker_id='');
+                                                             accepted_sid=user2.properties["sql_id"], today=date(),
+                                                             blocker_id='');
 
         except cypher.CypherError, cypher.CypherTransactionError:
             raise "Exception occured in function accept_friend_request "
@@ -518,7 +521,6 @@ class User:
         user2 = User(int(blocked_sql_id)).find()
         print("In block_a_friend")
 
-
         query = """
             match (n1:User)-[r:FRIENDS]-(n2:User)
             where n1.sql_id = {blocker_sid} and n2.sql_id = {blocked_sid}
@@ -531,7 +533,6 @@ class User:
                                                              blocker_id=str((user.properties["sql_id"])));
         except cypher.CypherError, cypher.CypherTransactionError:
             raise "Exception occured in function block_a_friend "
-
 
     ############################################################################
     # function : unblock_a_friend
@@ -551,7 +552,8 @@ class User:
         """
         try:
             results = getGraphConnectionURI().cypher.execute(query, blocker_sid=user.properties["sql_id"],
-                                                             blocked_sid=user2.properties["sql_id"],today = date(),blocker_id='');
+                                                             blocked_sid=user2.properties["sql_id"], today=date(),
+                                                             blocker_id='');
         except cypher.CypherError, cypher.CypherTransactionError:
             raise "Exception occured in function block_a_friend "
 
@@ -690,12 +692,11 @@ class User:
         """
 
         try:
-            friendlist = getGraphConnectionURI().cypher.execute(query, sql_id = my_sql_id, blocker_id="");
+            friendlist = getGraphConnectionURI().cypher.execute(query, sql_id=my_sql_id, blocker_id="");
 
             return friendlist
         except cypher.CypherError, cypher.CypherTransactionError:
             raise "Exception occured in function get_my_friends"
-
 
     ############################################################################
     # function : is_friend
@@ -724,7 +725,7 @@ class User:
     # returns : friend list of the user
     # Exceptions : cypher.CypherError, cypher.CypherTransactionError
     ############################################################################
-    def get_my_blocked_friends(self,u_sql_id):
+    def get_my_blocked_friends(self, u_sql_id):
         my_sql_id = u_sql_id
         print("hi")
 
@@ -736,14 +737,11 @@ class User:
         """
 
         try:
-            friendlist = getGraphConnectionURI().cypher.execute(query, sql_id = my_sql_id,blocker_id=str(my_sql_id));
+            friendlist = getGraphConnectionURI().cypher.execute(query, sql_id=my_sql_id, blocker_id=str(my_sql_id));
 
             return friendlist
         except cypher.CypherError, cypher.CypherTransactionError:
             raise "Exception occured in function get_my_blocked_friends"
-
-
-
 
     ############################################################################
     # function : get_user_by_email_id
@@ -963,6 +961,31 @@ def get_sqlId(google_id):
         raise "Exception occured in function get_sqlId()"
 
 
+############################################################################
+# function : get_address_from_lat_lng
+# purpose : function to convert latitude and longitude to human readable address via Google API
+# params : latitude, longitude
+# returns : returns address
+# Exceptions : Exception
+############################################################################
+
+def get_address_from_lat_lng(latitude, longitude):
+    try:
+        address = ""
+        geocodeAPIBaseURL = "https://maps.googleapis.com/maps/api/geocode/json?address="
+        geocodeAPIURL = geocodeAPIBaseURL + str(latitude) + "," + str(longitude)
+        google_api_response = requests.get(geocodeAPIURL)
+        # For successful API call, response code will be 200 (OK)
+        if(google_api_response.ok):
+            jData = json.loads(google_api_response.content)
+            if(len(jData['results']) > 0):
+                address = jData['results'][0]['formatted_address']
+        return address
+    except Exception as e:
+        print e
+        raise "Exception occured in get_address_from_lat_lng " + str(e)
+
+
 ################################################################################
 # Class : System
 # Contains information related to the system
@@ -1076,7 +1099,8 @@ class System:
         except cypher.CypherError, cypher.CypherTransactionError:
             raise "Exception occured in function get_system_recent_posts "
 
-     ############################################################################
+            ############################################################################
+
     # function : get_system_recent_comments
     # purpose : gets all system comments from db
     # params : system_uid : uid of system
@@ -1707,7 +1731,7 @@ class System:
             text=text,
             link=link,
             privacy=privacy,
-            userid = user_sql_id,
+            userid=user_sql_id,
             creation_time=timestamp(),
             modified_time=timestamp(),
             date=date()
@@ -1891,6 +1915,7 @@ class System:
             getGraphConnectionURI().cypher.execute(query, postid=system_postid, userSqlId=user_sql_id);
         except cypher.CypherError, cypher.CypherTransactionError:
             raise "Exception occured in function get_search_friends"
+
     ############################################################################
     # function : get_mutual_system_between_friends
     # purpose : gets the mutual system between friends from neo4j database
@@ -1961,7 +1986,6 @@ class System:
         raise "Exception occured in function get_all_systems"
 
 
-
 ################################################################################
 # Class : Privacy
 # Contains the privacy information, such as default privacy and privacy options
@@ -1973,12 +1997,11 @@ class Privacy:
     FRIENDS = "Friends"
     PRIVATE = "Private"
     PUBLIC = "Public"
-    PARTICIPANTS = "Participants"   # Participants Only
-    SUBSCRIBERS = "Subscribers"     # Participants and Subscribers
-    ANYONE = "Anyone"               # Anyone is approved by default
-    ADMIN_APPROVAL = "Approval"     # Needs to be approved by Admin
-    SPECIFIED = "Specified"         # Defined per post by User
-
+    PARTICIPANTS = "Participants"  # Participants Only
+    SUBSCRIBERS = "Subscribers"  # Participants and Subscribers
+    ANYONE = "Anyone"  # Anyone is approved by default
+    ADMIN_APPROVAL = "Approval"  # Needs to be approved by Admin
+    SPECIFIED = "Specified"  # Defined per post by User
 
     ############################################################################
     # function : __init__
@@ -1994,4 +2017,3 @@ class Privacy:
         self.page_type = page_type
         self.page_id = page_id
         self.user_relation = Privacy.PUBLIC
-

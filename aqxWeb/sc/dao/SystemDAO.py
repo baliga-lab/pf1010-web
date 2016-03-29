@@ -30,9 +30,12 @@ class SystemDAO:
                 system_uid = system.get('system_uid')
                 name = system.get('name')
                 description = system.get('description')
+                location_lat = system.get('location_lat')
+                location_lng = system.get('location_lng')
                 status = system.get('status')
                 systemNode = Node("System", system_id=system_id, system_uid=system_uid, name=name,
-                                  description=description, status=status,
+                                  description=description, location_lat=location_lat,
+                                  location_lng=location_lng, status=status,
                                   creation_time=timestamp(), modified_time=timestamp())
                 self.graph.create(systemNode)
                 relationship = Relationship(is_existing_user, "SYS_ADMIN", systemNode)
@@ -55,16 +58,19 @@ class SystemDAO:
             if is_existing_system is not None:
                 name = system.get('name')
                 description = system.get('description')
+                location_lat = system.get('location_lat')
+                location_lng = system.get('location_lng')
                 status = system.get('status')
                 update_system_query = """
                 MATCH(s:System)
                 WHERE s.system_uid = {system_uid}
                 SET s.name = {name}, s.description = {description},
+                s.location_lat = {location_lat}, s.location_lng = {location_lng},
                 s.status = {status}, s.modified_time = {modified_time}
                 """
                 self.graph.cypher.execute(update_system_query, system_uid=system_uid, name=name,
-                                          description=description, status=status,
-                                          modified_time=timestamp())
+                                          description=description, location_lat=location_lat,
+                                          location_lng=location_lng, status=status, modified_time=timestamp())
         except Exception as e:
             raise "Exception occured in function update_system_with_system_uid " + str(e)
 
