@@ -55,11 +55,6 @@
                         <option value="{{sys['system_uid']}}">{{sys['system_name']}}</option>
                     {% endfor %}
                 </select>
-                <ul id="listOfUserSystems" style="overflow-y: scroll; max-height: 110px;">
-                    {#        {% for sys in systems %}#}
-                    {#            <li><input type="checkbox" value="{{sys['system_name']}}">{{sys['system_name']}}</li>#}
-                    {#        {% endfor %}#}
-                </ul>
             </div>
             {% if session.uid %}
                 <div class="form-group" style="width: 75%; padding-top:2%;">
