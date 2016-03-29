@@ -44,10 +44,12 @@ def getGraphConnectionURI():
 # Contains information related to the user who is logged in
 ################################################################################
 class User:
+
     ############################################################################
     # function : __init__
     # purpose : main function sets sql_id
     # params :
+    #       self : User instance
     #       sql_id : sql_id for user
     # returns : None
     # Exceptions : None
@@ -57,9 +59,10 @@ class User:
         self.sql_id = sql_id
 
     ############################################################################
-    # function : find
-    # purpose : function used to find user name based on sql_id
-    # params : self (User)
+    # function : find (User)
+    # purpose : function used to find user node based on sql_id
+    # params :
+    #           self : User instance
     # returns : User node
     # Exceptions : cypher.CypherError, cypher.CypherTransactionError
     ############################################################################
@@ -75,25 +78,30 @@ class User:
     # function : updateprofile
     # purpose : function used to update the user profile
     # params :
-    #        displayname : display name which need to changed
-    #        dob : date of birth for the user
+    #       given_name : first name of user
+    #       familyName : Last name of user
+    #       display_name : Display name of user
+    #       gender : Gender of User
+    #       dob : date of birth for the user
     # returns : Boolean
     # Exceptions : General Exception
     ############################################################################
 
-    def updateprofile(self, givenName, familyName, displayname, gender, organization, user_type, dateofbirth):
+    def update_profile(self, given_name, family_name, display_name, gender, organization, user_type, dob):
         query = """
         MATCH(x:User)
         WHERE x.sql_id = {sql_id}
-        SET x.givenName = {newGivenName}, x.familyName = {newFamilyName},
-         x.displayName = {newdisplayname}, x.gender = {newGender}, x.organization = {newOrganization}, x.user_type={newUserType}, x.dob = {newDOB}
+        SET x.givenName = {given_name}, x.familyName = {family_name},
+         x.displayName = {display_name}, x.gender = {gender},
+         x.organization = {organization},
+         x.user_type={user_type}, x.dob = {dob}
         """
         try:
-            return getGraphConnectionURI().cypher.execute(query, sql_id=self.sql_id, newGivenName=givenName,
-                                                          newFamilyName=familyName,
-                                                          newdisplayname=displayname,
-                                                          newGender=gender, newOrganization=organization,
-                                                          newUserType=user_type, newDOB=dateofbirth)
+            return getGraphConnectionURI().cypher.execute(query, sql_id=self.sql_id, given_name=given_name,
+                                                          family_name=family_name,
+                                                          display_name=display_name,
+                                                          gender=gender, organization=organization,
+                                                          user_type=user_type, dob=dob)
         except Exception as e:
             print str(e)
             raise "Exception occured in function updateprofile()"

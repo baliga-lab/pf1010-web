@@ -275,7 +275,7 @@ def updateprofile():
     organization = request.form.get('organization', None)
     user_type = request.form.get('user_type', None)
     dateofbirth = request.form.get('dob', None)
-    User(session['uid']).updateprofile(givenName, familyName, displayName, gender, organization, user_type, dateofbirth)
+    User(session['uid']).update_profile(givenName, familyName, displayName, gender, organization, user_type, dateofbirth)
     session['displayName'] = displayName
     flash("User Profile Updated successfully!")
     return editprofile()
