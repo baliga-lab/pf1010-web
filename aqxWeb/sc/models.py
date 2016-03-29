@@ -5,30 +5,44 @@ import uuid
 import requests
 import json
 
-
-# Initialize the app_instance and graph_instance
+############################################################################
+# function : init_sc_app
+# purpose : Initialize the app_instance and graph_instance
+# params :
+#        app - instance of social app
+# returns : None
+# Exceptions : None
+############################################################################
 def init_sc_app(app):
     global app_instance
     global graph_instance
     app_instance = app
     graph_instance = Graph(get_app_instance().config['CONNECTIONSETTING'])
 
-
-# Return the app_instance
+############################################################################
+# function : get_app_instance
+# purpose : Return the app_instance
+# params : None
+# returns : app_instance social app instance
+# Exceptions : None
+############################################################################
 def get_app_instance():
     return app_instance
 
-
-# Create / Load graph with the connection settings
+############################################################################
+# function : getGraphConnectionURI
+# purpose : Create / Load graph with the connection settings
+# params : None
+# returns : graph_instance social app graph instance
+# Exceptions : None
+############################################################################
 def getGraphConnectionURI():
     return graph_instance
-
 
 ################################################################################
 # Class : User
 # Contains information related to the user who is logged in
 ################################################################################
-
 class User:
     ############################################################################
     # function : __init__
