@@ -3,6 +3,7 @@ from decimal import Decimal
 from mock import Mock
 import unittest
 from aqxWeb.dav.app.dav_api import DavAPI
+import json
 
 
 class DavTests(unittest.TestCase):
@@ -53,7 +54,6 @@ class DavTests(unittest.TestCase):
         d.mea.get_measurements.return_value = result
         d.sys.get_system_name.return_value = 'xyz'
         result = d.get_readings_for_plot(['555d0cfe9ebc11e58153000c29b92d09'],['9'])
-        print result
         self.assertEquals('{"response": [{"system_uid": "555d0cfe9ebc11e58153000c29b92d09", "name": "xyz", "measurement": [{"values": [], "type": "nitrate"}, {"values": [], "type": "o2"}, {"values": [], "type": "ph"}]}]}', result)
 
     # mock test for get_all_measurement_info
@@ -102,5 +102,16 @@ class DavTests(unittest.TestCase):
         # measurement_id: 100 = invalid measurement_id
         result = d.get_system_measurement('555d0cfe9ebc11e58153000c29b92d09','100')
         self.assertEquals('{"error": "Invalid measurement id"}', result)
+
+    # mock method for put_system_measurement (when the value at the given time is already recorded)
+    def test_put_system_measurement_already_recorded_time(self):
+        d = DavAPI(Mock())
+        d.mea = Mock()
+        data = {'system_uid': '555d0cfe9ebc11e58153000c29b92d09', 'measurement_id': '5', 'time': '2018-03-19 23:28:57',
+                'value': '111'}
+        d.mea.get_measurement_name.return_value = (u'light',)
+        d.mea.put_system_measurement.return_value = 'Value at the given time already recorded'
+        result = d.put_system_measurement(data)
+        self.assertEquals('{"status": {"message": "Value at the given time already recorded"}}', result)
 
 
