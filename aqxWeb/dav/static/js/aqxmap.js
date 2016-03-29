@@ -123,7 +123,7 @@ var getCheckListInnerHtml = function (systemId, systemName, isChecked) {
  */
 var flipIcons = function(marker, systemID) {
     var selectedSystems = getAnalyzeSystemValues();
-    if(selectedSystems.length >=5) {
+    if(selectedSystems.length >=5 && !markerIsStarred(marker)) {
         $('#alert_placeholder').html(getAlertHTMLString("You can select up to 5 systems", 'danger'));
     } else {
         $('#analyzeSystems').dropdown('clear');
