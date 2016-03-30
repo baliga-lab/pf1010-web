@@ -6,7 +6,7 @@ from aqxWeb.dav import analytics_views
 from aqxWeb.dav.app.dav_api import DavAPI
 
 import json
-
+import MySQLdb
 # test DAV Api calls
 
 
@@ -14,8 +14,14 @@ class DavApiTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.app = run.app.test_client()
-        analytics_views.init_app(run.app)
-        cls.conn = analytics_views.get_conn()
+        run.app.config.from_pyfile("system_db.cfg")
+        run.create_conn(run.app)
+        run.init_dav(run.pool)
+        cls.conn = MySQLdb.connect(host=run.app.config['HOST'], user=run.app.config['USER'],
+                           passwd=run.app.config['PASS'], db=run.app.config['DB'])
+
+        #cls.conn = MySQLdb.connect(host=run.app.config['HOST'], user=run.app.config['USER'],
+        #                   passwd=run.app.config['PASS'], db=run.app.config['DB'])
 
     def tearDown(self):
         pass

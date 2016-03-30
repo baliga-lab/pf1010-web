@@ -1,6 +1,4 @@
 import json
-import os
-from mysql.connector.pooling import MySQLConnectionPool
 
 from flask import Blueprint, render_template, request
 
@@ -8,21 +6,17 @@ from app.dav_api import DavAPI
 
 dav = Blueprint('dav', __name__, template_folder='templates', static_folder='static')
 
+pool = None
+
 
 @dav.route('/home')
 def home():
     return "Data Analytics and Viz Homepage"
 
 
-# To hold db connection pool
-pool = None
-
-
-# Connect to the database
-def init_app(app):
-    app.debug = True
-    app.config.from_envvar('AQUAPONICS_SETTINGS')
-    create_conn(app)
+def init_dav(conn_pool):
+    global pool
+    pool = conn_pool
 
 
 ######################################################################
@@ -34,23 +28,6 @@ def get_conn():
 
 
 ######################################################################
-# method to create connection when application starts
-######################################################################
-
-def create_conn(app):
-    global pool
-    print("PID %d: initializing pool..." % os.getpid())
-    dbconfig = {
-        "host": app.config['HOST'],
-        "user": app.config['USER'],
-        "passwd": app.config['PASS'],
-        "db": app.config['DB']
-    }
-
-    pool = MySQLConnectionPool(pool_name="mypool", pool_size=app.config['POOLSIZE'], **dbconfig)
-
-
-######################################################################
 # Interactive map of all active systems
 ######################################################################
 @dav.route('/explore')
@@ -58,7 +35,6 @@ def explore():
     systems_and_info_json = get_all_systems_info()
     systems = json_loads_byteified(systems_and_info_json)['systems']
     metadata_dict = json_loads_byteified(get_all_aqx_metadata())['filters']
-    print metadata_dict;
     return render_template("explore.html", **locals())
 
 
@@ -103,7 +79,7 @@ def _byteify(data, ignore_dicts=False):
 ######################################################################
 
 @dav.route('/analyzeGraph', methods=['POST'])
-def analyzeGraph():
+def analyze_graph():
     msr_id_list = [6, 7, 2, 1, 9, 8, 10]
 
     # Load JSON formatted String from API. This will be piped into Javascript as a JS Object accessible in that scope
@@ -128,8 +104,8 @@ def analyzeGraph():
 #                          object.
 @dav.route('/aqxapi/get/systems/metadata')
 def get_all_systems_info():
-    davAPI = DavAPI(get_conn())
-    return davAPI.get_all_systems_info()
+    dav_api = DavAPI(get_conn())
+    return dav_api.get_all_systems_info()
 
 
 ######################################################################
@@ -140,8 +116,8 @@ def get_all_systems_info():
 #                        to filter the displayed systems.
 @dav.route('/aqxapi/get/systems/filters')
 def get_all_aqx_metadata():
-    davAPI = DavAPI(get_conn())
-    return davAPI.get_all_filters_metadata()
+    dav_api = DavAPI(get_conn())
+    return dav_api.get_all_filters_metadata()
 
 
 ######################################################################
@@ -151,8 +127,8 @@ def get_all_aqx_metadata():
 
 @dav.route('/aqxapi/get/system/measurements/<system_uid>', methods=['GET'])
 def get_system_measurements(system_uid):
-    davAPI = DavAPI(get_conn())
-    return davAPI.get_system_measurements(system_uid)
+    dav_api = DavAPI(get_conn())
+    return dav_api.get_system_measurements(system_uid)
 
 
 ######################################################################
@@ -162,8 +138,8 @@ def get_system_measurements(system_uid):
 
 @dav.route('/aqxapi/system/<system_uid>/measurement/<measurement_id>', methods=['GET'])
 def get_system_light_measurement(system_uid, measurement_id):
-    davAPI = DavAPI(get_conn())
-    return davAPI.get_system_measurement(system_uid, measurement_id)
+    dav_api = DavAPI(get_conn())
+    return dav_api.get_system_measurement(system_uid, measurement_id)
 
 
 ######################################################################
@@ -172,9 +148,9 @@ def get_system_light_measurement(system_uid, measurement_id):
 
 @dav.route('/aqxapi/put/system/measurement', methods=['POST'])
 def put_system_measurement():
-    davAPI = DavAPI(get_conn())
+    dav_api = DavAPI(get_conn())
     data = request.get_json()
-    return davAPI.put_system_measurement(data)
+    return dav_api.put_system_measurement(data)
 
 
 ######################################################################
@@ -183,16 +159,16 @@ def put_system_measurement():
 
 @dav.route('/aqxapi/get/readings/tsplot/systems/<system_uid_list>/measurements/<msr_id_list>', methods=['GET'])
 def get_readings_for_tsplot(system_uid_list, msr_id_list):
-    davAPI = DavAPI(get_conn())
-    return davAPI.get_readings_for_plot(system_uid_list, msr_id_list)
+    dav_api = DavAPI(get_conn())
+    return dav_api.get_readings_for_plot(system_uid_list, msr_id_list)
 
 
 @dav.route('/aqxapi/get/readings/time_series_plot', methods=['POST'])
 def get_readings_for_plot():
-    davAPI = DavAPI(get_conn())
+    dav_api = DavAPI(get_conn())
     measurements = request.json['measurements']
     systems_uid = request.json['systems']
-    return davAPI.get_readings_for_plot(systems_uid, measurements)
+    return dav_api.get_readings_for_plot(systems_uid, measurements)
 
 
 ######################################################################
@@ -201,8 +177,8 @@ def get_readings_for_plot():
 
 @dav.route('/aqxapi/get/system/measurement_types', methods=['GET'])
 def get_all_measurement_names():
-    davAPI = DavAPI(get_conn())
-    return davAPI.get_all_measurement_names()
+    dav_api = DavAPI(get_conn())
+    return dav_api.get_all_measurement_names()
 
 
 ######################################################################
@@ -212,9 +188,5 @@ def get_all_measurement_names():
 
 @dav.route('/aqxapi/get/system/measurement_info', methods=['GET'])
 def get_all_measurement_info():
-    davAPI = DavAPI(get_conn())
-    return davAPI.get_all_measurement_info()
-
-
-if __name__ == '__main__':
-    init_app()
+    dav_api = DavAPI(get_conn())
+    return dav_api.get_all_measurement_info()
