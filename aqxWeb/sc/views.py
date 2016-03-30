@@ -8,7 +8,7 @@ from py2neo import cypher
 from app.scAPI import ScAPI
 from flask_login import login_required
 from flask_googlelogin import LoginManager, make_secure_token, GoogleLogin
-from models import convert_milliseconds_to_normal_date, get_sqlId, get_address_from_lat_lng
+from models import convert_milliseconds_to_normal_date, get_sql_id, get_address_from_lat_lng
 import mysql.connector
 import requests
 import aqxdb
@@ -303,7 +303,7 @@ def profile(google_id):
             friends = User(session['uid']).get_my_friends(session['uid']);
             status = "Me"
         else:
-            result = get_sqlId(google_id)
+            result = get_sql_id(google_id)
             if not (result and result.one):
                 return redirect(url_for('social.Home'))
             else:

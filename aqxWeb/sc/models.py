@@ -831,9 +831,10 @@ class User:
 
 ############################################################################
 # function : get_all_recent_posts
-# purpose : gets all posts from db
-# params : None
-# returns : set of usernames and posts
+# purpose : gets all posts from db for given user id
+# params :
+#       user_id - user_id of the logged in user
+# returns : set of displayName, user node, posts and profile_user
 # Exceptions : cypher.CypherError, cypher.CypherTransactionError
 ############################################################################
 
@@ -845,7 +846,7 @@ def get_all_recent_posts(user_id):
     or (user.sql_id = myself.sql_id)
     OPTIONAL MATCH (post)-[:POSTED_TO]-(profile_user:User)
     RETURN user.displayName AS displayName, user, post, profile_user
-    ORDER BY post.modified_time DESC
+    ORDER BY post.created_time DESC
     """
 
     try:
@@ -856,10 +857,11 @@ def get_all_recent_posts(user_id):
 
 
 ############################################################################
-# function : get_all_timeline_posts
-# purpose : gets all posts posted in a timeline
+# function : get_all_profile_posts
+# purpose : gets all posts posted in a profile for given user id
 # params : user_id
-# returns : set of usernames and posts
+# returns : set of nodes
+#               post Node, user node and comments node
 # Exceptions : cypher.CypherError, cypher.CypherTransactionError
 ############################################################################
 def get_all_profile_posts(user_id):
@@ -885,7 +887,7 @@ def get_all_profile_posts(user_id):
 # function : get_all_recent_comments
 # purpose : gets all comments from db
 # params : None
-# returns : set of postids and set of comments
+# returns : set of postids , user node and Comments node
 # Exceptions : cypher.CypherError, cypher.CypherTransactionError
 ############################################################################
 
@@ -907,7 +909,7 @@ def get_all_recent_comments():
 # function : get_total_likes_for_posts
 # purpose : gets all likes from db
 # params : None
-# returns : set of postids and number of likes for all posts
+# returns : set of postids and number of likes for each post
 # Exceptions : cypher.CypherError, cypher.CypherTransactionError
 ############################################################################
 def get_total_likes_for_posts():
@@ -916,8 +918,8 @@ def get_total_likes_for_posts():
     RETURN p.id as postid, count(*) as likecount
     """
     try:
-        totalLikes = getGraphConnectionURI().cypher.execute(query)
-        return totalLikes
+        total_likes = getGraphConnectionURI().cypher.execute(query)
+        return total_likes
     except cypher.CypherError, cypher.CypherTransactionError:
         raise "Exception occured in function get_total_likes_for_posts"
 
@@ -926,7 +928,7 @@ def get_total_likes_for_posts():
 # function : get_all_post_owners
 # purpose : gets all posts and their owners from db
 # params : None
-# returns : set of postids and userid for all posts
+# returns : set of postids and userid for all post owners
 # Exceptions : cypher.CypherError, cypher.CypherTransactionError
 ############################################################################
 def get_all_post_owners():
@@ -936,11 +938,10 @@ def get_all_post_owners():
     ORDER BY p.modified_time DESC
     """
     try:
-        postOwners = getGraphConnectionURI().cypher.execute(query)
-        return postOwners
+        post_owners = getGraphConnectionURI().cypher.execute(query)
+        return post_owners
     except cypher.CypherError, cypher.CypherTransactionError:
         raise "Exception occured in function get_all_post_owners "
-
 
 ############################################################################
 # function : get_all_recent_likes
@@ -1002,13 +1003,13 @@ def date():
 
 
 ############################################################################
-# function : get_sqlId
+# function : get_sql_id
 # purpose : function to return Sql Id of the user from Neo4j
-# params : GoogleId
+# params : Google Id
 # returns : returns Sql Id
 # Exceptions : cypher.CypherError, cypher.CypherTransactionError
 ############################################################################
-def get_sqlId(google_id):
+def get_sql_id(google_id):
     query = """
         MATCH (user:User)
         WHERE user.google_id = {google_id}
@@ -1034,9 +1035,9 @@ def get_sqlId(google_id):
 def get_address_from_lat_lng(latitude, longitude):
     try:
         address = ""
-        geocodeAPIBaseURL = "https://maps.googleapis.com/maps/api/geocode/json?address="
-        geocodeAPIURL = geocodeAPIBaseURL + str(latitude) + "," + str(longitude)
-        google_api_response = requests.get(geocodeAPIURL)
+        geocode_api_base_url = "https://maps.googleapis.com/maps/api/geocode/json?address="
+        geocode_api_url = geocode_api_base_url + str(latitude) + "," + str(longitude)
+        google_api_response = requests.get(geocode_api_url)
         # For successful API call, response code will be 200 (OK)
         if(google_api_response.ok):
             jData = json.loads(google_api_response.content)
@@ -1046,7 +1047,6 @@ def get_address_from_lat_lng(latitude, longitude):
     except Exception as e:
         print e
         raise "Exception occured in get_address_from_lat_lng " + str(e)
-
 
 ################################################################################
 # Class : System
