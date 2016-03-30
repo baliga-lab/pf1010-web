@@ -816,10 +816,10 @@ def delete_system_subscriber_or_make_admin():
 def add_comment():
     comment = request.form['newcomment']
     postid = request.form['postid']
-    if comment == "" or comment == None:
+    if comment == "" or comment is None:
         flash('Comment can not be empty')
         redirect(request.referrer)
-    elif postid == "" or postid == None:
+    elif postid == "" or postid is None:
         flash('Post not found to comment on')
         redirect(request.referrer)
     else:
@@ -841,7 +841,7 @@ def edit_or_delete_comment():
     if session.get('uid') is not None:
         commentid = request.form['commentid']
         # system_uid = request.form["system_uid"]
-        if commentid == "" or commentid == None:
+        if commentid == "" or commentid is None:
             flash('Comment not found to edit')
         else:
             comment = request.form['editedcomment']
@@ -849,7 +849,7 @@ def edit_or_delete_comment():
                 User(session['uid']).delete_comment(commentid)
                 flash('Your post has been deleted')
             elif request.form['submit'] == 'editComment':
-                if comment == "" or comment == None:
+                if comment == "" or comment is None:
                     flash('Comment can not be empty')
                 else:
                     User(session['uid']).edit_comment(comment, commentid)
@@ -869,7 +869,7 @@ def edit_or_delete_system_comment():
     if session.get('uid') is not None:
         comment_id = request.form['commentid']
         system_uid = request.form['system_uid']
-        if comment_id == "" or comment_id == None:
+        if comment_id == "" or comment_id is None:
             flash('Comment not found to edit')
             return redirect(url_for('social.view_system', system_uid=system_uid))
         else:
@@ -878,7 +878,7 @@ def edit_or_delete_system_comment():
                 System().delete_system_comment(comment_id)
                 flash('Your post has been deleted')
             elif request.form['submit'] == 'editComment':
-                if comment == "" or comment == None:
+                if comment == "" or comment is None:
                     flash('Comment can not be empty')
                 else:
                     System().edit_system_comment(comment, comment_id)
@@ -897,11 +897,11 @@ social.route('/edit_comment', methods=['POST'])
 def edit_comment():
     if session.get('uid') is not None:
         comment_id = request.form['commentid']
-        if comment_id == "" or comment_id == None:
+        if comment_id == "" or comment_id is None:
             flash('Comment not found to edit')
         else:
             comment = request.form['editedcomment']
-            if comment == "" or comment == None:
+            if comment == "" or comment is None:
                 flash('Comment can not be empty')
             else:
                 User(session['uid']).edit_comment(comment, comment_id)
@@ -1094,10 +1094,10 @@ def add_system_comment():
     postid = request.form['postid']
     userid = session['uid']
     system_uid = request.form['system_uid']
-    if comment == "" or comment == None:
+    if comment == "" or comment is None:
         flash('Comment can not be empty')
         redirect(url_for('social.view_system', system_uid=system_uid))
-    elif postid == "" or postid == None:
+    elif postid == "" or postid is None:
         flash('Post not found to comment on')
         redirect(url_for('social.view_system', system_uid=system_uid))
     else:
@@ -1118,10 +1118,10 @@ def edit_system_post():
     postid = request.form['postid']
     system_uid = request.form['system_uid']
 
-    if newpost == "" or newpost == None:
+    if newpost == "" or newpost is None:
         flash('New post can not be empty')
         redirect(url_for('social.view_system', system_uid=system_uid))
-    elif postid == "" or postid == None:
+    elif postid == "" or postid is None:
         flash('Post not found to edit')
         redirect(url_for('social.view_system', system_uid=system_uid))
     else:
@@ -1141,7 +1141,7 @@ def edit_system_post():
 def delete_system_post():
     postid = request.form['postid']
     system_uid = request.form['system_uid']
-    if postid == "" or postid == None:
+    if postid == "" or postid is None:
         flash('Post not found to delete')
         redirect(url_for('social.view_system', system_uid=system_uid))
     else:
@@ -1437,10 +1437,10 @@ def test_add_post():
 def test_add_comment():
     comment = request.form['newcomment']
     post_id = request.form['postid']
-    if comment == "" or comment == None:
+    if comment == "" or comment is None:
         flash('Comment can not be empty')
         redirect(url_for('social.index'))
-    elif post_id == "" or post_id == None:
+    elif post_id == "" or post_id is None:
         flash('Post not found to comment on')
         redirect(url_for('social.index'))
     else:
