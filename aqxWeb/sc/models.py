@@ -455,14 +455,14 @@ class User:
             raise "Exception occured in function unlike_post"
 
     ############################################################################
-    # function : get_my_friends
+    # function : get_search_friends
     # purpose : gets my friends which are present in the Neo4J database
     # params :
     #        self : User instance
     # returns : Nodes labeled User
     # Exceptions : cypher.CypherError, cypher.CypherTransactionError
     ############################################################################
-    def get_my_friends(self):
+    def get_search_friends(self):
         query = """
             MATCH (users:User)
             RETURN users.givenName, users.familyName, users.organization,
@@ -473,7 +473,7 @@ class User:
             results = get_graph_connection_uri().cypher.execute(query)
             return results
         except cypher.CypherError, cypher.CypherTransactionError:
-            raise "Exception occured in function get_my_friends"
+            raise "Exception occured in function get_search_friends"
 
     ############################################################################
     # function : get_friends_and_sent_req

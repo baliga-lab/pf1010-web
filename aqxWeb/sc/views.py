@@ -15,6 +15,8 @@ import aqxdb
 import logging
 import json
 from flask_oauth import OAuth
+from dav import analyticsViews
+from json2html import *
 
 oauth = OAuth()
 # GOOGLE_CLIENT_ID='757190606234-pnqru7tabom1p1hhvpm0d3c3lnjk2vv4.apps.googleusercontent.com',
@@ -614,9 +616,12 @@ def view_system(system_uid):
                 posts = system.get_system_recent_posts(system_uid)
                 comments = system.get_system_recent_comments(system_uid)
                 likes = system.get_system_recent_likes(system_uid)
-                totalLikes = system.get_total_likes_for_system_posts(system_uid)
-                postOwners = system.get_system_post_owners(system_uid)
-
+                total_likes = system.get_total_likes_for_system_posts(system_uid)
+                post_owners = system.get_system_post_owners(system_uid)
+                measurements = analyticsViews.get_system_measurements(system_uid)
+                print(measurements)
+                measurements_table = json2html.convert(json = measurements)
+                print(measurements_table)
                 return render_template("system_social.html", system_neo4j=system_neo4j, system_mysql=system_mysql,
                                        logged_in_user=logged_in_user, created_date=created_date,
                                        system_location=system_location,
@@ -626,7 +631,7 @@ def view_system(system_uid):
                                        subscribers_pending_approval=subscribers_pending_approval,
                                        system_uid=system_uid, privacy_options=privacy_options,
                                        posts=posts, comments=comments, likes=likes,
-                                       totalLikes=totalLikes, postOwners=postOwners)
+                                       totalLikes=total_likes, postOwners=post_owners,measurements_table=measurements_table)
     except Exception as e:
         logging.exception("Exception at view_system: " + str(e))
 
@@ -1324,7 +1329,7 @@ def unlike_post():
 #######################################################################################
 @social.route('/getfriends', methods=['GET'])
 def getfriends():
-    users = User(session['uid']).get_my_friends()
+    users = User(session['uid']).get_search_friends()
     user_list = []
     sentreq_res, receivedreq_res, frnds_res = User(session['uid']).get_friends_and_sent_req()
     for result in users:
