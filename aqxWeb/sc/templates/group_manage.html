@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+
+{% block title %}Manage Groups{% endblock %}
+
+{% block styles %}
+    {{ super() }}
+    <link rel="stylesheet" href="{{ url_for('social.static', filename='css/group_manage.css') }}">
+{% endblock %}
+
+{% block content %}
+
+    <!-- Entire Page Div Container -->
+    <div class="container" id="manageGroupsTab">
+        <span>
+            <img class="cogWheelIcon" src="{{ url_for('social.static', filename='images/system_settings.png') }}">
+            <h3 class="page-header">Manage Group</h3>
+        </span>
+        <ul class="nav nav-tabs" id="tab-headers">
+            <li><a href="#groupInfoTab">Group Info</a></li>
+            <li><a href="#pendingMembersTab">Pending Member(s)</a></li>
+            <li><a href="#adminTab">Admin(s)</a></li>
+            <li><a href="#membersTab">Member(s)</a></li>
+        </ul>
+        <br>
+
+        <!-- groupInfoTab Div -->
+        <div class="row" id="groupInfoTab">
+
+
+        </div>
+        <!-- End of groupInfoTab Div -->
+
+        <!-- pendingMembersTab Div -->
+        <div class="row" id="pendingMembersTab">
+
+
+        </div>
+        <!-- End of pendingMembersTab Div -->
+
+        <!-- Manage Admin Div -->
+        <div class="row" id="adminTab">
+
+
+        </div>
+        <!-- End Of Manage Admin Div -->
+
+
+        <!-- Manage Members Div -->
+        <div class="row" id="membersTab">
+
+        </div>
+        <!-- End Of Manage Members Div -->
+
+        <!-- Span For Go Back To Group Page Button -->
+        <span>
+            <a href="{{ url_for('social.view_group', group_uid= group_neo4j[0][0]["group_uid"]) }}">
+                <img class="goBackIcon" src="{{ url_for('social.static', filename='images/system_go_back.png') }}">
+                <h4 class="page-header">Back To Group</h4>
+            </a>
+        </span>
+        <!-- End Of Span For Go Back To Group Page Button -->
+    </div>
+    <!-- End of Entire Page Div Container -->
+
+    <br/><br/>
+{% endblock %}
+
+{% block scripts %}
+    {{ super() }}
+    <!-- jQuery Script For DOM Manipulation In Manage Group Page -->
+    <script type="text/javascript" src="{{ url_for('social.static', filename='js/group_manage.js') }}"></script>
+{% endblock %}

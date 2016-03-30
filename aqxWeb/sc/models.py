@@ -5,6 +5,7 @@ import uuid
 import requests
 import json
 
+
 ############################################################################
 # function : init_sc_app
 # purpose : Initialize the app_instance and graph_instance
@@ -19,6 +20,7 @@ def init_sc_app(app):
     app_instance = app
     graph_instance = Graph(get_app_instance().config['CONNECTIONSETTING'])
 
+
 ############################################################################
 # function : get_app_instance
 # purpose : Return the app_instance
@@ -28,6 +30,7 @@ def init_sc_app(app):
 ############################################################################
 def get_app_instance():
     return app_instance
+
 
 ############################################################################
 # function : getGraphConnectionURI
@@ -39,12 +42,12 @@ def get_app_instance():
 def get_graph_connection_uri():
     return graph_instance
 
+
 ################################################################################
 # Class : User
 # Contains information related to the user who is logged in
 ################################################################################
 class User:
-
     ############################################################################
     # function : __init__
     # purpose : main function sets sql_id
@@ -106,7 +109,6 @@ class User:
                                                              gender=gender, organization=organization,
                                                              user_type=user_type, dob=dob)
         except Exception as e:
-            print str(e)
             raise "Exception occured in function updateprofile()"
 
     ############################################################################
@@ -372,10 +374,10 @@ class User:
     # Exceptions : cypher.CypherError, cypher.CypherTransactionError
     # returns : None
     ############################################################################
-    #Change the modified date
+    # Change the modified date
     def edit_comment(self, new_comment, comment_id):
         user = self.find()
-        #print(comment_id)
+        # print(comment_id)
         query = """
         MATCH (comment:Comment)
         WHERE comment.id = {comment_id}
@@ -399,7 +401,7 @@ class User:
 
     def delete_comment(self, comment_id):
         user = self.find()
-        #print("Comment id" + str(comment_id))
+        # print("Comment id" + str(comment_id))
         query = """
         MATCH (comment:Comment)
         WHERE comment.id = {comment_id}
@@ -534,8 +536,8 @@ class User:
     def accept_friend_request(self, sender_sql_id):
         my_user_node = self.find()
         friend_user_node = User(int(sender_sql_id)).find()
-        #print(date());
-        #print("In accept_friend_request")
+        # print(date());
+        # print("In accept_friend_request")
         query = """
             MATCH (n:User),(n1:User)
             Where n.sql_id = {acceptor_sid} AND n1.sql_id = {accepted_sid}
@@ -564,7 +566,7 @@ class User:
     def block_a_friend(self, blocked_sql_id):
         my_user_node = self.find()
         blocked_user_node = User(int(blocked_sql_id)).find()
-        #print("In block_a_friend")
+        # print("In block_a_friend")
         query = """
             match (n1:User)-[r:FRIENDS]-(n2:User)
             where n1.sql_id = {blocker_sid} and n2.sql_id = {blocked_sid}
@@ -590,7 +592,6 @@ class User:
     def unblock_a_friend(self, blocked_sql_id):
         my_user_node = self.find()
         blocked_user_node = User(int(blocked_sql_id)).find()
-        print("In block_a_friend")
         query = """
             match (n1:User)-[r:FRIENDS]-(n2:User)
             where n1.sql_id = {blocker_sid} and n2.sql_id = {blocked_sid}
@@ -598,7 +599,8 @@ class User:
         """
         try:
             results = get_graph_connection_uri().cypher.execute(query, blocker_sid=my_user_node.properties["sql_id"],
-                                                                blocked_sid=blocked_user_node.properties["sql_id"], today=date(),
+                                                                blocked_sid=blocked_user_node.properties["sql_id"],
+                                                                today=date(),
                                                                 blocker_id='')
         except cypher.CypherError, cypher.CypherTransactionError:
             raise "Exception occured in function block_a_friend "
@@ -615,7 +617,7 @@ class User:
     def delete_friend_request(self, receiver_sql_id):
         my_user_node = self.find()
         receiver_user_node = User(int(receiver_sql_id)).find()
-        #print("In delete_friend_request")
+        # print("In delete_friend_request")
         query = """
             MATCH  (n:User) - [r:SentRequest] - (n1:User)
             Where n.sql_id = {acceptor_sid} AND n1.sql_id = {accepted_sid}
@@ -640,7 +642,7 @@ class User:
         my_user_node = self.find()
         receiver_user_node = User(int(receiver_sql_id)).find()
 
-        #print("In delete_friend_request")
+        # print("In delete_friend_request")
         query = """
             MATCH  (n:User) - [r:FRIENDS] - (n1:User)
             Where n.sql_id = {acceptor_sid} AND n1.sql_id = {accepted_sid}
@@ -770,8 +772,8 @@ class User:
         """
         try:
             friend = get_graph_connection_uri().cypher.execute(query, {'sql_id1': u_sql_id1,
-                                                                    'sql_id2': u_sql_id2,
-                                                                    'blocker_id': ""})
+                                                                       'sql_id2': u_sql_id2,
+                                                                       'blocker_id': ""})
             return friend
         except cypher.CypherError, cypher.CypherTransactionError:
             raise "Exception occured in function is_friend"
@@ -787,8 +789,6 @@ class User:
     ############################################################################
     def get_my_blocked_friends(self, u_sql_id):
         my_sql_id = u_sql_id
-        print("hi")
-
         query = """
             MATCH (n:User)-[r:FRIENDS]-(n1:User)
             WHERE n1.sql_id = {sql_id}  and r.blocker_id = {blocker_id}
@@ -825,6 +825,7 @@ class User:
             return user_profile
         except cypher.CypherError, cypher.CypherTransactionError:
             raise "Exception occured in function get_user_by_google_id()"
+
 
 ########### END OF USER class #############
 
@@ -943,6 +944,7 @@ def get_all_post_owners():
     except cypher.CypherError, cypher.CypherTransactionError:
         raise "Exception occured in function get_all_post_owners "
 
+
 ############################################################################
 # function : get_all_recent_likes
 # purpose : gets all likes from db
@@ -1033,20 +1035,19 @@ def get_sql_id(google_id):
 ############################################################################
 
 def get_address_from_lat_lng(latitude, longitude):
+    address = ""
     try:
-        address = ""
         geocode_api_base_url = "https://maps.googleapis.com/maps/api/geocode/json?address="
         geocode_api_url = geocode_api_base_url + str(latitude) + "," + str(longitude)
         google_api_response = requests.get(geocode_api_url)
         # For successful API call, response code will be 200 (OK)
-        if(google_api_response.ok):
+        if (google_api_response.ok):
             jData = json.loads(google_api_response.content)
-            if(len(jData['results']) > 0):
+            if (len(jData['results']) > 0):
                 address = jData['results'][0]['formatted_address']
         return address
     except Exception as e:
-        print e
-        raise "Exception occured in get_address_from_lat_lng " + str(e)
+        return address
 
 ################################################################################
 # Class : System
@@ -1257,7 +1258,6 @@ class System:
             system_mysql = "hello"
             return system_mysql
         except Exception as e:
-            print str(e)
             raise "Exception occured in function get_mysql_system_by_uid()"
 
     ############################################################################
@@ -1594,9 +1594,10 @@ class System:
             remove_relationship_status = get_graph_connection_uri().cypher.execute(remove_relationship_query,
                                                                                    google_id=google_id,
                                                                                    system_uid=system_uid)
-            create_relationship_status = get_graph_connection_uri().cypher.execute(create_participant_relationship_query,
-                                                                                   google_id=google_id,
-                                                                                   system_uid=system_uid)
+            create_relationship_status = get_graph_connection_uri().cypher.execute(
+                create_participant_relationship_query,
+                google_id=google_id,
+                system_uid=system_uid)
         except cypher.CypherError, cypher.CypherTransactionError:
             raise "Exception occured in function make_participant_for_system"
 
@@ -1808,7 +1809,6 @@ class System:
     ############################################################################
     def add_system_post(self, system_uid, user_sql_id, text, privacy, link):
         systemnew = System().find(system_uid)
-        print(systemnew)
         user = User(user_sql_id).find()
         post = Node(
             "SystemPost",
@@ -1839,7 +1839,6 @@ class System:
     ############################################################################
 
     def delete_system_comment(self, commentid):
-        print("Comment id" + str(commentid))
         query = """
         MATCH (comment:SystemComment)
         WHERE comment.id = {commentid}
@@ -1861,7 +1860,6 @@ class System:
     ############################################################################
 
     def edit_system_comment(self, new_comment, comment_id):
-        print(comment_id)
         query = """
         MATCH (comment:SystemComment)
         WHERE comment.id = {commentid}
@@ -1964,7 +1962,6 @@ class System:
     def add_system_comment(self, user_sql_id, new_comment, system_postid):
         user = User(user_sql_id).find()
         post = get_graph_connection_uri().find_one("SystemPost", "id", system_postid)
-        print(user)
         comment = Node(
             "SystemComment",
             id=str(uuid.uuid4()),
@@ -2102,3 +2099,93 @@ class Privacy:
         self.page_type = page_type
         self.page_id = page_id
         self.user_relation = Privacy.PUBLIC
+
+
+################################################################################
+# Class : Group
+# Contains information related to the Group
+################################################################################
+
+class Group:
+    ############################################################################
+    # function : __init__
+    # purpose : main function sets group_uid
+    # params :
+    #       self : Group
+    # returns : None
+    # Exceptions : None
+    ############################################################################
+
+    def __init__(self):
+        self.group_uid = None
+
+    ############################################################################
+    # function : find
+    # purpose : function used to find Group based on group_uid
+    # params :
+    #       self : Group
+    #       group_uid : uid of group
+    # returns : Group node
+    # Exceptions : cypher.CypherError, cypher.CypherTransactionError
+    ############################################################################
+
+    def find(self, group_uid):
+        try:
+            group = get_graph_connection_uri().find_one("Group", "group_uid", group_uid)
+            return group
+        except cypher.CypherError, cypher.CypherTransactionError:
+            raise "Exception occured in function Group.find()"
+
+
+    ############################################################################
+    # function : get_group_by_uid
+    # purpose : gets the group details for the matched group_uid from neo4j database
+    # params :
+    #       self : Group
+    #       group_uid : uid of the group
+    # returns : Group node
+    # Exceptions : cypher.CypherError, cypher.CypherTransactionError
+    ############################################################################
+
+    def get_group_by_uid(self, group_uid):
+        query = """
+            MATCH (group:Group)
+            WHERE group.group_uid = {group_uid}
+            RETURN group
+        """
+        try:
+            group_neo4j = get_graph_connection_uri().cypher.execute(query, group_uid=group_uid)
+            return group_neo4j
+        except cypher.CypherError, cypher.CypherTransactionError:
+            raise "Exception occured in function get_group_by_uid"
+
+    ############################################################################
+    # function : get_user_privilege_for_group
+    # purpose : gets the user privilege (based on logged in user) for the provided group_uid from neo4j database
+    # params : self System, sql_id, group_uid
+    # returns : user_privilege
+    # Exceptions : cypher.CypherError, cypher.CypherTransactionError
+    ############################################################################
+    def get_user_privilege_for_group(self, sql_id, group_uid):
+        user_privilege = None
+        query = """
+             match (user:User)-[r]->(group:Group)
+             WHERE user.sql_id = {sql_id} and group.group_uid = {group_uid}
+             return type(r) as rel_type
+        """
+        try:
+            relationship_type = get_graph_connection_uri().cypher.execute(query, sql_id=sql_id, group_uid=group_uid)
+            if not relationship_type:
+                user_privilege = None
+            else:
+                rel_type = relationship_type[0]['rel_type']
+                if (rel_type == "GROUP_ADMIN"):
+                    user_privilege = "GROUP_ADMIN"
+                elif (rel_type == "GROUP_MEMBER"):
+                    user_privilege = "GROUP_MEMBER"
+                elif (rel_type == "GROUP_PENDING_MEMBER"):
+                    user_privilege = "GROUP_PENDING_MEMBER"
+            return user_privilege
+        except cypher.CypherError, cypher.CypherTransactionError:
+            raise "Exception occured in function get_user_privilege_for_group"
+

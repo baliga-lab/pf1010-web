@@ -43,7 +43,7 @@
                             <tr>
                                 <td>
                                     <a href="{{ url_for('social.profile', google_id=pending_participant[0]["google_id"]) }}">
-                                        <img class="pendingParticipantImage"
+                                        <img class="pendingParticipantImage img-circle"
                                              src="{{ pending_participant[0]["image_url"] }}">
                                     </a>
                                 </td>
@@ -115,7 +115,7 @@
                             <tr>
                                 <td>
                                     <a href="{{ url_for('social.profile', google_id=participant[0]["google_id"]) }}">
-                                        <img class="participantImage" src="{{ participant[0]["image_url"] }}">
+                                        <img class="participantImage img-circle" src="{{ participant[0]["image_url"] }}">
                                     </a>
                                 </td>
                                 <td>
@@ -189,7 +189,7 @@
                             <tr>
                                 <td>
                                     <a href="{{ url_for('social.profile', google_id=admin[0]["google_id"]) }}">
-                                        <img class="adminImage" src="{{ admin[0]["image_url"] }}">
+                                        <img class="adminImage img-circle" src="{{ admin[0]["image_url"] }}">
                                     </a>
                                 </td>
                                 <td>
@@ -259,7 +259,7 @@
                             <tr>
                                 <td>
                                     <a href="{{ url_for('social.profile', google_id=subscriber[0]["google_id"]) }}">
-                                        <img class="subscriberImage" src="{{ subscriber[0]["image_url"] }}">
+                                        <img class="subscriberImage img-circle" src="{{ subscriber[0]["image_url"] }}">
                                     </a>
                                 </td>
                                 <td>
