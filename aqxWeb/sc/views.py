@@ -1273,9 +1273,9 @@ def unlike_post():
 #######################################################################################
 @social.route('/getfriends', methods=['GET'])
 def getfriends():
-    users = User(session['uid']).get_search_friends()
+    users = User(session['uid']).get_my_friends()
     user_list = []
-    sentreq_res, receivedreq_res, frnds_res = User(session['uid']).get_friends_and_sentreq()
+    sentreq_res, receivedreq_res, frnds_res = User(session['uid']).get_friends_and_sent_req()
     for result in users:
         individual_user = {}
         first_name = result[0]
@@ -1496,7 +1496,7 @@ def test_add_comment():
 #######################################################################################
 def checkStatus(user_sql_id):
     friend_status = "Add friend"
-    sentreq_res, receivedreq_res, frnds_res = User(session['uid']).get_friends_and_sentreq()
+    sentreq_res, receivedreq_res, frnds_res = User(session['uid']).get_friends_and_sent_req()
     for sf in sentreq_res:
         sf_id = sf[0]
         if user_sql_id == sf_id:
