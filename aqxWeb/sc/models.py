@@ -237,7 +237,7 @@ class User:
     # Exceptions : cypher.CypherError, cypher.CypherTransactionError
     # returns : None
     ############################################################################
-    # @TODO : Update modified_time()
+    # Update modified_time()
     def edit_post(self, new_content, post_id):
         query = """
         MATCH (post:Post)
@@ -246,7 +246,7 @@ class User:
         RETURN post
         """
         try:
-            getGraphConnectionURI().cypher.execute(query, postid=post_id, new_content=new_content);
+            getGraphConnectionURI().cypher.execute(query, post_id=post_id, new_content=new_content)
         except cypher.CypherError, cypher.CypherTransactionError:
             raise "Exception occured in function edit_post"
 
@@ -286,7 +286,7 @@ class User:
             DETACH DELETE comment
             """
         try:
-            getGraphConnectionURI().cypher.execute(deleteCommentsQuery, postid=postid)
+            getGraphConnectionURI().cypher.execute(deleteCommentsQuery, postid=post_id)
         except cypher.CypherError, cypher.CypherTransactionError:
             raise "Exception occured in function delete_post : deleteCommentsQuery "
 
@@ -298,7 +298,7 @@ class User:
             DETACH DELETE post
             """
         try:
-            getGraphConnectionURI().cypher.execute(deletePostQuery, postid=postid)
+            getGraphConnectionURI().cypher.execute(deletePostQuery, postid=post_id)
         except cypher.CypherError, cypher.CypherTransactionError:
             raise "Exception occured in function delete_post : deletePostQuery "
 
@@ -372,7 +372,7 @@ class User:
     # Exceptions : cypher.CypherError, cypher.CypherTransactionError
     # returns : None
     ############################################################################
-    # @TODO : Change the modified date
+    #Change the modified date
     def edit_comment(self, new_comment, comment_id):
         user = self.find()
         #print(comment_id)
@@ -383,7 +383,7 @@ class User:
         RETURN comment
         """
         try:
-            getGraphConnectionURI().cypher.execute(query, comment_id=comment_id, new_comment=new_comment);
+            getGraphConnectionURI().cypher.execute(query, comment_id=comment_id, new_comment=new_comment)
         except cypher.CypherError, cypher.CypherTransactionError:
             raise "Exception occured in function edit_comment"
 
@@ -406,7 +406,7 @@ class User:
         DETACH DELETE comment
         """
         try:
-            getGraphConnectionURI().cypher.execute(query, comment_id=comment_id);
+            getGraphConnectionURI().cypher.execute(query, comment_id=comment_id)
         except cypher.CypherError, cypher.CypherTransactionError:
             raise "Exception occured in function delete_comment "
 
@@ -448,7 +448,7 @@ class User:
         """
 
         try:
-            getGraphConnectionURI().cypher.execute(query, postid=post_id, user_sql_id=user_sql_id);
+            getGraphConnectionURI().cypher.execute(query, postid=post_id, user_sql_id=user_sql_id)
         except cypher.CypherError, cypher.CypherTransactionError:
             raise "Exception occured in function unlike_post"
 
@@ -468,8 +468,8 @@ class User:
         """
 
         try:
-            results = getGraphConnectionURI().cypher.execute(query);
-            return results;
+            results = getGraphConnectionURI().cypher.execute(query)
+            return results
         except cypher.CypherError, cypher.CypherTransactionError:
             raise "Exception occured in function get_my_friends"
 
@@ -489,9 +489,9 @@ class User:
         my_friends_query = "MATCH (friends { sql_id:{sql_id} })-[:FRIENDS]-(res) RETURN res.sql_id"
 
         try:
-            sentreq_res = getGraphConnectionURI().cypher.execute(my_sent_req_query, sql_id=my_sql_id);
-            receivedreq_res = getGraphConnectionURI().cypher.execute(my_received_query, sql_id=my_sql_id);
-            frnds_res = getGraphConnectionURI().cypher.execute(my_friends_query, sql_id=my_sql_id);
+            sentreq_res = getGraphConnectionURI().cypher.execute(my_sent_req_query, sql_id=my_sql_id)
+            receivedreq_res = getGraphConnectionURI().cypher.execute(my_received_query, sql_id=my_sql_id)
+            frnds_res = getGraphConnectionURI().cypher.execute(my_friends_query, sql_id=my_sql_id)
             return sentreq_res, receivedreq_res, frnds_res
         except cypher.CypherError, cypher.CypherTransactionError:
             raise "Exception occured in function get_friends_and_sent_req"
@@ -518,7 +518,7 @@ class User:
         try:
             results = getGraphConnectionURI().cypher.execute(query,
                                                              sender_sid=my_user_node.properties["sql_id"],
-                                                             receiver_sid=friend_user_node.properties["sql_id"]);
+                                                             receiver_sid=friend_user_node.properties["sql_id"])
         except cypher.CypherError, cypher.CypherTransactionError:
             raise "Exception occured in function send_friend_request "
 
@@ -547,7 +547,7 @@ class User:
                                                              acceptor_sid=my_user_node.properties["sql_id"],
                                                              accepted_sid=friend_user_node.properties["sql_id"],
                                                              today=date(),
-                                                             blocker_id='');
+                                                             blocker_id='')
 
         except cypher.CypherError, cypher.CypherTransactionError:
             raise "Exception occured in function accept_friend_request "
@@ -574,7 +574,7 @@ class User:
         try:
             results = getGraphConnectionURI().cypher.execute(query, blocker_sid=my_user_node.properties["sql_id"],
                                                              blocked_sid=blocked_user_node.properties["sql_id"],
-                                                             blocker_id=str((my_user_node.properties["sql_id"])));
+                                                             blocker_id=str((my_user_node.properties["sql_id"])))
         except cypher.CypherError, cypher.CypherTransactionError:
             raise "Exception occured in function block_a_friend "
 
@@ -599,7 +599,7 @@ class User:
         try:
             results = getGraphConnectionURI().cypher.execute(query, blocker_sid=my_user_node.properties["sql_id"],
                                                              blocked_sid=blocked_user_node.properties["sql_id"], today=date(),
-                                                             blocker_id='');
+                                                             blocker_id='')
         except cypher.CypherError, cypher.CypherTransactionError:
             raise "Exception occured in function block_a_friend "
 
@@ -623,7 +623,7 @@ class User:
         """
         try:
             results = getGraphConnectionURI().cypher.execute(query, acceptor_sid=my_user_node.properties["sql_id"],
-                                                             accepted_sid=receiver_user_node.properties["sql_id"]);
+                                                             accepted_sid=receiver_user_node.properties["sql_id"])
         except cypher.CypherError, cypher.CypherTransactionError:
             raise "Exception occured in function delete_friend_request "
 
@@ -649,7 +649,7 @@ class User:
         """
         try:
             results = getGraphConnectionURI().cypher.execute(query, acceptor_sid=my_user_node.properties["sql_id"],
-                                                             accepted_sid=receiver_user_node.properties["sql_id"]);
+                                                             accepted_sid=receiver_user_node.properties["sql_id"])
         except cypher.CypherError, cypher.CypherTransactionError:
             raise "Exception occured in function delete_friend "
 
@@ -747,7 +747,7 @@ class User:
         """
 
         try:
-            friendlist = getGraphConnectionURI().cypher.execute(query, sql_id=my_sql_id, blocker_id="");
+            friendlist = getGraphConnectionURI().cypher.execute(query, sql_id=my_sql_id, blocker_id="")
             return friendlist
         except cypher.CypherError, cypher.CypherTransactionError:
             raise "Exception occured in function get_my_friends"
@@ -797,7 +797,7 @@ class User:
         """
 
         try:
-            friendlist = getGraphConnectionURI().cypher.execute(query, sql_id=my_sql_id, blocker_id=str(my_sql_id));
+            friendlist = getGraphConnectionURI().cypher.execute(query, sql_id=my_sql_id, blocker_id=str(my_sql_id))
 
             return friendlist
         except cypher.CypherError, cypher.CypherTransactionError:
@@ -846,7 +846,7 @@ def get_all_recent_posts(user_id):
     or (user.sql_id = myself.sql_id)
     OPTIONAL MATCH (post)-[:POSTED_TO]-(profile_user:User)
     RETURN user.displayName AS displayName, user, post, profile_user
-    ORDER BY post.created_time DESC
+    ORDER BY post.modified_time DESC
     """
 
     try:
@@ -1057,7 +1057,8 @@ class System:
     ############################################################################
     # function : __init__
     # purpose : main function sets system_uid
-    # params : None
+    # params :
+    #       self : System
     # returns : None
     # Exceptions : None
     ############################################################################
@@ -1067,9 +1068,11 @@ class System:
 
     ############################################################################
     # function : find
-    # purpose : function used to find user name based on sql_id
-    # params : self (User)
-    # returns : User node
+    # purpose : function used to find System name based on system_uid
+    # params :
+    #       self : System
+    #       System uid : uid of system
+    # returns : System node
     # Exceptions : cypher.CypherError, cypher.CypherTransactionError
     ############################################################################
 
@@ -1078,13 +1081,15 @@ class System:
             system = getGraphConnectionURI().find_one("System", "system_uid", system_uid)
             return system
         except cypher.CypherError, cypher.CypherTransactionError:
-            raise "Exception occured in function User.find()"
+            raise "Exception occured in function System.find()"
 
     ############################################################################
     # function : get_system_post_owners
-    # purpose : gets all likes from db
-    # params : None
-    # returns : set of postids and number of likes for all posts
+    # purpose : gets all system post owners from db
+    # params :
+    #       self : System
+    #       system_uid : uid of a system
+    # returns : set of post ids and number of likes for all posts
     # Exceptions : cypher.CypherError, cypher.CypherTransactionError
     ############################################################################
     def get_system_post_owners(self, system_uid):
@@ -1102,9 +1107,11 @@ class System:
 
     ############################################################################
     # function : get_system_recent_likes
-    # purpose : gets all likes from db
-    # params : None
-    # returns : set of postids and number of likes for all posts
+    # purpose : gets all likes for system posts from db
+    # params :
+    #       self : System
+    #       system_uid : uid of a system
+    # returns : set of post ids and user ids who liked those posts
     # Exceptions : cypher.CypherError, cypher.CypherTransactionError
     ############################################################################
     def get_system_recent_likes(self, system_uid):
@@ -1124,7 +1131,9 @@ class System:
     ############################################################################
     # function : get_total_likes_for_system_posts
     # purpose : gets all likes from db
-    # params : None
+    # params :
+    #       self : System
+    #       system_uid : uid of a system
     # returns : set of postids and number of likes for all posts
     # Exceptions : cypher.CypherError, cypher.CypherTransactionError
     ############################################################################
@@ -1142,9 +1151,11 @@ class System:
 
     ############################################################################
     # function : get_system_recent_posts
-    # purpose : gets all posts from db
-    # params : None
-    # returns : set of usernames and posts
+    # purpose : gets all system posts from db
+    # params :
+    #       self : System
+    #       system_uid : uid of a system
+    # returns : set of user names and posts
     # Exceptions : cypher.CypherError, cypher.CypherTransactionError
     ############################################################################
 
@@ -1161,22 +1172,24 @@ class System:
         except cypher.CypherError, cypher.CypherTransactionError:
             raise "Exception occured in function get_system_recent_posts "
 
-            ############################################################################
-
+    ############################################################################
     # function : get_system_recent_comments
     # purpose : gets all system comments from db
-    # params : system_uid : uid of system
+    # params :
+    #       self : System
+    #       system_uid : uid of a system
     # returns : set of usernames and posts
     # Exceptions : cypher.CypherError, cypher.CypherTransactionError
     ############################################################################
 
     def get_system_recent_comments(self, system_uid):
         query = """
-        MATCH (user:User), (system:System)-[r1:SYS_POSTED]->(post:SystemPost)-[r:HAS]->(comment:SystemComment)
+        MATCH (user:User),
+        (system:System)-[r1:SYS_POSTED]->(post:SystemPost)-[r:HAS]->(comment:SystemComment)
         WHERE system.system_uid = {system_uid}
-        and user.sql_id = comment.user_sql_id
+            and user.sql_id = comment.user_sql_id
         RETURN post.id AS postid, user, comment
-        order by comment.creation_time
+        ORDER BY comment.creation_time
         """
         try:
             comments = getGraphConnectionURI().cypher.execute(query, system_uid=system_uid)
@@ -1187,20 +1200,22 @@ class System:
     ############################################################################
     # function : get_system_by_name
     # purpose : gets the system details for the matched system name from neo4j database
-    # params : systemName
+    # params :
+    #       self : System
+    #       system_name : name of a system
     # returns : system node(s)
     # Exceptions : cypher.CypherError, cypher.CypherTransactionError
     ############################################################################
 
-    def get_system_by_name(self, systemName):
+    def get_system_by_name(self, system_name):
         query = """
             MATCH (system:System)
-            WHERE system.name =~ {systemName}
+            WHERE system.name =~ {system_name}
             RETURN system
         """
         try:
-            regExPattern = '(?i).*' + systemName + '.*'
-            system_details = getGraphConnectionURI().cypher.execute(query, systemName=regExPattern)
+            regex_pattern = '(?i).*' + system_name + '.*'
+            system_details = getGraphConnectionURI().cypher.execute(query, system_name=regex_pattern)
             return system_details
         except cypher.CypherError, cypher.CypherTransactionError:
             raise "Exception occured in function get_system_by_name"
@@ -1208,7 +1223,9 @@ class System:
     ############################################################################
     # function : get_system_by_uid
     # purpose : gets the system details for the matched system_uid from neo4j database
-    # params : system_uid
+    # params :
+    #       self : System
+    #       system_uid : uid of a system
     # returns : system node
     # Exceptions : cypher.CypherError, cypher.CypherTransactionError
     ############################################################################
@@ -1246,7 +1263,9 @@ class System:
     ############################################################################
     # function : get_admin_systems
     # purpose : gets the system details where the specified user is admin for those systems from neo4j database
-    # params : sql_id
+    # params :
+    #       self : System
+    #       sql_id : sql id of user
     # returns : system node(s)
     # Exceptions : cypher.CypherError, cypher.CypherTransactionError
     ############################################################################
@@ -1267,7 +1286,9 @@ class System:
     ############################################################################
     # function : get_system_admins
     # purpose : gets the admin detail for the provided system_uid from neo4j database
-    # params : system_uid
+    # params :
+    #        self : System
+    #        system_uid : uid of system
     # returns : user node(s)
     # Exceptions : cypher.CypherError, cypher.CypherTransactionError
     ############################################################################
@@ -1286,8 +1307,10 @@ class System:
 
     ############################################################################
     # function : get_participated_systems
-    # purpose : gets the system details where the user has participated for ; from neo4j database
-    # params : sql_id
+    # purpose : gets the system details where the user has participated for from neo4j database
+    # params :
+    #       self: System
+    #       sql_id of user
     # returns : system node(s)
     # Exceptions : cypher.CypherError, cypher.CypherTransactionError
     ############################################################################
@@ -1308,7 +1331,7 @@ class System:
     ############################################################################
     # function : get_user_privilege_for_system
     # purpose : gets the user privilege (based on logged in user) for the provided system_uid from neo4j database
-    # params : sql_id, system_uid
+    # params : self System, sql_id, system_uid
     # returns : user_privilege
     # Exceptions : cypher.CypherError, cypher.CypherTransactionError
     ############################################################################
@@ -1342,27 +1365,27 @@ class System:
     ############################################################################
     # function : approve_system_participant
     # purpose : Approve the participant request of the specified user for the provided system_uid
-    # params : google_id, system_uid
+    # params : self System, google_id, system_uid
     # returns : None
     # Exceptions : cypher.CypherError, cypher.CypherTransactionError
     ############################################################################
     def approve_system_participant(self, google_id, system_uid):
-        removeRelationshipQuery = """
+        remove_relationship_query = """
                 MATCH (u:User)-[rel:SYS_PENDING_PARTICIPANT]->(s:System)
                 WHERE u.google_id = {google_id} and s.system_uid={system_uid}
                 DETACH DELETE rel
         """
-        createRelationshipQuery = """
+        create_relationship_query = """
                 MATCH (u:User), (s:System)
                 WHERE u.google_id = {google_id} and s.system_uid={system_uid}
                 CREATE UNIQUE (u)-[rel:SYS_PARTICIPANT]->(s)
                 RETURN rel
         """
         try:
-            remove_relationship_status = getGraphConnectionURI().cypher.execute(removeRelationshipQuery,
+            remove_relationship_status = getGraphConnectionURI().cypher.execute(remove_relationship_query,
                                                                                 google_id=google_id,
                                                                                 system_uid=system_uid)
-            create_relationship_status = getGraphConnectionURI().cypher.execute(createRelationshipQuery,
+            create_relationship_status = getGraphConnectionURI().cypher.execute(create_relationship_query,
                                                                                 google_id=google_id,
                                                                                 system_uid=system_uid)
         except cypher.CypherError, cypher.CypherTransactionError:
@@ -1371,18 +1394,18 @@ class System:
     ############################################################################
     # function : reject_system_participant
     # purpose : Reject the participant request of the specified user for the provided system_uid
-    # params : google_id, system_uid
+    # params : self System, google_id, system_uid
     # returns : None
     # Exceptions : cypher.CypherError, cypher.CypherTransactionError
     ############################################################################
     def reject_system_participant(self, google_id, system_uid):
-        removeRelationshipQuery = """
+        remove_relationship_query = """
                 MATCH (u:User)-[rel:SYS_PENDING_PARTICIPANT]->(s:System)
                 WHERE u.google_id = {google_id} and s.system_uid={system_uid}
                 DETACH DELETE rel
         """
         try:
-            remove_relationship_status = getGraphConnectionURI().cypher.execute(removeRelationshipQuery,
+            remove_relationship_status = getGraphConnectionURI().cypher.execute(remove_relationship_query,
                                                                                 google_id=google_id,
                                                                                 system_uid=system_uid)
         except cypher.CypherError, cypher.CypherTransactionError:
@@ -1392,27 +1415,27 @@ class System:
     # function : pending_subscribe_to_system
     # purpose : When the user clicks on "Subscribe" button in the systems page, SYS_PENDING_SUBSCRIBER relationship
     # is created between the user and system node
-    # params : google_id, system_uid
+    # params : self System, google_id, system_uid
     # returns : None
     # Exceptions : cypher.CypherError, cypher.CypherTransactionError
     ############################################################################
     def pending_subscribe_to_system(self, google_id, system_uid):
-        removeRelationshipQuery = """
+        remove_relationship_query = """
                 MATCH (u:User)-[rel]->(s:System)
                 WHERE u.google_id = {google_id} and s.system_uid={system_uid}
                 DETACH DELETE rel
         """
-        createPendingSubscribeRelationshipQuery = """
+        create_pending_subscriber_rel_query = """
                 MATCH (u:User), (s:System)
                 WHERE u.google_id = {google_id} and s.system_uid={system_uid}
                 CREATE UNIQUE (u)-[rel:SYS_PENDING_SUBSCRIBER]->(s)
                 RETURN rel
         """
         try:
-            remove_relationship_status = getGraphConnectionURI().cypher.execute(removeRelationshipQuery,
+            remove_relationship_status = getGraphConnectionURI().cypher.execute(remove_relationship_query,
                                                                                 google_id=google_id,
                                                                                 system_uid=system_uid)
-            create_relationship_status = getGraphConnectionURI().cypher.execute(createPendingSubscribeRelationshipQuery,
+            create_relationship_status = getGraphConnectionURI().cypher.execute(create_pending_subscriber_rel_query,
                                                                                 google_id=google_id,
                                                                                 system_uid=system_uid)
         except cypher.CypherError, cypher.CypherTransactionError:
@@ -1422,27 +1445,27 @@ class System:
     # function : subscribe_to_system
     # purpose : When the user clicks on "Subscribe" button in the systems page, SYS_SUBSCRIBER relationship
     # is created between the user and system node
-    # params : google_id, system_uid
+    # params : self System, google_id, system_uid
     # returns : None
     # Exceptions : cypher.CypherError, cypher.CypherTransactionError
     ############################################################################
     def subscribe_to_system(self, google_id, system_uid):
-        removeRelationshipQuery = """
+        remove_relationship_query = """
                 MATCH (u:User)-[rel]->(s:System)
                 WHERE u.google_id = {google_id} and s.system_uid={system_uid}
                 DETACH DELETE rel
         """
-        createSubscribeRelationshipQuery = """
+        create_subscriber_relationship_query = """
                 MATCH (u:User), (s:System)
                 WHERE u.google_id = {google_id} and s.system_uid={system_uid}
                 CREATE UNIQUE (u)-[rel:SYS_SUBSCRIBER]->(s)
                 RETURN rel
         """
         try:
-            remove_relationship_status = getGraphConnectionURI().cypher.execute(removeRelationshipQuery,
+            remove_relationship_status = getGraphConnectionURI().cypher.execute(remove_relationship_query,
                                                                                 google_id=google_id,
                                                                                 system_uid=system_uid)
-            create_relationship_status = getGraphConnectionURI().cypher.execute(createSubscribeRelationshipQuery,
+            create_relationship_status = getGraphConnectionURI().cypher.execute(create_subscriber_relationship_query,
                                                                                 google_id=google_id,
                                                                                 system_uid=system_uid)
         except cypher.CypherError, cypher.CypherTransactionError:
@@ -1452,28 +1475,28 @@ class System:
     # function : pending_participate_to_system
     # purpose : When the user clicks on "Participate" button in the systems page, SYS_PENDING_PARTICIPANT relationship
     # is created between the user and system node
-    # params : google_id, system_uid
+    # params : self System, google_id, system_uid
     # returns : None
     # Exceptions : cypher.CypherError, cypher.CypherTransactionError
     ############################################################################
     def pending_participate_to_system(self, google_id, system_uid):
-        removeRelationshipQuery = """
+        remove_relationship_query = """
                 MATCH (u:User)-[rel]->(s:System)
                 WHERE u.google_id = {google_id} and s.system_uid={system_uid}
                 DETACH DELETE rel
         """
-        createPendingParticipateRelationshipQuery = """
+        create_pending_participate_relationship_query = """
                 MATCH (u:User), (s:System)
                 WHERE u.google_id = {google_id} and s.system_uid={system_uid}
                 CREATE UNIQUE (u)-[rel:SYS_PENDING_PARTICIPANT]->(s)
                 RETURN rel
         """
         try:
-            remove_relationship_status = getGraphConnectionURI().cypher.execute(removeRelationshipQuery,
+            remove_relationship_status = getGraphConnectionURI().cypher.execute(remove_relationship_query,
                                                                                 google_id=google_id,
                                                                                 system_uid=system_uid)
             create_relationship_status = getGraphConnectionURI().cypher.execute(
-                createPendingParticipateRelationshipQuery,
+                create_pending_participate_relationship_query,
                 google_id=google_id,
                 system_uid=system_uid)
         except cypher.CypherError, cypher.CypherTransactionError:
@@ -1482,18 +1505,18 @@ class System:
     ############################################################################
     # function : leave_system
     # purpose : When the user leaves the system, we remove the relationship associated between user and system node
-    # params : google_id, system_uid
+    # params : self system, google_id, system_uid
     # returns : None
     # Exceptions : cypher.CypherError, cypher.CypherTransactionError
     ############################################################################
     def leave_system(self, google_id, system_uid):
-        removeRelationshipQuery = """
+        remove_relationship_query = """
                 MATCH (u:User)-[rel]->(s:System)
                 WHERE u.google_id = {google_id} and s.system_uid={system_uid}
                 DETACH DELETE rel
         """
         try:
-            remove_relationship_status = getGraphConnectionURI().cypher.execute(removeRelationshipQuery,
+            remove_relationship_status = getGraphConnectionURI().cypher.execute(remove_relationship_query,
                                                                                 google_id=google_id,
                                                                                 system_uid=system_uid)
         except cypher.CypherError, cypher.CypherTransactionError:
@@ -1507,13 +1530,13 @@ class System:
     # Exceptions : cypher.CypherError, cypher.CypherTransactionError
     ############################################################################
     def delete_system_participant(self, google_id, system_uid):
-        removeRelationshipQuery = """
+        remove_relationship_query = """
                 MATCH (u:User)-[rel:SYS_PARTICIPANT]->(s:System)
                 WHERE u.google_id = {google_id} and s.system_uid={system_uid}
                 DETACH DELETE rel
         """
         try:
-            remove_relationship_status = getGraphConnectionURI().cypher.execute(removeRelationshipQuery,
+            remove_relationship_status = getGraphConnectionURI().cypher.execute(remove_relationship_query,
                                                                                 google_id=google_id,
                                                                                 system_uid=system_uid)
         except cypher.CypherError, cypher.CypherTransactionError:
@@ -1522,27 +1545,27 @@ class System:
     ############################################################################
     # function : make_admin_for_system
     # purpose : Add the user as admin of the specified system (SYS_ADMIN)
-    # params : google_id, system_uid
+    # params : self system, google_id, system_uid
     # returns : None
     # Exceptions : cypher.CypherError, cypher.CypherTransactionError
     ############################################################################
     def make_admin_for_system(self, google_id, system_uid):
-        removeRelationshipQuery = """
+        remove_relationship_query = """
                 MATCH (u:User)-[rel]->(s:System)
                 WHERE u.google_id = {google_id} and s.system_uid={system_uid}
                 DETACH DELETE rel
         """
-        createAdminRelationshipQuery = """
+        create_admin_relationship_query = """
                 MATCH (u:User), (s:System)
                 WHERE u.google_id = {google_id} and s.system_uid={system_uid}
                 CREATE UNIQUE (u)-[rel:SYS_ADMIN]->(s)
                 RETURN rel
         """
         try:
-            remove_relationship_status = getGraphConnectionURI().cypher.execute(removeRelationshipQuery,
+            remove_relationship_status = getGraphConnectionURI().cypher.execute(remove_relationship_query,
                                                                                 google_id=google_id,
                                                                                 system_uid=system_uid)
-            create_relationship_status = getGraphConnectionURI().cypher.execute(createAdminRelationshipQuery,
+            create_relationship_status = getGraphConnectionURI().cypher.execute(create_admin_relationship_query,
                                                                                 google_id=google_id,
                                                                                 system_uid=system_uid)
         except cypher.CypherError, cypher.CypherTransactionError:
@@ -1551,27 +1574,27 @@ class System:
     ############################################################################
     # function : make_participant_for_system
     # purpose : Add the user as subscriber of the specified system (SYS_PARTICIPANT)
-    # params : google_id, system_uid
+    # params : self system, google_id, system_uid
     # returns : None
     # Exceptions : cypher.CypherError, cypher.CypherTransactionError
     ############################################################################
     def make_participant_for_system(self, google_id, system_uid):
-        removeRelationshipQuery = """
+        remove_relationship_query = """
                 MATCH (u:User)-[rel]->(s:System)
                 WHERE u.google_id = {google_id} and s.system_uid={system_uid}
                 DETACH DELETE rel
         """
-        createParticipantRelationshipQuery = """
+        create_participant_relationship_query = """
                 MATCH (u:User), (s:System)
                 WHERE u.google_id = {google_id} and s.system_uid={system_uid}
                 CREATE UNIQUE (u)-[rel:SYS_PARTICIPANT]->(s)
                 RETURN rel
         """
         try:
-            remove_relationship_status = getGraphConnectionURI().cypher.execute(removeRelationshipQuery,
+            remove_relationship_status = getGraphConnectionURI().cypher.execute(remove_relationship_query,
                                                                                 google_id=google_id,
                                                                                 system_uid=system_uid)
-            create_relationship_status = getGraphConnectionURI().cypher.execute(createParticipantRelationshipQuery,
+            create_relationship_status = getGraphConnectionURI().cypher.execute(create_participant_relationship_query,
                                                                                 google_id=google_id,
                                                                                 system_uid=system_uid)
         except cypher.CypherError, cypher.CypherTransactionError:
@@ -1580,27 +1603,27 @@ class System:
     ############################################################################
     # function : make_subscriber_for_system
     # purpose : Add the user as subscriber of the specified system (SYS_SUBSCRIBER)
-    # params : google_id, system_uid
+    # params : self system, google_id, system_uid
     # returns : None
     # Exceptions : cypher.CypherError, cypher.CypherTransactionError
     ############################################################################
     def make_subscriber_for_system(self, google_id, system_uid):
-        removeRelationshipQuery = """
+        remove_relationship_query = """
                 MATCH (u:User)-[rel]->(s:System)
                 WHERE u.google_id = {google_id} and s.system_uid={system_uid}
                 DETACH DELETE rel
         """
-        createSubscriberRelationshipQuery = """
+        create_subscriber_relationship_query = """
                 MATCH (u:User), (s:System)
                 WHERE u.google_id = {google_id} and s.system_uid={system_uid}
                 CREATE UNIQUE (u)-[rel:SYS_SUBSCRIBER]->(s)
                 RETURN rel
         """
         try:
-            remove_relationship_status = getGraphConnectionURI().cypher.execute(removeRelationshipQuery,
+            remove_relationship_status = getGraphConnectionURI().cypher.execute(remove_relationship_query,
                                                                                 google_id=google_id,
                                                                                 system_uid=system_uid)
-            create_relationship_status = getGraphConnectionURI().cypher.execute(createSubscriberRelationshipQuery,
+            create_relationship_status = getGraphConnectionURI().cypher.execute(create_subscriber_relationship_query,
                                                                                 google_id=google_id,
                                                                                 system_uid=system_uid)
         except cypher.CypherError, cypher.CypherTransactionError:
@@ -1609,18 +1632,18 @@ class System:
     ############################################################################
     # function : delete_system_admin
     # purpose : Delete the relationship of the specified participant with the system node (SYS_ADMIN)
-    # params : google_id, system_uid
+    # params : self system, google_id, system_uid
     # returns : None
     # Exceptions : cypher.CypherError, cypher.CypherTransactionError
     ############################################################################
     def delete_system_admin(self, google_id, system_uid):
-        removeRelationshipQuery = """
+        remove_relationship_query = """
                 MATCH (u:User)-[rel:SYS_ADMIN]->(s:System)
                 WHERE u.google_id = {google_id} and s.system_uid={system_uid}
                 DETACH DELETE rel
         """
         try:
-            remove_relationship_status = getGraphConnectionURI().cypher.execute(removeRelationshipQuery,
+            remove_relationship_status = getGraphConnectionURI().cypher.execute(remove_relationship_query,
                                                                                 google_id=google_id,
                                                                                 system_uid=system_uid)
         except cypher.CypherError, cypher.CypherTransactionError:
@@ -1629,18 +1652,18 @@ class System:
     ############################################################################
     # function : delete_system_subscriber
     # purpose : Delete the relationship of the specified participant with the system node (SYS_SUBSCRIBER)
-    # params : google_id, system_uid
+    # params : self system, google_id, system_uid
     # returns : None
     # Exceptions : cypher.CypherError, cypher.CypherTransactionError
     ############################################################################
     def delete_system_subscriber(self, google_id, system_uid):
-        removeRelationshipQuery = """
+        remove_relationship_query = """
                 MATCH (u:User)-[rel:SYS_SUBSCRIBER]->(s:System)
                 WHERE u.google_id = {google_id} and s.system_uid={system_uid}
                 DETACH DELETE rel
         """
         try:
-            remove_relationship_status = getGraphConnectionURI().cypher.execute(removeRelationshipQuery,
+            remove_relationship_status = getGraphConnectionURI().cypher.execute(remove_relationship_query,
                                                                                 google_id=google_id,
                                                                                 system_uid=system_uid)
         except cypher.CypherError, cypher.CypherTransactionError:
@@ -1649,7 +1672,7 @@ class System:
     ############################################################################
     # function : get_system_participants
     # purpose : gets the participant detail for the provided system_uid from neo4j database
-    # params : system_uid
+    # params : self system,system_uid
     # returns : user node(s)
     # Exceptions : cypher.CypherError, cypher.CypherTransactionError
     ############################################################################
@@ -1669,7 +1692,7 @@ class System:
     ############################################################################
     # function : get_participants_pending_approval
     # purpose : gets the participant details whose approval to join the system is pending by the administrator
-    # params : system_uid
+    # params : self system,,system_uid
     # returns : user node(s)
     # Exceptions : cypher.CypherError, cypher.CypherTransactionError
     ############################################################################
@@ -1689,7 +1712,7 @@ class System:
     ############################################################################
     # function : subscribed_systems
     # purpose : gets the system details where the user has subscribed for ; from neo4j database
-    # params : sql_id
+    # params : self system,sql_id
     # returns : system node(s)
     # Exceptions : cypher.CypherError, cypher.CypherTransactionError
     ############################################################################
@@ -1710,7 +1733,7 @@ class System:
     ############################################################################
     # function : get_system_subscribers
     # purpose : gets the subscriber detail for the provided system_uid from neo4j database
-    # params : system_uid
+    # params : self system,system_uid
     # returns : user node(s)
     # Exceptions : cypher.CypherError, cypher.CypherTransactionError
     ############################################################################
@@ -1730,7 +1753,7 @@ class System:
     ############################################################################
     # function : get_subscribers_pending_approval
     # purpose : gets the subscriber details whose approval to join the system is pending by the administrator
-    # params : system_uid
+    # params : self system, system_uid
     # returns : user node(s)
     # Exceptions : cypher.CypherError, cypher.CypherTransactionError
     ############################################################################
@@ -1750,7 +1773,7 @@ class System:
     ############################################################################
     # function : get_recommended_systems
     # purpose : gets the recommended system details for the specified user from neo4j database
-    # params : sql_id
+    # params : self system,sql_id
     # returns : system node(s)
     # Exceptions : cypher.CypherError, cypher.CypherTransactionError
     ############################################################################
@@ -1768,7 +1791,7 @@ class System:
         """
         try:
             # Minimum Depth Level To Identify The Recommended Systems
-            minimum_depth_level = 2;
+            minimum_depth_level = 2
             friends_system = getGraphConnectionURI().cypher.execute(friends_system_query, sql_id=sql_id)
             mutual_system_between_friends = System().get_mutual_system_between_friends(friends_system,
                                                                                        minimum_depth_level)
@@ -1779,7 +1802,7 @@ class System:
     ############################################################################
     # function : add_system_post
     # purpose : adds post related to a system with user_id and post content in neo4j database
-    # params : system_uid, user_sql_id, text, privacy, link
+    # params : self system,system_uid, user_sql_id, text, privacy, link
     # returns : None
     # Exceptions : cypher.CypherError, cypher.CypherTransactionError
     ############################################################################
@@ -1809,7 +1832,7 @@ class System:
     ############################################################################
     # function : delete_system_comment
     # purpose : deletes system comment node in neo4j with the given id
-    # params :
+    # params :self system,
     #        commentid : comment id which is being added
     # Exceptions : cypher.CypherError, cypher.CypherTransactionError
     # returns : None
@@ -1823,22 +1846,22 @@ class System:
         DETACH DELETE comment
         """
         try:
-            getGraphConnectionURI().cypher.execute(query, commentid=commentid);
+            getGraphConnectionURI().cypher.execute(query, commentid=commentid)
         except cypher.CypherError, cypher.CypherTransactionError:
             raise "Exception occured in function delete_system_comment "
 
     ############################################################################
     # function : edit_system_comment
     # purpose : Edits comment node in neo4j with the given id
-    # params :
-    #        newcomment : contains the data shared in comment
-    #        commentid : comment id which is being added
+    # params :self system,
+    #        new_comment : contains the data shared in comment
+    #        comment_id : comment id which is being added
     # Exceptions : cypher.CypherError, cypher.CypherTransactionError
     # returns : None
     ############################################################################
 
-    def edit_system_comment(self, newcomment, commentid):
-        print(commentid)
+    def edit_system_comment(self, new_comment, comment_id):
+        print(comment_id)
         query = """
         MATCH (comment:SystemComment)
         WHERE comment.id = {commentid}
@@ -1846,21 +1869,21 @@ class System:
         RETURN comment
         """
         try:
-            getGraphConnectionURI().cypher.execute(query, commentid=commentid, newcomment=newcomment);
+            getGraphConnectionURI().cypher.execute(query, commentid=comment_id, newcomment=new_comment)
         except cypher.CypherError, cypher.CypherTransactionError:
             raise "Exception occured in function edit_system_comment"
 
     ############################################################################
     # function : edit_system_post
     # purpose : Edits post node in neo4j with the given id
-    # params :
-    #        newcontent : contains the data shared in comment
-    #        postid : comment id which is being added
+    # params :self system,
+    #        new_content : contains the data shared in comment
+    #        post_id : comment id which is being added
     # Exceptions : cypher.CypherError, cypher.CypherTransactionError
     # returns : None
     ############################################################################
 
-    def edit_system_post(self, newcontent, postid):
+    def edit_system_post(self, new_content, post_id):
         query = """
         MATCH (post:SystemPost)
         WHERE post.id = {postid}
@@ -1868,7 +1891,7 @@ class System:
         RETURN post
         """
         try:
-            getGraphConnectionURI().cypher.execute(query, postid=postid, newcontent=newcontent);
+            getGraphConnectionURI().cypher.execute(query, postid=post_id, newcontent=new_content)
         except cypher.CypherError, cypher.CypherTransactionError:
             raise "Exception occured in function edit_system_post"
 
@@ -1876,14 +1899,14 @@ class System:
     # function : delete_system_post
     # purpose : deletes comments and all related relationships first
     #           and then deletes post and all relationships
-    # params :
-    #        postid : post id for which user liked
+    # params :self system,
+    #        post_id : post id for which user liked
     # returns : None
     # Exceptions : cypher.CypherError, cypher.CypherTransactionError
     ############################################################################
 
-    def delete_system_post(self, postid):
-        post = getGraphConnectionURI().find_one("Post", "id", postid)
+    def delete_system_post(self, post_id):
+        post = getGraphConnectionURI().find_one("Post", "id", post_id)
 
         # Deletes comments and all related relationships
 
@@ -1893,7 +1916,7 @@ class System:
             DETACH DELETE comment
             """
         try:
-            getGraphConnectionURI().cypher.execute(deleteSystemCommentsQuery, postid=postid)
+            getGraphConnectionURI().cypher.execute(deleteSystemCommentsQuery, postid=post_id)
         except cypher.CypherError, cypher.CypherTransactionError:
             raise "Exception occured in function delete_system_post : deleteSystemCommentsQuery "
 
@@ -1905,14 +1928,14 @@ class System:
             DETACH DELETE post
             """
         try:
-            getGraphConnectionURI().cypher.execute(deleteSystemPostQuery, postid=postid)
+            getGraphConnectionURI().cypher.execute(deleteSystemPostQuery, postid=post_id)
         except cypher.CypherError, cypher.CypherTransactionError:
             raise "Exception occured in function delete_system_post :deleteSystemPostQuery "
 
     ############################################################################
     # function : like_system_post
     # purpose : creates a unique LIKED relationship between User and Post
-    # params : user_sql_id : user id
+    # params : self system, user_sql_id : user id
     #        system_postid : post id for which user liked
     # returns : None
     # Exceptions : cypher.CypherError, cypher.CypherTransactionError
@@ -1932,20 +1955,20 @@ class System:
     # purpose : Adds new comment node in neo4j with the given information and creates
     #            POSTED relationship between Post and User node
     # params :
-    #        newcomment : contains the data shared in comment
-    #        postid : post id for which the comment has been added
+    #        new_comment : contains the data shared in comment
+    #        post_id : post id for which the comment has been added
     # Exceptions : cypher.CypherError, cypher.CypherTransactionError
     # returns : None
     ############################################################################
 
-    def add_system_comment(self, user_sql_id, newcomment, system_postid):
+    def add_system_comment(self, user_sql_id, new_comment, system_postid):
         user = User(user_sql_id).find()
         post = getGraphConnectionURI().find_one("SystemPost", "id", system_postid)
         print(user)
         comment = Node(
             "SystemComment",
             id=str(uuid.uuid4()),
-            content=newcomment,
+            content=new_comment,
             user_sql_id=user_sql_id,
             user_display_name=user['displayName'],
             creation_time=timestamp(),
@@ -1959,7 +1982,7 @@ class System:
     ############################################################################
     # function : unlike_post
     # purpose : removes LIKED relationship between User and Post
-    # params :
+    # params :self system,
     #        postid : post id for which user liked
     # returns : None
     # Exceptions : cypher.CypherError, cypher.CypherTransactionError
@@ -1974,14 +1997,14 @@ class System:
             DELETE r
         """
         try:
-            getGraphConnectionURI().cypher.execute(query, postid=system_postid, userSqlId=user_sql_id);
+            getGraphConnectionURI().cypher.execute(query, postid=system_postid, userSqlId=user_sql_id)
         except cypher.CypherError, cypher.CypherTransactionError:
             raise "Exception occured in function get_search_friends"
 
     ############################################################################
     # function : get_mutual_system_between_friends
     # purpose : gets the mutual system between friends from neo4j database
-    # params : Row(s) containing friend and his/her system, minimum_depth_level
+    # params : self system,Row(s) containing friend and his/her system, minimum_depth_level
     # returns : List of Mutual Systems Between Friends Of The User
     # Exceptions : cypher.CypherError, cypher.CypherTransactionError
     ############################################################################
@@ -2027,7 +2050,7 @@ class System:
     ############################################################################
     # function : get_all_systems
     # purpose : gets all the system that is present in the Neo4J database
-    # params : None
+    # params : self system
     # returns : system node(s)
     # Exceptions : cypher.CypherError, cypher.CypherTransactionError
     ############################################################################
