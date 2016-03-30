@@ -74,12 +74,12 @@ class DavAPI:
         results = self.met.get_all_filters()
         if 'error' in results:
             return json.dumps(results)
-        vals = defaultdict(list)
+        values = defaultdict(list)
         for result in results:
-            type = result[0]
+            measurement_type = result[0]
             value = result[1]
-            vals[type].append(value)
-        return json.dumps({'filters': vals})
+            values[measurement_type].append(value)
+        return json.dumps({'filters': values})
 
     ###############################################################################
     # fetch latest recorded values of measurements for a given system
@@ -303,17 +303,17 @@ class DavAPI:
         # For each measurement type, form the list of readings
         for measurement_type in measurement_type_list:
 
-            valueList = []
+            value_list = []
 
             if readings:
                 if readings[measurement_type]:
-                    valueList = self.form_values_list(self, measurement_type, readings[measurement_type])
+                    value_list = self.form_values_list(self, measurement_type, readings[measurement_type])
                 else:
-                    valueList = []
+                    value_list = []
 
             measurement = {
                 "type": measurement_type,
-                "values": valueList
+                "values": value_list
             }
             measurement_list.append(measurement)
         system_measurement = {
@@ -334,14 +334,14 @@ class DavAPI:
     # are averaged and readings is timestamped with latest timestamp in the bucket.
     @staticmethod
     def form_values_list(self, measurement_type, all_readings):
-        valuesList = []
+        value_list = []
 
         # Initialize the variables
-        startDate = all_readings[0][1]
+        start_date = all_readings[0][1]
         prev_reading = all_readings[0]
-        prevX = 0
+        prev_x = 0
         # Required variable for averaging
-        sum = 0
+        total = 0
         counter = 0
 
         # Every time  'values' is formed for previous reading if it falls outside the bucket, otherwise averaging is
@@ -350,58 +350,58 @@ class DavAPI:
         for i in range(1, len(all_readings) + 1):
             try:
                 # This condition takes care of the last reading, which gets left out
-                if (i == len(all_readings)):
+                if i == len(all_readings):
                     # By incrementing x deliberately, we enforce the 'values' formation for the very last reading
                     reading = prev_reading
-                    x = prevX + 1
+                    x = prev_x + 1
                 # This condition takes care of all but the last reading
                 else:
                     reading = all_readings[i]
-                    curDate = reading[1]
+                    cur_date = reading[1]
                     # Calculate the difference in hours from previous reading
-                    x = self.calc_diff_hours(curDate, startDate)
+                    x = self.calc_diff_hours(cur_date, start_date)
                 # If x >  prevX, build the values object and append to the values list
-                if x > prevX:
+                if x > prev_x:
 
                     # If counter > 0, there were readings from 1-hour bucket and values should be averaged
-                    if (counter > 0):
-                        sum = sum + prev_reading[2]
-                        counter = counter + 1
+                    if counter > 0:
+                        total = total + prev_reading[2]
+                        counter += 1
 
-                        avg = sum / counter
-                        lastValDate = prev_reading[1]
+                        avg = total / counter
+                        last_val_date = prev_reading[1]
 
-                        values = self.build_values(prevX, avg, lastValDate)
+                        values = self.build_values(prev_x, avg, last_val_date)
 
                         # Reset Average in a 1-hour bucket params
-                        sum = 0
+                        total = 0
                         counter = 0
                     # Otherwise, simply build values from previous reading
                     else:
                         y = prev_reading[2]
-                        values = self.build_values(prevX, y, prev_reading[1])
+                        values = self.build_values(prev_x, y, prev_reading[1])
 
                     # Append the current values to valuelist
-                    valuesList.append(values)
+                    value_list.append(values)
 
                     prev_reading = reading
-                    prevX = x
+                    prev_x = x
 
                 else:
                     # if reading falls in same bucket, accumulate the reading value to average later
-                    if x == prevX:
-                        sum = sum + prev_reading[2]
-                        counter = counter + 1
-                        prevX = x
+                    if x == prev_x:
+                        total = total + prev_reading[2]
+                        counter += 1
+                        prev_x = x
                         prev_reading = reading
                     # Skip the reading if the readings are not in order. This is unlikely to occur.
                     else:
-                        print("Skipped Value for ", measurement_type, curDate)
+                        print("Skipped Value for ", measurement_type, cur_date)
 
             except ValueError as err:
                 raise ValueError('Error in preparing values list', measurement_type, reading)
 
-        return valuesList
+        return value_list
 
     ###############################################################################
     # Build the values object
@@ -438,11 +438,11 @@ class DavAPI:
     # param  startDate : date of first reading
     # calc_diff_hours  : It returns the difference in hours between two input dates
     @staticmethod
-    def calc_diff_hours(curDate, startDate):
-        if (curDate < startDate):
-            raise ValueError('Current date is lesser than previous date', curDate, startDate)
+    def calc_diff_hours(cur_date, start_date):
+        if cur_date < start_date:
+            raise ValueError('Current date is lesser than previous date', cur_date, start_date)
         else:
-            diff = curDate - startDate
+            diff = cur_date - start_date
             return diff.days * 24 + diff.seconds / 3600
 
     ###############################################################################
@@ -463,23 +463,21 @@ class DavAPI:
     ################################################################################
     # method to generate test data
     # param conn - connection to db
-    # param minrange - minimum value u want to insert
-    # param maxrange - maximum value u want to insert
+    # param min_range - minimum value u want to insert
+    # param max_range - maximum value u want to insert
     # systems - list of systems
     # meas - list of measurements
     ################################################################################
 
-    def generate_data(self, minrange, maxrange, systems, meas):
+    def generate_data(self, min_range, max_range, systems, meas):
         for s in systems:
-            d = datetime.datetime(2015, 1, 1, 0, 0, 0)
             for i in range(1, 6, 1):
                 for j in range(0, 24, 1):
-                    d = datetime.datetime(2015, 1, i, j, 0, 0)
                     for m in meas:
                         d = datetime.datetime(2015, 1, i, j, 0, 0)
                         table_name = self.get_measurement_table_name(m, s)
                         time = d.strftime('%Y-%m-%d %H:%M:%S')
-                        val = random.uniform(minrange, maxrange)
+                        val = random.uniform(min_range, max_range)
                         self.mea.put_system_measurement(table_name, time, val)
 
     ###############################################################################

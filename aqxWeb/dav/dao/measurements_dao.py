@@ -160,7 +160,7 @@ class MeasurementsDAO:
                 cursor.execute(query)
                 payload[system] = cursor.fetchall()
         except Error as e:
-            return {'error': e.msg + "system: :" + str(system) + "  measurements: " + str(measurements)}
+            return {'error': e.msg + "system: :" + str(systems) + "  measurements: " + str(measurements)}
         finally:
             cursor.close()
 
@@ -190,7 +190,8 @@ class MeasurementsDAO:
     # param system system_id
     # param measurements list of measurements
     # return query
-    def create_query2(self, system, measurements):
+    @staticmethod
+    def create_query2(system, measurements):
         fields = "select " + measurements[0] + ".time," + measurements[0] + ".value as " + measurements[0] + ","
         tables = " from aqxs_" + measurements[0] + "_" + system + " " + measurements[0] + ","
         where = " where HOUR(" + measurements[0] + ".time) ="
@@ -213,7 +214,8 @@ class MeasurementsDAO:
     # param system system_id
     # param measurements list of measurements
     # return query
-    def create_query1(self, system, measurements):
+    @staticmethod
+    def create_query1(system, measurements):
         query = ""
         for i in range(0, len(measurements)):
             if i == len(measurements) - 1:
