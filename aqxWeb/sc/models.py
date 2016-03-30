@@ -75,13 +75,16 @@ class User:
             raise "Exception occured in function User.find()"
 
     ############################################################################
-    # function : updateprofile
+    # function : update_profile
     # purpose : function used to update the user profile
     # params :
+    #       self : User instance
     #       given_name : first name of user
     #       familyName : Last name of user
     #       display_name : Display name of user
     #       gender : Gender of User
+    #       organization : Organization to which user belongs
+    #       user_type : User type
     #       dob : date of birth for the user
     # returns : Boolean
     # Exceptions : General Exception
@@ -110,6 +113,7 @@ class User:
     # function : verify_password
     # purpose : function which checks if the possword is correct
     # params :
+    #        self : User instance
     #        password : password which needs to be verified
     # returns : Boolean
     # Exceptions : None
@@ -127,9 +131,11 @@ class User:
     # purpose : Adds new post node in neo4j with the given information and creates
     #            POSTED relationship between Post and User node
     # params :
+    #        self : User instance
     #        text : contains the data shared in post
     #        privacy : privacy level of the post
     #        link : contains the link information
+    #        profile : Optional arg = used when post is created for other users
     # returns : None
     # Exceptions : cypher.CypherError, cypher.CypherTransactionError
     ############################################################################
@@ -161,19 +167,17 @@ class User:
 
     ############################################################################
     # function : add_post_to
-    # purpose : Adds new post node in neo4j with the given information and creates
-    #            POSTED relationship between Post and User node
+    # purpose : Adds new post node in neo4j with the given information
+    #           and creates POSTED relationship between Post and User node
     # params :
-    #        text : contains the data shared in post
-    #        privacy : privacy level of the post
-    #        link : contains the link information
-    #        page_type: type of page where it was posted to
-    #        page_id: id of user whose timeline this was posted to
+    #        self : User instance
+    #        user_id : user id of logged in user
+    #        posted_to_id : user id of another user on whose timeline this post will be created
     # returns : None
     # Exceptions : cypher.CypherError, cypher.CypherTransactionError
     ############################################################################
 
-    def add_post_to(self, user_id, posted_to_id):
+    def add_post_to(self, user_id, posted_to_user_id):
         query = """
         MATCH (u:User {sql_id: {sql_id}})-[:POSTED]->(post:Post)
         RETURN ID(post) as post_id
@@ -187,18 +191,20 @@ class User:
         try:
             post_node = getGraphConnectionURI().cypher.execute(query, {'sql_id': user_id})
             getGraphConnectionURI().cypher.execute(command,
-                                                   {'sql_id': posted_to_id, 'post_id': post_node[0]['post_id']})
+                                                   {'sql_id': posted_to_user_id, 'post_id': post_node[0]['post_id']})
         except cypher.CypherError, cypher.CypherTransactionError:
             raise "Exception occured in function add_post_to "
 
     ############################################################################
     # function : test_add_post
-    # purpose : Adds new post node in neo4j with the given information and id 1
-    #           and creates POSTED relationship between Post and User node
+    # purpose : Adds new post node in neo4j with the given information and creates
+    #            POSTED relationship between Post and User node
     # params :
+    #        self : User instance
     #        text : contains the data shared in post
     #        privacy : privacy level of the post
     #        link : contains the link information
+    #        profile : Optional arg = used when post is created for other users
     # returns : None
     # Exceptions : cypher.CypherError, cypher.CypherTransactionError
     ############################################################################
@@ -225,21 +231,22 @@ class User:
     # function : edit_post
     # purpose : Edits post node in neo4j with the given id
     # params :
-    #        newcontent : contains the data shared in comment
-    #        postid : comment id which is being added
+    #       self : User instance
+    #       new_content : contains the data shared in post
+    #       post_id : post id which is being edited
     # Exceptions : cypher.CypherError, cypher.CypherTransactionError
     # returns : None
     ############################################################################
-
-    def edit_post(self, newcontent, postid):
+    # @TODO : Update modified_time()
+    def edit_post(self, new_content, post_id):
         query = """
         MATCH (post:Post)
-        WHERE post.id = {postid}
-        SET post.text = {newcontent}
+        WHERE post.id = {post_id}
+        SET post.text = {new_content}
         RETURN post
         """
         try:
-            getGraphConnectionURI().cypher.execute(query, postid=postid, newcontent=newcontent);
+            getGraphConnectionURI().cypher.execute(query, postid=post_id, new_content=new_content);
         except cypher.CypherError, cypher.CypherTransactionError:
             raise "Exception occured in function edit_post"
 
@@ -247,7 +254,7 @@ class User:
     # function : get_user_sql_id
     # purpose : get users sql id
     # params :
-    #
+    #       self : User instance
     # Exceptions : cypher.CypherError, cypher.CypherTransactionError
     # returns : user_sql_id
     ############################################################################
@@ -261,14 +268,15 @@ class User:
     # purpose : deletes comments and all related relationships first
     #           and then deletes post and all relationships
     # params :
-    #        postid : post id for which user liked
+    #        self : User instance
+    #        post_id : post id for which user liked
     # returns : None
     # Exceptions : cypher.CypherError, cypher.CypherTransactionError
     ############################################################################
 
-    def delete_post(self, postid):
+    def delete_post(self, post_id):
         user = self.find()
-        post = getGraphConnectionURI().find_one("Post", "id", postid)
+        post = getGraphConnectionURI().find_one("Post", "id", post_id)
 
         # Deletes comments and all related relationships
 
@@ -299,26 +307,26 @@ class User:
     # purpose : Adds new comment node in neo4j with the given information and creates
     #            POSTED relationship between Post and User node
     # params :
-    #        newcomment : contains the data shared in comment
-    #        postid : post id for which the comment has been added
+    #        self : User instance
+    #        new_comment : contains the data shared in comment
+    #        post_id : post id for which the comment has been added
     # Exceptions : cypher.CypherError, cypher.CypherTransactionError
     # returns : None
     ############################################################################
 
-    def add_comment(self, newcomment, postid):
+    def add_comment(self, new_comment, post_id):
         user = self.find()
-        # print(user)
         comment = Node(
             "Comment",
             id=str(uuid.uuid4()),
-            content=newcomment,
+            content=new_comment,
             user_sql_id=self.sql_id,
             user_display_name=user['displayName'],
             creation_time=timestamp(),
             modified_time=timestamp())
 
         try:
-            post = getGraphConnectionURI().find_one("Post", "id", postid)
+            post = getGraphConnectionURI().find_one("Post", "id", post_id)
             rel = Relationship(post, 'HAS', comment)
             getGraphConnectionURI().create(rel)
         except cypher.CypherError, cypher.CypherTransactionError:
@@ -329,24 +337,25 @@ class User:
     # purpose : Adds new comment node in neo4j with the given information and creates
     #            POSTED relationship between Post and User node with id 1
     # params :
-    #        newcomment : contains the data shared in comment
-    #        postid : post id for which the comment has been added
+    #        self : User instance
+    #        new_comment : contains the data shared in comment
+    #        post_id : post id for which the comment has been added
     # Exceptions : cypher.CypherError, cypher.CypherTransactionError
     # returns : None
     ############################################################################
 
-    def test_add_comment(self, newcomment, postid):
+    def test_add_comment(self, new_comment, post_id):
         user = self.find()
         # print(user)
         comment = Node(
             "Comment",
             id=str(1),
-            content=newcomment,
+            content=new_comment,
             user_sql_id=self.sql_id,
             user_display_name=user['displayName'],
             creation_time=timestamp(),
             modified_time=timestamp())
-        post = getGraphConnectionURI().find_one("Post", "id", postid)
+        post = getGraphConnectionURI().find_one("Post", "id", post_id)
         rel = Relationship(post, 'HAS', comment)
         try:
             getGraphConnectionURI().create(rel)
@@ -357,23 +366,24 @@ class User:
     # function : edit_comment
     # purpose : Edits comment node in neo4j with the given id
     # params :
-    #        newcomment : contains the data shared in comment
-    #        commentid : comment id which is being added
+    #        self : User instance
+    #        new_comment : contains the data shared in comment
+    #        comment_id : comment id which is being added
     # Exceptions : cypher.CypherError, cypher.CypherTransactionError
     # returns : None
     ############################################################################
-
-    def edit_comment(self, newcomment, commentid):
+    # @TODO : Change the modified date
+    def edit_comment(self, new_comment, comment_id):
         user = self.find()
-        print(commentid)
+        #print(comment_id)
         query = """
         MATCH (comment:Comment)
-        WHERE comment.id = {commentid}
-        SET comment.content = {newcomment}
+        WHERE comment.id = {comment_id}
+        SET comment.content = {new_comment}
         RETURN comment
         """
         try:
-            getGraphConnectionURI().cypher.execute(query, commentid=commentid, newcomment=newcomment);
+            getGraphConnectionURI().cypher.execute(query, comment_id=comment_id, new_comment=new_comment);
         except cypher.CypherError, cypher.CypherTransactionError:
             raise "Exception occured in function edit_comment"
 
@@ -381,21 +391,22 @@ class User:
     # function : delete_comment
     # purpose : deletes comment node in neo4j with the given id
     # params :
-    #        commentid : comment id which is being added
+    #        self : User instance
+    #        comment_id : comment id which is being added
     # Exceptions : cypher.CypherError, cypher.CypherTransactionError
     # returns : None
     ############################################################################
 
-    def delete_comment(self, commentid):
+    def delete_comment(self, comment_id):
         user = self.find()
-        print("Comment id" + str(commentid))
+        #print("Comment id" + str(comment_id))
         query = """
         MATCH (comment:Comment)
-        WHERE comment.id = {commentid}
+        WHERE comment.id = {comment_id}
         DETACH DELETE comment
         """
         try:
-            getGraphConnectionURI().cypher.execute(query, commentid=commentid);
+            getGraphConnectionURI().cypher.execute(query, comment_id=comment_id);
         except cypher.CypherError, cypher.CypherTransactionError:
             raise "Exception occured in function delete_comment "
 
@@ -403,14 +414,15 @@ class User:
     # function : like_post
     # purpose : creates a unique LIKED relationship between User and Post
     # params :
-    #        postid : post id for which user liked
+    #        self : User instance
+    #        post_id : post id for which user liked
     # returns : None
     # Exceptions : cypher.CypherError, cypher.CypherTransactionError
     ############################################################################
 
-    def like_post(self, postid):
+    def like_post(self, post_id):
         user = self.find()
-        post = getGraphConnectionURI().find_one("Post", "id", postid)
+        post = getGraphConnectionURI().find_one("Post", "id", post_id)
         rel = Relationship(user, 'LIKED', post)
         try:
             getGraphConnectionURI().create_unique(rel)
@@ -421,23 +433,24 @@ class User:
     # function : unlike_post
     # purpose : removes LIKED relationship between User and Post
     # params :
-    #        postid : post id for which user liked
+    #        self : User instance
+    #        post_id : post id for which user liked
     # returns : None
     # Exceptions : cypher.CypherError, cypher.CypherTransactionError
     ############################################################################
 
-    def unlike_post(self, postid):
-        userSqlId = self.sql_id
+    def unlike_post(self, post_id):
+        user_sql_id = self.sql_id
         query = """
             MATCH (u:User)-[r:LIKED]->(p:Post)
-            WHERE p.id= {postid} and u.sql_id = {userSqlId}
+            WHERE p.id= {postid} and u.sql_id = {user_sql_id}
             DELETE r
         """
 
         try:
-            getGraphConnectionURI().cypher.execute(query, postid=postid, userSqlId=userSqlId);
+            getGraphConnectionURI().cypher.execute(query, postid=post_id, user_sql_id=user_sql_id);
         except cypher.CypherError, cypher.CypherTransactionError:
-            raise "Exception occured in function get_search_friends"
+            raise "Exception occured in function unlike_post"
 
     ############################################################################
     # function : get_search_friends
