@@ -202,7 +202,7 @@ var callAPIForNewData = function(measurementIDList){
             data: JSON.stringify({systems: selectedSystemIDs, measurements: measurementIDList}, null, '\t'),
             success: function(data){
                 // Check if there were any errors on the server side
-                if(_.findKey(data, function(key){return _.isEqual(key, 'error')})){
+                if("error" in data){
                     throw "AJAX request returned an error!";
                 }else{
                     addNewMeasurementData(data);
