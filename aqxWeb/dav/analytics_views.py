@@ -1,6 +1,6 @@
 import json
-
-from flask import Blueprint, render_template, request
+import traceback
+from flask import Blueprint, render_template, request, redirect, url_for, abort
 
 from app.dav_api import DavAPI
 
@@ -33,8 +33,17 @@ def get_conn():
 @dav.route('/explore')
 def explore():
     systems_and_info_json = get_all_systems_info()
+    if 'error' in systems_and_info_json:
+        raise AttributeError("Error processing API call for aquaponic systems data.")
+
     systems = json_loads_byteified(systems_and_info_json)['systems']
-    metadata_dict = json_loads_byteified(get_all_aqx_metadata())['filters']
+
+    metadata_json = get_all_aqx_metadata()
+    if 'error' in metadata_json:
+        raise AttributeError("Error processing API call for system metadata.")
+
+    metadata_dict = json_loads_byteified(metadata_json)['filters']
+
     return render_template("explore.html", **locals())
 
 
@@ -49,31 +58,6 @@ def index():
     return 'Index'
 
 
-def json_loads_byteified(json_text):
-    return _byteify(
-        json.loads(json_text, object_hook=_byteify),
-        ignore_dicts=True
-    )
-
-
-def _byteify(data, ignore_dicts=False):
-    # if this is a unicode string, return its string representation
-    if isinstance(data, unicode):
-        return data.encode('utf-8')
-    # if this is a list of values, return list of byteified values
-    if isinstance(data, list):
-        return [_byteify(item, ignore_dicts=True) for item in data]
-    # if this is a dictionary, return dictionary of byteified keys and values
-    # but only if we haven't already byteified it
-    if isinstance(data, dict) and not ignore_dicts:
-        return {
-            _byteify(key, ignore_dicts=True): _byteify(value, ignore_dicts=True)
-            for key, value in data.iteritems()
-            }
-    # if it's anything else, return it in its original form
-    return data
-
-
 ######################################################################
 # Interactive graph analysis of system measurements
 ######################################################################
@@ -83,15 +67,29 @@ def analyze_graph():
     msr_id_list = [6, 7, 2, 1, 9, 8, 10]
 
     # Load JSON formatted String from API. This will be piped into Javascript as a JS Object accessible in that scope
+    # TODO: There are currently no error pages, we're just stubbing abort for now
     measurement_types_and_info = get_all_measurement_info()
+    if 'error' in measurement_types_and_info:
+        raise AttributeError("Error processing API call for measurement types.")
 
     # Load JSON into Python dict with only Byte values, for use in populating dropdowns
     measurement_types = json_loads_byteified(measurement_types_and_info)['measurement_info']
     measurement_names = measurement_types.keys()
     measurement_names.sort()
 
-    selected_systemID_list = json.dumps(request.form.get('selectedSystems')).translate(None, '\"\\').split(",")
+    selected_systemID_list = []
+    try:
+        selected_systemID_list = json.dumps(request.form.get('selectedSystems')).translate(None, '\"\\').split(",")
+    except:
+        if 'error' in selected_systemID_list:
+            raise AttributeError("Error processing API call for system IDs.")
+        else:
+            traceback.print_exc()
+
     systems_and_measurements_json = get_readings_for_tsplot(selected_systemID_list, msr_id_list)
+    if 'error' in systems_and_measurements_json:
+        raise AttributeError("Error processing API call for measurement readings.")
+
 
     return render_template("analyze.html", **locals())
 
@@ -190,3 +188,31 @@ def get_all_measurement_names():
 def get_all_measurement_info():
     dav_api = DavAPI(get_conn())
     return dav_api.get_all_measurement_info()
+
+
+######################################################################
+# Helper functions to parse JSON properly into dicts (with byte Strings)
+######################################################################
+
+def json_loads_byteified(json_text):
+    return _byteify(
+        json.loads(json_text, object_hook=_byteify),
+        ignore_dicts=True
+    )
+
+def _byteify(data, ignore_dicts=False):
+    # if this is a unicode string, return its string representation
+    if isinstance(data, unicode):
+        return data.encode('utf-8')
+    # if this is a list of values, return list of byteified values
+    if isinstance(data, list):
+        return [_byteify(item, ignore_dicts=True) for item in data]
+    # if this is a dictionary, return dictionary of byteified keys and values
+    # but only if we haven't already byteified it
+    if isinstance(data, dict) and not ignore_dicts:
+        return {
+            _byteify(key, ignore_dicts=True): _byteify(value, ignore_dicts=True)
+            for key, value in data.iteritems()
+            }
+    # if it's anything else, return it in its original form
+    return data
