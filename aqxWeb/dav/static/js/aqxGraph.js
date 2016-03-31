@@ -1,3 +1,5 @@
+"use strict";
+
 /* ##################################################################################################################
  CONSTANTS
  ################################################################################################################### */
@@ -298,7 +300,7 @@ var getAlertHTMLString = function(alertText, type){
  * @returns {{name: string, type: *, data: *, color: string, id: *, yAxis: *, dashStyle: string, marker: {symbol: string}}|*}
  */
 var getDataPoints = function(systemName, dataPoints, graphType, id, linkedTo, i, j, yType) {
-    series = { name: systemName + ',' + yType,
+    var series = { name: systemName + ',' + yType,
         type: graphType,
         data: dataPoints,
         color: COLORS[i],
@@ -366,13 +368,13 @@ var main = function(){
     setDefaultYAxis();
 
     // When the submit button is clicked, redraw the graph based on user selections
-    $('#submitbtn').click(function() {
+    $('#submitbtn').on('click', function() {
         $('#alert_placeholder').empty();
         drawChart();
     });
 
     // Reset button, returns dropdowns to default, clears checklist, and displays default nitrate vs time graph
-    $('#resetbtn').click(function(){
+    $('#resetbtn').on('click', function(){
 
         // Reset X Axis selection to default
         $('#selectXAxis option').prop(SELECTED, function() {

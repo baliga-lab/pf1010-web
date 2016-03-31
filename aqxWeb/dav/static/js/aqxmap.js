@@ -1,3 +1,5 @@
+"use strict";
+
 /**
  * An Icon that represents selected system Markers
  * @type {{url: string, scaledSize: google.maps.Size}}
