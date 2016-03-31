@@ -44,9 +44,9 @@ var MAP;
  * @param marker Any system Marker
  * @returns {boolean}
  */
-var markerIsStarred = function(marker){
+function markerIsStarred(marker){
     return _.isEqual(marker.getIcon().url,SELECTED_ICON.url);
-};
+}
 
 /**
  * Generates the HTML content of a Marker's InfoWindow
@@ -54,7 +54,7 @@ var markerIsStarred = function(marker){
  * @param system An Object(dict) that represents an Aquaponics System
  * @return {String} The HTML that populates a System's InfoWindow
  */
-var buildContentString = function(system) {
+function buildContentString(system) {
     var name = _.isNull(system.system_name) ? NOT_AVAILABLE : system.system_name;
     var technique = _.isNull(system.aqx_technique_name) ? NOT_AVAILABLE : system.aqx_technique_name;
     var organism = _.isNull(system.organism_name) ? NOT_AVAILABLE : system.organism_name;
@@ -66,17 +66,17 @@ var buildContentString = function(system) {
         "<li>Aquatic organism: " + organism+ "</li>" +
         "<li>Growbed Medium: " + growbed + "</li>" +
         "<li>Crop: " + crop + "</li></ul>";
-};
+}
 
 /**
  * Adds the given system to analyze dropdown
  * @param system 
  */
-var addSystemToAnalyzeSystemDropdown = function(system) {
+function addSystemToAnalyzeSystemDropdown(system) {
     $('#analyzeSystem').append($("<option></option>")
                         .attr("value",system.system_uid)
                         .text(system.system_name));
-};
+}
 
 /**
  * Flips the current Marker icon from SELECTED_ICON to DEFAULT_ICON
@@ -86,7 +86,7 @@ var addSystemToAnalyzeSystemDropdown = function(system) {
  * @param marker A Marker object representing a system
  * @param systemID The System_UID for the system represented by marker
  */
-var flipIcons = function(marker, systemID) {
+function flipIcons(marker, systemID) {
     var selectedSystems = getAnalyzeSystemValues();
     if(selectedSystems.length >= MAX_SYSTEM_SELECTED && !markerIsStarred(marker)) {
         $('#alert_placeholder').html(getAlertHTMLString("You can select up to " + MAX_SYSTEM_SELECTED + " systems", 'danger'));
@@ -105,7 +105,7 @@ var flipIcons = function(marker, systemID) {
         }
         $('#analyzeSystem').dropdown('set selected', selectedSystems);
     }
-};
+}
 
 /**
  * Returns selected system's Id from dropdown or []
@@ -160,7 +160,7 @@ function reset() {
  *
  * @param system_and_info_object - Object containing systems and their metadata
  */
-var main = function(system_and_info_object) {
+function main(system_and_info_object) {
     var infoWindow;
 
     /**
@@ -270,7 +270,7 @@ var main = function(system_and_info_object) {
             updateAnalyzeSystems();
         }
     });
-};
+}
 
 /**
  * Given a system, compares its metadata with the values from the four metadata dropdowns
@@ -282,12 +282,12 @@ var main = function(system_and_info_object) {
  * @param ddAqxMedia The value from the fourth dropdown for Growbed Media
  * @returns {boolean}
  */
-var systemMetadataDoesNotMatchesAnyDropdown = function(system, ddAqxTech, ddAqxOrg, ddAqxCrop, ddAqxMedia){
+function systemMetadataDoesNotMatchesAnyDropdown(system, ddAqxTech, ddAqxOrg, ddAqxCrop, ddAqxMedia){
     return ((!_.isEmpty(ddAqxTech) && !_.isEqual(system.aqx_technique_name, ddAqxTech)) ||
             (!_.isEmpty(ddAqxOrg) && !_.isEqual(system.organism_name, ddAqxOrg)) ||
             (!_.isEmpty(ddAqxCrop) && !_.isEqual(system.crop_name, ddAqxCrop)) ||
             (!_.isEmpty(ddAqxMedia) && !_.isEqual(system.growbed_media, ddAqxMedia)));
-};
+}
 
 /**
  * Used to display a notification message to the users
@@ -295,9 +295,9 @@ var systemMetadataDoesNotMatchesAnyDropdown = function(system, ddAqxTech, ddAqxO
  * @param type - 'Danger' or 'Success'
  * @returns {string}
  */
-var getAlertHTMLString = function(alertText, type){
+function getAlertHTMLString(alertText, type){
     return '<div class="alert alert-' + type + '"><a class="close" data-dismiss="alert">×</a><span>' +alertText + '</span></div>'
-};
+}
 
 /**
  * Updates the systems displayed in Map based on filtering criteria
@@ -339,14 +339,14 @@ function filterSystemsBasedOnDropdownValues() {
 /**
  * Clear analyzeSystem dropdown selection and values
  */
-var clearAnalyzeDropdown = function() {
+function clearAnalyzeDropdown() {
     $('#analyzeSystem').dropdown('clear');
     $('#analyzeSystem').empty();
 }
 /**
  * Change the marker icon to "Selected" or "Default" in Map
  */
-var updateAnalyzeSystems = function() {
+function updateAnalyzeSystems() {
     // Generate the list of selected System Names
     var checkedNames = getAnalyzeSystemValues();
     if(checkedNames.length <= MAX_SYSTEM_SELECTED) {
@@ -363,7 +363,7 @@ var updateAnalyzeSystems = function() {
             system.marker.setZIndex(google.maps.Marker.MIN_ZINDEX - 1);
         }
     });
-};
+}
 
 /**
  * When user clicks analyze, check if the user has selected atleast 1 system to analyze and then save those systemIds
