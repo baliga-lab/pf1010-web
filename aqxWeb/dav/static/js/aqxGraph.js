@@ -203,7 +203,9 @@ var callAPIForNewData = function(measurementIDList){
             success: function(data){
                 // Check if there were any errors on the server side
                 if("error" in data){
-                    throw "AJAX request returned an error!";
+                    console.log("Server returned an error...");
+                    console.log(data.error);
+                    throw "AJAX request reached the server but returned an error!";
                 }else{
                     addNewMeasurementData(data);
                 }
