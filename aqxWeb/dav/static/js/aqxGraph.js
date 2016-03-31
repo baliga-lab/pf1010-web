@@ -33,7 +33,7 @@ var BACKGROUND = {
 /**
  * Draws a graph, given a graph type, x-axis values, and y-axis values
  */
-var drawChart = function(){
+function drawChart(){
     var graphType = document.getElementById(GRAPH_TYPE).value;
     var xType = document.getElementById(XAXIS).value;
 
@@ -42,7 +42,7 @@ var drawChart = function(){
 
     // Generate a data Series for each y-value type, and assign them all to the CHART
     updateChartDataPointsHC(CHART, xType, yTypes, graphType).redraw();
-};
+}
 
 
 /**
@@ -52,7 +52,7 @@ var drawChart = function(){
  * @param yTypeList - List of y-axis values selected from the checklist
  * @param graphType - The graph type chosen from dropdown
  */
-var updateChartDataPointsHC = function(chart, xType, yTypeList, graphType){
+function updateChartDataPointsHC(chart, xType, yTypeList, graphType){
 
     // Clear the old chart's yAxis and dataPoints. Unfortunately this must be done manually.
     chart = clearOldGraphValues(chart);
@@ -82,7 +82,7 @@ var updateChartDataPointsHC = function(chart, xType, yTypeList, graphType){
     });
 
     return chart;
-};
+}
 
 
 // TODO: This will need to be re-evaluated to incorporate non-time x-axis values. For now, stubbing xType for this.
@@ -94,7 +94,7 @@ var updateChartDataPointsHC = function(chart, xType, yTypeList, graphType){
  * @param graphType - Type of graph to display. Ex: line, scatter
  * @returns {Array} - An array of dataPoints of yType measurement data for all systems
  */
-var getDataPointsForPlotHC = function(chart, xType, yTypeList, graphType){
+function getDataPointsForPlotHC (chart, xType, yTypeList, graphType){
 
     // DataPoints to add to chart
     var dataPointsList = [];
@@ -159,7 +159,7 @@ var getDataPointsForPlotHC = function(chart, xType, yTypeList, graphType){
         $('#alert_placeholder').html(getAlertHTMLString("Missing values for: " + missingYTypes.toString(), DANGER));
     }
     return dataPointsList;
-};
+}
 
 
 /* ##################################################################################################################
@@ -171,7 +171,7 @@ var getDataPointsForPlotHC = function(chart, xType, yTypeList, graphType){
  * Take measurement data object from AJAX response, and add to the global systems_and_measurements data
  * @param data
  */
-var addNewMeasurementData = function(data){
+function addNewMeasurementData(data){
     console.log('success',data);
     var systems = data.response;
 
@@ -186,14 +186,14 @@ var addNewMeasurementData = function(data){
             }
         });
     });
-};
+}
 
 
 /**
  * Sends an AJAX POST request to call for new, untracked measurement data for each system
  * @param measurementIDList
  */
-var callAPIForNewData = function(measurementIDList){
+function callAPIForNewData(measurementIDList){
     $(function(){
         $.ajax({
             type: 'POST',
@@ -224,7 +224,7 @@ var callAPIForNewData = function(measurementIDList){
             }
         });
     });
-};
+}
 
 
 /* ##################################################################################################################
@@ -236,7 +236,7 @@ var callAPIForNewData = function(measurementIDList){
  * Returns a list of all y-variables currently being stored
  * @returns {Array} - An array of all measurement types currently being stored
  */
-var getAllActiveMeasurements = function() {
+function getAllActiveMeasurements() {
     // Grab all measurement types in the checklist
     var activeMeasurements = [];
     var systemMeasurements = _.first(systems_and_measurements).measurement;
@@ -244,7 +244,7 @@ var getAllActiveMeasurements = function() {
         activeMeasurements.push(measurement.type.toLowerCase());
     });
     return activeMeasurements;
-};
+}
 
 
 /**
@@ -252,7 +252,7 @@ var getAllActiveMeasurements = function() {
  * @param chart
  * @returns {*}
  */
-var clearOldGraphValues = function(chart) {
+function clearOldGraphValues(chart) {
     // Clear yAxis
     while(chart.yAxis.length > 0){
         chart.yAxis[0].remove(true);
@@ -262,30 +262,31 @@ var clearOldGraphValues = function(chart) {
         chart.series[0].remove(true);
     }
     return chart;
-};
+}
 
 
 /**
  *
  * Returns the Y Axis text selector to default
  */
-var setDefaultYAxis = function() {
+function setDefaultYAxis() {
     $("#selectYAxis").dropdown({
         maxSelections: MAXSELECTIONS
     });
     $("#selectYAxis").dropdown('clear');
     $("#selectYAxis").dropdown('set selected', DEFAULT_Y_VALUE);
-};
+}
 
 
 /**
  *
  * @param alertText
+ * @param type
  * @returns {string}
  */
-var getAlertHTMLString = function(alertText, type){
+function getAlertHTMLString(alertText, type){
     return '<div class="alert alert-' + type + '"><a class="close" data-dismiss="alert">×</a><span>' +alertText + '</span></div>'
-};
+}
 
 /**
  *
@@ -299,7 +300,7 @@ var getAlertHTMLString = function(alertText, type){
  * @param yType - The measurement type name
  * @returns {{name: string, type: *, data: *, color: string, id: *, yAxis: *, dashStyle: string, marker: {symbol: string}}|*}
  */
-var getDataPoints = function(systemName, dataPoints, graphType, id, linkedTo, i, j, yType) {
+function getDataPoints(systemName, dataPoints, graphType, id, linkedTo, i, j, yType) {
     var series = { name: systemName + ',' + yType,
         type: graphType,
         data: dataPoints,
@@ -313,7 +314,7 @@ var getDataPoints = function(systemName, dataPoints, graphType, id, linkedTo, i,
         series.linkedTo = id;
     }
     return series;
-};
+}
 
 
 /**
@@ -323,7 +324,7 @@ var getDataPoints = function(systemName, dataPoints, graphType, id, linkedTo, i,
  * @param units
  * @returns {{title: {text: *}, labels: {format: string, style: {color: *}}, opposite: boolean}}
  */
-var createYAxis = function(yType, axisNum, units){
+function createYAxis(yType, axisNum, units){
     var unitLabel;
     if (units){
         unitLabel = (_.isEqual(units, "celsius")) ? "°C" : units;
@@ -352,7 +353,7 @@ var createYAxis = function(yType, axisNum, units){
         minorGridLineColor: '#505053',
         tickColor: '#707073'
     };
-};
+}
 
 
 /* ##################################################################################################################
@@ -362,7 +363,7 @@ var createYAxis = function(yType, axisNum, units){
 /**
  *  main - Sets behaviors for Submit and Reset buttons, populates x-axis dropdown, and checks nitrate as default y-axis
  */
-var main = function(){
+function main(){
 
     // Select the default y-axis value
     setDefaultYAxis();
@@ -393,7 +394,7 @@ var main = function(){
 
         drawChart();
     });
-};
+}
 
 
 /**
@@ -461,7 +462,7 @@ window.onload = function() {
     drawChart();
 };
 
-var tooltipFormatter = function(){
+function tooltipFormatter(){
     var tooltipInfo = this.series.name.split(",");
     var yVal = tooltipInfo[1];
     var units = measurement_types_and_info[yVal].unit;
@@ -474,4 +475,4 @@ var tooltipFormatter = function(){
         '<br><p>Hours in cycle: ' + this.x + '</p>' +
         '<br><p>Measured on: ' + datetime[0] + '</p>' +
         '<br><p>At time: ' + datetime[1] +'</p>';
-};
+}
