@@ -198,7 +198,20 @@ var callAPIForNewData = function(measurementIDList){
             url: '/dav/aqxapi/get/readings/time_series_plot',
             data: JSON.stringify({systems: selectedSystemIDs, measurements: measurementIDList}, null, '\t'),
             success: function(data){
-                addNewMeasurementData(data);
+                if(_.findKey(data, function(key){return _.isEqual(key, 'error')})){
+                    throw "AJAX request returned an error!";
+                }else{
+                    addNewMeasurementData(data);
+                }
+            },
+            error: function(jqXHR, textStatus, errorThrown) {
+                alert('An error occurred... Look at the console (F12) for more information!');
+                console.log('jqXHR:');
+                console.log(jqXHR);
+                console.log('textStatus:');
+                console.log(textStatus);
+                console.log('errorThrown:');
+                console.log(errorThrown);
             }
         });
     });
