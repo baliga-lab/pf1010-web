@@ -19,9 +19,7 @@ var DEFAULT_ICON = {
 var DEFAULT_CENTER = {lat: 47.622577, lng: -122.337436};
 var DEFAULT_ZOOM = 3;
 var MAPDIV = 'map';
-var OPTION = 'option';
 var NOT_AVAILABLE = 'Not available';
-var LIST_OF_USER_SYSTEMS = "listOfUserSystems";
 var SELECT_TECHNIQUE = "selectTechnique";
 var SELECT_ORGANISM = "selectOrganism";
 var SELECT_CROP = "selectCrop";
@@ -31,11 +29,6 @@ var CLICK = 'dblclick';
 var CLUSTER_CLICK = 'clusterclick';
 var MOUSEOUT = 'mouseout';
 var SELECTED = 'selected';
-var CHECKED = 'checked';
-var AQX_TECHNIQUES = "aqx_techniques";
-var AQX_ORGANISMS = "aqx_organisms";
-var CROPS = "crops";
-var GROWBED_MEDIA = "growbed_media";
 var MIN_CLUSTER_ZOOM = 15;
 
 // Markerclusterer and OverlappingMarkerSpiderfier need global scope
@@ -363,7 +356,7 @@ var updateAnalyzeSystems = function() {
 $('#analyzeOptions').on('submit',function(e) {
     var systemsSelectedToAnalyze = getAnalyzeSystemValues();
     if(systemsSelectedToAnalyze.length <= 0) {
-        alert("Please select systems from checkbox to analyze");
+        $('#alert_placeholder').html(getAlertHTMLString("Please select systems from checkbox to analyze.", 'danger'));
         return false;
     }
     var selectedSystems = systemsSelectedToAnalyze.join(",");
