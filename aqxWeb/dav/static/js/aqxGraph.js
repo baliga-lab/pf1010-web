@@ -284,7 +284,7 @@ var setDefaultYAxis = function() {
  * @returns {string}
  */
 var getAlertHTMLString = function(alertText, type){
-    return '<div class="alert alert-' + type + '"><a class="close" data-dismiss="alert">×</a><span>' +alertText + '</span></div>'
+    return '<div class="alert alert-' + type + '"><a class="close" data-dismiss="alert">×</a><span>' +alertText + '</span></div>';
 };
 
 /**

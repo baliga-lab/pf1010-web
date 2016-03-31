@@ -296,7 +296,7 @@ function systemMetadataDoesNotMatchesAnyDropdown(system, ddAqxTech, ddAqxOrg, dd
  * @returns {string}
  */
 function getAlertHTMLString(alertText, type){
-    return '<div class="alert alert-' + type + '"><a class="close" data-dismiss="alert">×</a><span>' +alertText + '</span></div>'
+    return '<div class="alert alert-' + type + '"><a class="close" data-dismiss="alert">×</a><span>' +alertText + '</span></div>';
 }
 
 /**
