@@ -49,7 +49,7 @@ var MAP;
  * @returns {boolean}
  */
 var markerIsStarred = function(marker){
-    return marker.getIcon().url === SELECTED_ICON.url;
+    return _.isEqual(marker.getIcon().url,SELECTED_ICON.url);
 };
 
 /**
@@ -297,10 +297,10 @@ var main = function(system_and_info_object) {
  * @returns {boolean}
  */
 var systemMetadataDoesNotMatchesAnyDropdown = function(system, dp1, dp2, dp3, dp4){
-    return ((!_.isEmpty(dp1) && system.aqx_technique_name != dp1) ||
-            (!_.isEmpty(dp2) && system.organism_name != dp2) ||
-            (!_.isEmpty(dp3) && system.crop_name != dp3) ||
-            (!_.isEmpty(dp4) && system.growbed_media != dp4));
+    return ((!_.isEmpty(dp1) && !_.isEqual(system.aqx_technique_name, dp1)) ||
+            (!_.isEmpty(dp2) && !_.isEqual(system.organism_name, dp2)) ||
+            (!_.isEmpty(dp3) && !_.isEqual(system.crop_name, dp3)) ||
+            (!_.isEmpty(dp4) && !_.isEqual(system.growbed_media, dp4)));
 };
 
 var getAlertHTMLString = function(alertText, type){
