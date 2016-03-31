@@ -807,23 +807,23 @@ def delete_system_subscriber_or_make_admin():
 
 
 #######################################################################################
-# function : search_groups
-# purpose : renders group_search.html
+# function : groups
+# purpose : renders groups.html
 # parameters : None
-# returns: group_search.html
+# returns: groups.html
 # Exception : None
 #######################################################################################
 @social.route('/groups', methods=['GET', 'POST'])
 @social.route('/groups/', methods=['GET', 'POST'])
-def search_groups():
+def groups():
     sql_id = session.get('uid')
     if sql_id is None:
         return redirect(url_for('social.index'))
     else:
         if request.method == 'GET':
-            return render_template("group_search.html")
+            return render_template("groups.html")
         elif request.method == 'POST':
-            return render_template("group_search.html")
+            return render_template("groups.html")
 
 
 #######################################################################################
@@ -847,7 +847,7 @@ def view_group(group_uid):
             group_neo4j = group.get_group_by_uid(group_uid)
             # InValid Group_UID
             if not group_neo4j:
-                return redirect(url_for('social.search_groups'))
+                return redirect(url_for('social.groups'))
             # Valid Group_UID
             else:
                 logged_in_user = User(sql_id).find()
@@ -877,11 +877,11 @@ def manage_group(group_uid):
     group_neo4j = group.get_group_by_uid(group_uid)
     # InValid Group_UID
     if not group_neo4j:
-        return redirect(url_for('social.search_groups'))
+        return redirect(url_for('social.groups'))
     user_privilege = group.get_user_privilege_for_group(sql_id, group_uid)
     # Only Admin of The Group Has Privileges To Access The Settings Page
     if user_privilege != "GROUP_ADMIN":
-        return redirect(url_for('social.search_groups'))
+        return redirect(url_for('social.groups'))
     if request.method == 'GET':
         return render_template("group_manage.html", group_neo4j=group_neo4j, logged_in_user=logged_in_user)
     elif request.method == 'POST':

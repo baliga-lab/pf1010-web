@@ -66,7 +66,7 @@ def member():
         Subgroup('Collaborate',
             View('Friends', 'social.friends'),
             View('Systems', 'social.search_systems'),
-            View('Groups', 'social.search_groups'),
+            View('Groups', 'social.groups'),
             View('Challenges', 'frontend.coming'),
             View('Documents', 'frontend.coming')
         ),
