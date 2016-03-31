@@ -13,6 +13,9 @@ var HC_OPTIONS;
 var COLORS = ["lime", "orange", '#f7262f', "lightblue"];
 var DASHSTYLES = ['Solid', 'LongDash', 'ShortDashDot', 'ShortDot', 'LongDashDotDot'];
 var MARKERTYPES = ["circle", "square", "diamond", "triangle", "triangle-down"];
+var TIMELABEL = "Hours since creation.";
+var DANGER = 'danger';
+var MAXSELECTIONS = 4;
 var BACKGROUND = {
     linearGradient: { x1: 0, y1: 0, x2: 1, y2: 1 },
     stops: [
@@ -26,7 +29,7 @@ var BACKGROUND = {
  #################################################################################################################### */
 
 /**
- *
+ * Draws a graph, given a graph type, x-axis values, and y-axis values
  */
 var drawChart = function(){
     var graphType = document.getElementById(GRAPH_TYPE).value;
@@ -68,7 +71,7 @@ var updateChartDataPointsHC = function(chart, xType, yTypeList, graphType){
 
     // Handle the x axis, for now just using time
     // TODO: Expand to handle changing x axes
-    chart.xAxis[0].setTitle({ text: "hours since creation" });
+    chart.xAxis[0].setTitle({ text: TIMELABEL });
 
     // Get dataPoints and their configs for the chart, using systems_and_measurements and add them
     var newDataSeries = getDataPointsForPlotHC(chart, xType, yTypeList, graphType);
@@ -83,10 +86,9 @@ var updateChartDataPointsHC = function(chart, xType, yTypeList, graphType){
 // TODO: This will need to be re-evaluated to incorporate non-time x-axis values. For now, stubbing xType for this.
 /**
  *
+ * @param chart - A Highcharts Chart to which data will be added
  * @param xType - X-axis values. Ex: Time, pH, Hardness
  * @param yTypeList - Y-axis values. Ex: [pH, Nitrate]
- * @param colorSchemeForMeasurement - {"nitrate": COLORS_INDEX, "pH": COLORS_INDEX}
- * @param markerForMeasurement = {"nitrate": MARKERS_INDEX, "pH": MARKERS_INDEX}
  * @param graphType - Type of graph to display. Ex: line, scatter
  * @returns {Array} - An array of dataPoints of yType measurement data for all systems
  */
@@ -95,13 +97,14 @@ var getDataPointsForPlotHC = function(chart, xType, yTypeList, graphType){
     // DataPoints to add to chart
     var dataPointsList = [];
 
-    // Any y variables and systems that have missing data
+    // The name of a system and the y variable for which it is missing data
     var missingYTypes = [];
 
-    // Assign each axis a variable and an id
+    // Track the number of axes being used
     var numAxes = 0;
 
     // Axis dict ensures that each variable is plotted to the same, unique axis for that variable
+    // i.e. nitrate values for each system to axis 0, pH values for each system to axis 1, etc.
     var axes = {};
     _.each(yTypeList, function(axis){
         axes[axis] = {isAxis:false};
@@ -151,7 +154,7 @@ var getDataPointsForPlotHC = function(chart, xType, yTypeList, graphType){
 
     // Warn the user about missing data
     if (missingYTypes.length > 0){
-        $('#alert_placeholder').html(getAlertHTMLString(missingYTypes));
+        $('#alert_placeholder').html(getAlertHTMLString("Missing values for: " + missingYTypes.toString(), DANGER));
     }
     return dataPointsList;
 };
@@ -163,7 +166,7 @@ var getDataPointsForPlotHC = function(chart, xType, yTypeList, graphType){
 
 
 /**
- *
+ * Take measurement data object from AJAX response, and add to the global systems_and_measurements data
  * @param data
  */
 var addNewMeasurementData = function(data){
@@ -185,7 +188,7 @@ var addNewMeasurementData = function(data){
 
 
 /**
- *
+ * Sends an AJAX POST request to call for new, untracked measurement data for each system
  * @param measurementIDList
  */
 var callAPIForNewData = function(measurementIDList){
@@ -198,12 +201,16 @@ var callAPIForNewData = function(measurementIDList){
             url: '/dav/aqxapi/get/readings/time_series_plot',
             data: JSON.stringify({systems: selectedSystemIDs, measurements: measurementIDList}, null, '\t'),
             success: function(data){
-                if(_.findKey(data, function(key){return _.isEqual(key, 'error')})){
-                    throw "AJAX request returned an error!";
+                // Check if there were any errors on the server side
+                if("error" in data){
+                    console.log("Server returned an error...");
+                    console.log(data.error);
+                    throw "AJAX request reached the server but returned an error!";
                 }else{
                     addNewMeasurementData(data);
                 }
             },
+            // Report any AJAX errors
             error: function(jqXHR, textStatus, errorThrown) {
                 alert('An error occurred... Look at the console (F12) for more information!');
                 console.log('jqXHR:');
@@ -224,7 +231,7 @@ var callAPIForNewData = function(measurementIDList){
 
 
 /**
- *
+ * Returns a list of all y-variables currently being stored
  * @returns {Array} - An array of all measurement types currently being stored
  */
 var getAllActiveMeasurements = function() {
@@ -239,7 +246,7 @@ var getAllActiveMeasurements = function() {
 
 
 /**
- *
+ * Removes any data series' and y-axes from the given chart
  * @param chart
  * @returns {*}
  */
@@ -257,11 +264,12 @@ var clearOldGraphValues = function(chart) {
 
 
 /**
+ *
  * Returns the Y Axis text selector to default
  */
 var setDefaultYAxis = function() {
     $("#selectYAxis").dropdown({
-        maxSelections: 4
+        maxSelections: MAXSELECTIONS
     });
     $("#selectYAxis").dropdown('clear');
     $("#selectYAxis").dropdown('set selected', DEFAULT_Y_VALUE);
@@ -270,12 +278,11 @@ var setDefaultYAxis = function() {
 
 /**
  *
- * @param missingYTypes
+ * @param alertText
  * @returns {string}
  */
-var getAlertHTMLString = function(missingYTypes){
-    return '<div class="alert alert-danger"><a class="close" data-dismiss="alert">×</a><span>Missing values for: ' +
-        _.uniq(missingYTypes).toString() + '</span></div>';
+var getAlertHTMLString = function(alertText, type){
+    return '<div class="alert alert-' + type + '"><a class="close" data-dismiss="alert">×</a><span>' +alertText + '</span></div>'
 };
 
 /**
@@ -441,7 +448,12 @@ window.onload = function() {
         showInLegend: true,
         series: []
     };
-    CHART = new Highcharts.Chart(HC_OPTIONS);
+    try {
+        CHART = new Highcharts.Chart(HC_OPTIONS);
+    }catch(err){
+        console.log("Unable to initialize Highcharts Chart object!");
+        console.log(err.stack);
+    }
     Highcharts.setOptions(Highcharts.theme);
     // Render chart based on default page setting. i.e. x-axis & graph-type dropdowns, and the y-axis checklist
     drawChart();
