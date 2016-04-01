@@ -34,12 +34,14 @@ def get_conn():
 def explore():
     systems_and_info_json = get_all_systems_info()
     if 'error' in systems_and_info_json:
+        print systems_and_info_json['error']
         raise AttributeError("Error processing API call for aquaponic systems data.")
 
     systems = json_loads_byteified(systems_and_info_json)['systems']
 
     metadata_json = get_all_aqx_metadata()
     if 'error' in metadata_json:
+        print metadata_json['error']
         raise AttributeError("Error processing API call for system metadata.")
 
     metadata_dict = json_loads_byteified(metadata_json)['filters']
@@ -70,6 +72,7 @@ def analyze_graph():
     # TODO: There are currently no error pages, we're just stubbing abort for now
     measurement_types_and_info = get_all_measurement_info()
     if 'error' in measurement_types_and_info:
+        print measurement_types_and_info['error']
         raise AttributeError("Error processing API call for measurement types.")
 
     # Load JSON into Python dict with only Byte values, for use in populating dropdowns
@@ -81,13 +84,14 @@ def analyze_graph():
     try:
         selected_systemID_list = json.dumps(request.form.get('selectedSystems')).translate(None, '\"\\').split(",")
     except:
-        if 'error' in selected_systemID_list:
-            raise AttributeError("Error processing API call for system IDs.")
-        else:
-            traceback.print_exc()
+        traceback.print_exc()
+        if not selected_systemID_list:
+            print("System ID list is undefined.")
+        raise AttributeError("Error processing selected systems form.")
 
     systems_and_measurements_json = get_readings_for_tsplot(selected_systemID_list, msr_id_list)
     if 'error' in systems_and_measurements_json:
+        print systems_and_measurements_json['error']
         raise AttributeError("Error processing API call for measurement readings.")
 
 
