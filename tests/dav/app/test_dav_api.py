@@ -189,5 +189,19 @@ class DavApiTest(unittest.TestCase):
         print actual_result
         self.assertTrue("error" in actual_result)
 
+    # test for get_readings_for_plot
+    def test_get_readings_for_plot(self):
+        system_uid_list = ["5cc8402478ee11e59d5c000c29b92d09"]
+        msr_id_list = ["8"]
+        response = self.app.post('dav/aqxapi/v1/measurements/plot',
+                                 data=json.dumps(dict(systems=system_uid_list,
+                                                        measurements=msr_id_list)),
+                                 content_type='application/json')
+        actual_result_temp = json.loads(response.data)
+        actual_result = json.dumps(actual_result_temp)
+        with open('data/test_get_readings_for_plot.txt') as f:
+            expected_result = f.readlines()[0]
+        self.assertEqual(expected_result,actual_result)
+
 if __name__ == '__main__':
     unittest.main()

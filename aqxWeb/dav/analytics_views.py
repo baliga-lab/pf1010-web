@@ -165,7 +165,7 @@ def get_readings_for_tsplot(system_uid_list, msr_id_list):
     return dav_api.get_readings_for_plot(system_uid_list, msr_id_list)
 
 
-@dav.route('/aqxapi/get/readings/time_series_plot', methods=['POST'])
+@dav.route('/aqxapi/v1/measurements/plot', methods=['POST'])
 def get_readings_for_plot():
     dav_api = DavAPI(get_conn())
     measurements = request.json['measurements']
