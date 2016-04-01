@@ -124,13 +124,6 @@ function reset() {
     // AnalyzeSystem dropdown values has to be flushed before resetting the marker property
     clearAnalyzeDropdown();
 
-    // Sets all markers as visible and gives them the default Marker icon
-    _.each(_.sortBy(system_and_info_object,'system_name'), function(system) {
-        system.marker.setVisible(true);
-        system.marker.setIcon(DEFAULT_ICON);
-        addSystemToAnalyzeSystemDropdown(system);
-    });
-
     // Repaint the clusters on reset
     MC.repaint();
 
@@ -153,6 +146,12 @@ function reset() {
     $('#selectGrowbedMedium option').prop(SELECTED, function() {
         return this.defaultSelected;
     });
+
+    $('#selectStatus option').prop(SELECTED, function() {
+        return this.defaultSelected;
+    });
+
+    filterSystemsBasedOnDropdownValues();
 }
 
 /**
@@ -262,6 +261,8 @@ function main(system_and_info_object) {
         });
     }
     initializeMap();
+
+    filterSystemsBasedOnDropdownValues();
 
     // Populate the checklist
     // All systems are visible at this point, so this list contains each system name
