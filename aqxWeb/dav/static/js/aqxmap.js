@@ -26,6 +26,7 @@ var SELECT_TECHNIQUE = "selectTechnique";
 var SELECT_ORGANISM = "selectOrganism";
 var SELECT_CROP = "selectCrop";
 var SELECT_GROWBED_MEDIUM = "selectGrowbedMedium";
+var SELECT_SYSTEM_STATUS = "selectStatus"
 var MOUSEOVER = 'mouseover';
 var CLICK = 'dblclick';
 var CLUSTER_CLICK = 'clusterclick';
@@ -276,17 +277,19 @@ function main(system_and_info_object) {
  * Given a system, compares its metadata with the values from the four metadata dropdowns
  * and returns true if there is a match, false otherwise
  * @param system An Aquaponics system plus its metadata values
- * @param ddAqxTech The value from the first dropdown for Aquaponics Technique
- * @param ddAqxOrg The value from the second dropdown for Aquatic Organism
- * @param ddAqxCrop The value from the third dropdown for Crop name
- * @param ddAqxMedia The value from the fourth dropdown for Growbed Media
+ * @param ddAqxTech The value from Aquaponics Technique dropdown
+ * @param ddAqxOrg The value from Aquatic Organism dropdown
+ * @param ddAqxCrop The value from Crop name dropdown
+ * @param ddAqxMedia The value from Growbed Media dropdown
+ * @param ddStatus The value from Status dropdown
  * @returns {boolean}
  */
-function systemMetadataDoesNotMatchesAnyDropdown(system, ddAqxTech, ddAqxOrg, ddAqxCrop, ddAqxMedia){
+function systemMetadataDoesNotMatchesAnyDropdown(system, ddAqxTech, ddAqxOrg, ddAqxCrop, ddAqxMedia, ddStatus){
     return ((!_.isEmpty(ddAqxTech) && !_.isEqual(system.aqx_technique_name, ddAqxTech)) ||
             (!_.isEmpty(ddAqxOrg) && !_.isEqual(system.organism_name, ddAqxOrg)) ||
             (!_.isEmpty(ddAqxCrop) && !_.isEqual(system.crop_name, ddAqxCrop)) ||
-            (!_.isEmpty(ddAqxMedia) && !_.isEqual(system.growbed_media, ddAqxMedia)));
+            (!_.isEmpty(ddAqxMedia) && !_.isEqual(system.growbed_media, ddAqxMedia)) ||
+            (!_.isEmpty(ddStatus) && !_.isEqual(system.status, ddStatus)));
 }
 
 /**
@@ -307,12 +310,13 @@ function filterSystemsBasedOnDropdownValues() {
     var ddAqxOrg = document.getElementById(SELECT_ORGANISM).value;
     var ddAqxCrop = document.getElementById(SELECT_CROP).value;
     var ddAqxMedia = document.getElementById(SELECT_GROWBED_MEDIUM).value;
+    var ddStatus = document.getElementById(SELECT_SYSTEM_STATUS).value;
     var fileteredSystemsCount = 0;
 
     var selectedSystems = getAnalyzeSystemValues();
     clearAnalyzeDropdown();
     _.each(_.sortBy(system_and_info_object,'system_name'), function(system) {
-        if (systemMetadataDoesNotMatchesAnyDropdown(system, ddAqxTech, ddAqxOrg, ddAqxCrop, ddAqxMedia)){
+        if (systemMetadataDoesNotMatchesAnyDropdown(system, ddAqxTech, ddAqxOrg, ddAqxCrop, ddAqxMedia, ddStatus)){
             selectedSystems = _.reject(selectedSystems, function (id) {
                 return _.isEqual(id, system.system_uid);
             });
