@@ -90,14 +90,14 @@ def index():
     posts = get_all_recent_posts(session.get('uid'))
     comments = get_all_recent_comments()
     likes = get_all_recent_likes()
-    totalLikes = get_total_likes_for_posts()
-    postOwners = get_all_post_owners()
+    total_likes = get_total_likes_for_posts()
+    post_owners = get_all_post_owners()
     privacy = Privacy([Privacy.FRIENDS, Privacy.PUBLIC], Privacy.FRIENDS,
                       'home', session['uid'])  # info about timeline/page)
     privacy.user_relation = None
     return render_template('home.html', posts=posts, comments=comments,
                            privacy_info=privacy, likes=likes,
-                           totalLikes=totalLikes, postOwners=postOwners)
+                           totalLikes=total_likes, postOwners=post_owners)
 
 
 @social.route('/login')
@@ -349,11 +349,13 @@ def profile(google_id):
             privacy.user_relation = user_relation.lower()
 
             posts = get_all_profile_posts(sql_id)
+            total_likes = get_total_likes_for_posts()
+            likes = get_all_recent_likes()
 
             return render_template("profile.html", user_profile=user_profile, google_profile=google_profile,
-                                   posts=posts, privacy_info=privacy, participated_systems=participated_systems,
-                                   subscribed_systems=subscribed_systems, admin_systems=admin_systems,
-                                   friends=friends, status=status, sqlId=sql_id)
+                                   posts=posts, privacy_info=privacy, likes=likes, total_likes=total_likes,
+                                   participated_systems=participated_systems, subscribed_systems=subscribed_systems,
+                                   admin_systems=admin_systems, friends=friends, status=status, sqlId=sql_id)
 
     except Exception as e:
         logging.exception("Exception at view_profile: " + str(e))

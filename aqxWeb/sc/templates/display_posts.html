@@ -34,13 +34,8 @@
                         <span class="date sub-text">posted on {{ row.post.date }}</span>
                         <span class="privacy sub-text">@{{ row.post.privacy }}</span>
                     </h4>
-                    {% for po in postOwners %}
-                        {% if po.postid == row.post.id and po.userid == session['uid'] %}
-
-                        {% endif %}
-                    {% endfor %}
                     <p>{{ row.post.text }}</p>
-                    {% for po in postOwners %}
+                    {% for po in post_owners %}
                         {% if po.postid == row.post.id and po.userid == session['uid'] %}
                             <div class="form-controls" style=" text-align: right;">
                                 <form action="{{ url_for('social.delete_post') }}" method="post">
@@ -104,7 +99,7 @@
                             <button type="submit" name="submit" class="btn btn-success" aria-label="Left Align"
                                     value="likePost">
                                 Like
-                                {% for i in totalLikes %}
+                                {% for i in total_likes %}
                                     {% if i.postid == row.post.id %}
                                         {{ i.likecount }}
                                     {% endif %}
