@@ -307,7 +307,7 @@ def profile(google_id):
                 return redirect(url_for('social.Home'))
             else:
                 sql_id = result.one
-                status = checkStatus(sql_id)
+                status = User(session['uid']).check_status(session['uid'],sql_id)
                 admin_systems = System().get_admin_systems(sql_id)
                 participated_systems = System().get_participated_systems(sql_id)
                 subscribed_systems = System().get_subscribed_systems(sql_id)
@@ -1541,28 +1541,3 @@ def test_add_comment():
     return redirect(url_for('social.index'))
 
 
-#######################################################################################
-# function : checkStatus
-# purpose : check the status of a user with another user
-# parameters : None
-# returns: if the user is friend,pending friend,add as a friend.
-# Exception : None
-#######################################################################################
-def checkStatus(user_sql_id):
-    friend_status = "Add friend"
-    sentreq_res, receivedreq_res, frnds_res = User(session['uid']).get_friends_and_sent_req()
-    for sf in sentreq_res:
-        sf_id = sf[0]
-        if user_sql_id == sf_id:
-            friend_status = "Sent Friend Request"
-    for rf in receivedreq_res:
-        rf_id = rf[0]
-        if user_sql_id == rf_id:
-            friend_status = "Received Friend Request"
-    for fr in frnds_res:
-        fr_id = fr[0]
-        if user_sql_id == fr_id:
-            friend_status = "Friends"
-    if user_sql_id == session['uid']:
-        friend_status = "Me"
-    return friend_status

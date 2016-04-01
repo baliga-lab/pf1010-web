@@ -229,6 +229,35 @@ class User:
         except cypher.CypherError, cypher.CypherTransactionError:
             raise "Exception occured in function test_add_post "
 
+
+    #######################################################################################
+    # function : checkStatus
+    # purpose : check the status of a user with another user
+    # parameters : None
+    # returns: if the user is friend,pending friend,add as a friend.
+    # Exception : None
+    #######################################################################################
+    def check_status(self,sessionID,user_sql_id):
+        friend_status = "Add friend"
+        sentreq_res, receivedreq_res, friends_res = User(sessionID).get_friends_and_sent_req()
+        for sf in sentreq_res:
+            sf_id = sf[0]
+            if user_sql_id == sf_id:
+                friend_status = "Sent Friend Request"
+        for rf in receivedreq_res:
+            rf_id = rf[0]
+            if user_sql_id == rf_id:
+                friend_status = "Received Friend Request"
+        for fr in friends_res:
+            fr_id = fr[0]
+            if user_sql_id == fr_id:
+                friend_status = "Friends"
+        if user_sql_id == sessionID:
+            friend_status = "Me"
+        return friend_status
+
+
+
     ############################################################################
     # function : edit_post
     # purpose : Edits post node in neo4j with the given id
@@ -2188,4 +2217,3 @@ class Group:
             return user_privilege
         except cypher.CypherError, cypher.CypherTransactionError:
             raise "Exception occured in function get_user_privilege_for_group"
-
