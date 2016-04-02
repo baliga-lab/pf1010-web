@@ -220,11 +220,51 @@ class DavApiTest(unittest.TestCase):
                                                         measurements=msr_id_list,
                                                             status=status_id)),
                                  content_type='application/json')
+        actual_status_code = response._status_code
+        expected_status_code = 200
         actual_result_temp = json.loads(response.data)
         actual_result = json.dumps(actual_result_temp)
         with open('data/test_get_readings_for_plot.txt') as f:
             expected_result = f.readlines()[0]
         self.assertEqual(expected_result,actual_result)
+        self.assertEquals(expected_status_code, actual_status_code)
+
+    # test for get_system_measurements (for system_uid = 555d0cfe9ebc11e58153000c29b92d09)
+    def test_get_system_measurements(self):
+        response = self.app.get('/dav/aqxapi/v1/measurements?system_uid=555d0cfe9ebc11e58153000c29b92d09')
+        actual_status_code = response._status_code
+        expected_status_code = 200
+        actual_result_temp = json.loads(response.data)
+        actual_result = json.dumps(actual_result_temp)
+        with open('data/test_get_system_measurements.txt') as f:
+            expected_result = f.readlines()[0]
+        self.assertEquals(expected_result, actual_result)
+        self.assertEquals(expected_status_code, actual_status_code)
+
+    # test for get_system_measurements (for system_uid = null)
+    def test_get_system_measurements_with_null_system_uid(self):
+        response = self.app.get('/dav/aqxapi/v1/measurements?system_uid=null')
+        actual_status_code = response._status_code
+        expected_status_code = 400
+        actual_result_temp = json.loads(response.data)
+        actual_result = json.dumps(actual_result_temp)
+        print actual_result
+        expected_result = '{"error": "Table \'projectfeed.aqxs_alkalinity_null\' doesn\'t exist"}'
+        self.assertEquals(expected_result, actual_result)
+        self.assertEquals(expected_status_code, actual_status_code)
+
+    # test for get_system_measurements (for url parameter for system_uid is not given)
+    def test_get_system_measurement_with_no_system_uid(self):
+        response = self.app.get('/dav/aqxapi/v1/measurements?system_uid=')
+        actual_status_code = response._status_code
+        expected_status_code = 400
+        actual_result_temp = json.loads(response.data)
+        actual_result = json.dumps(actual_result_temp)
+        print actual_result
+        expected_result = '{"error": "Invalid system_uid"}'
+        self.assertEquals(expected_result, actual_result)
+        self.assertEquals(expected_status_code, actual_status_code)
+
 
 if __name__ == '__main__':
     unittest.main()

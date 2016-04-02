@@ -127,11 +127,20 @@ def get_all_aqx_metadata():
 # given system
 ######################################################################
 
-@dav.route('/aqxapi/get/system/measurements/<system_uid>', methods=['GET'])
-def get_system_measurements(system_uid):
-    dav_api = DavAPI(get_conn())
-    return dav_api.get_system_measurements(system_uid)
-
+@dav.route('/aqxapi/v1/measurements', methods=['GET'])
+def get_system_measurements():
+    system_uid = request.args.get('system_uid')
+    if system_uid is not None and len(system_uid) > 0:
+        dav_api = DavAPI(get_conn())
+        result = dav_api.get_system_measurements(system_uid)
+    else:
+        error_msg = json.dumps({'error': 'Invalid system_uid'})
+        return error_msg, 400
+    if 'error' in result:
+        print result
+        return result, 400
+    else:
+        return result
 
 ######################################################################
 # API call to get latest record of a given measurement of a given
