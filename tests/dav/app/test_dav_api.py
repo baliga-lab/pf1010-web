@@ -241,19 +241,17 @@ class DavApiTest(unittest.TestCase):
         expected_status_code = 400
         actual_result_temp = json.loads(response.data)
         actual_result = json.dumps(actual_result_temp)
-        print actual_result
         expected_result = '{"error": "Table \'projectfeed.aqxs_alkalinity_null\' doesn\'t exist"}'
         self.assertEquals(expected_result, actual_result)
         self.assertEquals(expected_status_code, actual_status_code)
 
     # test for get_system_measurements (for url parameter for system_uid is not given)
-    def test_get_system_measurement_with_no_system_uid(self):
+    def test_get_system_measurements_with_no_system_uid(self):
         response = self.app.get('/dav/aqxapi/v1/measurements?system_uid=')
         actual_status_code = response._status_code
         expected_status_code = 400
         actual_result_temp = json.loads(response.data)
         actual_result = json.dumps(actual_result_temp)
-        print actual_result
         expected_result = '{"error": "Invalid system_uid"}'
         self.assertEquals(expected_result, actual_result)
         self.assertEquals(expected_status_code, actual_status_code)
@@ -262,7 +260,7 @@ class DavApiTest(unittest.TestCase):
     # measurement_id = 1, both system_uid and measurement_id is valid in this case)
     def test_get_system_measurement_1(self):
         response = self.app.get(
-            '/dav/aqxapi/v1/measurements/?system_uid=555d0cfe9ebc11e58153000c29b92d09&measurement_id=1')
+            '/dav/aqxapi/v1/measurements?system_uid=555d0cfe9ebc11e58153000c29b92d09&measurement_id=1')
         actual_status_code = response._status_code
         expected_status_code = 200
         actual_result_temp = json.loads(response.data)
@@ -276,7 +274,7 @@ class DavApiTest(unittest.TestCase):
     # measurement_id = 1)
     def test_get_system_measurement_2(self):
         response = self.app.get(
-            '/dav/aqxapi/v1/measurements/?system_uid=&measurement_id=1')
+            '/dav/aqxapi/v1/measurements?system_uid=&measurement_id=1')
         actual_status_code = response._status_code
         expected_status_code = 400
         actual_result_temp = json.loads(response.data)
@@ -289,7 +287,7 @@ class DavApiTest(unittest.TestCase):
     # measurement_id is not given. system_uid is valid and measurement_id is invalid)
     def test_get_system_measurement_3(self):
         response = self.app.get(
-            '/dav/aqxapi/v1/measurements/?system_uid=555d0cfe9ebc11e58153000c29b92d09&measurement_id=')
+            '/dav/aqxapi/v1/measurements?system_uid=555d0cfe9ebc11e58153000c29b92d09&measurement_id=')
         actual_status_code = response._status_code
         expected_status_code = 400
         actual_result_temp = json.loads(response.data)
@@ -302,7 +300,7 @@ class DavApiTest(unittest.TestCase):
     # measurement_id = 100. system_uid is valid and measurement_id is invalid)
     def test_get_system_measurement_4(self):
         response = self.app.get(
-            '/dav/aqxapi/v1/measurements/?system_uid=555d0cfe9ebc11e58153000c29b92d09&measurement_id=100')
+            '/dav/aqxapi/v1/measurements?system_uid=555d0cfe9ebc11e58153000c29b92d09&measurement_id=100')
         actual_status_code = response._status_code
         expected_status_code = 400
         actual_result_temp = json.loads(response.data)
@@ -316,12 +314,11 @@ class DavApiTest(unittest.TestCase):
     # As measurement_id = 5 (light), latest 7 records are returned
     def test_get_system_measurement_5(self):
         response = self.app.get(
-            '/dav/aqxapi/v1/measurements/?system_uid=555d0cfe9ebc11e58153000c29b92d09&measurement_id=5')
+            '/dav/aqxapi/v1/measurements?system_uid=555d0cfe9ebc11e58153000c29b92d09&measurement_id=5')
         actual_status_code = response._status_code
         expected_status_code = 200
         actual_result_temp = json.loads(response.data)
         actual_result = json.dumps(actual_result_temp)
-        print actual_result
         with open('data/test_get_system_measurement_5.txt') as f:
             expected_result = f.readlines()[0]
         self.assertEquals(expected_result, actual_result)
