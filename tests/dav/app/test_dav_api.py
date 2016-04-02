@@ -86,7 +86,7 @@ class DavApiTest(unittest.TestCase):
         davAPI = DavAPI(self.conn)
         system_uid_list = ["5cc8402478ee11e59d5c000c29b92d09"]
         msr_id_list = ["8"]
-        actual_result = davAPI.get_readings_for_plot(system_uid_list,msr_id_list)
+        actual_result = davAPI.get_readings_for_plot(system_uid_list,msr_id_list,200)
         with open('data/test_get_readings_for_plot1_er.txt') as f:
             expected_result = f.readlines()[0]
         self.assertEqual(expected_result,actual_result)
@@ -100,7 +100,7 @@ class DavApiTest(unittest.TestCase):
 
         msr_id_list = ["6","8","9"]
 
-        actual_result = davAPI.get_readings_for_plot(system_uid_list,msr_id_list)
+        actual_result = davAPI.get_readings_for_plot(system_uid_list,msr_id_list,200)
 
         with open('data/test_get_readings_for_plot2_er.txt') as f:
             expected_result = f.readlines()[0]
@@ -128,7 +128,7 @@ class DavApiTest(unittest.TestCase):
         system_uid_list =  ["555d0cfe9ebc11e58153000c29b92d09","5cc8402478ee11e59d5c000c29b92d09","6b62eb76451211e5a1d4000c29b92d09"]
         msr_id_list = [6,8,9]
 
-        actual_result =   analytics_views.get_readings_for_tsplot(system_uid_list, msr_id_list)
+        actual_result =   analytics_views.get_readings_for_tsplot(system_uid_list, msr_id_list,400)
         with open('data/test_get_readings_for_plot4_er.txt') as f:
             expected_result = f.readlines()[0]
 
@@ -178,6 +178,27 @@ class DavApiTest(unittest.TestCase):
         self.assertEqual(expected_result,actual_result)
 
 
+    def test_get_readings_for_phases_plot1(self):
+        system_uid_list =  ["eecce02681bb11e5904b000c29b92d09"]
+        msr_id_list = [8]
+        status_id = 400
+        actual_result =  analytics_views.get_readings_for_tsplot(system_uid_list, msr_id_list,status_id)
+        print actual_result
+
+    def test_get_readings_for_phases_plot2(self):
+        system_uid_list =  ["eecce02681bb11e5904b000c29b92d09","555d0cfe9ebc11e58153000c29b92d09"]
+        msr_id_list = [8]
+        status_id = 200
+        actual_result =  analytics_views.get_readings_for_tsplot(system_uid_list, msr_id_list,status_id)
+        print actual_result
+
+    def test_get_readings_for_phases_plot3(self):
+        system_uid_list =  ["eecce02681bb11e5904b000c29b92d09","555d0cfe9ebc11e58153000c29b92d09"]
+        msr_id_list = [6,8]
+        status_id = 200
+        actual_result =  analytics_views.get_readings_for_tsplot(system_uid_list, msr_id_list,status_id)
+        print actual_result
+
     #negative test case, querying non existent table
 
     def test_get_readings_for_plot2_neg(self):
@@ -193,9 +214,11 @@ class DavApiTest(unittest.TestCase):
     def test_get_readings_for_plot(self):
         system_uid_list = ["5cc8402478ee11e59d5c000c29b92d09"]
         msr_id_list = ["8"]
+        status_id = 100
         response = self.app.post('dav/aqxapi/v1/measurements/plot',
                                  data=json.dumps(dict(systems=system_uid_list,
-                                                        measurements=msr_id_list)),
+                                                        measurements=msr_id_list,
+                                                            status=status_id)),
                                  content_type='application/json')
         actual_result_temp = json.loads(response.data)
         actual_result = json.dumps(actual_result_temp)

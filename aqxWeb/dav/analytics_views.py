@@ -160,9 +160,9 @@ def put_system_measurement():
 ######################################################################
 
 @dav.route('/aqxapi/get/readings/tsplot/systems/<system_uid_list>/measurements/<msr_id_list>', methods=['GET'])
-def get_readings_for_tsplot(system_uid_list, msr_id_list):
+def get_readings_for_tsplot(system_uid_list, msr_id_list,status_id):
     dav_api = DavAPI(get_conn())
-    return dav_api.get_readings_for_plot(system_uid_list, msr_id_list)
+    return dav_api.get_readings_for_plot(system_uid_list, msr_id_list,status_id)
 
 
 @dav.route('/aqxapi/v1/measurements/plot', methods=['POST'])
@@ -170,7 +170,8 @@ def get_readings_for_plot():
     dav_api = DavAPI(get_conn())
     measurements = request.json['measurements']
     systems_uid = request.json['systems']
-    return dav_api.get_readings_for_plot(systems_uid, measurements)
+    status_id = request.json['status']
+    return dav_api.get_readings_for_plot(systems_uid, measurements,status_id)
 
 
 ######################################################################
