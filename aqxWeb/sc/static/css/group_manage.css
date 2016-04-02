@@ -1,4 +1,4 @@
-.page-header {
+.page-header, h4, .pendingMembersTableHeader, .adminTableHeader, .memberTableHeader {
     color: #449d44;
 }
 
@@ -13,3 +13,16 @@
     width: 40px;
     float: left;
 }
+
+.pendingMemberImage, .adminImage, .memberImage {
+    height: 40px;
+    width: 40px;
+}
+
+.pendingMemberResults, .adminResults, .memberResults {
+    overflow-y: auto;
+    overflow-x: hidden;
+    height: 300px;
+}
+
+

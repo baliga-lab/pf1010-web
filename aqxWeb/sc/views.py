@@ -493,6 +493,7 @@ def friends():
         UnblockedFriend = User(session['uid']).get_my_blocked_friends(u_sql_id);
         return render_template("/friends.html", Friends=Friends, UnblockedFriend=UnblockedFriend)
 
+
 #######################################################################################
 # function : pendingRequest
 # purpose : renders pendingRequests of the logged in user
@@ -647,7 +648,7 @@ def view_system(system_uid):
                 post_owners = system.get_system_post_owners(system_uid)
                 measurements = analyticsViews.get_system_measurements(system_uid)
                 print(measurements)
-                measurements_table = json2html.convert(json = measurements)
+                measurements_table = json2html.convert(json=measurements)
                 print(measurements_table)
                 return render_template("system_social.html", system_neo4j=system_neo4j, system_mysql=system_mysql,
                                        logged_in_user=logged_in_user, created_date=created_date,
@@ -658,7 +659,8 @@ def view_system(system_uid):
                                        subscribers_pending_approval=subscribers_pending_approval,
                                        system_uid=system_uid, privacy_options=privacy_options,
                                        posts=posts, comments=comments, likes=likes,
-                                       totalLikes=total_likes, postOwners=post_owners,measurements_table=measurements_table)
+                                       totalLikes=total_likes, postOwners=post_owners,
+                                       measurements_table=measurements_table)
     except Exception as e:
         logging.exception("Exception at view_system: " + str(e))
 
@@ -684,7 +686,7 @@ def approve_reject_system_participant():
                     system.approve_system_participant(google_id, system_uid)
                 elif request.form['submit'] == 'Reject':
                     system.reject_system_participant(google_id, system_uid)
-        return redirect(url_for('social.view_system', system_uid=system_uid))
+        return redirect(url_for('social.manage_system', system_uid=system_uid))
     else:
         return redirect(url_for('social.search_systems'))
 
@@ -895,8 +897,7 @@ def view_group(group_uid):
 @social.route('/manage/groups/<group_uid>', methods=['GET', 'POST'])
 def manage_group(group_uid):
     sql_id = session.get('uid')
-    #sql_id = 29
-    #group_uid = "456f3f2e3fh411e597b1000c29b92e09"
+    # sql_id = 29
     if sql_id is None:
         return redirect(url_for('social.index'))
     group = Group()
@@ -910,9 +911,90 @@ def manage_group(group_uid):
     if user_privilege != "GROUP_ADMIN":
         return redirect(url_for('social.groups'))
     if request.method == 'GET':
-        return render_template("group_manage.html", group_neo4j=group_neo4j, logged_in_user=logged_in_user)
+        members_pending_approval = group.get_members_pending_approval(group_uid)
+        group_admins = group.get_group_admins(group_uid)
+        group_members = group.get_group_members(group_uid)
+        return render_template("group_manage.html", group_neo4j=group_neo4j, logged_in_user=logged_in_user,
+                               members_pending_approval=members_pending_approval, group_admins=group_admins,
+                               group_members=group_members)
     elif request.method == 'POST':
         return render_template("group_manage.html")
+
+
+#######################################################################################
+@social.route('/manage/groups/approve_reject_member', methods=['POST'])
+# function : approve_reject_group_member for a group
+# purpose : approve/reject the member request made for the particular group
+# parameters : None
+# Exception : None
+#######################################################################################
+def approve_reject_group_member():
+    if request.method == 'POST':
+        google_id = request.form["google_id"]
+        group_uid = request.form["group_uid"]
+        group = Group()
+        sql_id = session.get('uid')
+        # sql_id = 29;
+        if sql_id is not None:
+            user_privilege = group.get_user_privilege_for_group(sql_id, group_uid)
+            if user_privilege == "GROUP_ADMIN":
+                if request.form['submit'] == 'Approve':
+                    group.approve_group_member(google_id, group_uid)
+                elif request.form['submit'] == 'Reject':
+                    group.reject_group_member(google_id, group_uid)
+        return redirect(url_for('social.manage_group', group_uid=group_uid))
+    else:
+        return redirect(url_for('social.groups'))
+
+
+#######################################################################################
+@social.route('/manage/groups/delete_admin', methods=['POST'])
+# function : delete_group_admin
+# purpose : Delete the specified admin for the group
+# parameters : None
+# Exception : None
+#######################################################################################
+def delete_group_admin():
+    if request.method == 'POST':
+        google_id = request.form["google_id"]
+        group_uid = request.form["group_uid"]
+        group = Group()
+        sql_id = session.get('uid')
+        # sql_id = 29;
+        if sql_id is not None:
+            user_privilege = group.get_user_privilege_for_group(sql_id, group_uid)
+            if user_privilege == "GROUP_ADMIN":
+                if request.form['submit'] == 'DeleteAdmin':
+                    group.delete_group_admin(google_id, group_uid)
+        return redirect(url_for('social.manage_group', group_uid=group_uid))
+    else:
+        return redirect(url_for('social.groups'))
+
+
+#######################################################################################
+@social.route('/manage/groups/delete_member_or_make_admin', methods=['POST'])
+# function : delete_group_member_or_make_admin
+# purpose : Delete the member from the group or make him/her as admin of the group
+# parameters : None
+# Exception : None
+#######################################################################################
+def delete_group_member_or_make_admin():
+    if request.method == 'POST':
+        google_id = request.form["google_id"]
+        group_uid = request.form["group_uid"]
+        group = Group()
+        sql_id = session.get('uid')
+        # sql_id=29
+        if sql_id is not None:
+            user_privilege = group.get_user_privilege_for_group(sql_id, group_uid)
+            if user_privilege == "GROUP_ADMIN":
+                if request.form['submit'] == 'MakeAdmin':
+                    group.make_admin_for_group(google_id, group_uid)
+                elif request.form['submit'] == "DeleteMember":
+                    group.delete_group_member(google_id, group_uid)
+        return redirect(url_for('social.manage_group', group_uid=group_uid))
+    else:
+        return redirect(url_for('social.groups'))
 
 
 #######################################################################################
@@ -1566,5 +1648,3 @@ def test_add_comment():
         User(session['uid']).test_add_comment(comment, post_id)
         flash('Your comment has been posted')
     return redirect(url_for('social.index'))
-
-

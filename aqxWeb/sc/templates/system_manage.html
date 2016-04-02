@@ -24,7 +24,7 @@
         <br>
 
         <!-- pendingParticipantsTab Tab -->
-        <div class="row" id="pendingParticipantsTab">
+        <div class="container" id="pendingParticipantsTab">
             <!-- PendingParticipantsTab Results Div -->
             <div class="row settingsResults">
                 <!-- Iterate Over The List Of Pending Participants -->
@@ -95,82 +95,8 @@
         <!-- End of pendingParticipantsTab Tab -->
 
 
-        <!-- Manage Participants Div -->
-        <div class="row" id="participantTab">
-            <!-- Participant Results Div -->
-            <div class="row participantResults">
-                <!-- Iterate Over The List Of Participants -->
-                {% if system_participants %}
-                    <table class="table">
-                        <thead>
-                        <tr class="participantTableHeader">
-                            <th>Profile Picture</th>
-                            <th>Display Name</th>
-                            <th>Option(s)</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        <!-- Form Post For Delete Of Participant(s) and Make Admin For The System -->
-                        {% for participant in system_participants %}
-                            <tr>
-                                <td>
-                                    <a href="{{ url_for('social.profile', google_id=participant[0]["google_id"]) }}">
-                                        <img class="participantImage img-circle" src="{{ participant[0]["image_url"] }}">
-                                    </a>
-                                </td>
-                                <td>
-                                    <a href="{{ url_for('social.profile', google_id=participant[0]["google_id"]) }}">
-                                        {% if participant[0]["displayName"] is not none %}
-                                            {{ participant[0]["displayName"] }}
-                                        {% else %}
-                                            No Display Name
-                                        {% endif %}
-                                    </a>
-                                </td>
-                                <td>
-                                    <form action="{{ url_for('social.delete_system_participant_or_make_admin') }}"
-                                          method="post">
-                                        <input type="hidden" name="google_id"
-                                               value="{{ participant[0]["google_id"] }}">
-                                        <input type="hidden" name="system_uid"
-                                               value="{{ system_neo4j[0][0]["system_uid"] }}">
-                                        <button type="submit" class="btn btn-danger" name="submit"
-                                                value="DeleteParticipant" onclick="return getUserConsent()">Delete
-                                        </button>
-                                        <button type="submit" class="btn btn-success" name="submit"
-                                                value="MakeAdmin" onclick="return getUserConsent()">Make Admin
-                                        </button>
-                                        <button type="submit" class="btn btn-success" name="submit"
-                                                value="MakeSubscriber" onclick="return getUserConsent()">Make Subscriber
-                                        </button>
-                                    </form>
-                                </td>
-                            </tr>
-                        {% endfor %}
-                        </tbody>
-                    </table>
-                    <!-- Sad Smiley When There Exists No Participants For The System -->
-                {% else %}
-                    <div class="row">
-                        <ul class="pull-left">
-                            <img src="{{ url_for('social.static', filename='images/sad_smiley.png') }}" alt="System"
-                                 height="32"
-                                 width="32">
-                        </ul>
-                        <br/>
-                        <ul>
-                            Sorry, there are no Participant(s) for this system.
-                        </ul>
-                    </div>
-                {% endif %}
-            </div>
-            <!-- End Of Participant Results Div -->
-        </div>
-        <!-- End Of Manage Participants Div -->
-
-
         <!-- Manage Admin Div -->
-        <div class="row" id="adminTab">
+        <div class="container" id="adminTab">
             <!-- Admin Results Div -->
             <div class="row adminResults">
                 <!-- Iterate Over The List Of Admins -->
@@ -239,8 +165,83 @@
         <!-- End Of Manage Admin Div -->
 
 
+        <!-- Manage Participants Div -->
+        <div class="container" id="participantTab">
+            <!-- Participant Results Div -->
+            <div class="row participantResults">
+                <!-- Iterate Over The List Of Participants -->
+                {% if system_participants %}
+                    <table class="table">
+                        <thead>
+                        <tr class="participantTableHeader">
+                            <th>Profile Picture</th>
+                            <th>Display Name</th>
+                            <th>Option(s)</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <!-- Form Post For Delete Of Participant(s) and Make Admin For The System -->
+                        {% for participant in system_participants %}
+                            <tr>
+                                <td>
+                                    <a href="{{ url_for('social.profile', google_id=participant[0]["google_id"]) }}">
+                                        <img class="participantImage img-circle"
+                                             src="{{ participant[0]["image_url"] }}">
+                                    </a>
+                                </td>
+                                <td>
+                                    <a href="{{ url_for('social.profile', google_id=participant[0]["google_id"]) }}">
+                                        {% if participant[0]["displayName"] is not none %}
+                                            {{ participant[0]["displayName"] }}
+                                        {% else %}
+                                            No Display Name
+                                        {% endif %}
+                                    </a>
+                                </td>
+                                <td>
+                                    <form action="{{ url_for('social.delete_system_participant_or_make_admin') }}"
+                                          method="post">
+                                        <input type="hidden" name="google_id"
+                                               value="{{ participant[0]["google_id"] }}">
+                                        <input type="hidden" name="system_uid"
+                                               value="{{ system_neo4j[0][0]["system_uid"] }}">
+                                        <button type="submit" class="btn btn-danger" name="submit"
+                                                value="DeleteParticipant" onclick="return getUserConsent()">Delete
+                                        </button>
+                                        <button type="submit" class="btn btn-success" name="submit"
+                                                value="MakeAdmin" onclick="return getUserConsent()">Make Admin
+                                        </button>
+                                        <button type="submit" class="btn btn-success" name="submit"
+                                                value="MakeSubscriber" onclick="return getUserConsent()">Make Subscriber
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                    <!-- Sad Smiley When There Exists No Participants For The System -->
+                {% else %}
+                    <div class="row">
+                        <ul class="pull-left">
+                            <img src="{{ url_for('social.static', filename='images/sad_smiley.png') }}" alt="System"
+                                 height="32"
+                                 width="32">
+                        </ul>
+                        <br/>
+                        <ul>
+                            Sorry, there are no Participant(s) for this system.
+                        </ul>
+                    </div>
+                {% endif %}
+            </div>
+            <!-- End Of Participant Results Div -->
+        </div>
+        <!-- End Of Manage Participants Div -->
+
+
         <!-- Manage Subscriber Div -->
-        <div class="row" id="subscriberTab">
+        <div class="container" id="subscriberTab">
             <!-- Subscriber Results Div -->
             <div class="row subscriberResults">
                 <!-- Iterate Over The List Of Subscribers -->
@@ -312,6 +313,7 @@
             <!-- End Of Subscriber Results Div -->
         </div>
         <!-- End Of Manage Subscriber Div -->
+
 
         <!-- Span For Go Back To Systems Page Button -->
         <span>

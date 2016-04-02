@@ -229,7 +229,6 @@ class User:
         except cypher.CypherError, cypher.CypherTransactionError:
             raise "Exception occured in function test_add_post "
 
-
     #######################################################################################
     # function : checkStatus
     # purpose : check the status of a user with another user
@@ -237,7 +236,7 @@ class User:
     # returns: if the user is friend,pending friend,add as a friend.
     # Exception : None
     #######################################################################################
-    def check_status(self,sessionID,user_sql_id):
+    def check_status(self, sessionID, user_sql_id):
         friend_status = "Add friend"
         sentreq_res, receivedreq_res, friends_res = User(sessionID).get_friends_and_sent_req()
         for sf in sentreq_res:
@@ -255,8 +254,6 @@ class User:
         if user_sql_id == sessionID:
             friend_status = "Me"
         return friend_status
-
-
 
     ############################################################################
     # function : edit_post
@@ -1077,6 +1074,7 @@ def get_address_from_lat_lng(latitude, longitude):
         return address
     except Exception as e:
         return address
+
 
 ################################################################################
 # Class : System
@@ -2165,7 +2163,6 @@ class Group:
         except cypher.CypherError, cypher.CypherTransactionError:
             raise "Exception occured in function Group.find()"
 
-
     ############################################################################
     # function : get_group_by_uid
     # purpose : gets the group details for the matched group_uid from neo4j database
@@ -2191,7 +2188,10 @@ class Group:
     ############################################################################
     # function : get_user_privilege_for_group
     # purpose : gets the user privilege (based on logged in user) for the provided group_uid from neo4j database
-    # params : self System, sql_id, group_uid
+    # params :
+    #        self : Group
+    #        sql_id : sql_id of the logged in user
+    #        group_uid : uid of group
     # returns : user_privilege
     # Exceptions : cypher.CypherError, cypher.CypherTransactionError
     ############################################################################
@@ -2217,3 +2217,204 @@ class Group:
             return user_privilege
         except cypher.CypherError, cypher.CypherTransactionError:
             raise "Exception occured in function get_user_privilege_for_group"
+
+    ############################################################################
+    # function : get_group_admins
+    # purpose : gets the admin detail for the provided group_uid from neo4j database
+    # params :
+    #        self : Group
+    #        group_uid : uid of group
+    # returns : user node(s)
+    # Exceptions : cypher.CypherError, cypher.CypherTransactionError
+    ############################################################################
+    def get_group_admins(self, group_uid):
+        query = """
+            MATCH (user:User)-[rel:GROUP_ADMIN]->(group:Group)
+            WHERE group.group_uid = {group_uid}
+            return user
+            ORDER BY user.givenName
+        """
+        try:
+            group_admins = get_graph_connection_uri().cypher.execute(query, group_uid=group_uid)
+            return group_admins
+        except cypher.CypherError, cypher.CypherTransactionError:
+            raise "Exception occured in function get_group_admins"
+
+    ############################################################################
+    # function : get_group_members
+    # purpose : gets the member detail for the provided group_uid from neo4j database
+    # params :
+    #        self : Group
+    #        group_uid : uid of group
+    # returns : user node(s)
+    # Exceptions : cypher.CypherError, cypher.CypherTransactionError
+    ############################################################################
+    def get_group_members(self, group_uid):
+        query = """
+            MATCH (user:User)-[rel:GROUP_MEMBER]->(group:Group)
+            WHERE group.group_uid = {group_uid}
+            return user
+            ORDER BY user.givenName
+        """
+        try:
+            group_members = get_graph_connection_uri().cypher.execute(query, group_uid=group_uid)
+            return group_members
+        except cypher.CypherError, cypher.CypherTransactionError:
+            raise "Exception occured in function get_group_members"
+
+    ############################################################################
+    # function : get_members_pending_approval
+    # purpose : gets the pending approval member details for the provided group_uid from neo4j database
+    # params :
+    #        self : Group
+    #        group_uid : uid of group
+    # returns : user node(s)
+    # Exceptions : cypher.CypherError, cypher.CypherTransactionError
+    ############################################################################
+    def get_members_pending_approval(self, group_uid):
+        query = """
+            MATCH (user:User)-[rel:GROUP_PENDING_MEMBER]->(group:Group)
+            WHERE group.group_uid = {group_uid}
+            return user
+            ORDER BY user.givenName
+        """
+        try:
+            group_pending_members = get_graph_connection_uri().cypher.execute(query, group_uid=group_uid)
+            return group_pending_members
+        except cypher.CypherError, cypher.CypherTransactionError:
+            raise "Exception occured in function get_members_pending_approval"
+
+    ############################################################################
+    # function : approve_group_member
+    # purpose : Approve the member request of the specified user for the provided group_uid
+    # params :
+    #        self : Group
+    #        google_id : google_id of the user
+    #        group_uid : uid of group
+    # returns : None
+    # Exceptions : cypher.CypherError, cypher.CypherTransactionError
+    ############################################################################
+    def approve_group_member(self, google_id, group_uid):
+        remove_relationship_query = """
+                MATCH (u:User)-[rel:GROUP_PENDING_MEMBER]->(g:Group)
+                WHERE u.google_id = {google_id} and g.group_uid={group_uid}
+                DETACH DELETE rel
+        """
+        create_relationship_query = """
+                MATCH (u:User), (g:Group)
+                WHERE u.google_id = {google_id} and g.group_uid={group_uid}
+                CREATE UNIQUE (u)-[rel:GROUP_MEMBER]->(g)
+                RETURN rel
+        """
+        try:
+            remove_relationship_status = get_graph_connection_uri().cypher.execute(remove_relationship_query,
+                                                                                   google_id=google_id,
+                                                                                   group_uid=group_uid)
+            create_relationship_status = get_graph_connection_uri().cypher.execute(create_relationship_query,
+                                                                                   google_id=google_id,
+                                                                                   group_uid=group_uid)
+        except cypher.CypherError, cypher.CypherTransactionError:
+            raise "Exception occured in function approve_group_member"
+
+    ############################################################################
+    # function : reject_group_member
+    # purpose : Reject the member request of the specified user for the provided group_uid
+    # params :
+    #        self : Group
+    #        google_id : google_id of the user
+    #        group_uid : uid of group
+    # returns : None
+    # Exceptions : cypher.CypherError, cypher.CypherTransactionError
+    ############################################################################
+    def reject_group_member(self, google_id, group_uid):
+        remove_relationship_query = """
+                MATCH (u:User)-[rel:GROUP_PENDING_MEMBER]->(g:Group)
+                WHERE u.google_id = {google_id} and g.group_uid={group_uid}
+                DETACH DELETE rel
+        """
+        try:
+            remove_relationship_status = get_graph_connection_uri().cypher.execute(remove_relationship_query,
+                                                                                   google_id=google_id,
+                                                                                   group_uid=group_uid)
+        except cypher.CypherError, cypher.CypherTransactionError:
+            raise "Exception occured in function reject_group_member"
+
+    ############################################################################
+    # function : delete_group_admin
+    # purpose : Delete the relationship of the specified participant with the group node (SYS_ADMIN)
+    # params :
+    #        self : Group
+    #        google_id : google_id of the user
+    #        group_uid : uid of group
+    # returns : None
+    # Exceptions : cypher.CypherError, cypher.CypherTransactionError
+    ############################################################################
+    def delete_group_admin(self, google_id, group_uid):
+        print google_id
+        print group_uid
+        remove_relationship_query = """
+                MATCH (u:User)-[rel:GROUP_ADMIN]->(g:Group)
+                WHERE u.google_id = {google_id} and g.group_uid={group_uid}
+                DETACH DELETE rel
+        """
+        try:
+            remove_relationship_status = get_graph_connection_uri().cypher.execute(remove_relationship_query,
+                                                                                   google_id=google_id,
+                                                                                   group_uid=group_uid)
+        except cypher.CypherError, cypher.CypherTransactionError:
+            raise "Exception occured in function delete_group_admin"
+
+    ############################################################################
+    # function : make_admin_for_group
+    # purpose : Add the user as admin of the specified system (GROUP_ADMIN)
+    # params :
+    #        self : Group
+    #        google_id : google_id of the user
+    #        group_uid : uid of group
+    # returns : None
+    # Exceptions : cypher.CypherError, cypher.CypherTransactionError
+    ############################################################################
+    def make_admin_for_group(self, google_id, group_uid):
+        remove_relationship_query = """
+                MATCH (u:User)-[rel]->(g:Group)
+                WHERE u.google_id = {google_id} and g.group_uid={group_uid}
+                DETACH DELETE rel
+        """
+        create_admin_relationship_query = """
+                MATCH (u:User), (g:Group)
+                WHERE u.google_id = {google_id} and g.group_uid={group_uid}
+                CREATE UNIQUE (u)-[rel:GROUP_ADMIN]->(g)
+                RETURN rel
+        """
+        try:
+            remove_relationship_status = get_graph_connection_uri().cypher.execute(remove_relationship_query,
+                                                                                   google_id=google_id,
+                                                                                   group_uid=group_uid)
+            create_relationship_status = get_graph_connection_uri().cypher.execute(create_admin_relationship_query,
+                                                                                   google_id=google_id,
+                                                                                   group_uid=group_uid)
+        except cypher.CypherError, cypher.CypherTransactionError:
+            raise "Exception occured in function make_admin_for_group"
+
+    ############################################################################
+    # function : delete_group_member
+    # purpose : Delete the relationship of the specified participant with the group node (GROUP_MEMBER)
+    # params :
+    #        self : Group
+    #        google_id : google_id of the user
+    #        group_uid : uid of group
+    # returns : None
+    # Exceptions : cypher.CypherError, cypher.CypherTransactionError
+    ############################################################################
+    def delete_group_member(self, google_id, group_uid):
+        remove_relationship_query = """
+                MATCH (u:User)-[rel:GROUP_MEMBER]->(g:Group)
+                WHERE u.google_id = {google_id} and g.group_uid={group_uid}
+                DETACH DELETE rel
+        """
+        try:
+            remove_relationship_status = get_graph_connection_uri().cypher.execute(remove_relationship_query,
+                                                                                   google_id=google_id,
+                                                                                   group_uid=group_uid)
+        except cypher.CypherError, cypher.CypherTransactionError:
+            raise "Exception occured in function delete_group_member"
