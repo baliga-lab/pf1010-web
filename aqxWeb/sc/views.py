@@ -193,6 +193,7 @@ def get_user(google_id, google_api_response):
     finally:
         conn.close()
 
+
 #######################################################################################
 # function : get_google_profile
 # purpose : returns user profile data using Google API
@@ -201,7 +202,7 @@ def get_user(google_id, google_api_response):
 # returns: google API response
 # Exception : ?
 #######################################################################################
-def get_google_profile(google_id):
+def get_google_profile(google_id, user_profile=None):
     try:
         access_token = session.get('access_token')
         access_token = access_token[0]
@@ -226,16 +227,42 @@ def get_google_profile(google_id):
             if google_plus_account_url is not None:
                 plus_url = google_response.get('url')
 
-            google_profile = {
-                "google_id": google_id,
-                "displayName": google_response.get('displayName'),
-                "plus_url": plus_url,
-                "img_url": img_url
-            }
+            if google_response.get('displayName'):
+                google_profile = {
+                    "google_id": google_id,
+                    "displayName": google_response.get('displayName'),
+                    "plus_url": plus_url,
+                    "img_url": img_url
+                }
+            else:
+                google_profile = get_alternative_google_profile(user_profile, google_response)
 
         return google_profile
     except Exception as e:
         logging.exception("Exception at get_google_profile: " + str(e))
+
+
+#######################################################################################
+# function : get_alternative_google_profile
+# purpose : Get alternative Google Profile based on data in Neo4J (special for institutional accoutns)
+# parameters :
+#               user_profile : user loaded from Neo4J
+# returns: google_profile
+# Exception : ?
+#######################################################################################
+def get_alternative_google_profile(user_profile):
+    if user_profile:
+        display_name = user_profile['displayName']
+        if not display_name:
+            display_name = user_profile['email']
+            display_name = display_name.split('@', 1)[0]
+        google_profile = {
+            "displayName": display_name,
+            "google_id": user_profile['google_id'],
+            "plus_url": "#",
+            "img_url": ""
+        }
+    return google_profile
 
 
 @social.route('/editprofile')
@@ -296,10 +323,6 @@ def profile(google_id):
         # getting data from neo4j
         if google_id == "me":
             sql_id = session['uid']
-            admin_systems = System().get_admin_systems(session['uid'])
-            participated_systems = System().get_participated_systems(session['uid'])
-            subscribed_systems = System().get_subscribed_systems(session['uid'])
-            friends = User(session['uid']).get_my_friends(session['uid']);
             status = "Me"
         else:
             result = get_sql_id(google_id)
@@ -307,11 +330,12 @@ def profile(google_id):
                 return redirect(url_for('social.Home'))
             else:
                 sql_id = result.one
-                status = User(session['uid']).check_status(session['uid'],sql_id)
-                admin_systems = System().get_admin_systems(sql_id)
-                participated_systems = System().get_participated_systems(sql_id)
-                subscribed_systems = System().get_subscribed_systems(sql_id)
-                friends = User(session['uid']).get_my_friends(sql_id)
+                status = User(session['uid']).check_status(session['uid'], sql_id)
+
+        admin_systems = System().get_admin_systems(sql_id)
+        participated_systems = System().get_participated_systems(sql_id)
+        subscribed_systems = System().get_subscribed_systems(sql_id)
+        friends = User(sql_id).get_my_friends(sql_id)
 
         # Invalid User
         user_profile = User(sql_id).find()
@@ -319,35 +343,9 @@ def profile(google_id):
             return redirect(url_for('social.home'))
         else:
             # accessing google API to retrieve profile data
-            google_profile = get_google_profile(google_id)
-            if not (google_profile and google_profile.get('displayName')):
-                display_name = user_profile['displayName']
-                if not display_name:
-                    display_name = user_profile['email']
-                    display_name = display_name.split('@', 1)[0]
-                google_profile = {
-                    "display_name": display_name,
-                    "google_id": user_profile['google_id'],
-                    "plus_url": "#",
-                    "img_url": ""
-                }
+            google_profile = get_google_profile(google_id, user_profile)
 
-            privacy_default = Privacy.FRIENDS
-            user_relation = Privacy.PUBLIC
-            if sql_id == session.get('uid'):
-                privacy_options = [Privacy.FRIENDS, Privacy.PUBLIC]
-                user_relation = Privacy.PRIVATE  # profile of logged user can access private posts
-            else:
-                if User(sql_id).is_friend(sql_id, session.get('uid')):
-                    privacy_options = [Privacy.FRIENDS, Privacy.PRIVATE, Privacy.PUBLIC]
-                    user_relation = Privacy.FRIENDS  # user is friend with profile's user
-                else:
-                    privacy_options = [Privacy.PRIVATE]
-                    privacy_default = Privacy.PRIVATE
-
-            privacy = Privacy(privacy_options, privacy_default, 'profile', sql_id)  # info about timeline/page
-            privacy.user_relation = user_relation.lower()
-
+            privacy = get_user_privacy(sql_id)
             posts = get_all_profile_posts(sql_id)
             total_likes = get_total_likes_for_posts()
             likes = get_all_recent_likes()
@@ -359,6 +357,33 @@ def profile(google_id):
 
     except Exception as e:
         logging.exception("Exception at view_profile: " + str(e))
+
+
+#######################################################################################
+# function : get_user_privacy
+# purpose : Get alternative Google Profile based on data in Neo4J (special for institutional accoutns)
+# parameters :
+#               sql_id : user sql id for who privacy will apply
+# returns: privacy
+# Exception : ?
+#######################################################################################
+def get_user_privacy(sql_id):
+    privacy_default = Privacy.FRIENDS
+    user_relation = Privacy.PUBLIC
+    if sql_id == session.get('uid'):
+        privacy_options = [Privacy.FRIENDS, Privacy.PUBLIC]
+        user_relation = Privacy.PRIVATE  # profile of logged user can access private posts
+    else:
+        if User(sql_id).is_friend(sql_id, session.get('uid')):
+            privacy_options = [Privacy.FRIENDS, Privacy.PRIVATE, Privacy.PUBLIC]
+            user_relation = Privacy.FRIENDS  # user is friend with profile's user
+        else:
+            privacy_options = [Privacy.PRIVATE]
+            privacy_default = Privacy.PRIVATE
+
+    privacy = Privacy(privacy_options, privacy_default, 'profile', sql_id)  # info about timeline/page
+    privacy.user_relation = user_relation.lower()
+    return privacy
 
 
 #######################################################################################
