@@ -854,6 +854,21 @@ def groups():
         elif request.method == 'POST':
             return render_template("groups.html")
 
+#######################################################################################
+# function : search_groups
+# purpose : to let the user search for groups in the neo4j database
+# parameters : None
+# returns: json data of all groups in neo4j database
+# Exception : None
+#######################################################################################
+@social.route('/get_groups', methods=['GET'])
+def get_groups():
+    groups = Group().get_groups()
+    grp_list = []
+    for res in groups:
+        grp_name = res[0]
+        grp_list.append(grp_name)
+    return jsonify(json_list=grp_list)
 
 #######################################################################################
 # function : view_group

@@ -18,7 +18,7 @@
         <ul class="nav nav-tabs" id="tab-headers">
             <li><a href="#createGroupTab">Create Group</a></li>
             <li><a href="#myGroupsTab">My Groups</a></li>
-            <li><a href="#allGroupsTab">Search Groups</a></li>
+            <li><a href="#searchGroupsTab">Search Groups</a></li>
             <li><a href="#recommendedGroupsTab">Recommended Groups</a></li>
         </ul>
         <br>
@@ -37,12 +37,13 @@
         <!-- End of My Groups Div -->
 
 
-        <!-- All Groups Div -->
-        <div class="container" id="allGroupsTab">
-
-
+        <!-- Search Groups Div -->
+        <div class="container" id="searchGroupsTab">
+            <div class="input-group col-md-12">
+                <input type="text" id="autocomplete" class="form-control input-lg" placeholder="Search groups"/>
+            </div>
         </div>
-        <!-- End of All Groups Div -->
+        <!-- End of Search Groups Div -->
 
 
         <!-- Recommended Groups Div -->
@@ -62,4 +63,40 @@
     {{ super() }}
     <!-- jQuery Script For DOM Manipulation In Search Groups Page -->
     <script type="text/javascript" src="{{ url_for('social.static', filename='js/group_search.js') }}"></script>
+    <script src="http://code.jquery.com/jquery-1.10.2.js"></script>
+    <script src="http://code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
+
+    <script>
+        //Script to search for users while typing a person's name, using autocompletion feature
+        $(function () {
+            $.ajax({
+                url: '{{ url_for("social.get_groups") }}'
+            }).done(function (data) {
+                console.log(data)
+                $("#autocomplete").autocomplete({
+                    minLength: 1,
+                    source: data.json_list,
+                    focus: function (event, ui) {
+                        $("#autocomplete").val(ui.item.label);
+                        return false;
+                    },
+                    select: function (event, ui) {
+                        $("#autocomplete").val(ui.item.label);
+                        return false;
+                    }
+                })
+                .autocomplete("instance")._renderItem = function (ul, item) {
+                    var $a = $("<div></div>");
+                    $("<b></b>").text(item.label).appendTo($a).click(function () {
+                        //window.location = "profile/" + google_id;
+                        alert("There is no page yet created for displaying group info. Work in progress")
+                    });
+
+                    return $("<li></li>").append($a).appendTo(ul);
+
+                };
+            });
+        });
+    </script>
+
 {% endblock %}

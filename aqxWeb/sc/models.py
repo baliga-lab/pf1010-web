@@ -2146,6 +2146,17 @@ class Group:
     def __init__(self):
         self.group_uid = None
 
+
+    def get_groups(self):
+        query = """
+            MATCH (g:Group) RETURN g.name """
+
+        try:
+            results = get_graph_connection_uri().cypher.execute(query)
+            return results
+        except cypher.CypherError, cypher.CypherTransactionError:
+            raise "Exception occured in function get_search_friends"
+
     ############################################################################
     # function : find
     # purpose : function used to find Group based on group_uid
