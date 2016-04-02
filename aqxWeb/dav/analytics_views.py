@@ -142,15 +142,29 @@ def get_system_measurements():
     else:
         return result
 
+
 ######################################################################
 # API call to get latest record of a given measurement of a given
 # system
 ######################################################################
 
-@dav.route('/aqxapi/system/<system_uid>/measurement/<measurement_id>', methods=['GET'])
-def get_system_light_measurement(system_uid, measurement_id):
-    dav_api = DavAPI(get_conn())
-    return dav_api.get_system_measurement(system_uid, measurement_id)
+@dav.route('/aqxapi/v1/measurements/', methods=['GET'])
+def get_system_measurement():
+    system_uid = request.args.get('system_uid')
+    if system_uid is None or len(system_uid) <= 0:
+        error_msg_system = json.dumps({'error': 'Invalid system_uid'})
+        return error_msg_system, 400
+    measurement_id = request.args.get('measurement_id')
+    if measurement_id is None or len(measurement_id) <=0:
+        error_msg_measurement = json.dumps({'error': 'Invalid measurement id'})
+        return error_msg_measurement, 400
+    else:
+        dav_api = DavAPI(get_conn())
+        result = dav_api.get_system_measurement(system_uid, measurement_id)
+    if 'error' in result:
+        return result, 400
+    else:
+        return result
 
 
 ######################################################################
