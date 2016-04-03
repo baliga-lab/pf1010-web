@@ -1,4 +1,5 @@
 import datetime
+import decimal
 import json
 import random
 import re
@@ -114,10 +115,15 @@ class DavAPI:
                 # Append the value to the latest_value[] list
                 if len(value) == 1:
                     value_temp = value[0]
+                    measurement_value = decimal.Decimal(value_temp[1])
+                    if measurement_value.is_normal():
+                        normalized_measurement_value = measurement_value
+                    else:
+                        normalized_measurement_value = measurement_value.normalize()
                     temp = {
                         'name': measurement_name,
                         'time': str(value_temp[0]),
-                        'value': str(value_temp[1])
+                        'value': str(normalized_measurement_value)
                     }
                 else:
                     temp = {
