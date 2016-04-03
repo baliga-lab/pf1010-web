@@ -1,5 +1,6 @@
 import json
 import traceback
+from mysql.connector.errors import PoolError
 from flask import Blueprint, render_template, request, redirect, url_for, abort
 
 from app.dav_api import DavAPI
@@ -24,7 +25,11 @@ def init_dav(conn_pool):
 ######################################################################
 
 def get_conn():
-    return pool.get_connection()
+    try:
+        return pool.get_connection()
+    except PoolError as e:
+        return render_template('error.html'), 500
+
 
 
 ######################################################################

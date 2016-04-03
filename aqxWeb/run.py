@@ -49,6 +49,13 @@ def create_conn(app):
 def index():
     return render_template('index.html')
 
+######################################################################
+# render error page
+######################################################################
+@app.errorhandler(500)
+def page_not_found(e):
+    return render_template('error.html'), 500
+
 
 # Common init method for application
 if __name__ == "__main__":
