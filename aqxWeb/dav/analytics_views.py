@@ -159,7 +159,24 @@ def get_system_measurement():
 def put_system_measurement():
     dav_api = DavAPI(get_conn())
     data = request.get_json()
-    result = dav_api.put_system_measurement(data)
+    system_uid = data.get('system_uid')
+    if system_uid is None or len(system_uid) <= 0:
+        error_msg_system = json.dumps({'error': 'System_uid required'})
+        return error_msg_system, 400
+    measurement_id = data.get('measurement_id')
+    if measurement_id is None or len(measurement_id) <= 0:
+        error_msg_measurement = json.dumps({'error': 'Measurement id required'})
+        return error_msg_measurement, 400
+    time = data.get('time')
+    if time is None or len(time) <= 0:
+        error_msg_time = json.dumps({'error': 'Time required'})
+        return error_msg_time, 400
+    value = data.get('value')
+    if value is None or len(value) <= 0:
+        error_msg_value = json.dumps({'error': 'Value required'})
+        return error_msg_value, 400
+    else:
+        result = dav_api.put_system_measurement(system_uid, measurement_id, time, value)
     if 'error' in result:
         return result, 400
     else:

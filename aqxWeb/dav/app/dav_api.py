@@ -227,12 +227,7 @@ class DavAPI:
     # param measurement_id: ID of a measurement
     # get_system_measurement - It returns the latest recorded values of the
     #                           given system.
-    def put_system_measurement(self, data):
-        # Fetch the name of the measurement
-        system_uid = data.get('system_uid')
-        measurement_id = data.get('measurement_id')
-        time = data.get('time')
-        value = data.get('value')
+    def put_system_measurement(self, system_uid, measurement_id, time, value):
         measurement = self.mea.get_measurement_name(measurement_id)
         if 'error' in measurement:
             return json.dumps(measurement)

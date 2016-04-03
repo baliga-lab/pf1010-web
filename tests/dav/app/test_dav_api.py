@@ -43,11 +43,11 @@ class DavApiTest(unittest.TestCase):
     def test_put_system_measurement_new(self):
         time_now = datetime.now()
         response = self.app.put('/dav/aqxapi/v1/measurements',
-                                 data=json.dumps(dict(system_uid='de9d7cdcbac911e59ce1000c29b92d09',
-                                                      measurement_id='5',
-                                                      time=str(time_now),
-                                                      value='111')),
-                                 content_type='application/json')
+                                data=json.dumps(dict(system_uid='de9d7cdcbac911e59ce1000c29b92d09',
+                                                     measurement_id='5',
+                                                     time=str(time_now),
+                                                     value='111')),
+                                content_type='application/json')
         actual_status_code = response._status_code
         expected_status_code = 201
         actual_result_temp = json.loads(response.data)
@@ -60,11 +60,11 @@ class DavApiTest(unittest.TestCase):
     # insert system measurement - already present time
     def test_put_system_measurement_already_recorded(self):
         response = self.app.put('/dav/aqxapi/v1/measurements',
-                                 data=json.dumps(dict(system_uid='de9d7cdcbac911e59ce1000c29b92d09',
-                                                      measurement_id='5',
-                                                      time='2016-04-02 17:01:31',
-                                                      value='111')),
-                                 content_type='application/json')
+                                data=json.dumps(dict(system_uid='de9d7cdcbac911e59ce1000c29b92d09',
+                                                     measurement_id='5',
+                                                     time='2016-04-02 17:01:31',
+                                                     value='111')),
+                                content_type='application/json')
         actual_status_code = response._status_code
         expected_status_code = 400
         actual_result_temp = json.loads(response.data)
@@ -73,19 +73,63 @@ class DavApiTest(unittest.TestCase):
         self.assertEquals(expected_result, actual_result)
         self.assertEquals(expected_status_code, actual_status_code)
 
-    # insert system measurement - already present time
+    # insert system measurement - no system_uid given
     def test_put_system_measurement_no_system_uid(self):
         response = self.app.put('/dav/aqxapi/v1/measurements',
-                                 data=json.dumps(dict(system_uid='',
-                                                      measurement_id='5',
-                                                      time='2016-04-02 17:01:31',
-                                                      value='111')),
-                                 content_type='application/json')
+                                data=json.dumps(dict(measurement_id='5',
+                                                     time='2016-04-02 17:01:31',
+                                                     value='111')),
+                                content_type='application/json')
         actual_status_code = response._status_code
         expected_status_code = 400
         actual_result_temp = json.loads(response.data)
         actual_result = json.dumps(actual_result_temp)
-        expected_result = '{"error": "Value at the given time already recorded"}'
+        expected_result = '{"error": "System_uid required"}'
+        self.assertEquals(expected_result, actual_result)
+        self.assertEquals(expected_status_code, actual_status_code)
+
+    # insert system measurement - no measurement id given
+    def test_put_system_measurement_no_measurement_id(self):
+        response = self.app.put('/dav/aqxapi/v1/measurements',
+                                data=json.dumps(dict(system_uid='de9d7cdcbac911e59ce1000c29b92d09',
+                                                     time='2016-04-02 17:01:31',
+                                                     value='111')),
+                                content_type='application/json')
+        actual_status_code = response._status_code
+        expected_status_code = 400
+        actual_result_temp = json.loads(response.data)
+        actual_result = json.dumps(actual_result_temp)
+        expected_result = '{"error": "Measurement id required"}'
+        self.assertEquals(expected_result, actual_result)
+        self.assertEquals(expected_status_code, actual_status_code)
+
+    # insert system measurement - no measurement id given
+    def test_put_system_measurement_no_time(self):
+        response = self.app.put('/dav/aqxapi/v1/measurements',
+                                data=json.dumps(dict(system_uid='de9d7cdcbac911e59ce1000c29b92d09',
+                                                     measurement_id='5',
+                                                     value='111')),
+                                content_type='application/json')
+        actual_status_code = response._status_code
+        expected_status_code = 400
+        actual_result_temp = json.loads(response.data)
+        actual_result = json.dumps(actual_result_temp)
+        expected_result = '{"error": "Time required"}'
+        self.assertEquals(expected_result, actual_result)
+        self.assertEquals(expected_status_code, actual_status_code)
+
+    # insert system measurement - no measurement id given
+    def test_put_system_measurement_no_value(self):
+        response = self.app.put('/dav/aqxapi/v1/measurements',
+                                data=json.dumps(dict(system_uid='de9d7cdcbac911e59ce1000c29b92d09',
+                                                     measurement_id='5',
+                                                     time='2016-04-02 17:01:31',)),
+                                content_type='application/json')
+        actual_status_code = response._status_code
+        expected_status_code = 400
+        actual_result_temp = json.loads(response.data)
+        actual_result = json.dumps(actual_result_temp)
+        expected_result = '{"error": "Value required"}'
         self.assertEquals(expected_result, actual_result)
         self.assertEquals(expected_status_code, actual_status_code)
 
