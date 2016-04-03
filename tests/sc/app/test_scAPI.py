@@ -94,7 +94,7 @@ class ScAPITest(unittest.TestCase):
     # Ensure /social/aqxapi/post/system works as expected
     def test_06_update_system(self):
         with app.test_client() as client:
-            response = client.post('/social/aqxapi/v1/system', data=update_systemJSONObject,
+            response = client.put('/social/aqxapi/v1/system', data=update_systemJSONObject,
                                    content_type='application/json')
             result = json.loads(response.data)
             # Failure Case
@@ -107,7 +107,7 @@ class ScAPITest(unittest.TestCase):
     # Ensure /social/aqxapi/put/system works as expected
     def test_05_create_system(self):
         with app.test_client() as client:
-            response = client.put('/social/aqxapi/v1/system', data=systemJSONObject, content_type='application/json')
+            response = client.post('/social/aqxapi/v1/system', data=systemJSONObject, content_type='application/json')
             result = json.loads(response.data)
             # Failure Case
             self.assert_('error' not in result.keys(),
@@ -197,7 +197,7 @@ class ScAPITest(unittest.TestCase):
     # Ensure /social/aqxapi/put/user works as expected
     def test_01_create_user(self):
         with app.test_client() as client:
-            response = client.put('/social/aqxapi/v1/user', data=userJSONObject, content_type='application/json')
+            response = client.post('/social/aqxapi/v1/user', data=userJSONObject, content_type='application/json')
             result = json.loads(response.data)
             # Failure Case
             self.assert_('error' not in result.keys(),

@@ -1594,14 +1594,14 @@ def get_logged_in_user():
 ######################################################################
 # API call to put user node in the Neo4J database
 ######################################################################
-@social.route('/aqxapi/v1/user', methods=['PUT'])
+@social.route('/aqxapi/v1/user', methods=['POST'])
 def create_user():
     jsonObject = request.get_json()
     result = ScAPI(get_graph_connection_uri()).create_user(jsonObject)
     if 'error' in result:
         return result, 400
     else:
-        return result
+        return result, 201
 
 
 ######################################################################
@@ -1624,20 +1624,20 @@ def delete_user_by_sql_id():
 ######################################################################
 # API call to create system node in the Neo4J database
 ######################################################################
-@social.route('/aqxapi/v1/system', methods=['PUT'])
+@social.route('/aqxapi/v1/system', methods=['POST'])
 def create_system():
     jsonObject = request.get_json()
     result = ScAPI(get_graph_connection_uri()).create_system(jsonObject)
     if 'error' in result:
         return result, 400
     else:
-        return result
+        return result, 201
 
 
 ######################################################################
 # API call to update system node in the Neo4J database using system_uid
 ######################################################################
-@social.route('/aqxapi/v1/system', methods=['POST'])
+@social.route('/aqxapi/v1/system', methods=['PUT'])
 def update_system():
     jsonObject = request.get_json()
     result = ScAPI(get_graph_connection_uri()).update_system_with_system_uid(jsonObject)
