@@ -1,5 +1,5 @@
-from py2neo import Node, cypher, Relationship
-from flask import session
+import json
+from py2neo import Node, Relationship
 from aqxWeb.sc.models import timestamp
 
 
@@ -40,15 +40,21 @@ class SystemDAO:
                 self.graph.create(systemNode)
                 relationship = Relationship(is_existing_user, "SYS_ADMIN", systemNode)
                 self.graph.create(relationship)
-        except Exception as e:
-            raise "Exception occured in function create_system " + str(e)
+                result = json.dumps({'success': "System Node Successfully Created in Neo4J Database"})
+                return result
+            else:
+                error_msg = json.dumps({'error': 'User Does Not Exists / System Already Exists'})
+                return error_msg
+        except Exception as ex:
+            error_msg = json.dumps({'error': 'Exception Occurred At create_system: ' + str(ex)})
+            return error_msg
 
     ###############################################################################
     # function : update_system_with_system_uid
     # purpose : function used to update System node in the Neo4J Database
     # params : self, system JSON Object
     # returns : None
-    # Exceptions : Exception
+    # Exceptions : General Exception
     def update_system_with_system_uid(self, jsonObject):
         try:
             system = jsonObject.get('system')
@@ -67,15 +73,21 @@ class SystemDAO:
                 """
                 self.graph.cypher.execute(update_system_query, system_uid=system_uid, name=name,
                                           description=description, status=status, modified_time=timestamp())
-        except Exception as e:
-            raise "Exception occured in function update_system_with_system_uid " + str(e)
+                result = json.dumps({'success': "System Node Successfully Updated in Neo4J Database"})
+                return result
+            else:
+                error_msg = json.dumps({'error': 'System Does Not Exists To Update'})
+                return error_msg
+        except Exception as ex:
+            error_msg = json.dumps({'error': 'Exception Occurred At update_system_with_system_uid: ' + str(ex)})
+            return error_msg
 
     ###############################################################################
     # function : delete_system_by_system_id
     # purpose : function used to delete the system from Neo4J Database based on system_id
     # params : self, system_id
     # returns : None
-    # Exceptions : Exception
+    # Exceptions : General Exception
     def delete_system_by_system_id(self, system_id):
         try:
             delete_system_query = """
@@ -84,8 +96,11 @@ class SystemDAO:
             DETACH DELETE s
             """
             self.graph.cypher.execute(delete_system_query, system_id=system_id)
-        except Exception as e:
-            raise "Exception occured in function delete_system_by_system_id " + str(e)
+            result = json.dumps({'success': "System Node Successfully Deleted in Neo4J Database"})
+            return result
+        except Exception as ex:
+            error_msg = json.dumps({'error': 'Exception Occurred At delete_system_by_system_id: ' + str(ex)})
+            return error_msg
 
     ###############################################################################
     # function : get_system_for_user
@@ -104,7 +119,9 @@ class SystemDAO:
             """
             system = self.graph.cypher.execute(query, sql_id=sql_id);
             return system
-        except Exception as e:
-            raise "Exception occured in function get_system_for_user " + str(e)
+        except Exception as ex:
+            error_msg = json.dumps({'error': 'Exception Occurred At get_system_for_user: ' + str(ex)})
+            return error_msg
+
 
             ###############################################################################

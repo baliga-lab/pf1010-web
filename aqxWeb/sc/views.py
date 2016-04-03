@@ -15,7 +15,7 @@ import aqxdb
 import logging
 import json
 from flask_oauth import OAuth
-from dav import analyticsViews
+from aqxWeb.dav import analyticsViews
 from json2html import *
 
 oauth = OAuth()
@@ -854,6 +854,7 @@ def groups():
         elif request.method == 'POST':
             return render_template("groups.html")
 
+
 #######################################################################################
 # function : search_groups
 # purpose : to let the user search for groups in the neo4j database
@@ -869,6 +870,7 @@ def get_groups():
         grp_name = res[0]
         grp_list.append(grp_name)
     return jsonify(json_list=grp_list)
+
 
 #######################################################################################
 # function : view_group
@@ -1543,80 +1545,130 @@ def testSignin():
 
 
 ######################################################################
-# API call to get logged in user data
+# API call to get user data for the specified google_id/sql_id
 ######################################################################
-@social.route('/aqxapi/get/user/logged_in_user/', methods=['GET'])
+
+@social.route('/aqxapi/v1/user', methods=['GET'])
+def get_user_by_sql_or_google_id():
+    sql_id = request.args.get('sql_id')
+    google_id = request.args.get('google_id')
+    result = None
+    if sql_id is not None:
+        result = ScAPI(get_graph_connection_uri()).get_user_by_sql_id(sql_id)
+    elif google_id is not None:
+        result = ScAPI(get_graph_connection_uri()).get_user_by_google_id(google_id)
+    # API Status Code For The Results
+    if result is None:
+        error_msg = json.dumps({'error': 'Invalid request parameters. Required sql_id or google_id'})
+        return error_msg, 400
+    else:
+        if 'error' in result:
+            return result, 400
+        else:
+            return result
+
+
+######################################################################
+# API call to get user data for the current logged in user
+######################################################################
+
+@social.route('/aqxapi/v1/user/current', methods=['GET'])
 def get_logged_in_user():
-    return ScAPI(get_graph_connection_uri()).get_logged_in_user()
-
-
-######################################################################
-# API call to get user data for the specified google_id
-######################################################################
-@social.route('/aqxapi/get/user/by_google_id/<google_id>', methods=['GET'])
-def get_user_by_google_id(google_id):
-    return ScAPI(get_graph_connection_uri()).get_user_by_google_id(google_id)
-
-
-######################################################################
-# API call to get user data for the specified sql_id
-######################################################################
-@social.route('/aqxapi/get/user/by_sql_id/<sql_id>', methods=['GET'])
-def get_user_by_sql_id(sql_id):
-    return ScAPI(get_graph_connection_uri()).get_user_by_sql_id(sql_id)
+    result = ScAPI(get_graph_connection_uri()).get_logged_in_user()
+    if 'error' in result:
+        return result, 400
+    else:
+        return result
 
 
 ######################################################################
 # API call to put user node in the Neo4J database
 ######################################################################
-@social.route('/aqxapi/put/user', methods=['POST'])
+@social.route('/aqxapi/v1/user', methods=['PUT'])
 def create_user():
     jsonObject = request.get_json()
-    return ScAPI(get_graph_connection_uri()).create_user(jsonObject)
+    result = ScAPI(get_graph_connection_uri()).create_user(jsonObject)
+    if 'error' in result:
+        return result, 400
+    else:
+        return result
 
 
 ######################################################################
 # API call to delete user node in the Neo4J database
 ######################################################################
-@social.route('/aqxapi/delete/user/<sql_id>', methods=['DELETE'])
-def delete_user_by_sql_id(sql_id):
-    if session.get('siteadmin') is not None:
-        return ScAPI(get_graph_connection_uri()).delete_user_by_sql_id(sql_id)
+@social.route('/aqxapi/v1/user', methods=['DELETE'])
+def delete_user_by_sql_id():
+    sql_id = request.args.get('sql_id')
+    if session.get('siteadmin') is not None and sql_id is not None:
+        result = ScAPI(get_graph_connection_uri()).delete_user_by_sql_id(sql_id)
+        if 'error' in result:
+            return result, 400
+        else:
+            return result
+    else:
+        error_msg = json.dumps({'error': 'Privileges/sql_id is missing'})
+        return error_msg, 400
 
 
 ######################################################################
 # API call to create system node in the Neo4J database
 ######################################################################
-@social.route('/aqxapi/put/system', methods=['POST'])
+@social.route('/aqxapi/v1/system', methods=['PUT'])
 def create_system():
     jsonObject = request.get_json()
-    return ScAPI(get_graph_connection_uri()).create_system(jsonObject)
+    result = ScAPI(get_graph_connection_uri()).create_system(jsonObject)
+    if 'error' in result:
+        return result, 400
+    else:
+        return result
 
 
 ######################################################################
 # API call to update system node in the Neo4J database using system_uid
 ######################################################################
-@social.route('/aqxapi/post/system', methods=['POST'])
+@social.route('/aqxapi/v1/system', methods=['POST'])
 def update_system():
     jsonObject = request.get_json()
-    return ScAPI(get_graph_connection_uri()).update_system_with_system_uid(jsonObject)
+    result = ScAPI(get_graph_connection_uri()).update_system_with_system_uid(jsonObject)
+    if 'error' in result:
+        return result, 400
+    else:
+        return result
 
 
 ######################################################################
 # API call to delete system node in the Neo4J database
 ######################################################################
-@social.route('/aqxapi/delete/system/<system_id>', methods=['DELETE'])
-def delete_system_by_system_id(system_id):
-    if session.get('siteadmin') is not None:
-        return ScAPI(get_graph_connection_uri()).delete_system_by_system_id(system_id)
+@social.route('/aqxapi/v1/system', methods=['DELETE'])
+def delete_system_by_system_id():
+    system_id = request.args.get('system_id')
+    if session.get('siteadmin') is not None and system_id is not None:
+        result = ScAPI(get_graph_connection_uri()).delete_system_by_system_id(system_id)
+        if 'error' in result:
+            return result, 400
+        else:
+            return result
+    else:
+        error_msg = json.dumps({'error': 'Privileges/system_id is missing'})
+        return error_msg, 400
 
 
 ######################################################################
 # API call to get the system(s) node for the user related to from the Neo4J database
 ######################################################################
-@social.route('/aqxapi/get/system/for_user/<sql_id>', methods=['GET'])
-def get_system_for_user(sql_id):
-    return ScAPI(get_graph_connection_uri()).get_system_for_user(sql_id)
+@social.route('/aqxapi/v1/system', methods=['GET'])
+def get_system_for_user():
+    sql_id = request.args.get('sql_id')
+    if sql_id is not None:
+        result = ScAPI(get_graph_connection_uri()).get_system_for_user(sql_id)
+        if 'error' in result:
+            return result, 400
+        else:
+            return result
+    else:
+        error_msg = json.dumps({'error': 'Invalid request parameters. Required sql_id'})
+        return error_msg, 400
 
 
 #######################################################################################

@@ -2146,7 +2146,6 @@ class Group:
     def __init__(self):
         self.group_uid = None
 
-
     def get_groups(self):
         query = """
             MATCH (g:Group) RETURN g.name """
