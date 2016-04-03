@@ -155,11 +155,15 @@ def get_system_measurement():
 # API call to put a record of a given measurement of a given system
 ######################################################################
 
-@dav.route('/aqxapi/put/system/measurement', methods=['POST'])
+@dav.route('/aqxapi/v1/measurements', methods=['PUT'])
 def put_system_measurement():
     dav_api = DavAPI(get_conn())
     data = request.get_json()
-    return dav_api.put_system_measurement(data)
+    result = dav_api.put_system_measurement(data)
+    if 'error' in result:
+        return result, 400
+    else:
+        return result, 201
 
 
 ######################################################################

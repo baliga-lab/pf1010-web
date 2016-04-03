@@ -56,7 +56,7 @@ class MeasurementsDAO:
     def put_system_measurement(self, table_name, time, value):
         time_already_recorded = self.get_recorded_time(table_name, time)
         if len(time_already_recorded) != 0:
-            return "Value at the given time already recorded"
+            return {'error': 'Value at the given time already recorded'}
         cursor = self.conn.cursor()
         query_put = "INSERT INTO %s " \
                     "(time, value) " \

@@ -42,30 +42,52 @@ class DavApiTest(unittest.TestCase):
     # insert system measurement - current time
     def test_put_system_measurement_new(self):
         time_now = datetime.now()
-        print time_now
-        response = self.app.post('dav/aqxapi/put/system/measurement',
-                                 data=json.dumps(dict(system_uid='555d0cfe9ebc11e58153000c29b92d09',
+        response = self.app.put('/dav/aqxapi/v1/measurements',
+                                 data=json.dumps(dict(system_uid='de9d7cdcbac911e59ce1000c29b92d09',
                                                       measurement_id='5',
                                                       time=str(time_now),
                                                       value='111')),
                                  content_type='application/json')
-        result = json.loads(response.data)
-        status = result['status']
-        message = str(status['message'])
-        self.assertEqual(message, "Record successfully inserted", "Test fail")
+        actual_status_code = response._status_code
+        expected_status_code = 201
+        actual_result_temp = json.loads(response.data)
+        actual_result = json.dumps(actual_result_temp)
+        print actual_result
+        expected_result = '{"status": {"message": "Record successfully inserted"}}'
+        self.assertEquals(expected_result, actual_result)
+        self.assertEquals(expected_status_code, actual_status_code)
 
     # insert system measurement - already present time
     def test_put_system_measurement_already_recorded(self):
-        response = self.app.post('dav/aqxapi/put/system/measurement',
-                                 data=json.dumps(dict(system_uid='555d0cfe9ebc11e58153000c29b92d09',
+        response = self.app.put('/dav/aqxapi/v1/measurements',
+                                 data=json.dumps(dict(system_uid='de9d7cdcbac911e59ce1000c29b92d09',
                                                       measurement_id='5',
-                                                      time='2018-03-19 23:28:57',
+                                                      time='2016-04-02 17:01:31',
                                                       value='111')),
                                  content_type='application/json')
-        result = json.loads(response.data)
-        status = result['status']
-        message = str(status['message'])
-        self.assertEqual(message, "Value at the given time already recorded", "Test pass")
+        actual_status_code = response._status_code
+        expected_status_code = 400
+        actual_result_temp = json.loads(response.data)
+        actual_result = json.dumps(actual_result_temp)
+        expected_result = '{"error": "Value at the given time already recorded"}'
+        self.assertEquals(expected_result, actual_result)
+        self.assertEquals(expected_status_code, actual_status_code)
+
+    # insert system measurement - already present time
+    def test_put_system_measurement_no_system_uid(self):
+        response = self.app.put('/dav/aqxapi/v1/measurements',
+                                 data=json.dumps(dict(system_uid='',
+                                                      measurement_id='5',
+                                                      time='2016-04-02 17:01:31',
+                                                      value='111')),
+                                 content_type='application/json')
+        actual_status_code = response._status_code
+        expected_status_code = 400
+        actual_result_temp = json.loads(response.data)
+        actual_result = json.dumps(actual_result_temp)
+        expected_result = '{"error": "Value at the given time already recorded"}'
+        self.assertEquals(expected_result, actual_result)
+        self.assertEquals(expected_status_code, actual_status_code)
 
     # method to insert test data
     # def test_generate_data(self):
