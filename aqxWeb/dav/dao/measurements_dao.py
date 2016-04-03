@@ -158,7 +158,7 @@ class MeasurementsDAO:
             for system in systems:
                 time_ranges = self.get_time_ranges_for_status(system,status_id);
 
-                query = self.create_query1(system, measurements,time_ranges)
+                query = self.create_query(system, measurements,time_ranges)
                 cursor.execute(query)
                 payload[system] = cursor.fetchall()
 
@@ -187,38 +187,15 @@ class MeasurementsDAO:
 
         return payload
 
+
     ###############################################################################
 
-    # create_query2: method to create query to fetch measurements from a system with matching time
+    # create_query: method to create query to fetch measurements from a system
     # param system system_id
     # param measurements list of measurements
     # return query
     @staticmethod
-    def create_query2(system, measurements):
-        fields = "select " + measurements[0] + ".time," + measurements[0] + ".value as " + measurements[0] + ","
-        tables = " from aqxs_" + measurements[0] + "_" + system + " " + measurements[0] + ","
-        where = " where HOUR(" + measurements[0] + ".time) ="
-        for i in range(1, len(measurements)):
-            if i == len(measurements) - 1:
-                fields += measurements[i] + ".value as " + measurements[i]
-                tables += "aqxs_" + measurements[i] + "_" + system + " " + measurements[i]
-                where += " HOUR(" + measurements[i] + ".time) "
-            else:
-                fields += measurements[i] + ".value as " + measurements[i] + ","
-                tables += "aqxs_" + measurements[i] + "_" + system + " " + measurements[i] + ","
-                where += " HOUR(" + measurements[i] + ".time) and HOUR(" + measurements[i] + ".time) = "
-
-        q = fields + tables + where + "group by " + measurements[0] + ".time " + "order by " + measurements[0] + ".time"
-        return q
-
-    ###############################################################################
-
-    # create_query1: method to create query to fetch measurements from a system
-    # param system system_id
-    # param measurements list of measurements
-    # return query
-    @staticmethod
-    def create_query1(system, measurements,time_ranges):
+    def create_query(system, measurements,time_ranges):
         query = ""
         for i in range(0, len(measurements)):
             # query += """select {prefix}, {prefix}.time as time,
