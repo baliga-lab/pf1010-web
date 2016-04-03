@@ -1466,21 +1466,7 @@ def getfriends():
         user_sql_id = result[3]
         email = result[4]
         gid = result[5]
-        friend_status = "Add Friend"
-        for sf in sentreq_res:
-            sf_id = sf[0]
-            if (user_sql_id == sf_id):
-                friend_status = "Sent Friend Request"
-        for rf in receivedreq_res:
-            rf_id = rf[0]
-            if (user_sql_id == rf_id):
-                friend_status = "Received Friend Request"
-        for fr in frnds_res:
-            fr_id = fr[0]
-            if (user_sql_id == fr_id):
-                friend_status = "Friends"
-        if (user_sql_id == session['uid']):
-            friend_status = ""
+        friend_status = get_friend_status(user_sql_id, sentreq_res, receivedreq_res, frnds_res)
 
         if not first_name and not last_name:
             full_name = None
@@ -1502,6 +1488,30 @@ def getfriends():
         if individual_user:
             user_list.append(individual_user)
     return jsonify(json_list=user_list)
+
+#######################################################################################
+# function : get_friend_status
+# purpose : used in search friends to return the status of a friend request
+# parameters : user_sql_id, sentreq_res, receivedreq_res, frnds_res
+# returns: the friend status between passed user and logged in user
+#######################################################################################
+def get_friend_status(user_sql_id, sentreq_res, receivedreq_res, frnds_res):
+    friend_status = "Add Friend"
+    for sf in sentreq_res:
+        sf_id = sf[0]
+        if (user_sql_id == sf_id):
+            friend_status = "Sent Friend Request"
+    for rf in receivedreq_res:
+        rf_id = rf[0]
+        if (user_sql_id == rf_id):
+            friend_status = "Received Friend Request"
+    for fr in frnds_res:
+        fr_id = fr[0]
+        if (user_sql_id == fr_id):
+            friend_status = "Friends"
+    if (user_sql_id == session['uid']):
+        friend_status = ""
+    return friend_status
 
 
 @social.route('/logout')
