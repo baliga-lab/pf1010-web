@@ -390,6 +390,20 @@ class DavApiTest(unittest.TestCase):
         self.assertEquals(expected_result, actual_result)
         self.assertEquals(expected_status_code, actual_status_code)
 
+    # test for get_system_measurement ( for system_uid = 555d0cfe9ebc11e58153000c29b92d09,
+    # measurement_id = 1, both system_uid and measurement_id is valid in this case)
+    def test_get_system_measurement_6(self):
+        response = self.app.get(
+            '/dav/aqxapi/v1/measurements?system_uid=555d0cfe9ebc11e58153000c29b92d09&measurement_id=2')
+        actual_status_code = response._status_code
+        expected_status_code = 200
+        actual_result_temp = json.loads(response.data)
+        actual_result = json.dumps(actual_result_temp)
+        with open('data/test_get_system_measurement_6.txt') as f:
+            expected_result = f.readlines()[0]
+        self.assertEquals(expected_result, actual_result)
+        self.assertEquals(expected_status_code, actual_status_code)
+
 
 if __name__ == '__main__':
     unittest.main()

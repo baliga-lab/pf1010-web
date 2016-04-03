@@ -214,9 +214,14 @@ class DavAPI:
             return json.dumps(result)
         values = []
         for result_temp in result:
+            measurement_value = decimal.Decimal(result_temp[1])
+            if measurement_value.is_normal():
+                normalized_measurement_value = measurement_value
+            else:
+                normalized_measurement_value = measurement_value.normalize()
             values_temp = {
                 'time': str(result_temp[0]),
-                'value': str(result_temp[1])
+                'value': str(normalized_measurement_value)
             }
             values.append(values_temp)
         obj = {
