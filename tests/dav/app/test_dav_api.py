@@ -103,7 +103,7 @@ class DavApiTest(unittest.TestCase):
         self.assertEquals(expected_result, actual_result)
         self.assertEquals(expected_status_code, actual_status_code)
 
-    # insert system measurement - no measurement id given
+    # insert system measurement - no time given
     def test_put_system_measurement_no_time(self):
         response = self.app.put('/dav/aqxapi/v1/measurements',
                                 data=json.dumps(dict(system_uid='de9d7cdcbac911e59ce1000c29b92d09',
