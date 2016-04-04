@@ -65,10 +65,11 @@ function updateChartDataPointsHC(chart, xType, yTypeList, graphType){
     // and add the new dataPoints to the systems_and_measurements object
     if (measurementsToFetch.length > 0) {
         var measurementIDList = [];
+        var statusID = document.getElementById("selectStatus").value;
         _.each(measurementsToFetch, function(measurement){
             measurementIDList.push(measurement_types_and_info[measurement].id);
         });
-        callAPIForNewData(measurementIDList);
+        callAPIForNewData(measurementIDList, statusID);
     }
 
     // Handle the x axis, for now just using time
@@ -193,23 +194,22 @@ function addNewMeasurementData(data){
  * Sends an AJAX POST request to call for new, untracked measurement data for each system
  * @param measurementIDList
  */
-function callAPIForNewData(measurementIDList){
+function callAPIForNewData(measurementIDList, statusID){
     $(function(){
         $.ajax({
             type: 'POST',
             contentType: 'application/json;charset=UTF-8',
             dataType: 'json',
             async: false,
-            url: 'dav/aqxapi/v1/measurements/plot',
-            data: JSON.stringify({systems: selectedSystemIDs, measurements: measurementIDList}, null, '\t'),
+            url: '/dav/aqxapi/v1/measurements/plot',
+            data: JSON.stringify({systems: selectedSystemIDs, measurements: measurementIDList, status: statusID}, null, '\t'),
             success: function(data){
                 // Check if there were any errors on the server side
                 if("error" in data){
                     console.log("Server returned an error...");
-                    console.log(data.error);
+                    console.log(data);
                     throw "AJAX request reached the server but returned an error!";
                 }else{
-                    console.log('Successfully loaded data from serer.')
                     addNewMeasurementData(data);
                 }
             },

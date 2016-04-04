@@ -94,7 +94,8 @@ def analyze_graph():
             print("System ID list is undefined.")
         raise AttributeError("Error processing selected systems form.")
 
-    systems_and_measurements_json = get_readings_for_tsplot(selected_systemID_list, msr_id_list)
+    default_status = 200
+    systems_and_measurements_json = get_readings_for_tsplot(selected_systemID_list, msr_id_list, default_status)
     if 'error' in systems_and_measurements_json:
         print systems_and_measurements_json['error']
         raise AttributeError("Error processing API call for measurement readings.")
