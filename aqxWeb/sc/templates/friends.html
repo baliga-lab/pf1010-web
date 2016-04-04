@@ -5,7 +5,9 @@
 {% block content %}
 
     <div class="container">
-        <h1 class="page-header">Friends</h1>
+        <span><img style="height: 40px;width: 40px;float: left;" class="friendsIcon"
+                   src="{{ url_for('social.static', filename='images/friends.png') }}">
+            <h3 class="page-header">&nbsp; Friends</h3></span>
         <ul class="nav nav-tabs">
             <li class="active"><a href="{{ url_for('social.friends') }}">My Friends</a></li>
             <li><a href="{{ url_for('social.searchFriends') }}">Search Friends</a></li>
@@ -29,7 +31,8 @@
                     <tbody>
                     {% for row in Friends %}
                         <tr>
-                            <td><img src="{{ row.n.image_url }}" class="img-circle" alt="User Image" width="60" height="60"></td>
+                            <td><img src="{{ row.n.image_url }}" class="img-circle" alt="User Image" width="60"
+                                     height="60"></td>
                             <td><a href="profile/{{ row.n.google_id }}">{{ row.n.displayName }}</a></td>
                             <td>
                                 <a type="button" href="{{ url_for('social.block_friend', u_sql_id=row.n.sql_id) }}"
@@ -42,7 +45,8 @@
                     {% endfor %}
                     {% for row in UnblockedFriend %}
                         <tr>
-                            <td><img src="{{ row.n.image_url }}" class="img-circle" alt="User Image" width="60" height="60"></td>
+                            <td><img src="{{ row.n.image_url }}" class="img-circle" alt="User Image" width="60"
+                                     height="60"></td>
                             <td><a href="profile/{{ row.n.google_id }}">{{ row.n.displayName }}</a></td>
                             <td>
                                 <a type="button" href="{{ url_for('social.unblock_friend', u_sql_id=row.n.sql_id) }}"

@@ -4,7 +4,7 @@
 
 {% block styles %}
     {{ super() }}
-    <link rel="stylesheet" href="{{ url_for('social.static', filename='css/group_search.css') }}">
+    <link rel="stylesheet" href="{{ url_for('social.static', filename='css/groups.css') }}">
 {% endblock %}
 
 {% block content %}
@@ -62,7 +62,7 @@
 {% block scripts %}
     {{ super() }}
     <!-- jQuery Script For DOM Manipulation In Search Groups Page -->
-    <script type="text/javascript" src="{{ url_for('social.static', filename='js/group_search.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('social.static', filename='js/groups.js') }}"></script>
     <script src="http://code.jquery.com/jquery-1.10.2.js"></script>
     <script src="http://code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
 
