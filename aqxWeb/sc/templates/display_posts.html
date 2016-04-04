@@ -2,11 +2,13 @@
 
     {% if posts %}
         {% for row in posts %}
+            {% if row.post and row.user and (row.user.sql_id == session['uid']
+            or row.profile_user.sql_id == session['uid'] or row.post.privacy != "private") %}
             <div class="post detail-box">
                 {# USER OF POST #}
                 <div class="media-left">
                     {# LINK TO USER'S PROFILE #}
-                    <a href="/social/profile/{% if row.user %}{{ row.user.google_id }}{% endif %}">
+                    <a href="{% if row.user %}/social/profile/{{ row.user.google_id }}{% else %}#{% endif %}">
                         {% if row.user.image_url %}
                             <img class="media-object" src="{{ row.user.image_url }}"
                                  alt="{{ row.displayName }}'s Picture">
@@ -24,15 +26,16 @@
                 <div class="media-body">
                     <h4>
                         {{ row.displayName }}
-                        <span class="date sub-text">posted on {{ row.post.date }}</span>
-                    </h4>
-                    {% for po in postOwners %}
-                        {% if po.postid == row.post.id and po.userid == session['uid'] %}
-
+                        {% if row.profile_user %}
+                            <span class="sub-text"> to </span>
+                            <a href="/social/profile/{{ row.profile_user.google_id }}">
+                                {{ row.profile_user.displayName }}</a>
                         {% endif %}
-                    {% endfor %}
+                        <span class="date sub-text">posted on {{ row.post.date }}</span>
+                        <span class="privacy sub-text">@{{ row.post.privacy }}</span>
+                    </h4>
                     <p>{{ row.post.text }}</p>
-                    {% for po in postOwners %}
+                    {% for po in post_owners %}
                         {% if po.postid == row.post.id and po.userid == session['uid'] %}
                             <div class="form-controls" style=" text-align: right;">
                                 <form action="{{ url_for('social.delete_post') }}" method="post">
@@ -96,7 +99,7 @@
                             <button type="submit" name="submit" class="btn btn-success" aria-label="Left Align"
                                     value="likePost">
                                 Like
-                                {% for i in totalLikes %}
+                                {% for i in total_likes %}
                                     {% if i.postid == row.post.id %}
                                         {{ i.likecount }}
                                     {% endif %}
@@ -198,6 +201,7 @@
                     </div>
                 </form>
             </div>
+            {% endif %}
         {% endfor %}
     {% endif %}
 

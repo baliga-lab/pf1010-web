@@ -38,8 +38,14 @@ h4 {
     color: #449d44;
 }
 
-.cogWheelIcon{
+.cogWheelIcon {
     height: 45px;
     width: 45px;
+}
+
+#map {
+    width: 250px;
+    height: 250px;
+    border: 1px solid #23434d;
 }
 

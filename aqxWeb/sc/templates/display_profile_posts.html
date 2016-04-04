@@ -2,9 +2,10 @@
 
     {% if posts %}
         {% for row in posts %}
-            {% if row.post and (not privacy_info.user_relation or (row.post.privacy == "public"
+            {% if row.post and row.user and (row.user.sql_id == session['uid']
+                or (not privacy_info.user_relation or (row.post.privacy == "public"
                 or privacy_info.user_relation.lower() == row.post.privacy
-                or (row.post.privacy == "friends" and privacy_info.user_relation == "private"))) %}
+                or (row.post.privacy == "friends" and privacy_info.user_relation == "private")))) %}
                 <div class="post detail-box">
                     {# USER OF POST #}
                     <div class="media-left">
@@ -30,14 +31,8 @@
                             <span class="date sub-text">posted on {{ row.post.date }}</span>
                             <span class="privacy sub-text">@{{ row.post.privacy }}</span>
                         </h4>
-                        {% for po in postOwners %}
-                            {% if po.postid == row.post.id and po.userid == session['uid'] %}
-
-                            {% endif %}
-                        {% endfor %}
                         <p>{{ row.post.text }}</p>
-                        {% for po in postOwners %}
-                            {% if po.postid == row.post.id and po.userid == session['uid'] %}
+                            {% if row.user.sql_id == session['uid'] %}
                                 <div class="form-controls" style=" text-align: right;">
                                     <form action="{{ url_for('social.delete_post') }}" method="post">
                                         <input type="hidden" name="postid" value="{{ row.post.id }}">
@@ -68,7 +63,6 @@
                                     </div>
                                 </div>
                             {% endif %}
-                        {% endfor %}
 
                         {% if row.post.link %}
                             {# image/gif content #}
@@ -100,7 +94,7 @@
                                 <button type="submit" name="submit" class="btn btn-success" aria-label="Left Align"
                                         value="likePost">
                                     Like
-                                    {% for i in totalLikes %}
+                                    {% for i in total_likes %}
                                         {% if i.postid == row.post.id %}
                                             {{ i.likecount }}
                                         {% endif %}
@@ -127,11 +121,11 @@
                         <ul class="comment-list">
                             {% if row.comments %}
                                 {% for cmt in row.comments|sort(attribute='creation_time') %}
-                                    {% if cmt.post_id == row.post.id %}
+                                    {% if cmt.post_id == row.post.id and cmt.comment and cmt.comment.content %}
                                         <li>
                                             <div class="media-left">
-                                                <a href="{% if cmt.google_id %}/social/profile/
-                                                    {{ cmt.google_id }}{% else %}#{% endif %}">
+                                                <a href="{% if cmt.google_id %}/social/profile/{{ cmt.google_id }}
+                                                {% else %}#{% endif %}">
                                                     {# LINK TO USER'S PROFILE #}
                                                     {% if cmt.image_url %}
                                                         <img class="media-object" src="{{ cmt.image_url }}"

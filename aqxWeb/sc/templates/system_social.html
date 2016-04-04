@@ -23,7 +23,13 @@
                 <h5 class="systemCreated" id="systemCreatedTime"><b>Created On: </b>
                     {{ created_date }}
                 </h5>
-                <h5 class="systemLocation"><b> Location: </b> Northeastern University, Boston</h5>
+                <h5 class="systemLocation"><b> Location: </b> {{ system_location }} </h5>
+                <div id="map">
+                </div>
+                <a href="http://www.google.com/maps/place/{{ system_neo4j[0][0]['location_lat'] }},{{ system_neo4j[0][0]['location_lng'] }}"
+                   target="_blank">
+                    Click Here For Navigation
+                </a>
                 <h5 class="systemDescription"><b> Description: </b> {{ system_neo4j[0][0]['description'] }}</h5>
             </div>
             <!-- End of Div for System Description (Name, Creation Time, Location and Description -->
@@ -40,7 +46,7 @@
                             <!-- Only Admin and Participants Has The Privilege To View The Picture & Name Of All Participants-->
                             {% if user_privilege == "SYS_ADMIN" or user_privilege == "SYS_PARTICIPANT" %}
                                 <a href="{{ url_for('social.profile', google_id=participant[0]["google_id"]) }}">
-                                    <img class="participantImage" src="{{ participant[0]["image_url"] }}">
+                                    <img class="participantImage img-circle" src="{{ participant[0]["image_url"] }}">
                                     {% if participant[0]["displayName"] is not none %}
                                         {{ participant[0]["displayName"] }}
                                     {% else %}
@@ -76,7 +82,7 @@
                             <!-- Only Admin and Participants Has The Privilege To View The Picture & Name Of All Participants-->
                             {% if user_privilege == "SYS_ADMIN" or user_privilege == "SYS_PARTICIPANT" %}
                                 <a href="{{ url_for('social.profile', google_id=subscriber[0]["google_id"]) }}">
-                                    <img class="participantImage" src="{{ subscriber[0]["image_url"] }}">
+                                    <img class="participantImage img-circle" src="{{ subscriber[0]["image_url"] }}">
                                     {% if subscriber[0]["displayName"] is not none %}
                                         {{ subscriber[0]["displayName"] }}
                                     {% else %}
@@ -88,17 +94,17 @@
                                 <!-- The subscriber will be able to see his/her own name and picture -->
                                 {% if subscriber[0]["sql_id"] == logged_in_user["sql_id"] %}
                                     <a href="{{ url_for('social.profile', google_id=subscriber[0]["google_id"]) }}">
-                                    <img class="participantImage" src="{{ session["img"] }}">
-                                    {% if subscriber[0]["displayName"] is not none %}
-                                        {{ subscriber[0]["displayName"] }}
-                                    {% else %}
-                                        No Display Name
-                                    {% endif %}
+                                        <img class="participantImage" src="{{ session["img"] }}">
+                                        {% if subscriber[0]["displayName"] is not none %}
+                                            {{ subscriber[0]["displayName"] }}
+                                        {% else %}
+                                            No Display Name
+                                        {% endif %}
                                     </a>
                                 {% else %}
-                                <img class="participantImage"
-                                     src="{{ url_for('social.static', filename='images/default_profile_pic.png') }}">
-                                Anonymous
+                                    <img class="participantImage"
+                                         src="{{ url_for('social.static', filename='images/default_profile_pic.png') }}">
+                                    Anonymous
                                 {% endif %}
                             {% endif %}
                         </div>
@@ -130,7 +136,7 @@
                                     <input type="hidden" name="system_uid"
                                            value="{{ system_neo4j[0][0]["system_uid"] }}">
                                     <a href="{{ url_for('social.profile', google_id=pending_participants[0]["google_id"]) }}">
-                                        <img class="pendingParticipantImage"
+                                        <img class="pendingParticipantImage img-circle"
                                              src="{{ pending_participants[0]["image_url"] }}">
                                         {% if pending_participants[0]["displayName"] is not none %}
                                             {{ pending_participants[0]["displayName"] }}
@@ -159,7 +165,8 @@
                 <div class="row">
                     <span>
                         <a href="{{ url_for('social.manage_system', system_uid= system_neo4j[0][0]["system_uid"]) }}">
-                            <img class="cogWheelIcon" src="{{ url_for('social.static', filename='images/system_settings.png') }}">
+                            <img class="cogWheelIcon"
+                                 src="{{ url_for('social.static', filename='images/system_settings.png') }}">
                             Manage System
                         </a>
                     </span>
@@ -172,7 +179,8 @@
             <br/>
 
             <!-- Div for Subscribe / Request to Join Button-->
-            <form id ="participate_subscribe_leave_system_form" action="{{ url_for('social.participate_subscribe_leave_system') }}" method="post">
+            <form id="participate_subscribe_leave_system_form"
+                  action="{{ url_for('social.participate_subscribe_leave_system') }}" method="post">
                 <div class="row sendRequests">
                     <input type="hidden" name="google_id"
                            value="{{ logged_in_user["google_id"] }}">
@@ -183,13 +191,15 @@
                         <button type="submit" name="submit" value="Participate" class="btn btn-success">Participate
                         </button>
                     {% else %}
-                        {% if user_privilege == "SYS_ADMIN" or user_privilege == "SYS_PARTICIPANT" or
-                                user_privilege == "SYS_SUBSCRIBER" or user_privilege == "SYS_PENDING_PARTICIPANT"
-                                or user_privilege == "SYS_PENDING_SUBSCRIBER" %}
-                            <button type="submit" name="submit" value="Leave" id="btnLeave"
-                                    onclick="return getUserConsent()" class="btn btn-danger">Leave System
-                            </button>
-                        {% endif %}
+                        <button type="submit" name="submit" value="Leave" id="btnLeave"
+                                onclick="return getUserConsent()" class="btn btn-danger">
+                            {% if user_privilege == "SYS_ADMIN" or user_privilege == "SYS_PARTICIPANT" or
+                                user_privilege == "SYS_SUBSCRIBER" %}
+                                Leave System
+                            {% else %}
+                                Cancel Participant Request
+                            {% endif %}
+                        </button>
                     {% endif %}
                 </div>
             </form>
@@ -208,11 +218,11 @@
         <!-- This centerPaneDiv for system posts -->
         <div class="col-md-6 centerPaneDiv">
             <div class="row">
-            {# NEWSFEED #}
-                    {% include "post_system_form.html" %}
+                {# NEWSFEED #}
+                {% include "post_system_form.html" %}
 
-                    <h3>Recent Posts</h3>
-                    {% include "display_system_posts.html" %}
+                <h3>Recent Posts</h3>
+                {% include "display_system_posts.html" %}
             </div>
         </div>
         <!-- End Div for Center Pane (System Posts) - Systems Page -->
@@ -227,44 +237,19 @@
             <div class="row">
 
                 <h2> Summary</h2>
-                <div class="table-responsive">
-                  <table class="table">
-                    <thead>
-                      <tr>
-                        <th>Name</th>
-                        <th>Value</th>
-                        <th>Last Updated</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr>
-                        <td>Alkalinity</td>
-                        <td>60.00</td>
-                        <td>2016-01-14 20:00:00</td>
-                      </tr>
-                      <tr>
-                        <td>Ammonium</td>
-                        <td>0E-10</td>
-                        <td>2016-01-14 20:00:00</td>
-                      </tr>
-                      <tr>
-                        <td>Chlorine</td>
-                        <td>0E-10</td>
-                        <td>2016-01-14 20:00:00</td>
-                      </tr>
-                      <tr>
-                        <td>Hardness</td>
-                        <td>300.00</td>
-                        <td>2016-01-14 20:00:00</td>
-                      </tr>
-                      <tr>
-                        <td>Light</td>
-                        <td>0E-10</td>
-                        <td>2016-01-14 20:00:00</td>
-                      </tr>
-                    </tbody>
-                  </table>
-                  </div>
+                <div class="row">
+                    <table id="placar" class="table table-responsive">
+                        <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Value</th>
+                            <th>Last Updated</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
         <!-- End Div for Right Pane (System Data) - Systems Page -->
@@ -280,6 +265,19 @@
 
 {% block scripts %}
     {{ super() }}
+    <!-- Javascript Google Maps API -->
+    <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?signed_in=true&v=3.exp"></script>
+
+    <script type="text/javascript" src="http://json2html.com/js/json2html.js"></script>
+    <script type="text/javascript" src="http://json2html.com/js/jquery.json2html.js"></script>
+
     <!-- jQuery Script For DOM Manipulation In Systems Page -->
     <script type="text/javascript" src="{{ url_for('social.static', filename='js/system_social.js') }}"></script>
+    <script type="text/javascript">
+        renderGoogleMaps("{{ system_neo4j[0][0]['location_lat'] }}",
+                "{{ system_neo4j[0][0]['location_lng'] }}", "{{ system_neo4j[0][0]['name'] }}");
+    </script>
+    <script>
+
+    </script>
 {% endblock %}

@@ -11,7 +11,7 @@
 
     <!-- Entire Page Div Container -->
     <div class="container" id="searchSystemsTab">
-        <h1 class="page-header">Systems</h1>
+        <h3 class="page-header">&nbsp;Systems</h3>
         <ul class="nav nav-tabs" id="tab-headers">
             <li><a href="#mySystemsTab">My Systems</a></li>
             <li><a href="#allSystemsTab">All Systems</a></li>
@@ -44,7 +44,7 @@
                 <br/><br/>
                 <!-- Search Results Div -->
                 <h4 class="page-header" style="padding-left: 10px">Search Results:</h4>
-                <div class="row systemSearchResults">
+                <div class="container systemSearchResults">
                     {% if system_search_results %}
                         {% for row in system_search_results %}
                             <div class="row">
@@ -60,7 +60,7 @@
                             </div>
                         {% endfor %}
                     {% else %}
-                        <div class="row">
+                        <div class="container">
                             <ul class="pull-left">
                                 <img src="{{ url_for('social.static', filename='images/sad_smiley.png') }}" alt="System"
                                      height="32"
@@ -79,7 +79,7 @@
             <br/>
 
             <!-- Div To Display System Where The Logged In User Is Administrator/Participant For That System -->
-            <div class="row">
+            <div class="container">
 
                 <!-- Div To Display System Where The Logged In User Is Administrator For That System -->
                 <div class="col-md-6 adminSystem">
@@ -158,7 +158,7 @@
             <br/>
 
             <!-- Div To Display System Where The Logged In User Is Subscriber/Recommended System For That System -->
-            <div class="row">
+            <div class="container">
 
                 <!-- Div To Display System Where The Logged In User Is Subscriber For That System -->
                 <div class="col-md-6 subscribedSystem">
@@ -244,7 +244,7 @@
 
 
         <!-- All Systems Div -->
-        <div class="row" id="allSystemsTab">
+        <div class="container" id="allSystemsTab">
             <!-- Search Results Div -->
             <div class="row allSystemResults">
                 {% if all_systems %}
