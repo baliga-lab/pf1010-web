@@ -1,0 +1,20 @@
+{
+    "node": true,
+    "globals": {
+        "$": true,
+        "_": true,
+        "google": true,
+        "document": true,
+        "Console": true,
+        "OverlappingMarkerSpiderfier": true,
+        "MarkerClusterer": true,
+        "system_and_info_object": true,
+        "measurement_types_and_info": true,
+        "systems_and_measurements": true,
+        "alert": true,
+        "window": true,
+        "selectedSystemIDs": true,
+        "Highcharts": true  
+
+    }
+}

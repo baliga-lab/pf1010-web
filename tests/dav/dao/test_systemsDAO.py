@@ -1,8 +1,8 @@
 import unittest
 from aqxWeb import run
-from aqxWeb.dav import analyticsViews
+from aqxWeb.dav import analytics_views
 from aqxWeb.dav.dao.systemsDAO import SystemsDAO
-
+import MySQLdb
 # test DAO for systems table
 
 
@@ -10,8 +10,9 @@ class SystemsDAOTest(unittest.TestCase):
 
     def setUp(self):
         self.app = run.app.test_client()
-        analyticsViews.init_app(run.app)
-        self.conn = analyticsViews.get_conn()
+        run.app.config.from_pyfile("system_db.cfg")
+        self.conn = MySQLdb.connect(host=run.app.config['HOST'], user=run.app.config['USER'],
+                           passwd=run.app.config['PASS'], db=run.app.config['DB'])
 
     def tearDown(self):
         pass

@@ -1,7 +1,8 @@
 import unittest
 from aqxWeb import run
-from aqxWeb.dav import analyticsViews
-from aqxWeb.dav.dao.MeasurementsDAO import MeasurementsDAO
+import MySQLdb
+from aqxWeb.dav.dao.measurements_dao import MeasurementsDAO
+import os
 
 # test DAO for metadata tables
 
@@ -10,8 +11,9 @@ class MeasurementsDAOTest(unittest.TestCase):
     # Set up method
     def setUp(self):
         self.app = run.app.test_client()
-        analyticsViews.init_app(run.app)
-        self.conn = analyticsViews.get_conn()
+        run.app.config.from_pyfile("system_db.cfg")
+        self.conn = MySQLdb.connect(host=run.app.config['HOST'], user=run.app.config['USER'],
+                           passwd=run.app.config['PASS'], db=run.app.config['DB'])
 
     # Tear down method
     def tearDown(self):
@@ -33,6 +35,17 @@ class MeasurementsDAOTest(unittest.TestCase):
         response = m.get_all_measurement_names()
         print response
         self.assertNotEqual(len(response), 0, 'measurements exist')
+
+    def test_get_time_ranges_for_status(self):
+        m = MeasurementsDAO(self.conn)
+        response = m.get_time_ranges_for_status('eecce02681bb11e5904b000c29b92d09',100)
+
+    def test_get_status_type(self):
+        m = MeasurementsDAO(self.conn)
+        response = m.get_status_type(200)
+        print response
+        self.assertEqual('established',response)
+
 
 if __name__ == '__main__':
     unittest.main()

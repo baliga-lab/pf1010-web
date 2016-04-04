@@ -2,10 +2,9 @@
 
 {% block styles %}
     {{ super() }}
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.2/css/select2.min.css" rel="stylesheet" />
-    <link rel="stylesheet"  href="{{ url_for('dav.static', filename='css/select2-skins.min.css')}}">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap-theme.min.css" integrity="sha384-fLW2N01lMqjakBkx3l/M9EahuwpSfeNvV63J5ezn3uZzapT0u7EYsXMjQV+0En5r" crossorigin="anonymous">
     <link rel="stylesheet" href="{{ url_for('dav.static', filename='css/explore.css') }}">
+    <link rel="stylesheet" href="{{ url_for('dav.static', filename='css/semantic.min.css') }}">
 {% endblock %}
 
 {% block title %}Analyze{% endblock %}
@@ -35,14 +34,23 @@
             <div style="width: 30%;">
                 <div class="form-group">
                     <label class="control-label">Select Y Axis</label>
-                    <select class="js-example-basic-multiple explore-dropdown" multiple="multiple" id="selectYAxis">
+                    <select class="ui fluid search dropdown" multiple="" id="selectYAxis">
                         {% for name in measurement_names %}
                             {% if not name == 'time' %}<option value="{{ name }}">{{ name }}</option>{% endif %}
                         {% endfor %}
                     </select>
                 </div>
             </div>
-
+            <div style="width: 30%;">
+                <label class="control-label">Select System Status</label>
+                <select class="explore-dropdown" id="selectStatus">
+                    <option value="200" selected="selected">Established</option>
+                    <option value="100">Pre-Established</option>
+                    <option value="300">Suspended</option>
+                    <option value="400">Terminated</option>
+                </select>
+            </div>
+            <br>
             <div style="width: 30%;">
                 <div id="graphType" style="height: 100%; width: 100%;">
                     <label class="control-label">Select Graph Type</label>
@@ -64,11 +72,12 @@
 {% block scripts %}
     {{ super() }}
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.2/js/select2.full.js"></script>
     <script src="http://code.highcharts.com/highcharts.js"></script>
     <script src="http://code.highcharts.com/modules/exporting.js"></script>
     <script type="text/javascript" src="{{ url_for('dav.static', filename='js/export-csv.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('dav.static', filename='js/underscore-min.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('dav.static', filename='js/semantic.min.js') }}"></script>
+    <script src="{{ url_for('dav.static', filename='js/highChartsTheme.js') }}"></script>
     <script src="{{ url_for('dav.static', filename='js/aqxGraph.js') }}"></script>
     <script>
         var systems_and_measurements = {{ systems_and_measurements_json | safe }};
@@ -76,6 +85,19 @@
         var selectedSystemIDs = {{ selected_systemID_list|safe }};
         var measurement_types_and_info = {{ measurement_types_and_info | safe }};
         measurement_types_and_info = measurement_types_and_info.measurement_info;
+        {#        _.each(systems_and_measurements, function(system){#}
+        {#            var measurement = system.measurement;#}
+        {#            _.each(measurement, function(measurementSet){#}
+        {#                var values = measurementSet.values;#}
+        {#                var actions = [];#}
+        {#                _.each(values, function(point){#}
+        {#                    if (Math.floor(Math.random() * 2)){#}
+        {#                        point.event = actions.concat([{id: events[Math.floor(Math.random() * 4)], date:'12:12:12'},{id: events[Math.floor(Math.random() * 4)], date:'10:10:10'}]);#}
+        {#                        point.marker = {fillColor:'yellow', states:{hover:{fillColor:'yellow'}}}#}
+        {#                    }#}
+        {#                })#}
+        {#            })#}
+        {#        });#}
         $(document).ready(main());
     </script>
 {% endblock %}
