@@ -56,7 +56,7 @@ class MeasurementsDAO:
     def put_system_measurement(self, table_name, time, value):
         time_already_recorded = self.get_recorded_time(table_name, time)
         if len(time_already_recorded) != 0:
-            return "Value at the given time already recorded"
+            return {'error': 'Value at the given time already recorded'}
         cursor = self.conn.cursor()
         query_put = "INSERT INTO %s " \
                     "(time, value) " \
@@ -150,15 +150,18 @@ class MeasurementsDAO:
     # param measurements list of measurements
     # return dictionary with system_id as key and list of measurements[timestamp,m1,m2,...]
     # with key as the measurement
-    def get_measurements(self, systems, measurements):
+    def get_measurements(self, systems, measurements,status_id):
         payload = {}
         values = {}
         cursor = self.conn.cursor()
         try:
             for system in systems:
-                query = self.create_query1(system, measurements)
+                time_ranges = self.get_time_ranges_for_status(system,status_id);
+
+                query = self.create_query(system, measurements,time_ranges)
                 cursor.execute(query)
                 payload[system] = cursor.fetchall()
+
         except Error as e:
             return {'error': e.msg + "system: :" + str(systems) + "  measurements: " + str(measurements)}
         finally:
@@ -184,52 +187,93 @@ class MeasurementsDAO:
 
         return payload
 
+
     ###############################################################################
 
-    # create_query2: method to create query to fetch measurements from a system with matching time
+    # create_query: method to create query to fetch measurements from a system
     # param system system_id
     # param measurements list of measurements
     # return query
     @staticmethod
-    def create_query2(system, measurements):
-        fields = "select " + measurements[0] + ".time," + measurements[0] + ".value as " + measurements[0] + ","
-        tables = " from aqxs_" + measurements[0] + "_" + system + " " + measurements[0] + ","
-        where = " where HOUR(" + measurements[0] + ".time) ="
-        for i in range(1, len(measurements)):
-            if i == len(measurements) - 1:
-                fields += measurements[i] + ".value as " + measurements[i]
-                tables += "aqxs_" + measurements[i] + "_" + system + " " + measurements[i]
-                where += " HOUR(" + measurements[i] + ".time) "
-            else:
-                fields += measurements[i] + ".value as " + measurements[i] + ","
-                tables += "aqxs_" + measurements[i] + "_" + system + " " + measurements[i] + ","
-                where += " HOUR(" + measurements[i] + ".time) and HOUR(" + measurements[i] + ".time) = "
-
-        q = fields + tables + where + "group by " + measurements[0] + ".time " + "order by " + measurements[0] + ".time"
-        return q
-
-    ###############################################################################
-
-    # create_query1: method to create query to fetch measurements from a system
-    # param system system_id
-    # param measurements list of measurements
-    # return query
-    @staticmethod
-    def create_query1(system, measurements):
+    def create_query(system, measurements,time_ranges):
         query = ""
         for i in range(0, len(measurements)):
-            if i == len(measurements) - 1:
-                query += "select \'" + measurements[i] + "\'," + measurements[i] + ".time as time," \
-                         + measurements[i] + ".value as value from aqxs_" + measurements[i] + "_" + system \
-                         + " " + measurements[i] + " order by time "
-            else:
-                query += "select \'" + measurements[i] + "\'," + measurements[i] + ".time as time," \
-                         + measurements[i] + ".value as value from aqxs_" + measurements[i] + "_" + system \
-                         + " " + measurements[i] + " union "
+            # query += """select {prefix}, {prefix}.time as time,
+            #             {prefix}.value as value from aqxs_{prefix}_{system}
+            #             {prefix} where """.format(prefix=measurements[i], system=system)
 
+
+            query += "select \'" + measurements[i] + "\'," + measurements[i] + ".time as time," \
+                         + measurements[i] + ".value as value from aqxs_" + measurements[i] + "_" + system \
+                         + " " + measurements[i] + " where "
+            if time_ranges:
+                for j in range(0,len(time_ranges)):
+                     start_time = "'" + str(time_ranges[j][0]) + "'"
+                     end_time = "'" + str(time_ranges[j][1]) + "'"
+
+                     if j == len(time_ranges) - 1:
+                         query += "( time > " + start_time + " and time < " + end_time + ")"
+                     else:
+                         query += "( time > " + start_time + " and time < " + end_time + ") or"
+
+            else:
+                query += "1=1"
+        # " where time between " + start_time + " and " + end_time
+
+            if i == len(measurements) - 1:
+                query += " order by time "
+            else:
+                query += " union "
+
+        print query
         return query
 
     ###############################################################################
+
+    # get_all_measurement_info: method to fetch the id, name, units, min and max
+    #                           of all the measurements
+    # returns the id, name, units, min, max of all the measurements
+    def get_time_ranges_for_status(self,system_id,status_id):
+        cursor = self.conn.cursor()
+        query_time_ranges = ("select start_time, end_time from system_status"  \
+                             + " where system_uid = %s"
+                             + " and sys_status_id = %s" )
+        try:
+            print query_time_ranges
+            cursor.execute(query_time_ranges,(system_id,status_id,))
+            time_ranges = cursor.fetchall()
+
+            # time_range_list = []
+            # for time_range in time_ranges:
+            #     time_range_list.append(time_range)
+
+        except Error as e:
+            return {'error': e.msg}
+        finally:
+            cursor.close()
+        print time_ranges
+        return time_ranges
+
+    ###############################################################################
+
+
+    #
+
+    def get_status_type(self, status_id):
+        cursor = self.conn.cursor()
+        query_name = ("SELECT status_type "
+                      "FROM status_types "
+                      "WHERE id = %s")
+        try:
+            cursor.execute(query_name, (status_id,))
+            status_type = cursor.fetchall()
+            status_type = str(status_type[0][0])
+        except Error as e:
+            return {'error': e.msg}
+        finally:
+            cursor.close()
+        return status_type
+
 
     # get_all_measurement_info: method to fetch the id, name, units, min and max
     #                           of all the measurements

@@ -1,5 +1,6 @@
 import json
 import traceback
+from mysql.connector.errors import PoolError
 from flask import Blueprint, render_template, request, redirect, url_for, abort
 
 from app.dav_api import DavAPI
@@ -24,7 +25,11 @@ def init_dav(conn_pool):
 ######################################################################
 
 def get_conn():
-    return pool.get_connection()
+    try:
+        return pool.get_connection()
+    except PoolError as e:
+        return render_template('error.html'), 500
+
 
 
 ######################################################################
@@ -124,35 +129,63 @@ def get_all_aqx_metadata():
 
 ######################################################################
 # API call to get latest recorded values of all measurements of a
-# given system
-######################################################################
-
-@dav.route('/aqxapi/get/system/measurements/<system_uid>', methods=['GET'])
-def get_system_measurements(system_uid):
-    dav_api = DavAPI(get_conn())
-    return dav_api.get_system_measurements(system_uid)
-
-
-######################################################################
+# given system (when only system_uid is given)
 # API call to get latest record of a given measurement of a given
-# system
+# system (when both system_uid and measurement_id is given)
 ######################################################################
 
-@dav.route('/aqxapi/system/<system_uid>/measurement/<measurement_id>', methods=['GET'])
-def get_system_light_measurement(system_uid, measurement_id):
-    dav_api = DavAPI(get_conn())
-    return dav_api.get_system_measurement(system_uid, measurement_id)
+@dav.route('/aqxapi/v1/measurements', methods=['GET'])
+def get_system_measurement():
+    system_uid = request.args.get('system_uid')
+    if system_uid is None or len(system_uid) <= 0:
+        error_msg_system = json.dumps({'error': 'Invalid system_uid'})
+        return error_msg_system, 400
+    measurement_id = request.args.get('measurement_id')
+    if measurement_id is None:
+        dav_api = DavAPI(get_conn())
+        result = dav_api.get_system_measurements(system_uid)
+    elif len(measurement_id) <= 0:
+        error_msg_measurement = json.dumps({'error': 'Invalid measurement id'})
+        return error_msg_measurement, 400
+    else:
+        dav_api = DavAPI(get_conn())
+        result = dav_api.get_system_measurement(system_uid, measurement_id)
+    if 'error' in result:
+        return result, 400
+    else:
+        return result
 
 
 ######################################################################
 # API call to put a record of a given measurement of a given system
 ######################################################################
 
-@dav.route('/aqxapi/put/system/measurement', methods=['POST'])
+@dav.route('/aqxapi/v1/measurements', methods=['PUT'])
 def put_system_measurement():
     dav_api = DavAPI(get_conn())
     data = request.get_json()
-    return dav_api.put_system_measurement(data)
+    system_uid = data.get('system_uid')
+    if system_uid is None or len(system_uid) <= 0:
+        error_msg_system = json.dumps({'error': 'System_uid required'})
+        return error_msg_system, 400
+    measurement_id = data.get('measurement_id')
+    if measurement_id is None or len(measurement_id) <= 0:
+        error_msg_measurement = json.dumps({'error': 'Measurement id required'})
+        return error_msg_measurement, 400
+    time = data.get('time')
+    if time is None or len(time) <= 0:
+        error_msg_time = json.dumps({'error': 'Time required'})
+        return error_msg_time, 400
+    value = data.get('value')
+    if value is None or len(value) <= 0:
+        error_msg_value = json.dumps({'error': 'Value required'})
+        return error_msg_value, 400
+    else:
+        result = dav_api.put_system_measurement(system_uid, measurement_id, time, value)
+    if 'error' in result:
+        return result, 400
+    else:
+        return result, 201
 
 
 ######################################################################
@@ -160,17 +193,18 @@ def put_system_measurement():
 ######################################################################
 
 @dav.route('/aqxapi/get/readings/tsplot/systems/<system_uid_list>/measurements/<msr_id_list>', methods=['GET'])
-def get_readings_for_tsplot(system_uid_list, msr_id_list):
+def get_readings_for_tsplot(system_uid_list, msr_id_list,status_id):
     dav_api = DavAPI(get_conn())
-    return dav_api.get_readings_for_plot(system_uid_list, msr_id_list)
+    return dav_api.get_readings_for_plot(system_uid_list, msr_id_list,status_id)
 
 
-@dav.route('/aqxapi/get/readings/time_series_plot', methods=['POST'])
+@dav.route('/aqxapi/v1/measurements/plot', methods=['POST'])
 def get_readings_for_plot():
     dav_api = DavAPI(get_conn())
     measurements = request.json['measurements']
     systems_uid = request.json['systems']
-    return dav_api.get_readings_for_plot(systems_uid, measurements)
+    status_id = request.json['status']
+    return dav_api.get_readings_for_plot(systems_uid, measurements,status_id)
 
 
 ######################################################################

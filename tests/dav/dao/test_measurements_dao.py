@@ -36,5 +36,16 @@ class MeasurementsDAOTest(unittest.TestCase):
         print response
         self.assertNotEqual(len(response), 0, 'measurements exist')
 
+    def test_get_time_ranges_for_status(self):
+        m = MeasurementsDAO(self.conn)
+        response = m.get_time_ranges_for_status('eecce02681bb11e5904b000c29b92d09',100)
+
+    def test_get_status_type(self):
+        m = MeasurementsDAO(self.conn)
+        response = m.get_status_type(200)
+        print response
+        self.assertEqual('established',response)
+
+
 if __name__ == '__main__':
     unittest.main()

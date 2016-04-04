@@ -1,4 +1,5 @@
 import datetime
+import decimal
 import json
 import random
 import re
@@ -114,10 +115,15 @@ class DavAPI:
                 # Append the value to the latest_value[] list
                 if len(value) == 1:
                     value_temp = value[0]
+                    measurement_value = decimal.Decimal(value_temp[1])
+                    if measurement_value.is_normal():
+                        normalized_measurement_value = measurement_value
+                    else:
+                        normalized_measurement_value = measurement_value.normalize()
                     temp = {
                         'name': measurement_name,
                         'time': str(value_temp[0]),
-                        'value': str(value_temp[1])
+                        'value': str(normalized_measurement_value)
                     }
                 else:
                     temp = {
@@ -208,9 +214,14 @@ class DavAPI:
             return json.dumps(result)
         values = []
         for result_temp in result:
+            measurement_value = decimal.Decimal(result_temp[1])
+            if measurement_value.is_normal():
+                normalized_measurement_value = measurement_value
+            else:
+                normalized_measurement_value = measurement_value.normalize()
             values_temp = {
                 'time': str(result_temp[0]),
-                'value': str(result_temp[1])
+                'value': str(normalized_measurement_value)
             }
             values.append(values_temp)
         obj = {
@@ -227,12 +238,7 @@ class DavAPI:
     # param measurement_id: ID of a measurement
     # get_system_measurement - It returns the latest recorded values of the
     #                           given system.
-    def put_system_measurement(self, data):
-        # Fetch the name of the measurement
-        system_uid = data.get('system_uid')
-        measurement_id = data.get('measurement_id')
-        time = data.get('time')
-        value = data.get('value')
+    def put_system_measurement(self, system_uid, measurement_id, time, value):
         measurement = self.mea.get_measurement_name(measurement_id)
         if 'error' in measurement:
             return json.dumps(measurement)
@@ -254,7 +260,7 @@ class DavAPI:
     # param measurement_id_list: List of measurement_IDs
     # get_readings_for_plot - It returns the readings of all the input system uids
     #                         for all input measurement ids
-    def get_readings_for_plot(self, system_uid_list, measurement_id_list):
+    def get_readings_for_plot(self, system_uid_list, measurement_id_list,status_id):
         # Form a list of names from the list of ids
         measurement_type_list = self.mea.get_measurement_name_list(measurement_id_list)
 
@@ -274,7 +280,9 @@ class DavAPI:
             measurement_name_list.append(str(name[0]))
 
         # Retrieve the measurements calling DAO
-        data_retrieved = self.mea.get_measurements(system_uid_list, measurement_name_list)
+        data_retrieved = self.mea.get_measurements(system_uid_list, measurement_name_list,status_id)
+        status = self.mea.get_status_type(status_id)
+
         if 'error' in data_retrieved:
             return json.dumps(data_retrieved)
 
@@ -283,7 +291,7 @@ class DavAPI:
         for system_uid in system_uid_list:
             readings = data_retrieved[system_uid]
             system_measurement_json = self.form_system_measurement_json(system_uid, readings,
-                                                                        measurement_name_list)
+                                                                        measurement_name_list,status)
             system_measurement_list.append(system_measurement_json)
 
         return json.dumps({"response": system_measurement_list})
@@ -297,7 +305,7 @@ class DavAPI:
     # form_system_measurement_json  - It returns the json for all information needed
     # for the plot for the input system_uid
     #
-    def form_system_measurement_json(self, system_uid, readings, measurement_type_list):
+    def form_system_measurement_json(self, system_uid, readings, measurement_type_list,status):
         measurement_list = []
 
         # For each measurement type, form the list of readings
@@ -319,6 +327,7 @@ class DavAPI:
         system_measurement = {
             "system_uid": system_uid,
             "name": self.sys.get_system_name(system_uid),
+            "status" : status,
             "measurement": measurement_list
         }
 
