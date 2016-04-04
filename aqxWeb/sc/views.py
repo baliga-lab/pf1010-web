@@ -646,10 +646,7 @@ def view_system(system_uid):
                 likes = system.get_system_recent_likes(system_uid)
                 total_likes = system.get_total_likes_for_system_posts(system_uid)
                 post_owners = system.get_system_post_owners(system_uid)
-                measurements = analyticsViews.get_system_measurements(system_uid)
-                print(measurements)
-                measurements_table = json2html.convert(json=measurements)
-                print(measurements_table)
+
                 return render_template("system_social.html", system_neo4j=system_neo4j, system_mysql=system_mysql,
                                        logged_in_user=logged_in_user, created_date=created_date,
                                        system_location=system_location,
@@ -659,8 +656,7 @@ def view_system(system_uid):
                                        subscribers_pending_approval=subscribers_pending_approval,
                                        system_uid=system_uid, privacy_options=privacy_options,
                                        posts=posts, comments=comments, likes=likes,
-                                       totalLikes=total_likes, postOwners=post_owners,
-                                       measurements_table=measurements_table)
+                                       totalLikes=total_likes, postOwners=post_owners)
     except Exception as e:
         logging.exception("Exception at view_system: " + str(e))
 
