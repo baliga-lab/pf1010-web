@@ -10,7 +10,9 @@ from sc.views import social
 
 # UI imports
 from flask_bootstrap import Bootstrap
+import frontend as x
 from frontend import frontend
+
 from nav import nav
 
 os.environ['AQUAPONICS_SETTINGS'] = "system_db.cfg"
@@ -60,10 +62,15 @@ def page_not_found(e):
 # Common init method for application
 if __name__ == "__main__":
     # Initialize the aquaponics db connection
+<<<<<<< HEAD
     app.debug = True
     app.config.from_envvar('AQUAPONICS_SETTINGS')
     create_conn(app)
     init_dav(pool)
+=======
+    analyticsViews.init_app(app)
+    x.init_app(app)
+>>>>>>> sprint3_ui
     # Intialize the social component global app instance
     init_sc_app(app)
     # Initialise UI's nav routing
