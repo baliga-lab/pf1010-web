@@ -200,7 +200,7 @@ function callAPIForNewData(measurementIDList){
             contentType: 'application/json;charset=UTF-8',
             dataType: 'json',
             async: false,
-            url: '/dav/aqxapi/get/readings/time_series_plot',
+            url: 'dav/aqxapi/v1/measurements/plot',
             data: JSON.stringify({systems: selectedSystemIDs, measurements: measurementIDList}, null, '\t'),
             success: function(data){
                 // Check if there were any errors on the server side
@@ -209,6 +209,7 @@ function callAPIForNewData(measurementIDList){
                     console.log(data.error);
                     throw "AJAX request reached the server but returned an error!";
                 }else{
+                    console.log('Successfully loaded data from serer.')
                     addNewMeasurementData(data);
                 }
             },
@@ -470,9 +471,19 @@ function tooltipFormatter(){
     units = (_.isEqual(units, "celsius")) ? "°C" : units;
     yVal = yVal.charAt(0).toUpperCase() + yVal.slice(1);
     var datetime = this.point.date.split(" ");
+    var eventString = "";
+    if (this.point.event) {
+        console.log('event found');
+        eventString = "<br><p>Most recent event(s): </p>";
+        _.each(this.point.event, function (event) {
+            console.log(event);
+            eventString = eventString + '<br><p>' + event.id + " at " + event.date + '<p>'
+        });
+    }
     return '<b>' + tooltipInfo[0] + '</b>' +
         '<br><p>' + yVal + ": " + this.y + ' ' + units + '</p>' +
         '<br><p>Hours in cycle: ' + this.x + '</p>' +
         '<br><p>Measured on: ' + datetime[0] + '</p>' +
-        '<br><p>At time: ' + datetime[1] +'</p>';
+        '<br><p>At time: ' + datetime[1] +'</p>' +
+        eventString;
 }
