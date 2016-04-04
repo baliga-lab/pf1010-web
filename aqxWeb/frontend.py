@@ -1,16 +1,17 @@
 from flask import Blueprint, render_template, request, session
 from mysql.connector.pooling import MySQLConnectionPool
 import os
-from aqxWeb.app.uiAPI import uiAPI
+from app.uiAPI import UiAPI
 
 frontend = Blueprint('frontend', __name__, template_folder='templates',static_folder='static')
 
 pool = None
 
-uiAPI = uiAPI()
+#uiAPI = UiAPI()
 
 # Connect to the database
 def init_app(app):
+    app.debug = True
     app.config.from_envvar('AQUAPONICS_SETTINGS')
     create_conn(app)
 
@@ -118,7 +119,8 @@ def coming():
 ######################################################################
 @frontend.route('/aqxapi/get/system/meta/<system_uid>', methods=['GET'])
 def get_metadata(system_uid):
-    return uiAPI.get_system_metadata(get_conn(), system_uid)
+    uiAPI = UiAPI(get_conn())
+    return uiAPI.get_system_with_system_id(system_uid)
 
 
 ######################################################################
@@ -129,7 +131,8 @@ def get_metadata(system_uid):
 #                          object.
 @frontend.route('/aqxapi/get/systems/metadata')
 def get_all_systems_info():
-    return uiAPI.get_all_systems_info(get_conn())
+    uiAPI = UiAPI(get_conn())
+    return uiAPI.get_all_systems_info()
 
 
 ######################################################################
@@ -140,16 +143,18 @@ def get_all_systems_info():
 #                        to filter the displayed systems.
 @frontend.route('/aqxapi/get/systems/filters')
 def get_all_aqx_metadata():
-    return uiAPI.get_all_filters_metadata(get_conn())
+    uiAPI = UiAPI(get_conn())
+    return uiAPI.get_all_filters_metadata()
 
 
 ######################################################################
 # API call to get user data
 ######################################################################
 
-@frontend.route('/aqxapi/get/user/<uid>', methods=['GET'])
+#@frontend.route('/aqxapi/get/user/<uid>', methods=['GET']) google sheet removed get user by user id. i leave it here just in case.
 def get_user(uid):
-    return uiAPI.get_user(get_conn(), uid)
+    uiAPI = UiAPI(get_conn())
+    return uiAPI.get_user(uid)
 
 
 ######################################################################
@@ -158,7 +163,8 @@ def get_user(uid):
 
 @frontend.route('/aqxapi/get/user/<googleid>', methods=['GET'])
 def get_user_with_google_id(googleid):
-    return uiAPI.get_user_with_google_id(get_conn(), googleid)
+    uiAPI = UiAPI(get_conn())
+    return uiAPI.get_user_with_google_id(googleid)
 
 
 ######################################################################
@@ -168,7 +174,8 @@ def get_user_with_google_id(googleid):
 @frontend.route('/aqxapi/put/user', methods=['POST'])
 def put_user():
     user = request.get_json()
-    return uiAPI.put_user(get_conn(), user)
+    uiAPI = UiAPI(get_conn())
+    return uiAPI.put_user(user)
 
 
 ######################################################################
@@ -178,7 +185,8 @@ def put_user():
 @frontend.route('/aqxapi/post/user', methods=['POST'])
 def insert_user():
     user = request.get_json()
-    return uiAPI.insert_user(get_conn(),user)
+    uiAPI = UiAPI(get_conn())
+    return uiAPI.insert_user(user)
 
 
 ######################################################################
@@ -189,7 +197,8 @@ def insert_user():
 ######################################################################
 @frontend.route('/aqxapi/get/systems')
 def get_systems():
-     return uiAPI.get_systems(get_conn())
+    uiAPI = UiAPI(get_conn())
+    return uiAPI.get_systems()
 
 
 ######################################################################
@@ -202,4 +211,5 @@ def get_systems():
 
 @frontend.route('/aqxapi/system/exists/<system_uid>',methods=['GET'])
 def check_system_exists(system_uid):
-     return uiAPI.check_system_exists(get_conn(), system_uid)
+    uiAPI = UiAPI(get_conn())
+    return uiAPI.check_system_exists(system_uid)

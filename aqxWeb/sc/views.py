@@ -15,7 +15,6 @@ import aqxdb
 import logging
 import json
 from flask_oauth import OAuth
-from aqxWeb.dav import analyticsViews
 from json2html import *
 
 oauth = OAuth()
