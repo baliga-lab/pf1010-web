@@ -7,26 +7,37 @@
                 {# USER OF POST #}
                 <div class="media-left">
                     {# LINK TO USER'S PROFILE #}
-                    <a href="/social/profile/{% if row.user %}{{ row.user.google_id }}{% endif %}">
-                        {% if row.user.image_url %}
+                    {% if user_privilege == "SYS_ADMIN" or user_privilege == "SYS_PARTICIPANT" %}
+                        <a href="/social/profile/{% if row.user %}{{ row.user.google_id }}{% endif %}">
+                            {% if row.user.image_url %}
                             <img class="media-object" src="{{ row.user.image_url }}"
                                  alt="{{ row.displayName }}'s Picture"
                                  height="32" width="32">
                             {# PLACEHOLDER IMAGE FOR USER'S PROFILE PIC #}
-                        {% else %}
+                            {% else %}
                             <img class="media-object"
                                  src="{{ url_for('frontend.static', filename='images/users/oddish.png') }}"
                                  alt="User has no profile picture"
                                  height="32" width="32">
                             {# PLACEHOLDER IMAGE FOR USER WITH NO PROFILE PICTURE #}
-                        {% endif %}
+                            {% endif %}
+                            {% else %}
+                            <img class="participantImage"
+                                     src="{{ url_for('frontend.static', filename='images/users/oddish.png') }}">
+
+                            {% endif %}
                     </a>
                 </div>
 
                 {# POST CONTENT #}
                 <div class="media-body">
                     <h4>
-                        {{ row.displayName }}
+                        {% if user_privilege == "SYS_ADMIN" or user_privilege == "SYS_PARTICIPANT" %}
+                            {{ row.displayName }}
+                        {% else %}
+                            Anonymous
+                        {% endif %}
+
                         <span class="date sub-text">posted on {{ row.post.date }}</span>
                     </h4>
                     {% for po in postOwners %}
@@ -131,23 +142,34 @@
                                 <li>
                                     <div class="media-left">
                                         <a href="#"> {# LINK TO USER'S PROFILE #}
-                                            {% if row.user and row.user.image_url %}
-                                                <img class="media-object" src="{{ cmt.user.image_url }}"
-                                                     alt="{{ cmt.displayName }}'s Picture" height="32" width="32"/>
-                                                {# PLACEHOLDER IMAGE FOR USER'S PROFILE PIC #}
+                                            {% if user_privilege == "SYS_ADMIN" or user_privilege == "SYS_PARTICIPANT" %}
+                                                {% if row.user and row.user.image_url %}
+                                                    <img class="media-object" src="{{ cmt.user.image_url }}"
+                                                        alt="{{ cmt.displayName }}'s Picture" height="32" width="32"/>
+                                                    {# PLACEHOLDER IMAGE FOR USER'S PROFILE PIC #}
+                                                {% else %}
+                                                    <img class="media-object"
+                                                        src="{{ url_for('frontend.static', filename='images/users/gloom.png') }}"
+                                                        alt="" height="32" width="32"/>
+                                                    {# PLACEHOLDER IMAGE FOR USER'S PROFILE PIC #}
+                                                {% endif %}
                                             {% else %}
                                                 <img class="media-object"
-                                                     src="{{ url_for('frontend.static', filename='images/users/gloom.png') }}"
-                                                     alt="" height="32" width="32"/>
-                                                {# PLACEHOLDER IMAGE FOR USER'S PROFILE PIC #}
+                                                        src="{{ url_for('frontend.static', filename='images/users/gloom.png') }}"
+                                                        alt="" height="32" width="32"/>
                                             {% endif %}
                                         </a>
                                     </div>
                                     <div class="media-body">
                                         <h5>
+                                            {% if user_privilege == "SYS_ADMIN" or user_privilege == "SYS_PARTICIPANT" %}
                                             <b>{{ cmt.comment.user_display_name }}</b>
+                                            {% else %}
+                                            <b>Anonymous</b>
+                                            {% endif %}
                                             <span class="date sub-text">replied with</span>
                                         </h5>
+
                                         <div class="input-group col-md-12">
                                             <p>{{ cmt.comment.content }}</p>
                                             {% if cmt.comment.user_sql_id == session['uid'] %}
