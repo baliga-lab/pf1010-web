@@ -96,7 +96,7 @@ def index():
     privacy.user_relation = None
     return render_template('home.html', posts=posts, comments=comments,
                            privacy_info=privacy, likes=likes,
-                           totalLikes=total_likes, postOwners=post_owners)
+                           totalLikes=total_likes, post_owners=post_owners)
 
 
 @social.route('/login')
@@ -234,7 +234,7 @@ def get_google_profile(google_id, user_profile=None):
                     "img_url": img_url
                 }
             else:
-                google_profile = get_alternative_google_profile(user_profile, google_response)
+                google_profile = get_alternative_google_profile(user_profile)
 
         return google_profile
     except Exception as e:
@@ -352,7 +352,7 @@ def profile(google_id):
             return render_template("profile.html", user_profile=user_profile, google_profile=google_profile,
                                    posts=posts, privacy_info=privacy, likes=likes, total_likes=total_likes,
                                    participated_systems=participated_systems, subscribed_systems=subscribed_systems,
-                                   admin_systems=admin_systems, friends=friends, status=status, sqlId=sql_id)
+                                   admin_systems=admin_systems, friends=friends, status=status, sql_id=sql_id)
 
     except Exception as e:
         logging.exception("Exception at view_profile: " + str(e))
