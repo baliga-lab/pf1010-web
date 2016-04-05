@@ -1,19 +1,17 @@
-#import sys
-#sys.path.append('C:\\Users\\Zhibo LIU\\Desktop\\ASD\\aqxWeb-NEU\\aqxWeb\\dao\\MetaDataDAO.py')
-#sys.path.append('C:\\Users\\Zhibo LIU\\Desktop\\ASD\\aqxWeb-NEU\\aqxWeb\\dao\\metasystemsDAO.py')
-#sys.path.append('C:\\Users\\Zhibo LIU\\Desktop\\ASD\\aqxWeb-NEU\\aqxWeb\\dao\\systemsDAO.py')
-#sys.path.append('C:\\Users\\Zhibo LIU\\Desktop\\ASD\\aqxWeb-NEU\\aqxWeb\\dao\\UserDAO.py')
 
-#from aqxWeb.dao.UserDAO import UserDAO
 from UserDAO import UserDAO
 from systemsDAO import SystemsDAO
 from MetaDataDAO import MetadataDAO
 from metasystemsDAO import MetaSystemsDAO
+from systemImageDAO import SystemImageDAO
+from systemAnnotationDao import SystemAnnotationDAO
 #from aqxWeb.dao.systemsDAO import SystemsDAO
 #from aqxWeb.dao.MetaDataDAO import MetadataDAO
 #from aqxWeb.dao.metasystemsDAO import MetaSystemsDAO
 from collections import defaultdict
 import json
+
+
 
 
 # user interface data access api
@@ -38,10 +36,71 @@ class UiAPI:
     #                                   given system.
 
     def get_system_metadata(self, system_id):
-        s = MetaSystemsDAO(self.conn)
-        result = s.get_metadata(system_id)
+        # i wanna use get_metadata to directly get that system, but not work. maybe query is wrong
+        # so i choose to use get_system_with_system_id below
+        s = SystemsDAO(self.conn)
+        system = s.get_metadata(system_id)
+        if 'error' in system:
+            return json.dumps(system)
+        clean_sys = str(system)[2:-2]
 
-        return json.dumps({'system': result})
+
+        # obj = {'system_uid': str(system[0]),
+        #        'user_id': system[1],
+        #        'system_name': str(system[2]),
+        #        'start_date': str(system[3]),
+        #        'lat': str(system[4]),
+        #        'lng': str(system[5]),
+        #        'aqx_technique_name': str(system[6]),
+        #        'growbed_media': system[7],
+        #        'crop_name': str(system[8]),
+        #        'crop_count': system[9],
+        #        'organism_name': str(system[10]),
+        #        'organism_count': system[11],
+        #        'creation_time': str(system[12]),
+        #        'status': system[13],
+        #        'state': str(system[14])
+        #        }
+
+        return json.dumps({'system': str(system)})
+
+    ###############################################################################
+    #         get_system_with_system_id
+    ###############################################################################
+    # param conn : db connection
+    # param system_id : system id
+    #         get_system_with_system_id(system_uid) - It takes in the system_uid as the input
+    #                                   parameter and returns the metadata for the
+    #                                   given system.
+
+    def get_system_with_system_id(self, system_id):
+        systems = self.sys.get_all_systems_info()
+        if 'error' in systems:
+            return json.dumps(systems)
+        #systems[0] is a system json
+        #return json.dumps({'system': str(systems[0][0])})  which is system id
+        for system in systems:
+            if system[0] == system_id:
+                obj = {'system_uid': str(system[0]),
+                       'user_id': system[1],
+                       'system_name': str(system[2]),
+                       'start_date': str(system[3]),
+                       'lat': str(system[4]),
+                       'lng': str(system[5]),
+                       'aqx_technique_name': str(system[6]),
+                       'growbed_media': system[7],
+                       'crop_name': str(system[8]),
+                       'crop_count': system[9],
+                       'organism_name': str(system[10]),
+                       'organism_count': system[11],
+                       'creation_time': str(system[12]),
+                       'status': system[13],
+                       'state': system[14]
+                      }
+                return json.dumps({'system': obj})
+        return json.dumps({'system': 'not found'})
+
+
 
 
     ###############################################################################
@@ -71,7 +130,10 @@ class UiAPI:
                    'crop_name': system[8],
                    'crop_count': system[9],
                    'organism_name': system[10],
-                   'organism_count': system[11]}
+                   'organism_count': system[11],
+                   'creation_time': str(system[12]),
+                   'status': system[13],
+                   'state': system[14]}
 
             systems_list.append(obj)
 
@@ -129,7 +191,7 @@ class UiAPI:
 
     def get_user_with_google_id(self, google_id):
         u = UserDAO(self.conn)
-        result_temp = u.get_user(google_id)
+        result_temp = u.get_user_by_google_id(google_id)
         if 'error' in result_temp:
             return json.dumps(result_temp)
         result = result_temp[0]
@@ -183,7 +245,7 @@ class UiAPI:
     # get_all_systems() - It returns List of all aquaponics systems, system_uid,name,user_id owning
     # the system longitude and latitude of system's location as a JSON object.
 
-    def get_all_systems(self):
+    def get_systems(self):
         systems = self.sys.get_all_systems_info()
         if 'error' in systems:
             return json.dumps(systems)
@@ -213,8 +275,134 @@ class UiAPI:
     #{"status":"False"}
 
     def check_system_exists(self, system_uid):
-        status = False
-        system = self.sys.get_metadata(self, system_uid)
-        if system is not "null":
-            status = True
-        return json.dumps({"status": str(status)})
+        systems = self.sys.get_all_systems_info()
+        if 'error' in systems:
+            return json.dumps(systems)
+        for system in systems:
+            if system[0] == system_uid:
+                return json.dumps({"status": str(True)})
+        return json.dumps({"status": str(False)})
+
+    ###############################################################################
+    #     create_system
+    # input: system, a form object
+    # if json is in this order, then json[0] should be system_uid
+    # system_uid, user_id, name, start_date, status, aqx_technique_id
+    # technique on add system page is the actual technique, but db needs that technique's id
+    ###############################################################################
+    def create_system(self, system):
+        s = SystemsDAO(self.conn)
+        result = s.create_system(system)
+        message = {
+            "message": result
+        }
+        return json.dumps({'status': message})
+
+    ###############################################################################
+    #   get_all_user_systems
+    #   get a user's all systems
+    ###############################################################################
+    def get_all_user_systems(self, user_id):
+        s = SystemsDAO(self.conn)
+        result = s.get_all_user_systems(user_id)
+        if 'error' in result:
+            return json.dumps(result)
+        systems_list = []
+        for system in result:
+            # For each system, create a system
+            obj = {'id': system[0],
+                   'user_id': system[1],
+                   'name': system[2],
+                   'system_uid': system[3],
+                   'creation_time': str(system[4]),
+                   'start_date': str(system[5]),
+                   'aqx_technique_id': system[6],
+                   'status': system[7],
+                   'lat': str(system[8]),
+                   'lng': str(system[9]),
+                    'state': system[10]}
+
+            systems_list.append(obj)
+
+        return json.dumps({'systems': systems_list})
+
+    # add an image to a syetem
+    # id is auto incremented
+    def add_image_to_system(self, system_uid, image):
+        s = SystemImageDAO(self.conn)
+        result = s.add_image_to_system(system_uid, image)
+        message = {
+            "message": result
+        }
+        return json.dumps({'status': message})
+
+    # delete an image from a system
+    def delete_image_from_system(self, system_uid, image_id):
+        s = SystemImageDAO(self.conn)
+        result = s.delete_image_from_system(system_uid, image_id)
+        message = {
+            "message": result
+        }
+        return json.dumps({'status': message})
+
+    # view image of a system
+    def view_image_from_system(self, system_uid, image_id):
+        s = SystemImageDAO(self.conn)
+        image = s.view_image_from_system(system_uid, image_id)
+        if 'error' in image:
+            return json.dumps(image)
+        obj = {'id': image[0],
+               'system_id': image[1],
+               'image_url': image[2]}
+        return json.dumps({'image': obj})
+
+    # get a system's all images
+
+    def get_system_all_images(self, system_uid):
+        s = SystemImageDAO(self.conn)
+        result = s.get_system_all_images(system_uid)
+        if 'error' in result:
+            return json.dumps(result)
+        images_list = []
+        for image in result:
+            # For each system, create a system
+            obj = {'id': image[0],
+                   'system_id': image[1],
+                   'image_url': image[2]}
+            images_list.append(obj)
+
+        return json.dumps({'images': images_list})
+
+    # add an annotation to a system
+    def add_annotation(self, system_uid, annotation):
+        s = SystemAnnotationDAO(self.conn)
+        result = s.add_annotation(system_uid, annotation)
+        message = {
+            "message": result
+        }
+        return json.dumps({'status': message})
+
+    # get a system's all annotations
+    def view_annotation(self,system_uid):
+        s = SystemAnnotationDAO(self.conn)
+        result = s.view_annotation(system_uid)
+        if 'error' in result:
+            return json.dumps(result)
+            annotations_list = []
+        for annotation in result:
+            # For each system, create a system
+            obj = {'id': annotation[0],
+                   'system_id': annotation[1],
+                   'water': annotation[2],
+                   'pH': str(annotation[3]),
+                   'harvest': str(annotation[4]),
+                   'plant': str(annotation[5]),
+                   'fish': annotation[6],
+                   'bacteria': annotation[7],
+                   'cleanTank': annotation[8],
+                   'reproduction': annotation[9],
+                   'timestamp': annotation[10]}
+            annotations_list.append(obj)
+
+        return json.dumps({'annotations': annotations_list})
+

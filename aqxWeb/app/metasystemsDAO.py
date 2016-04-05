@@ -22,7 +22,7 @@ class MetaSystemsDAO:
                  "sc.num as 'crop_count', "
                  "ao.name as 'organism', "
                  "sao.num as 'organism_count'"
-                 "FROM systems s WHERE system_uid = %s" # s should be before or after WHERE? or not matter
+                 "FROM systems s WHERE system_uid = %%s" # s should be before or after WHERE? or not matter
                  "LEFT JOIN aqx_techniques aqt ON s.aqx_technique_id = aqt.id "
                  "LEFT JOIN system_crops sc    ON s.id = sc.system_id "
                  "LEFT JOIN crops cr           ON sc.crop_id = cr.id "

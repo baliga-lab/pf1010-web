@@ -2,6 +2,7 @@ from flask import Blueprint, render_template, request, session
 from mysql.connector.pooling import MySQLConnectionPool
 import os
 from app.uiAPI import UiAPI
+from sc.app.scAPI import ScAPI
 
 frontend = Blueprint('frontend', __name__, template_folder='templates',static_folder='static')
 
@@ -11,7 +12,7 @@ pool = None
 
 # Connect to the database
 def init_app(app):
-    #app.debug = True
+    app.debug = True
     app.config.from_envvar('AQUAPONICS_SETTINGS')
     create_conn(app)
 
@@ -120,7 +121,7 @@ def coming():
 @frontend.route('/aqxapi/get/system/meta/<system_uid>', methods=['GET'])
 def get_metadata(system_uid):
     uiAPI = UiAPI(get_conn())
-    return uiAPI.get_system_metadata(system_uid)
+    return uiAPI.get_system_with_system_id(system_uid)
 
 
 ######################################################################
@@ -151,7 +152,7 @@ def get_all_aqx_metadata():
 # API call to get user data
 ######################################################################
 
-@frontend.route('/aqxapi/get/user/<uid>', methods=['GET'])
+#@frontend.route('/aqxapi/get/user/<uid>', methods=['GET']) google sheet removed get user by user id. i leave it here just in case.
 def get_user(uid):
     uiAPI = UiAPI(get_conn())
     return uiAPI.get_user(uid)
@@ -213,3 +214,72 @@ def get_systems():
 def check_system_exists(system_uid):
     uiAPI = UiAPI(get_conn())
     return uiAPI.check_system_exists(system_uid)
+
+######################################################################
+# API call to create system  CALL SC API   ????????????????????????????????????????????????????????????????
+######################################################################
+
+@frontend.route('/add_system', methods=['POST'])
+def create_system():
+    system = request.form
+    scAPI = ScAPI(get_conn())
+    uiAPI = UiAPI(get_conn())
+    scAPI.create_system(system)
+    return uiAPI.create_system(system)
+
+######################################################################
+# API call to get all user systems
+######################################################################
+
+@frontend.route('/aqxapi/get/user/<user_id>/systems', methods=['GET'])
+def get_all_user_systems(user_id):
+    uiAPI = UiAPI(get_conn())
+    return uiAPI.get_all_user_systems(user_id)
+
+######################################################################
+# API call to add an image to a system_image table
+######################################################################
+@frontend.route('/aqxapi/post/system/<system_uid>/image', methods=['POST'])
+def add_image_to_system(system_uid):
+    image = request.form
+    uiAPI = UiAPI(get_conn())
+    return uiAPI.add_image_to_system(system_uid, image)
+
+######################################################################
+# API call to delete an image from a system
+######################################################################
+@frontend.route('/aqxapi/delete/system/<system_uid>/image/<image_id>', methods=['DELETE'])
+def delete_image_from_system(system_uid, image_id):
+    uiAPI = UiAPI(get_conn())
+    return uiAPI.delete_image_from_system(system_uid, image_id)
+
+######################################################################
+# API call to view an image of a system
+######################################################################
+@frontend.route('/aqxapi/get/system/<system_uid>/image/<image_id>', methods=['GET'])
+def view_image_from_system(system_uid, image_id):
+    uiAPI = UiAPI(get_conn())
+    return uiAPI.view_image_from_system(system_uid, image_id)
+
+######################################################################
+# API call to view a system's all images
+######################################################################
+@frontend.route('/aqxapi/get/system/<system_uid>/images', methods=['GET'])
+
+def get_system_all_images(system_uid):
+    uiAPI = UiAPI(get_conn())
+    return uiAPI.get_system_all_images(system_uid)
+
+# add an annotation to system annotation table
+@frontend.route('/aqxapi/post/system/<system_uid>/annotations', methods=['POST'])
+
+def add_annotation(system_uid):
+    uiAPI = UiAPI(get_conn())
+    annotation = request.form
+    return uiAPI.add_annotation(system_uid, annotation)
+#view a system's all annotations
+@frontend.route('/aqxapi/get/system/<system_uid>/annotations', methods=['GET'])
+def view_annotation(system_uid):
+    uiAPI = UiAPI(get_conn())
+    return uiAPI.view_annotation(system_uid)
+
