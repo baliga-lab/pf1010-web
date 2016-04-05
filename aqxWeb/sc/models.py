@@ -857,11 +857,11 @@ class User:
 
 ########### END OF USER class #############
 ############################################################################
-# function : get_all_recent_posts
-# purpose : gets all posts from db for given user id
+# function : get_system_measurements_dav_api
+# purpose : gets measurements for the system from dav team db for given system uid
 # params :
-#       user_id - user_id of the logged in user
-# returns : json string of system_uid and
+#       system_uid - id which uniqly represents the system
+# returns : json string of system_uid and measurements array
 # Exceptions : Flask exception
 ############################################################################
 
