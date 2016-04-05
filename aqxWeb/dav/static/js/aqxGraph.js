@@ -5,6 +5,7 @@
  ################################################################################################################### */
 
 var XAXIS = "selectXAxis";
+var XAXIS_TITLE = 'Hours since creation';
 var CHART = "";
 var GRAPH_TYPE = "selectGraphType";
 var SELECTED = 'selected';
@@ -15,7 +16,6 @@ var HC_OPTIONS;
 var COLORS = ["lime", "orange", '#f7262f', "lightblue"];
 var DASHSTYLES = ['Solid', 'LongDash', 'ShortDashDot', 'ShortDot', 'LongDashDotDot'];
 var MARKERTYPES = ["circle", "square", "diamond", "triangle", "triangle-down"];
-var TIMELABEL = "Hours since creation.";
 var DANGER = 'danger';
 var MAXSELECTIONS = 4;
 var BACKGROUND = {
@@ -76,14 +76,13 @@ function updateChartDataPointsHC(chart, xType, yTypeList, graphType){
 
     // Handle the x axis, for now just using time
     // TODO: Expand to handle changing x axes
-    chart.xAxis[0].setTitle({ text: TIMELABEL });
+    chart.xAxis[0].setTitle({ text: XAXIS_TITLE });
 
     // Get dataPoints and their configs for the chart, using systems_and_measurements and add them
     var newDataSeries = getDataPointsForPlotHC(chart, xType, yTypeList, graphType);
     _.each(newDataSeries, function(series) {
         chart.addSeries(series);
     });
-
     return chart;
 }
 
@@ -191,6 +190,17 @@ function addNewMeasurementData(data){
     });
 }
 
+function processAJAXResponse(data){
+    if("error" in data){
+        console.log("Server returned an error...");
+        console.log(data);
+        throw "AJAX request reached the server but returned an error!";
+    }else{
+        console.log("here");
+        addNewMeasurementData(data);
+    }
+}
+
 
 /**
  * Sends an AJAX POST request to call for new, untracked measurement data for each system
@@ -198,37 +208,48 @@ function addNewMeasurementData(data){
  * @param statusID
  */
 function callAPIForNewData(measurementIDList, statusID){
-    $(function(){
-        $.ajax({
-            type: 'POST',
-            contentType: 'application/json;charset=UTF-8',
-            dataType: 'json',
-            async: false,
-            url: '/dav/aqxapi/v1/measurements/plot',
-            data: JSON.stringify({systems: selectedSystemIDs, measurements: measurementIDList, status: statusID}, null, '\t'),
-            success: function(data){
-                // Check if there were any errors on the server side
-                if("error" in data){
-                    console.log("Server returned an error...");
-                    console.log(data);
-                    throw "AJAX request reached the server but returned an error!";
-                }else{
-                    addNewMeasurementData(data);
-                }
-            },
-            // Report any AJAX errors
-            error: function(jqXHR, textStatus, errorThrown) {
-                alert('Unable to access the server... Look at the console (F12) for more information!');
-                console.log('jqXHR:');
-                console.log(jqXHR);
-                console.log('textStatus:');
-                console.log(textStatus);
-                console.log('errorThrown:');
-                console.log(errorThrown);
-            }
-        });
+    $.ajax({
+        type: 'POST',
+        contentType: 'application/json;charset=UTF-8',
+        dataType: 'json',
+        async: false,
+        url: '/dav/aqxapi/v1/measurements/plot',
+        data: JSON.stringify({systems: selectedSystemIDs, measurements: measurementIDList, status: statusID}, null, '\t'),
+        // Process API response
+        success: processAJAXResponse,
+        // Report any AJAX errors
+        error: ajaxError
     });
 }
+
+function ajaxError(jqXHR, textStatus, errorThrown){
+    alert('Unable to access the server... Look at the console (F12) for more information!');
+    console.log('jqXHR:');
+    console.log(jqXHR);
+    console.log('textStatus:');
+    console.log(textStatus);
+    console.log('errorThrown:');
+    console.log(errorThrown);
+}
+
+//function callAPIForNewData(measurementIDList, statusID) {
+//    var dfd = new $.Deferred();
+//    $.ajax({
+//        type: 'POST',
+//        contentType: 'application/json;charset=UTF-8',
+//        dataType: 'json',
+//        async: true,
+//        url: '/dav/aqxapi/v1/measurements/plot',
+//        data: JSON.stringify({systems: selectedSystemIDs, measurements: measurementIDList, status: statusID}, null, '\t')
+//    }).then(processAJAXResponse,ajaxError)
+//        .fail(function (jqXHR, textStatus, errorThrown) {
+//            dfd.reject(jqXHR, textStatus, errorThrown);
+//        })
+//        .done(function (data, textStatus, jqXHR) {
+//            dfd.resolve(data);
+//        });
+//    return dfd.promise();
+//}
 
 
 /* ##################################################################################################################
@@ -404,9 +425,17 @@ function toggleSplitMode(){
 
         _.each(selectedSystemIDs, function(systemID, k) {
             var new_opts = HC_OPTIONS;
+
             new_opts.chart.renderTo = "chart-" + k;
             new_opts.yAxis = copyYAxes(yAxes);
             new_opts.series = copySeries(series, systemID);
+            var notFound = true;
+            for (var i=0; (i<series.length&&notFound); i++){
+                if(_.isEqual(systemID, series[i].userOptions.id)){
+                    new_opts.title.text = series[i].name.split(",")[0].trim();
+                    notFound = false;
+                }
+            }
             var chart = new Highcharts.Chart(new_opts);
             splitCharts.push(chart);
         });
@@ -429,15 +458,15 @@ function main(){
 
     $('.toggle').toggles({text:{on:'OVERLAY',off:'SPLIT'}, on:true});
 
+    if(_.isEqual(selectedSystemIDs.length, 1)) {
+        $('.toggle').toggleClass('disabled', true);
+    }
+
     $('.toggle').on('toggle', function(e, active) {
         if (active) {
-            console.log('Now in overlay mode!');
             $('.split-chart').hide();
             $('#analyzeContainer').show();
         } else {
-            // TODO: Do a boolean or some other test to see if we already have split charts, then just show them instead of loading them again
-            // That boolean will need to be reset when the rest buttong is pressed
-            console.log('Now in split mode!');
             $('.split-chart').show();
             $('#analyzeContainer').hide();
             toggleSplitMode();
@@ -447,10 +476,14 @@ function main(){
     // When the submit button is clicked, redraw the graph based on user selections
     $('#submitbtn').on('click', function() {
         $('#alert_placeholder').empty();
-        $('.split-chart').hide();
-        $('#analyzeContainer').show();
-        $('.toggle').data('toggles').toggle(true, false, true);
+
         drawChart();
+
+        // Check if the toggle is active. (i.e, overlay mode enabled)
+        // If in split mode, make the split graphs
+        if(!$('.toggle').data('toggles').active){
+            toggleSplitMode();
+        }
     });
 
     // Reset button, returns dropdowns to default, clears checklist, and displays default nitrate vs time graph
@@ -524,7 +557,12 @@ window.onload = function() {
         },
         xAxis: {
             minPadding: 0.05,
-            maxPadding: 0.05
+            maxPadding: 0.05,
+            title:
+            {
+                text: XAXIS_TITLE,
+                style: {color: 'white   '}
+            }
         },
         exporting: {
             csv: {
