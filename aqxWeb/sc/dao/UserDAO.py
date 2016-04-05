@@ -1,3 +1,4 @@
+import json
 from py2neo import Node, cypher
 from flask import session
 from aqxWeb.sc.models import timestamp
@@ -14,52 +15,53 @@ class UserDAO:
     # purpose : function used to find user based on session(sql_id)
     # params : self
     # returns : User node
-    # Exceptions : cypher.CypherError, cypher.CypherTransactionError
+    # Exceptions : General Exception
     def get_logged_in_user(self):
         try:
             if session.get('uid') is not None:
                 user = self.graph.find_one("User", "sql_id", session.get('uid'))
                 return user
-        except cypher.CypherError, cypher.CypherTransactionError:
-            raise "Exception occured in function get_logged_in_user"
+            else:
+                error_msg = json.dumps({'error': 'User has to login the website to get his/her profile details'})
+                return error_msg
+        except Exception as ex:
+            error_msg = json.dumps({'error': 'Exception Occurred At get_logged_in_user: ' + str(ex)})
+            return error_msg
 
     ###############################################################################
     # function : get_user_by_google_id
     # purpose : function used to find user based on google_id
     # params : self, google_id
     # returns : User node
-    # Exceptions : cypher.CypherError, cypher.CypherTransactionError
+    # Exceptions : General Exception
     def get_user_by_google_id(self, google_id):
         try:
             user = self.graph.find_one("User", "google_id", google_id)
             return user
-        except cypher.CypherError, cypher.CypherTransactionError:
-            raise "Exception occured in function get_user_by_google_id"
-
-    ###############################################################################
+        except Exception as ex:
+            error_msg = json.dumps({'error': 'Exception Occurred At get_user_by_google_id: ' + str(ex)})
+            return error_msg
 
     ###############################################################################
     # function : get_user_by_sql_id
     # purpose : function used to find user based on sql_id
     # params : self, sql_id
     # returns : User node
-    # Exceptions : cypher.CypherError, cypher.CypherTransactionError
+    # Exceptions : General Exception
     def get_user_by_sql_id(self, sql_id):
         try:
             user = self.graph.find_one("User", "sql_id", int(sql_id))
             return user
-        except cypher.CypherError, cypher.CypherTransactionError:
-            raise "Exception occured in function get_user_by_sql_id"
-
-    ###############################################################################
-
+        except Exception as ex:
+            error_msg = json.dumps({'error': 'Exception Occurred At get_user_by_sql_id: ' + str(ex)})
+            return error_msg
 
     ###############################################################################
     # function : create_user
     # purpose : function used to create the user node in Neo4J Database
     # params : self, user JSON Object
     # returns : None
-    # Exceptions : cypher.CypherError, cypher.CypherTransactionError
+    # Exceptions : General Exception
     def create_user(self, jsonObject):
         try:
             user = jsonObject.get('user')
@@ -80,28 +82,85 @@ class UserDAO:
                 gender = user.get('gender')
                 status = user.get('status')
                 userNode = Node("User", sql_id=sql_id, google_id=google_id, email=email, givenName=givenName,
-                                familyName=familyName, displayName=displayName, user_type=user_type, image_url=image_url,
+                                familyName=familyName, displayName=displayName, user_type=user_type,
+                                image_url=image_url,
                                 organization=organization, creation_time=timestamp(), modified_time=timestamp(),
                                 dob=dob, gender=gender, status=status)
                 self.graph.create(userNode)
-        except ValueError:
-            raise "sql_id should be integer value."
-        except cypher.CypherError, cypher.CypherTransactionError:
-            raise "Exception occured in function create_user"
-
-    ###############################################################################
+                result = json.dumps({'success': "User Node Successfully Created in Neo4J Database"})
+                return result
+            else:
+                result = json.dumps({'error': "User Node Already Exists In Neo4J Database. " + jsonObject})
+                return result
+        except Exception as ex:
+            error_msg = json.dumps({'error': 'Exception Occurred At create_user: ' + str(ex)})
+            return error_msg
 
     ###############################################################################
     # function : delete_user_by_sql_id
     # purpose : function used to delete the user from Neo4J Database based on sql_id
     # params : self, sql_id
     # returns : None
-    # Exceptions : cypher.CypherError, cypher.CypherTransactionError
+    # Exceptions : General Exception
     def delete_user_by_sql_id(self, sql_id):
         try:
-            user = self.graph.find_one("User", "sql_id", sql_id)
-            self.graph.delete(user)
+            delete_user_query = """
+            MATCH(u:User)
+            WHERE u.sql_id = {sql_id}
+            DETACH DELETE u
+            """
+            self.graph.cypher.execute(delete_user_query, sql_id=sql_id)
+            result = json.dumps({'success': "User Node Successfully Deleted in Neo4J Database"})
+            return result
+        except Exception as ex:
+            error_msg = json.dumps({'error': 'Exception Occurred At delete_user_by_sql_id: ' + str(ex)})
+            return error_msg
+
+    ###############################################################################
+
+    # function : get_unblocked_friends_by_sql_id
+    # purpose : function used to find unblocked friends based on sql_id of the user
+    # params : self, sql_id
+    # returns : User node
+    # Exceptions : cypher.CypherError, cypher.CypherTransactionError
+    def get_unblocked_friends_by_sql_id(self, sql_id):
+        my_sql_id = sql_id
+        query = """
+            MATCH (n:User)-[r:FRIENDS]-(n1:User)
+            WHERE n1.sql_id = {sql_id} and r.blocker_id = {blocker_id}
+            return n
+            ORDER BY n.givenName
+        """
+
+        try:
+            friendlist = self.graph.cypher.execute(query, sql_id=my_sql_id, blocker_id="");
+            return friendlist
         except cypher.CypherError, cypher.CypherTransactionError:
-            raise "Exception occured in function delete_user_by_sql_id"
+            raise "Exception occured in function get_unblocked_friends_by_sql_id"
+
+            ###############################################################################
+
+            ###############################################################################
+
+    # function : get_blocked_friends_by_sql_id
+    # purpose : function used to find blocked friends based on sql_id of the user
+    # params : self, sql_id
+    # returns : User node
+    # Exceptions : cypher.CypherError, cypher.CypherTransactionError
+    def get_blocked_friends_by_sql_id(self, sql_id):
+        my_sql_id = sql_id
+
+        query = """
+            MATCH (n:User)-[r:FRIENDS]-(n1:User)
+            WHERE n1.sql_id = {sql_id} and r.blocker_id = {blocker_id}
+            return n
+            ORDER BY n.givenName
+        """
+
+        try:
+            friendlist = self.graph.cypher.execute(query, sql_id=my_sql_id, blocker_id=my_sql_id);
+            return friendlist
+        except cypher.CypherError, cypher.CypherTransactionError:
+            raise "Exception occured in function get_blocked_friends_by_sql_id"
 
             ###############################################################################

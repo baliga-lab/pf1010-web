@@ -28,7 +28,7 @@
                     <tbody>
                     {% for row in recolist %}
                         <tr>
-                            <td><img src="{{ url_for('frontend.static', filename='images/users/vileplume.png') }}"></td>
+                            <td><img src="{{ row['r_friend'].friend_image }}" class="img-circle" alt="User Image" width="60" height="60"></td>
                             <td>
                                 <a href="profile/{{ row['r_friend'].gid }}">{{ row['r_friend'].FriendName }}</a>
                                 {% if (row['r_friend'].Num_Mutual_Friends) == 1 %}
@@ -60,7 +60,7 @@
                         </ul>
                         <br/>
                         <ul>
-                            Oops! Your friends have no recommended friends!
+                            Oops! Please search add some friends first to get recommended friends!
                         </ul>
                     </div>
                 {% endif %}
