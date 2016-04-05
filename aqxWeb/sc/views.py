@@ -273,8 +273,9 @@ def get_alternative_google_profile(user_profile):
 # Exception : None
 #######################################################################################
 def editprofile():
-    if session.get('uid') is not None:
-        user = User(session['uid']).find()
+    sql_id = session.get('uid')
+    if sql_id is not None:
+        user = User(sql_id).find()
         # google_profile = get_google_profile('me')
         return render_template("profile_edit.html", user=user)
     else:
@@ -290,7 +291,8 @@ def editprofile():
 #######################################################################################
 @social.route('/updateprofile', methods=['POST'])
 def updateprofile():
-    if session.get('uid') is None:
+    sql_id = session.get('uid')
+    if sql_id is None:
         return redirect(url_for('social.index'))
     given_name = request.form.get('givenName', None)
     family_name = request.form.get('familyName', None)
@@ -299,8 +301,8 @@ def updateprofile():
     organization = request.form.get('organization', None)
     user_type = request.form.get('user_type', None)
     date_of_birth = request.form.get('dob', None)
-    User(session['uid']).update_profile(given_name, family_name, display_name, gender, organization, user_type,
-                                        date_of_birth)
+    User(sql_id).update_profile(given_name, family_name, display_name, gender, organization, user_type,
+                                date_of_birth)
     session['displayName'] = display_name
     flash("User Profile Updated successfully!")
     return editprofile()
@@ -646,15 +648,15 @@ def view_system(system_uid):
                 total_likes = system.get_total_likes_for_system_posts(system_uid)
                 post_owners = system.get_system_post_owners(system_uid)
                 measurements_output_dav = get_system_measurements_dav_api(system_uid)
-                #print "measurements_output_dav"
-                #print measurements_output_dav
+                # print "measurements_output_dav"
+                # print measurements_output_dav
                 json_output_measurement = json.loads(measurements_output_dav)
-                #print "json_output_measurement"
-                #print json_output_measurement
+                # print "json_output_measurement"
+                # print json_output_measurement
                 # TODO: Add error handling here
                 measurements = json_output_measurement['measurements']
-                #print "measurements"
-                #print measurements
+                # print "measurements"
+                # print measurements
                 return render_template("system_social.html", system_neo4j=system_neo4j, system_mysql=system_mysql,
                                        logged_in_user=logged_in_user, created_date=created_date,
                                        system_location=system_location,
@@ -940,6 +942,35 @@ def manage_group(group_uid):
                                group_members=group_members)
     elif request.method == 'POST':
         return render_template("group_manage.html")
+
+
+#######################################################################################
+# function : updateprofile
+# purpose : updates user profile information in db
+# parameters : None
+# returns: None
+# Exception : None
+#######################################################################################
+@social.route('/manage/groups/update_group_info', methods=['POST'])
+def update_group_info():
+    try:
+        if request.method == 'POST':
+            group_uid = request.form.get('group_uid', None)
+            name = request.form.get('name', None)
+            description = request.form.get('description', None)
+            is_private_group = request.form.get('is_private_group', None)
+            group = Group()
+            sql_id = session.get('uid')
+            if sql_id is not None and group_uid is not None:
+                user_privilege = group.get_user_privilege_for_group(sql_id, group_uid)
+                if user_privilege == "GROUP_ADMIN":
+                    group.update_group_info(group_uid, name, description, is_private_group)
+            flash("Group Information Updated successfully!")
+            return redirect(url_for('social.manage_group', group_uid=group_uid))
+        else:
+            return redirect(url_for('social.groups'))
+    except Exception as ex:
+        print "Exception Occurred at update_group_info: " + str(ex.message)
 
 
 #######################################################################################
@@ -1492,6 +1523,7 @@ def getfriends():
         if individual_user:
             user_list.append(individual_user)
     return jsonify(json_list=user_list)
+
 
 #######################################################################################
 # function : get_friend_status

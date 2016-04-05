@@ -46,7 +46,7 @@ class SystemDAO:
                 error_msg = json.dumps({'error': 'User Does Not Exists / System Already Exists'})
                 return error_msg
         except Exception as ex:
-            error_msg = json.dumps({'error': 'Exception Occurred At create_system: ' + str(ex)})
+            error_msg = json.dumps({'error': 'Exception Occurred At create_system: ' + str(ex.message)})
             return error_msg
 
     ###############################################################################
@@ -79,7 +79,7 @@ class SystemDAO:
                 error_msg = json.dumps({'error': 'System Does Not Exists To Update'})
                 return error_msg
         except Exception as ex:
-            error_msg = json.dumps({'error': 'Exception Occurred At update_system_with_system_uid: ' + str(ex)})
+            error_msg = json.dumps({'error': 'Exception Occurred At update_system_with_system_uid: ' + str(ex.message)})
             return error_msg
 
     ###############################################################################
@@ -99,7 +99,7 @@ class SystemDAO:
             result = json.dumps({'success': "System Node Successfully Deleted in Neo4J Database"})
             return result
         except Exception as ex:
-            error_msg = json.dumps({'error': 'Exception Occurred At delete_system_by_system_id: ' + str(ex)})
+            error_msg = json.dumps({'error': 'Exception Occurred At delete_system_by_system_id: ' + str(ex.message)})
             return error_msg
 
     ###############################################################################
@@ -120,7 +120,7 @@ class SystemDAO:
             system = self.graph.cypher.execute(query, sql_id=sql_id);
             return system
         except Exception as ex:
-            error_msg = json.dumps({'error': 'Exception Occurred At get_system_for_user: ' + str(ex)})
+            error_msg = json.dumps({'error': 'Exception Occurred At get_system_for_user: ' + str(ex.message)})
             return error_msg
 
 
