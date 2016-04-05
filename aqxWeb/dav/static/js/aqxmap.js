@@ -313,7 +313,7 @@ function filterSystemsBasedOnDropdownValues() {
     var ddAqxCrop = document.getElementById(SELECT_CROP).value;
     var ddAqxMedia = document.getElementById(SELECT_GROWBED_MEDIUM).value;
     var ddStatus = document.getElementById(SELECT_SYSTEM_STATUS).value;
-    var fileteredSystemsCount = 0;
+    var filteredSystemsCount = 0;
 
     var selectedSystems = getAnalyzeSystemValues();
     clearAnalyzeDropdown();
@@ -328,12 +328,12 @@ function filterSystemsBasedOnDropdownValues() {
             system.marker.setVisible(true);
             //selectedSystems.push(system.system_uid);
             addSystemToAnalyzeSystemDropdown(system);
-            fileteredSystemsCount++;
+            filteredSystemsCount++;
         }
     });
      $('#analyzeSystem').dropdown('set selected', selectedSystems);
-    if (fileteredSystemsCount > 0){
-        $('#alert_placeholder').html(getAlertHTMLString("Found "+ fileteredSystemsCount + " systems based on filtering criteria.", 'success'));
+    if (filteredSystemsCount > 0){
+        $('#alert_placeholder').html(getAlertHTMLString("Found "+ filteredSystemsCount + " systems based on filtering criteria.", 'success'));
     }else {
         $('#alert_placeholder').html(getAlertHTMLString("No system(s) found. Please select a different filtering criteria and try again.", 'danger'));
     }
