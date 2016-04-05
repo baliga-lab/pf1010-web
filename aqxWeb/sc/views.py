@@ -1,6 +1,7 @@
 from flask import Blueprint, request, session, redirect, url_for, render_template, flash, Response, jsonify, json
+
 from models import User, get_all_recent_posts, get_all_recent_comments, get_all_recent_likes
-from models import get_total_likes_for_posts, get_all_post_owners
+from models import get_total_likes_for_posts, get_all_post_owners, get_system_measurements_dav_api
 from models import System, Privacy, Group
 from models import get_app_instance, get_graph_connection_uri
 from models import get_all_profile_posts
@@ -13,9 +14,8 @@ import mysql.connector
 import requests
 import aqxdb
 import logging
-import json
 from flask_oauth import OAuth
-from json2html import *
+import json
 
 oauth = OAuth()
 # GOOGLE_CLIENT_ID='757190606234-pnqru7tabom1p1hhvpm0d3c3lnjk2vv4.apps.googleusercontent.com',
@@ -631,8 +631,6 @@ def view_system(system_uid):
                                                            system_neo4j[0][0]['location_lng'])
                 # system_mysql = System().get_mysql_system_by_uid(system_uid)
                 system_mysql = system_neo4j
-                # measurements = analyticsViews.get_system_measurements(sql_id)
-                # print (measurements)
                 user_privilege = system.get_user_privilege_for_system(sql_id, system_uid)
                 system_admins = system.get_system_admins(system_uid)
                 system_participants = system.get_system_participants(system_uid)
@@ -645,7 +643,12 @@ def view_system(system_uid):
                 likes = system.get_system_recent_likes(system_uid)
                 total_likes = system.get_total_likes_for_system_posts(system_uid)
                 post_owners = system.get_system_post_owners(system_uid)
-
+                measurements_output_dav = get_system_measurements_dav_api(system_uid)
+                json_output_measurement = json.loads(measurements_output_dav)
+                # TODO: Add error handling here
+                measurements = json_output_measurement['measurements']
+                #print "measurements"
+                #print measurements
                 return render_template("system_social.html", system_neo4j=system_neo4j, system_mysql=system_mysql,
                                        logged_in_user=logged_in_user, created_date=created_date,
                                        system_location=system_location,
@@ -655,7 +658,7 @@ def view_system(system_uid):
                                        subscribers_pending_approval=subscribers_pending_approval,
                                        system_uid=system_uid, privacy_options=privacy_options,
                                        posts=posts, comments=comments, likes=likes,
-                                       totalLikes=total_likes, postOwners=post_owners)
+                                       totalLikes=total_likes, postOwners=post_owners, measurements=measurements)
     except Exception as e:
         logging.exception("Exception at view_system: " + str(e))
 

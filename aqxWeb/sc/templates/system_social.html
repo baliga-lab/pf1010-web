@@ -237,6 +237,7 @@
             <div class="row">
 
                 <h2> Summary</h2>
+
                 <div class="row">
                     <table id="placar" class="table table-responsive">
                         <thead>
@@ -247,6 +248,13 @@
                         </tr>
                         </thead>
                         <tbody>
+                        {% for row in measurements %}
+                            <tr>
+                                <td> {{ row.name }} </td>
+                                <td> {{ row.value }} </td>
+                                <td>  {{ row.time }}  </td>
+                            </tr>
+                        {% endfor %}
                         </tbody>
                     </table>
                 </div>
