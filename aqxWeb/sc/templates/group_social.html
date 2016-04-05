@@ -15,13 +15,69 @@
         <!-- Div for Left Pane (Group Description, Participant, Manage Requests) - Groups Page -->
         <div class="col-md-3 leftPaneDiv">
 
-            <p>
-                "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et
-                dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip
-                ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu
-                fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia
-                deserunt mollit anim id est laborum."
-            </p>
+
+
+
+
+             <!-- Div for Managing Member Requests (Approve/Reject) Button. Manage System Settings Too -->
+            {% if user_privilege == "GROUP_ADMIN" %}
+
+                <div class="row pendingRequestsTitleDiv">
+                    <h4>Member Request ({{ members_pending_approval | length }})</h4>
+                </div>
+
+                <div class="row pendingRequests">
+                    <!-- Iterate Over Pending Approval Members -->
+                    {% if members_pending_approval %}
+                        {% for pending_member in members_pending_approval %}
+                            <form action="{{ url_for('social.index') }}" method="post">
+                                <div class="pendingRequestElements">
+                                    <input type="hidden" name="google_id"
+                                           value="{{ pending_member[0]["google_id"] }}">
+                                    <input type="hidden" name="group_uid"
+                                           value="{{ group_neo4j[0][0]["group_uid"] }}">
+                                    <a href="{{ url_for('social.profile', google_id=pending_member[0]["google_id"]) }}">
+                                        <img class="pendingMemberImage img-circle"
+                                             src="{{ pending_member[0]["image_url"] }}">
+                                        {% if pending_member[0]["displayName"] is not none %}
+                                            {{ pending_member[0]["displayName"] }}
+                                        {% else %}
+                                            {{ "No Display Name" }}
+                                        {% endif %}
+                                    </a>
+                                    <button type="submit" name="submit" value="Approve" class="btn btn-success">
+                                        Approve
+                                    </button>
+                                    <button type="submit" name="submit" value="Reject" class="btn btn-danger">
+                                        Reject
+                                    </button>
+                                </div>
+                            </form>
+                        {% endfor %}
+                        <!-- There exists No Pending Approval Members -->
+                    {% else %}
+                        <span>
+                                <h5>Currently, there are no pending Members for the system</h5>
+                            </span>
+                    {% endif %}
+                </div>
+
+                <!-- Div for Manage Settings/Adding Admin(s) To The Group -->
+                <div class="row">
+                    <span>
+                        <a href="{{ url_for('social.manage_group', group_uid= group_neo4j[0][0]["group_uid"]) }}">
+                            <img class="cogWheelIcon"
+                                 src="{{ url_for('social.static', filename='images/system_settings.png') }}">
+                            Manage Group
+                        </a>
+                    </span>
+                </div>
+                <!-- End Of Div for Manage Settings/Adding Admin(s) To The Group -->
+
+            {% endif %}
+            <!-- End of Div for Managing Member Requests (Approve/Reject) Button. Manage Group Settings Too -->
+
+            <br/>
 
         </div>
         <!-- End Div for Left Pane (Group Description, Participant, Manage Requests) - Groups Page -->

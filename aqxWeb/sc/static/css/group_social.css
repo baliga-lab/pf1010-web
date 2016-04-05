@@ -11,3 +11,19 @@
     padding-right: 30px;
     background-color: #f0f0f5;
 }
+
+.cogWheelIcon {
+    height: 45px;
+    width: 45px;
+}
+
+.pendingRequests {
+    overflow-x: hidden;
+    overflow-y: auto;
+    height: 100px;
+}
+
+.memberImage, .subscriberImage, .pendingMemberImage {
+    height: 40px;
+    width: 40px;
+}

@@ -906,8 +906,11 @@ def view_group(group_uid):
             else:
                 logged_in_user = User(sql_id).find()
                 user_privilege = group.get_user_privilege_for_group(sql_id, group_uid)
+                group_members = group.get_group_members(group_uid)
+                members_pending_approval = group.get_members_pending_approval(group_uid)
                 return render_template("group_social.html", group_neo4j=group_neo4j, logged_in_user=logged_in_user,
-                                       user_privilege=user_privilege)
+                                       user_privilege=user_privilege, group_members=group_members,
+                                       members_pending_approval=members_pending_approval)
     except Exception as e:
         logging.exception("Exception at view_group: " + str(e))
 

@@ -2559,3 +2559,47 @@ class Group:
             return mutual_group_between_friends
         except Exception as ex:
             print "Exception occured in function get_mutual_system_between_friends: "+ str(ex.message)
+
+    ############################################################################
+    # function : get_group_members
+    # purpose : gets the member detail for the provided group_uid from neo4j database
+    # params :
+    #        self : Group
+    #        group_uid : uid of group
+    # returns : user node(s)
+    # Exceptions : General Exception
+    ############################################################################
+    def get_group_members(self, group_uid):
+        query = """
+            MATCH (user:User)-[rel:GROUP_MEMBER]->(group:Group)
+            WHERE group.group_uid = {group_uid}
+            return user as Members
+            ORDER BY user.givenName
+        """
+        try:
+            group_members = get_graph_connection_uri().cypher.execute(query, group_uid=group_uid)
+            return group_members
+        except Exception as ex:
+            print "Exception occured in function get_group_members: "+ str(ex.message)
+
+    ############################################################################
+    # function : get_members_pending_approval
+    # purpose : gets the member details whose approval to join the Group is pending by the administrator
+    # params :
+    #        self : Group
+    #        group_uid : uid of group
+    # returns : user node(s)
+    # Exceptions : General Exception
+    ############################################################################
+    def get_members_pending_approval(self, group_uid):
+        query = """
+            MATCH (user:User)-[rel:GROUP_PENDING_MEMBER]->(group:Group)
+            WHERE group.group_uid = {group_uid}
+            return user as PendingMembers
+            ORDER BY user.givenName
+        """
+        try:
+            members_pending_approval = get_graph_connection_uri().cypher.execute(query, group_uid=group_uid)
+            return members_pending_approval
+        except Exception as ex:
+            print "Exception occured in function get_members_pending_approval: "+ str(ex.message)
