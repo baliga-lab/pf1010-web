@@ -631,6 +631,8 @@ def view_system(system_uid):
                                                            system_neo4j[0][0]['location_lng'])
                 # system_mysql = System().get_mysql_system_by_uid(system_uid)
                 system_mysql = system_neo4j
+                # measurements = analyticsViews.get_system_measurements(sql_id)
+                # print (measurements)
                 user_privilege = system.get_user_privilege_for_system(sql_id, system_uid)
                 system_admins = system.get_system_admins(system_uid)
                 system_participants = system.get_system_participants(system_uid)
@@ -644,7 +646,11 @@ def view_system(system_uid):
                 total_likes = system.get_total_likes_for_system_posts(system_uid)
                 post_owners = system.get_system_post_owners(system_uid)
                 measurements_output_dav = get_system_measurements_dav_api(system_uid)
+                #print "measurements_output_dav"
+                #print measurements_output_dav
                 json_output_measurement = json.loads(measurements_output_dav)
+                #print "json_output_measurement"
+                #print json_output_measurement
                 # TODO: Add error handling here
                 measurements = json_output_measurement['measurements']
                 #print "measurements"

@@ -868,7 +868,6 @@ class User:
 def get_system_measurements_dav_api(system_uid):
     try:
         app = get_app_instance()
-        print get_app_instance()._get_static_url_path()
         with app.test_client() as client:
             # TODO : Change the fixed host and port
             dav_system_measurement_url = "http://127.0.0.1:5000/dav/aqxapi/v1/measurements"
