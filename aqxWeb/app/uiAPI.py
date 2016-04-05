@@ -35,6 +35,7 @@ class UiAPI:
     #                                   parameter and returns the metadata for the
     #                                   given system.
 
+
     def get_system_metadata(self, system_id):
         # i wanna use get_metadata to directly get that system, but not work. maybe query is wrong
         # so i choose to use get_system_with_system_id below
@@ -405,4 +406,3 @@ class UiAPI:
             annotations_list.append(obj)
 
         return json.dumps({'annotations': annotations_list})
-

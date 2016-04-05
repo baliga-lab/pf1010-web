@@ -28,6 +28,8 @@ class SystemsDAO:
                  "s.status, "
                  "s.state "
                  "FROM systems s "
+                 "sao.num as 'organism_count' "
+                 "FROM systems s "
                  "LEFT JOIN aqx_techniques aqt ON s.aqx_technique_id = aqt.id "
                  "LEFT JOIN system_crops sc    ON s.id = sc.system_id "
                  "LEFT JOIN crops cr           ON sc.crop_id = cr.id "
