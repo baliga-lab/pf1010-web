@@ -18,17 +18,21 @@
             <div style="width: 90%;">
                 <div id="analyzeContainer" style="height: 500px; width: 100%;"></div>
             </div>
-            <div style="width: 90%">
-                <div id="chart-0" class="split-chart"></div>
-                <div id="chart-1" class="split-chart"></div>
-                <div id="chart-2" class="split-chart"></div>
-                <div id="chart-3" class="split-chart"></div>
+            <div style="width: 100%; display: table;">
+                <div style="display: table-row">
+                    <div id="chart-0" class="split-chart" style="width: 50%; display: table-cell;"></div>
+                    <div id="chart-1" class="split-chart" style="width: 50%; display: table-cell;"></div>
+                </div>
+                <div style="display: table-row">
+                    <div id="chart-2" class="split-chart" style="width: 50%; display: table-cell;"></div>
+                    <div id="chart-3" class="split-chart" style="width: 50%; display: table-cell;"></div>
+                </div>
             </div>
             <div id="measurementLegend" style="width: 50%;">
                 <div id="legendTypes"></div>
             </div>
             <br>
-            <div style="width: 30%;">
+            <div style="width: 30%; display: none;">
                 <div class="form-group">
                     <label class="control-label">Select X Axis</label>
                     <select class="explore-dropdown" id="selectXAxis">
@@ -86,7 +90,7 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
     <script src="http://code.highcharts.com/highcharts.js"></script>
     <script src="http://code.highcharts.com/modules/exporting.js"></script>
-{#    <script type="text/javascript" src="{{ url_for('dav.static', filename='js/jquery.blockUI.js') }}"></script>#}
+    {#    <script type="text/javascript" src="{{ url_for('dav.static', filename='js/jquery.blockUI.js') }}"></script>#}
     <script type="text/javascript" src="{{ url_for('dav.static', filename='js/export-csv.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('dav.static', filename='js/underscore-min.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('dav.static', filename='js/semantic.min.js') }}"></script>

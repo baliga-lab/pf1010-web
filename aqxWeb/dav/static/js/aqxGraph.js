@@ -137,14 +137,14 @@ function getDataPointsForPlotHC (chart, xType, yTypeList, graphType){
                         // If not, create the axis and assign to a variable. This variables isAxis is now true,
                         // an axis is assigned, and the numAxes increments
                         if (!axes[yType].isAxis) {
-                            chart.addAxis(createYAxis(yType, numAxes, measurement_types_and_info[yType].unit));
+                            chart.addAxis(createYAxis(yType, COLORS[numAxes], (numAxes % 2) , measurement_types_and_info[yType].unit));
                             axes[yType].isAxis = true;
                             axes[yType].axis = numAxes++;
                         }
-
+                        var yAxis = axes[yType].axis;
                         // Push valid dataPoints and their configs to the list of dataPoints to plot
                         dataPointsList.push(
-                            getDataPoints(system.name, measurement.values, graphType, systemId, linkedTo, axes[yType].axis, j, yType));
+                            getDataPoints(system.name, measurement.values, graphType, systemId, linkedTo, COLORS[yAxis], yAxis, DASHSTYLES[j], MARKERTYPES[j], yType));
                         linkedTo = true;
                     }
 
@@ -304,15 +304,16 @@ function getAlertHTMLString(alertText, type){
  * @param yType - The measurement type name
  * @returns {{name: string, type: *, data: *, color: string, id: *, yAxis: *, dashStyle: string, marker: {symbol: string}}|*}
  */
-function getDataPoints(systemName, dataPoints, graphType, id, linkedTo, i, j, yType) {
+function getDataPoints(systemName, dataPoints, graphType, id, linkedTo, color, yAxis, dashStyle, markerType, yType) {
     var series = { name: systemName + ',' + yType,
         type: graphType,
         data: dataPoints,
-        color: COLORS[i],
+        color: color,
         id: id,
-        yAxis: i,
-        dashStyle: DASHSTYLES[j],
-        marker: {symbol: MARKERTYPES[j]}
+        yAxis: yAxis,
+        //dashStyle: DASHSTYLES[j],
+        dashStyle: dashStyle,
+        marker: {symbol: markerType}
     };
     if(linkedTo) {
         series.linkedTo = id;
@@ -328,14 +329,14 @@ function getDataPoints(systemName, dataPoints, graphType, id, linkedTo, i, j, yT
  * @param units
  * @returns {{title: {text: *}, labels: {format: string, style: {color: *}}, opposite: boolean}}
  */
-function createYAxis(yType, axisNum, units){
+function createYAxis(yType, color, opposite, units){
     var unitLabel;
     if (units){
         unitLabel = (_.isEqual(units, "celsius")) ? "°C" : units;
     }else{
         unitLabel = "";
     }
-    var color = COLORS[axisNum];
+    //var color = COLORS[axisNum];
     return { // Primary yAxis
         title:
         {
@@ -351,12 +352,47 @@ function createYAxis(yType, axisNum, units){
         lineWidth: 1,
         tickWidth: 1,
         gridLineWidth: 1,
-        opposite: axisNum % 2,
+        opposite: opposite,
         gridLineColor: '#707073',
         lineColor: '#707073',
         minorGridLineColor: '#505053',
         tickColor: '#707073'
     };
+}
+
+function copyYAxes(yAxes){
+    var axesToAdd = [];
+    _.each(yAxes, function(axis){
+        var axisLabel = axis.userOptions.title.text;
+        axesToAdd.push(createYAxis(
+            axisLabel,
+            axis.userOptions.title.style.color,
+            axis.opposite));
+    });
+    return axesToAdd;
+}
+
+function copySeries(series, systemID){
+    var seriesToAdd = [];
+    _.each(series, function (seriesItem) {
+        if(_.isEqual(seriesItem.userOptions.id, systemID)){
+            var linkedTo = false;
+            if (seriesItem.userOptions.linkedTo) linkedTo = true;
+            seriesToAdd.push(getDataPoints(
+                seriesItem.name,
+                seriesItem.userOptions.data,
+                seriesItem.userOptions.type,
+                seriesItem.userOptions.id,
+                linkedTo,
+                seriesItem.color,
+                seriesItem.userOptions.yAxis,
+                seriesItem.userOptions.dashStyle,
+                seriesItem.userOptions.marker.symbol,
+                ""
+            ));
+        }
+    });
+    return seriesToAdd;
 }
 
 
@@ -365,60 +401,17 @@ function toggleSplitMode(){
         var splitCharts = [];
         var yAxes = CHART.yAxis;
         var series = CHART.series;
-        var axesToAdd = [];
-        _.each(yAxes, function(axis){
-            axesToAdd.push(
-                { // Primary yAxis
-                    title:
-                    {
-                        text: axis.userOptions.title.text,
-                        style: {color: axis.userOptions.title.style.color}
-                    },
-                    labels:
-                    {
-                        format: '{value} ',
-                        style: {color: axis.userOptions.labels.style.color}
-                    },
-                    showEmpty: false,
-                    lineWidth: 1,
-                    tickWidth: 1,
-                    gridLineWidth: 1,
-                    opposite: axis.opposite,
-                    gridLineColor: '#707073',
-                    lineColor: '#707073',
-                    minorGridLineColor: '#505053',
-                    tickColor: '#707073'
-                })
-        });
+
         _.each(selectedSystemIDs, function(systemID, k) {
             var new_opts = HC_OPTIONS;
             new_opts.chart.renderTo = "chart-" + k;
-            var seriesToAdd = [];
-            _.each(series, function (seriesItem) {
-                if(_.isEqual(seriesItem.userOptions.id, systemID)){
-                    seriesToAdd.push({
-                        name: seriesItem.name,
-                        type: seriesItem.userOptions.type,
-                        data: seriesItem.userOptions.data,
-                        color: seriesItem.color,
-                        id: seriesItem.userOptions.id,
-                        yAxis: seriesItem.userOptions.yAxis,
-                        dashStyle: seriesItem.userOptions.dashStyle,
-                        marker: {symbol:seriesItem.userOptions.marker.symbol}
-                    });
-                }
-            });
-            new_opts.series = seriesToAdd;
-            new_opts.yAxis = axesToAdd;
+            new_opts.yAxis = copyYAxes(yAxes);
+            new_opts.series = copySeries(series, systemID);
             var chart = new Highcharts.Chart(new_opts);
             splitCharts.push(chart);
         });
         _.each(splitCharts, function(chart){chart.redraw()});
     }
-}
-
-function toggleOverlayMode(){
-
 }
 
 
@@ -451,7 +444,7 @@ function main(){
         }
     });
 
-        // When the submit button is clicked, redraw the graph based on user selections
+    // When the submit button is clicked, redraw the graph based on user selections
     $('#submitbtn').on('click', function() {
         $('#alert_placeholder').empty();
         $('.split-chart').hide();
@@ -468,9 +461,12 @@ function main(){
             return this.defaultSelected;
         });
 
+        $('#selectStatus option').prop(SELECTED, function() {
+            return this.defaultSelected;
+        });
+
         // Reset Graph Type selection to default
         $('#selectGraphType option').prop(SELECTED, function() {
-            return this.defaultSelected;
         });
 
         $('#alert_placeholder').empty();
