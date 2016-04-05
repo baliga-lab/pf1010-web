@@ -267,6 +267,7 @@ function main(system_and_info_object) {
     // All systems are visible at this point, so this list contains each system name
     $('#analyzeSystem').dropdown({
         maxSelections: MAX_SYSTEM_SELECTED,
+        placeholder:'Select up to 5 systems',
         onChange: function(value, text) {
             updateAnalyzeSystems();
         }
