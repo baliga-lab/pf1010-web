@@ -7,13 +7,10 @@ frontend = Blueprint('frontend', __name__, template_folder='templates',static_fo
 
 pool = None
 
-#uiAPI = UiAPI()
-
 # Connect to the database
-def init_app(app):
-    app.debug = True
-    app.config.from_envvar('AQUAPONICS_SETTINGS')
-    create_conn(app)
+def init_app(gpool):
+    global pool
+    pool = gpool
 
 
 ######################################################################
@@ -22,24 +19,6 @@ def init_app(app):
 
 def get_conn():
     return pool.get_connection()
-
-
-######################################################################
-# method to create connection when application starts
-######################################################################
-
-def create_conn(app):
-
-    global pool
-    print("PID %d: initializing pool..." % os.getpid())
-    dbconfig = {
-        "host":     app.config['HOST'],
-        "user":     app.config['USER'],
-        "passwd":   app.config['PASS'],
-        "db":       app.config['DB']
-    }
-
-    pool = MySQLConnectionPool(pool_name="mypool", pool_size = app.config['POOLSIZE'], **dbconfig)
 
 
 @frontend.route('/')
