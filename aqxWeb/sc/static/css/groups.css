@@ -4,3 +4,14 @@
     width: 40px;
     float: left;
 }
+
+.recommendedGroups {
+    overflow-y: auto;
+    overflow-x: hidden;
+    height: 250px;
+}
+
+.groupImage, .sadSmileyImage {
+    height: 32px;
+    width: 32px;
+}

@@ -856,7 +856,9 @@ def groups():
         return redirect(url_for('social.index'))
     else:
         if request.method == 'GET':
-            return render_template("groups.html")
+            group = Group()
+            recommended_groups = group.get_recommended_groups(sql_id)
+            return render_template("groups.html", recommended_groups=recommended_groups)
         elif request.method == 'POST':
             return render_template("groups.html")
 
@@ -889,8 +891,8 @@ def get_groups():
 @social.route('/groups/<group_uid>', methods=['GET', 'POST'])
 def view_group(group_uid):
     sql_id = session.get('uid')
-    # sql_id = 29
-    # group_uid = "456f3f2e3fh411e597b1000c29b92e09"
+    #sql_id = 29
+    #group_uid = "456f3f2e3fh411e597b1000c29b92e09"
     if sql_id is None:
         return redirect(url_for('social.index'))
     try:

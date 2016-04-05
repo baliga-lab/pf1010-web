@@ -2484,3 +2484,78 @@ class Group:
                                                                       is_private_group=is_private_group)
         except Exception as ex:
             print "Exception occured in function update_group_info: " + str(ex)
+
+    ############################################################################
+    # function : get_recommended_groups
+    # purpose : gets the recommended group details for the specified user from neo4j database
+    # params : self : Group
+    #           sql_id : sql_id of the User
+    # returns : Group node(s)
+    # Exceptions :  General Exception
+    ############################################################################
+    def get_recommended_groups(self, sql_id):
+        friends_group_query = """
+            MATCH (friend:User)-[rel]->(group:Group),
+            (mySelf:User)
+            where mySelf.sql_id = {sql_id} and
+            NOT (mySelf)-[:GROUP_MEMBER]-(group) and
+            NOT (mySelf)-[:GROUP_ADMIN]-(group) and
+            (mySelf)-[:FRIENDS]-(friend)
+            return friend, group
+            ORDER By friend.givenName
+        """
+        try:
+            # Minimum Depth Level To Identify The Recommended Groups
+            minimum_depth_level = 2
+            friends_group = get_graph_connection_uri().cypher.execute(friends_group_query, sql_id=sql_id)
+            mutual_group_between_friends = Group().get_mutual_group_between_friends(friends_group,
+                                                                                       minimum_depth_level)
+            return mutual_group_between_friends
+        except Exception as ex:
+            print "Exception occured in function get_recommended_groups: "+ str(ex.message)
+
+    ############################################################################
+    # function : get_mutual_group_between_friends
+    # purpose : gets the mutual groups between friends from neo4j database
+    # params : self Group, Row(s) containing friend and his/her groups, minimum_depth_level
+    # returns : List of Mutual Groups Between Friends Of The User
+    # Exceptions :  General Exception
+    ############################################################################
+    def get_mutual_group_between_friends(self, friends_group, minimum_depth_level):
+        try:
+            # Initial Dictionary to hold the mutual Groups between friend(s) For Processing
+            list_of_mutual_groups_raw = {}
+            # Dictionary to hold the mutual Groups between friend(s) - Depth Level 2
+            list_of_mutual_groups = {}
+            for each_friend_group in friends_group:
+                friend = each_friend_group['friend']
+                group = each_friend_group['group']
+                group_uid = group['group_uid']
+                # Do nothing when there exists no group_uid in the Group node of Neo4J Database
+                if group_uid is not None:
+                    # If the key already exists, increment the occurrence by 1
+                    if list_of_mutual_groups_raw.has_key(group_uid):
+                        group_occurrence = list_of_mutual_groups_raw[group_uid]
+                        group_occurrence += 1
+                        list_of_mutual_groups_raw[group_uid] = group_occurrence
+                    # If the key does not exists, set the occurrence to 1
+                    else:
+                        system_occurrence = 1
+                        list_of_mutual_groups_raw[group_uid] = system_occurrence
+            # Add the system_uid to dictionary only when the depth level is met
+            for group_uid in list_of_mutual_groups_raw.keys():
+                group_occurrence = list_of_mutual_groups_raw[group_uid]
+                if group_occurrence >= minimum_depth_level:
+                    list_of_mutual_groups[group_uid] = group_occurrence
+            # Query to fetch the systems
+            group_query = """
+                MATCH (group:Group)
+                where group.group_uid IN {group_uid_collection}
+                return group
+                ORDER By group.name
+            """
+            mutual_group_between_friends = get_graph_connection_uri().cypher.execute(group_query,
+                                                                                      group_uid_collection=list_of_mutual_groups.keys())
+            return mutual_group_between_friends
+        except Exception as ex:
+            print "Exception occured in function get_mutual_system_between_friends: "+ str(ex.message)

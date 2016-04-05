@@ -49,6 +49,39 @@
         <!-- Recommended Groups Div -->
         <div class="container" id="recommendedGroupsTab">
 
+            <!-- Div To Display Recommended Groups -->
+            <div class="row recommendedGroups">
+
+                    <h4>Recommended Groups</h4>
+                    <hr>
+
+                    {% if recommended_groups %}
+                        {% for row in recommended_groups %}
+                            <div class="row">
+                                <ul class="pull-left">
+                                    <img class="groupImage" src="{{ url_for('social.static', filename='images/groups.png') }}"
+                                         alt="Groups">
+                                </ul>
+                                <br/>
+                                <ul>
+                                    <a href="{{ url_for('social.view_group', group_uid=row.group.group_uid) }}">{{ row.group.name }}</a>
+                                </ul>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="row">
+                            <ul class="pull-left">
+                                <img class="sadSmileyImage" src="{{ url_for('social.static', filename='images/sad_smiley.png') }}" alt="Groups">
+                            </ul>
+                            <br/>
+                            <ul>
+                                Sorry, We did not find any recommended groups.
+                            </ul>
+                        </div>
+                    {% endif %}
+
+                </div>
+            <!-- End of Div To Display Recommended Groups -->
 
         </div>
         <!-- End of Recommended Groups Div -->
