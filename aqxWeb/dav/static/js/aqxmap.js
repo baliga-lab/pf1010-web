@@ -273,6 +273,7 @@ function main(system_and_info_object) {
             updateAnalyzeSystems();
         }
     });
+    $('#alert_placeholder').empty();
 }
 
 /**
