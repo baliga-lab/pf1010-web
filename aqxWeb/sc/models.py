@@ -270,11 +270,14 @@ class User:
         query = """
         MATCH (post:Post)
         WHERE post.id = {post_id}
-        SET post.text = {new_content}
+        SET post.text = {new_content},
+        post.modified_time = {timenow}
+        post.
         RETURN post
         """
         try:
-            get_graph_connection_uri().cypher.execute(query, post_id=post_id, new_content=new_content)
+            get_graph_connection_uri().cypher.execute(query, post_id=post_id,
+                                                      new_content=new_content, timenow=timestamp())
         except cypher.CypherError, cypher.CypherTransactionError:
             raise "Exception occured in function edit_post"
 
@@ -407,11 +410,13 @@ class User:
         query = """
         MATCH (comment:Comment)
         WHERE comment.id = {comment_id}
-        SET comment.content = {new_comment}
+        SET comment.content = {new_comment},
+        comment.modified_time = {timenow}
         RETURN comment
         """
         try:
-            get_graph_connection_uri().cypher.execute(query, comment_id=comment_id, new_comment=new_comment)
+            get_graph_connection_uri().cypher.execute(query, comment_id=comment_id,
+                                                      new_comment=new_comment, timenow=timestamp())
         except cypher.CypherError, cypher.CypherTransactionError:
             raise "Exception occured in function edit_comment"
 
@@ -854,7 +859,6 @@ class User:
 
 
 ########### END OF USER class #############
-
 
 ############################################################################
 # function : get_all_recent_posts
@@ -1890,11 +1894,13 @@ class System:
         query = """
         MATCH (comment:SystemComment)
         WHERE comment.id = {commentid}
-        SET comment.content = {newcomment}
+        SET comment.content = {newcomment},
+        comment.modified_time = {timenow}
         RETURN comment
         """
         try:
-            get_graph_connection_uri().cypher.execute(query, commentid=comment_id, newcomment=new_comment)
+            get_graph_connection_uri().cypher.execute(query, commentid=comment_id,
+                                                      newcomment=new_comment, timenow=timestamp())
         except cypher.CypherError, cypher.CypherTransactionError:
             raise "Exception occured in function edit_system_comment"
 
@@ -1912,11 +1918,13 @@ class System:
         query = """
         MATCH (post:SystemPost)
         WHERE post.id = {postid}
-        SET post.text = {newcontent}
+        SET post.text = {newcontent},
+        post.modified_time = {timenow}
         RETURN post
         """
         try:
-            get_graph_connection_uri().cypher.execute(query, postid=post_id, newcontent=new_content)
+            get_graph_connection_uri().cypher.execute(query, postid=post_id,
+                                                      newcontent=new_content, timenow=timestamp())
         except cypher.CypherError, cypher.CypherTransactionError:
             raise "Exception occured in function edit_system_post"
 
