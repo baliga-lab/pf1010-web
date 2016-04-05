@@ -5,7 +5,6 @@ import uuid
 import requests
 import json
 
-
 ############################################################################
 # function : init_sc_app
 # purpose : Initialize the app_instance and graph_instance
@@ -265,7 +264,6 @@ class User:
     # Exceptions : cypher.CypherError, cypher.CypherTransactionError
     # returns : None
     ############################################################################
-    # Update modified_time()
     def edit_post(self, new_content, post_id):
         query = """
         MATCH (post:Post)
