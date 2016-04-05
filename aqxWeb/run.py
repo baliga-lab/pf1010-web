@@ -66,7 +66,7 @@ if __name__ == "__main__":
     app.config.from_envvar('AQUAPONICS_SETTINGS')
     create_conn(app)
     init_dav(pool)
-    ui.init_app(app)
+    ui.init_app(pool)
     # Intialize the social component global app instance
     init_sc_app(app)
     # Initialise UI's nav routing
