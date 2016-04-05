@@ -26,6 +26,8 @@ var BACKGROUND = {
     ]
 };
 
+var OVERLAY = true;
+
 /* ##################################################################################################################
  MAIN CHART LOADING FUNCTIONS
  #################################################################################################################### */
@@ -193,6 +195,7 @@ function addNewMeasurementData(data){
 /**
  * Sends an AJAX POST request to call for new, untracked measurement data for each system
  * @param measurementIDList
+ * @param statusID
  */
 function callAPIForNewData(measurementIDList, statusID){
     $(function(){
@@ -215,7 +218,7 @@ function callAPIForNewData(measurementIDList, statusID){
             },
             // Report any AJAX errors
             error: function(jqXHR, textStatus, errorThrown) {
-                alert('An error occurred... Look at the console (F12) for more information!');
+                alert('Unable to access the server... Look at the console (F12) for more information!');
                 console.log('jqXHR:');
                 console.log(jqXHR);
                 console.log('textStatus:');
@@ -357,6 +360,68 @@ function createYAxis(yType, axisNum, units){
 }
 
 
+function toggleSplitMode(){
+    if (selectedSystemIDs.length > 1) {
+        var splitCharts = [];
+        var yAxes = CHART.yAxis;
+        var series = CHART.series;
+        var axesToAdd = [];
+        _.each(yAxes, function(axis){
+            axesToAdd.push(
+                { // Primary yAxis
+                    title:
+                    {
+                        text: axis.userOptions.title.text,
+                        style: {color: axis.userOptions.title.style.color}
+                    },
+                    labels:
+                    {
+                        format: '{value} ',
+                        style: {color: axis.userOptions.labels.style.color}
+                    },
+                    showEmpty: false,
+                    lineWidth: 1,
+                    tickWidth: 1,
+                    gridLineWidth: 1,
+                    opposite: axis.opposite,
+                    gridLineColor: '#707073',
+                    lineColor: '#707073',
+                    minorGridLineColor: '#505053',
+                    tickColor: '#707073'
+                })
+        });
+        _.each(selectedSystemIDs, function(systemID, k) {
+            var new_opts = HC_OPTIONS;
+            new_opts.chart.renderTo = "chart-" + k;
+            var seriesToAdd = [];
+            _.each(series, function (seriesItem) {
+                if(_.isEqual(seriesItem.userOptions.id, systemID)){
+                    seriesToAdd.push({
+                        name: seriesItem.name,
+                        type: seriesItem.userOptions.type,
+                        data: seriesItem.userOptions.data,
+                        color: seriesItem.color,
+                        id: seriesItem.userOptions.id,
+                        yAxis: seriesItem.userOptions.yAxis,
+                        dashStyle: seriesItem.userOptions.dashStyle,
+                        marker: {symbol:seriesItem.userOptions.marker.symbol}
+                    });
+                }
+            });
+            new_opts.series = seriesToAdd;
+            new_opts.yAxis = axesToAdd;
+            var chart = new Highcharts.Chart(new_opts);
+            splitCharts.push(chart);
+        });
+        _.each(splitCharts, function(chart){chart.redraw()});
+    }
+}
+
+function toggleOverlayMode(){
+
+}
+
+
 /* ##################################################################################################################
  PAGE-DRIVING FUNCTIONS
  ################################################################################################################### */
@@ -369,9 +434,29 @@ function main(){
     // Select the default y-axis value
     setDefaultYAxis();
 
-    // When the submit button is clicked, redraw the graph based on user selections
+    $('.toggle').toggles({text:{on:'OVERLAY',off:'SPLIT'}, on:true});
+
+    $('.toggle').on('toggle', function(e, active) {
+        if (active) {
+            console.log('Now in overlay mode!');
+            $('.split-chart').hide();
+            $('#analyzeContainer').show();
+        } else {
+            // TODO: Do a boolean or some other test to see if we already have split charts, then just show them instead of loading them again
+            // That boolean will need to be reset when the rest buttong is pressed
+            console.log('Now in split mode!');
+            $('.split-chart').show();
+            $('#analyzeContainer').hide();
+            toggleSplitMode();
+        }
+    });
+
+        // When the submit button is clicked, redraw the graph based on user selections
     $('#submitbtn').on('click', function() {
         $('#alert_placeholder').empty();
+        $('.split-chart').hide();
+        $('#analyzeContainer').show();
+        $('.toggle').data('toggles').toggle(true, false, true);
         drawChart();
     });
 
@@ -389,6 +474,10 @@ function main(){
         });
 
         $('#alert_placeholder').empty();
+
+        $('.split-chart').hide();
+        $('#analyzeContainer').show();
+        $('.toggle').data('toggles').toggle(true, false, true);
 
         // Select the default y-axis value
         setDefaultYAxis();
