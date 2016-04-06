@@ -848,8 +848,8 @@ def delete_system_subscriber_or_make_admin():
 # returns: groups.html
 # Exception : None
 #######################################################################################
-@social.route('/groups', methods=['GET', 'POST'])
-@social.route('/groups/', methods=['GET', 'POST'])
+@social.route('/groups', methods=['GET'])
+@social.route('/groups/', methods=['GET'])
 def groups():
     sql_id = session.get('uid')
     if sql_id is None:
@@ -858,9 +858,10 @@ def groups():
         if request.method == 'GET':
             group = Group()
             recommended_groups = group.get_recommended_groups(sql_id)
-            return render_template("groups.html", recommended_groups=recommended_groups)
-        elif request.method == 'POST':
-            return render_template("groups.html")
+            admin_groups = group.get_admin_groups(sql_id)
+            member_groups = group.get_member_groups(sql_id)
+            return render_template("groups.html", recommended_groups=recommended_groups, admin_groups=admin_groups,
+                                   member_groups = member_groups)
 
 
 #######################################################################################

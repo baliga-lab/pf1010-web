@@ -2603,3 +2603,49 @@ class Group:
             return members_pending_approval
         except Exception as ex:
             print "Exception occured in function get_members_pending_approval: "+ str(ex.message)
+
+    ############################################################################
+    # function : get_admin_groups
+    # purpose : gets the group details where the specified user is admin for those groups from neo4j database
+    # params :
+    #       self : Group
+    #       sql_id : sql id of user
+    # returns : Group node(s)
+    # Exceptions : General Exception
+    ############################################################################
+
+    def get_admin_groups(self, sql_id):
+        query = """
+            MATCH (user:User)-[:GROUP_ADMIN]->(group:Group)
+            WHERE user.sql_id = {sql_id}
+            RETURN group
+            ORDER BY group.name
+        """
+        try:
+            admin_groups = get_graph_connection_uri().cypher.execute(query, sql_id=sql_id)
+            return admin_groups
+        except Exception as ex:
+            print "Exception occured in function get_members_pending_approval: "+ str(ex.message)
+
+    ############################################################################
+    # function : get_member_groups
+    # purpose : gets the group details where the specified user is member for those groups from neo4j database
+    # params :
+    #       self : Group
+    #       sql_id : sql id of user
+    # returns : Group node(s)
+    # Exceptions : General Exception
+    ############################################################################
+
+    def get_member_groups(self, sql_id):
+        query = """
+            MATCH (user:User)-[:GROUP_MEMBER]->(group:Group)
+            WHERE user.sql_id = {sql_id}
+            RETURN group
+            ORDER BY group.name
+        """
+        try:
+            member_groups = get_graph_connection_uri().cypher.execute(query, sql_id=sql_id)
+            return member_groups
+        except Exception as ex:
+            print "Exception occured in function get_member_groups: "+ str(ex.message)
