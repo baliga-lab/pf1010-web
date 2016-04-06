@@ -123,19 +123,19 @@ class SystemsDAO:
         ###this query works in mysql  date timestamp use ''
 
         #test purpose wiht hard data and it wokred!
-        system ={
-            'id' : 222,
-            'user_id': 222,
-            'name': 'zhibo-TEST',
-            'start_date': '1988-09-09',
-            'status': 0,
-            'aqx_technique_id': 1,
-            'creation_time': '2015-08-11 04:48:21',
-            'location_lat': 0,
-            'location_lng': 0,
-            'state': 'PRE-ESTABLISHED',
-
-        }
+        # system ={
+        #     'id' : 222, itis auto generated so it is removed from query
+        #     'user_id': 222,
+        #     'name': 'zhibo-TEST',
+        #     'start_date': '1988-09-09',
+        #     'status': 0,
+        #     'aqx_technique_id': 1,
+        #     'creation_time': '2015-08-11 04:48:21',
+        #     'location_lat': 0,
+        #     'location_lng': 0,
+        #     'state': 'PRE-ESTABLISHED',
+        #
+        # }
 
         #??????????????????????? how to generate system_uid?????????????????????????
         #data amount match query????
