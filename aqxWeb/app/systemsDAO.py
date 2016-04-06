@@ -142,10 +142,10 @@ class SystemsDAO:
         #not sure if it is right, but it is working now
 
 
-        query = ('insert into systems (id, user_id, name, system_uid,start_date, status, aqx_technique_id,'
+        query = ('insert into systems (user_id, name, system_uid,start_date, status, aqx_technique_id,'
                  'creation_time,location_lat,location_lng,state) '
-                 'values(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s); ')
-        data = (system.get('id'), system.get('user_id'),system.get('name'),str(uuid.uuid4()),
+                 'values(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s); ')
+        data = (system.get('user_id'),system.get('name'),str(uuid.uuid4()),
                 system.get('start_date'),system.get('status'),system.get('aqx_technique_id'),
                 system.get('creation_time'), system.get('location_lat'), system.get('location_lng'),
                 system.get('state'))
