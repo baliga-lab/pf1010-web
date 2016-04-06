@@ -876,8 +876,14 @@ def get_groups():
     groups = Group().get_groups()
     grp_list = []
     for res in groups:
+        individual_grp = {}
         grp_name = res[0]
-        grp_list.append(grp_name)
+        grp_desc = res[1]
+        grp_uid = res[2]
+        individual_grp['label'] = grp_name
+        individual_grp['desc'] = grp_desc
+        individual_grp['uid'] = grp_uid
+        grp_list.append(individual_grp)
     return jsonify(json_list=grp_list)
 
 

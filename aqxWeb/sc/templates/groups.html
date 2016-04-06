@@ -124,6 +124,8 @@
                         //window.location = "profile/" + google_id;
                         alert("There is no page yet created for displaying group info. Work in progress")
                     });
+                    $("<br>").appendTo($a);
+                    $("<span class='m-desc'></span>").text(item.desc).appendTo($a);
 
                     return $("<li></li>").append($a).appendTo(ul);
 

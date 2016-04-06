@@ -2176,7 +2176,7 @@ class Group:
 
     def get_groups(self):
         query = """
-            MATCH (g:Group) RETURN g.name """
+            MATCH (g:Group) RETURN g.name, g.description, g.group_uid """
 
         try:
             results = get_graph_connection_uri().cypher.execute(query)
