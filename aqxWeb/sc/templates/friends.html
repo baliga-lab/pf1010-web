@@ -9,17 +9,17 @@
                    src="{{ url_for('social.static', filename='images/friends.png') }}">
             <h3 class="page-header">&nbsp; Friends</h3></span>
         <ul class="nav nav-tabs">
-            <li class="active"><a href="{{ url_for('social.friends') }}">My Friends</a></li>
-            <li><a href="{{ url_for('social.searchFriends') }}">Search Friends</a></li>
-            <li><a href="{{ url_for('social.pendingRequest') }}">Pending Requests</a></li>
-            <li><a href="{{ url_for('social.recofriends') }}">Recommended Friends</a></li>
+            <li class="active"><a href="{{ url_for('social.friends') }}"><span class="glyphicon glyphicon-user" aria-hidden="true"></span>&nbsp;My Friends</a></li>
+            <li><a href="{{ url_for('social.searchFriends') }}"><span class="glyphicon glyphicon-search" aria-hidden="true"></span>&nbsp;Search Friends</a></li>
+            <li><a href="{{ url_for('social.pendingRequest') }}"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span>&nbsp;Pending Requests</a></li>
+            <li><a href="{{ url_for('social.recofriends') }}"><span class="glyphicon glyphicon-star" aria-hidden="true"></span>&nbsp;Recommended Friends</a></li>
         </ul>
+
         <table class="table">
 
             <!-- Search Results Div -->
             <div class="row">
-                <h4>My Friends:</h4>
-                <hr>
+                <br>
                 {% if Friends or UnblockedFriend %}
                     <thead>
                     <tr>
