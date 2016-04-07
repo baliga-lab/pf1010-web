@@ -56,7 +56,7 @@
                     var google_id = item.gid;
 
                     var $a = $("<div></div>");
-                    $("<a id='profile' class='col-sm-6'></a>").text(item.label).appendTo($a).click(function () {
+                    $("<b id='profile' class='col-md-6'></b>").text(item.label).appendTo($a).click(function () {
                         window.location = "profile/" + google_id;
                     });
 
@@ -93,7 +93,7 @@
                     }
 
                     $("<br>").appendTo($a);
-                    $("<span class='m-org'></span>").text(item.org).appendTo($a);
+                    $("<em class='m-org'></em>").text(item.org).appendTo($a);
 
                     return $("<li></li>").append($a).appendTo(ul);
 
