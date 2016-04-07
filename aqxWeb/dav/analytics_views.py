@@ -193,7 +193,6 @@ def put_system_measurement():
 # API to get the readings of the time series plot
 ######################################################################
 
-@dav.route('/aqxapi/get/readings/tsplot/systems/<system_uid_list>/measurements/<msr_id_list>', methods=['GET'])
 def get_readings_for_tsplot(system_uid_list, msr_id_list,status_id):
     dav_api = DavAPI(get_conn())
     return dav_api.get_readings_for_plot(system_uid_list, msr_id_list,status_id)
@@ -212,7 +211,6 @@ def get_readings_for_plot():
 # API to get all measurements for picking axis in graph
 ######################################################################
 
-@dav.route('/aqxapi/get/system/measurement_types', methods=['GET'])
 def get_all_measurement_names():
     dav_api = DavAPI(get_conn())
     return dav_api.get_all_measurement_names()
@@ -223,7 +221,6 @@ def get_all_measurement_names():
 # max
 ######################################################################
 
-@dav.route('/aqxapi/get/system/measurement_info', methods=['GET'])
 def get_all_measurement_info():
     dav_api = DavAPI(get_conn())
     return dav_api.get_all_measurement_info()
