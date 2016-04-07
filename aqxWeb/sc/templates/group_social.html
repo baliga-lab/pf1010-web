@@ -30,7 +30,7 @@
                     <!-- Iterate Over Pending Approval Members -->
                     {% if members_pending_approval %}
                         {% for pending_member in members_pending_approval %}
-                            <form action="{{ url_for('social.index') }}" method="post">
+                            <form action="{{ url_for('social.approve_reject_group_member') }}" method="post">
                                 <div class="pendingRequestElements">
                                     <input type="hidden" name="google_id"
                                            value="{{ pending_member[0]["google_id"] }}">
