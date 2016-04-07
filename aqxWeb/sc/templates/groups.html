@@ -6,6 +6,7 @@
     {{ super() }}
     <link rel="stylesheet" href="{{ url_for('social.static', filename='css/groups.css') }}">
     <link href="//cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.6.3/css/bootstrap-select.css" rel="stylesheet"/>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
 {% endblock %}
 
 {% block content %}
@@ -33,21 +34,45 @@
 
         <!-- My Groups Div -->
         <div class="row" id="myGroupsTab">
-            <div class="col-md-12">
-                <div class="row">
-                    <label for="choose">Display groups where I am : </label>
-                    <select name="choose" class="selectpicker">
-                        <option>Admin</option>
-                        <option>Member</option>
-                    </select>
-                </div>
+            <div class="col-md-6">
+                <p><b>Admin Groups:</b></p>
                 <br>
-                <div class="row">
-                    <p id="myText"></p>
-                    <br>
-                    <table id="myTable" class="table">
-                    </table>
-                </div>
+                {% if admin_groups %}
+                        {% for row in admin_groups %}
+                            <div class="row">
+                                <ul>
+                                    <a href="{{ url_for('social.view_group', group_uid=row.group.group_uid) }}"><i class="fa fa-users fa-2x"></i>&nbsp;{{ row.group.name }}</a>
+                                </ul>
+                                <br>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="row">
+                            <ul>
+                                <i class="fa fa-frown-o fa-3x"></i>&nbsp;There are no groups which you are an admin of.
+                            </ul>
+                        </div>
+                    {% endif %}
+            </div>
+            <div class="col-md-6">
+                <p><b>Member Groups:</b></p>
+                <br>
+                {% if member_groups %}
+                        {% for row in member_groups %}
+                            <div class="row">
+                                <ul>
+                                    <a href="{{ url_for('social.view_group', group_uid=row.group.group_uid) }}"><i class="fa fa-university fa-2x"></i>&nbsp;{{ row.group.name }}</a>
+                                </ul>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="row">
+                            <ul>
+                                <i class="fa fa-frown-o fa-3x"></i>&nbsp;There are no groups which you are a member of.
+                            </ul>
+                        </div>
+                    {% endif %}
+
             </div>
         </div>
         <!-- End of My Groups Div -->
@@ -122,7 +147,6 @@
             $.ajax({
                 url: '{{ url_for("social.get_groups") }}'
             }).done(function (data) {
-                console.log(data)
                 $("#autocomplete").autocomplete({
                     minLength: 1,
                     source: data.json_list,
@@ -149,25 +173,6 @@
                 };
             });
         });
-
-    $(function()
-    {
-        $('.selectpicker').on('change', function()
-        {
-            var selected = $(this).find("option:selected").val();
-            if (selected == "Admin")
-                document.getElementById("myText").innerHTML = "You are an admin in:,";
-            else
-                    document.getElementById("myText").innerHTML = "You are a member of:";
-                /*var table = document.getElementById("myTable");
-                var row = table.insertRow(0);
-    var cell1 = row.insertCell(0);
-    var cell2 = row.insertCell(1);
-    cell1.innerHTML = "NEW CELL1";
-    cell2.innerHTML = "NEW CELL2";*/
-        });
-    });
-
     </script>
 
 {% endblock %}

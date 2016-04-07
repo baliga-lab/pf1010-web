@@ -863,7 +863,6 @@ def groups():
             return render_template("groups.html", recommended_groups=recommended_groups, admin_groups=admin_groups,
                                    member_groups = member_groups)
 
-
 #######################################################################################
 # function : search_groups
 # purpose : to let the user search for groups in the neo4j database
