@@ -615,7 +615,8 @@ def search_systems():
 @social.route('/systems/<system_uid>', methods=['GET', 'POST'])
 def view_system(system_uid):
     sql_id = session.get('uid')
-    # system_uid = "2e79ea8a411011e5aac7000c29b92d09"
+    #sql_id = 29
+    #system_uid = "2e79ea8a411011e5aac7000c29b92d09"
     if sql_id is None:
         return redirect(url_for('social.search_systems'))
     try:
