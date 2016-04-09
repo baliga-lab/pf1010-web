@@ -2460,14 +2460,17 @@ class Group:
  ############################################################################
     # function : leave_group
     # purpose : When the user leaves the group, we remove the relationship associated between user and group node
-    # params : self system, google_id, group_uid
+    # params :
+    #        self : Group
+    #        google_id : google_id of the user
+    #        group_uid : uid of group
     # returns : None
     # Exceptions : cypher.CypherError, cypher.CypherTransactionError
     ############################################################################
     def leave_group(self, google_id, group_uid):
         remove_relationship_query = """
-                MATCH (u:User)-[rel]->(s:Group)
-                WHERE u.google_id = {google_id} and s.group_uid={group_uid}
+                MATCH (u:User)-[rel]->(g:Group)
+                WHERE u.google_id = {google_id} and g.group_uid={group_uid}
                 DETACH DELETE rel
         """
         try:
@@ -2481,23 +2484,26 @@ class Group:
 
 
      ############################################################################
-    # function : subscribe_to_group_pending
+    # function : join_group_pending
     # purpose : When the user clicks on "Join" button in the group page, pending relationship
     # is created between the user and group node
-    # params : self System, google_id, group_uid
+    # params :
+    #        self : Group
+    #        google_id : google_id of the user
+    #        group_uid : uid of group
     # returns : None
     # Exceptions : cypher.CypherError, cypher.CypherTransactionError
     ############################################################################
     def join_group_pending(self, google_id, group_uid):
         remove_relationship_query = """
-                MATCH (u:User)-[rel]->(s:Group)
-                WHERE u.google_id = {google_id} and s.group_uid={group_uid}
+                MATCH (u:User)-[rel]->(g:Group)
+                WHERE u.google_id = {google_id} and g.group_uid={group_uid}
                 DETACH DELETE rel
         """
         create_subscriber_relationship_query = """
-                MATCH (u:User), (s:Group)
-                WHERE u.google_id = {google_id} and s.group_uid={group_uid}
-                CREATE UNIQUE (u)-[rel:GROUP_PENDING_MEMBER]->(s)
+                MATCH (u:User), (g:Group)
+                WHERE u.google_id = {google_id} and g.group_uid={group_uid}
+                CREATE UNIQUE (u)-[rel:GROUP_PENDING_MEMBER]->(g)
                 RETURN rel
         """
         try:
@@ -2513,23 +2519,26 @@ class Group:
 
 
     ############################################################################
-    # function : subscribe_to_group
+    # function : join_group
     # purpose : When the user clicks on "Join" button in the group page,direct relationship
     # is created between the user and group node
-    # params : self System, google_id, group_uid
+    # params :
+    #        self : Group
+    #        google_id : google_id of the user
+    #        group_uid : uid of group
     # returns : None
     # Exceptions : cypher.CypherError, cypher.CypherTransactionError
     ############################################################################
     def join_group(self, google_id, group_uid):
         remove_relationship_query = """
-                MATCH (u:User)-[rel]->(s:Group)
-                WHERE u.google_id = {google_id} and s.group_uid={group_uid}
+                MATCH (u:User)-[rel]->(g:Group)
+                WHERE u.google_id = {google_id} and g.group_uid={group_uid}
                 DETACH DELETE rel
         """
         create_subscriber_relationship_query = """
-                MATCH (u:User), (s:Group)
-                WHERE u.google_id = {google_id} and s.group_uid={group_uid}
-                CREATE UNIQUE (u)-[rel:GROUP_MEMBER]->(s)
+                MATCH (u:User), (g:Group)
+                WHERE u.google_id = {google_id} and g.group_uid={group_uid}
+                CREATE UNIQUE (u)-[rel:GROUP_MEMBER]->(g)
                 RETURN rel
         """
         try:

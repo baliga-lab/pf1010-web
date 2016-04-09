@@ -1065,6 +1065,39 @@ def delete_group_member_or_make_admin():
 
 
 #######################################################################################
+@social.route('/manage/groups/join_leave', methods=['POST'])
+# function : join_group
+# purpose : Subscribe/Request To Join the group by an User for the particular group
+# parameters : None
+# Exception : None
+#######################################################################################
+def join_leave_group():
+    if request.method == 'POST':
+        group_uid = request.form["group_uid"]
+        google_id = request.form["google_id"]
+        is_private_group = request.form["is_private_group"]
+        group = Group()
+        sql_id = session.get('uid')
+        if sql_id is not None:
+            user_privilege = group.get_user_privilege_for_group(sql_id, group_uid)
+            if user_privilege is None:
+                if request.form['submit'] == 'Join':
+                    if is_private_group == "false":
+                        group.join_group(google_id, group_uid)
+                    else:
+                        group.join_group_pending(google_id, group_uid)
+            else:
+                if user_privilege == "GROUP_ADMIN" or\
+                                user_privilege == "GROUP_PENDING_MEMBER" or\
+                                user_privilege == "GROUP_MEMBER":
+                    if request.form['submit'] == 'Leave':
+                        group.leave_group(google_id, group_uid)
+        return redirect(url_for('social.view_group', group_uid=group_uid))
+    else:
+        return redirect(url_for('social.index'))
+
+
+#######################################################################################
 @social.route('/add_comment', methods=['POST'])
 #######################################################################################
 # function : add_comment
@@ -1778,32 +1811,3 @@ def test_add_comment():
     return redirect(url_for('social.index'))
 
 
-#######################################################################################
-@social.route('/groups/join_leave', methods=['POST'])
-# function : join_group
-# purpose : Subscribe/Request To Join the group by an User for the particular group
-# parameters : None
-# Exception : None
-#######################################################################################
-def join_leave_group():
-    if request.method == 'POST':
-        group_uid = request.form["group_uid"]
-        google_id = request.form["google_id"]
-        is_private_group = request.form["is_private_group"]
-        group = Group()
-        sql_id = session.get('uid')
-        if sql_id is not None:
-            user_privilege = group.get_user_privilege_for_group(sql_id, group_uid)
-            if user_privilege is None:
-                if request.form['submit'] == 'Join':
-                    if is_private_group == "false":
-                        group.join_group(google_id, group_uid)
-                    else:
-                        group.join_group_pending(google_id, group_uid)
-            else:
-                if user_privilege == "GROUP_ADMIN" or user_privilege == "GROUP_PENDING_MEMBER" or user_privilege == "GROUP_MEMBER":
-                    if request.form['submit'] == 'Leave':
-                        group.leave_group(google_id, group_uid)
-        return redirect(url_for('social.groups', group_uid=group_uid))
-    else:
-        return redirect(url_for('social.About'))

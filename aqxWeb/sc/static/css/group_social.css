@@ -23,7 +23,11 @@
     height: 100px;
 }
 
-.memberImage, .subscriberImage, .pendingMemberImage {
+.memberImage, .pendingMemberImage {
     height: 40px;
     width: 40px;
+}
+
+h4 {
+    color: #449d44;
 }

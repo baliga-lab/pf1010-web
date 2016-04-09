@@ -14,12 +14,12 @@
 
         <!-- Div for Left Pane (Group Description, Participant, Manage Requests) - Groups Page -->
         <div class="col-md-3 leftPaneDiv">
-            <div class="row systemDescription">
-                <h4 class="systemName">  {{ group_neo4j[0][0]['name'] }} </h4>
-                <h5 class="systemCreated" id="systemCreatedTime"><b>Created On: </b>
+            <div class="row groupDescription">
+                <h4 class="groupName">  {{ group_neo4j[0][0]['name'] }} </h4>
+                <h5 class="groupCreated" id="groupCreatedTime"><b>Created On: </b>
                     {{ creation_date }}
                 </h5>
-                <h5 class="systemDescription"><b> Description: </b> {{ group_neo4j[0][0]['description'] }}</h5>
+                <h5 class="groupDescription"><b> Description: </b> {{ group_neo4j[0][0]['description'] }}</h5>
             </div>
 
 
@@ -48,7 +48,8 @@
                     {% endif %}
                 </div>
             </form>
-            <!-- Div for Managing Member Requests (Approve/Reject) Button. Manage System Settings Too -->
+
+            <!-- Div for Managing Member Requests (Approve/Reject) Button. Manage Group Settings Too -->
             {% if user_privilege == "GROUP_ADMIN" %}
 
                 <div class="row pendingRequestsTitleDiv">
@@ -86,7 +87,7 @@
                         <!-- There exists No Pending Approval Members -->
                     {% else %}
                         <span>
-                                <h5>Currently, there are no pending Members for the system</h5>
+                                <h5>Currently, there are no pending Members for the Group</h5>
                             </span>
                     {% endif %}
                 </div>
@@ -108,24 +109,24 @@
 
             <br/>
 
-            <div>
-                <h3>Group members</h3>
+            <div class="row">
+                <h4>Group Members ({{ group_members | length }})</h4>
                 {% if group_members %}
-
-                    {% for row in group_members %}
-                        {% if loop.index < stop_at %}
-
-                            <li>
-
-                              <img src="{{row[0]['image_url']}}" width="25" height="25">  <a href="{{ url_for('social.profile',google_id=row[0]['google_id']) }}">{{ row[0]['displayName'] }}</a>
-                            </li>
-                        {% endif %}
+                    {% for member in group_members %}
+                        <div class="memberElements">
+                            {% if loop.index < stop_at %}
+                                <img class="memberImage img-circle" src="{{ member[0]['image_url'] }}">
+                                <a href="{{ url_for('social.profile',google_id=member[0]['google_id']) }}">
+                                    {{ member[0]['displayName'] }}
+                                </a>
+                                </li>
+                            {% endif %}
+                        </div>
                     {% endfor %}
                 {% endif %}
                 <br>
                 <button type="button" class="btn btn-info btn-sm" data-toggle="modal" data-target="#myMembersModal">See
-                    all
-                    Members
+                    All Members
                 </button>
                 <br><br>
             </div>
@@ -159,15 +160,16 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal">&times;</button>
-                    <h4 class="modal-title">Group members</h4>
+                    <h4 class="modal-title">Group Members ({{ group_members | length }})</h4>
                 </div>
                 <div class="modal-body">
-                    <h3>Group members</h3>
                     {% if group_members %}
-
-                        {% for row in group_members %}
+                        {% for member in group_members %}
                             <li>
-                               <img src="{{row[0]['image_url']}}" width="25" height="25">    <a href="{{ url_for('social.profile',google_id=row[0]['google_id']) }}">{{ row[0]['displayName'] }}</a>
+                                <img class="memberImage" src="{{ member[0]['image_url'] }}">
+                                <a href="{{ url_for('social.profile',google_id=member[0]['google_id']) }}">
+                                    {{ member[0]['displayName'] }}
+                                </a>
                             </li>
 
                         {% endfor %}
