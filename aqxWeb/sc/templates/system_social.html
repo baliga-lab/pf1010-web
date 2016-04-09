@@ -405,6 +405,9 @@
     <!-- jQuery Script For DOM Manipulation In Systems Page -->
     <script type="text/javascript" src="{{ url_for('social.static', filename='js/system_social.js') }}"></script>
     <script type="text/javascript">
+        {% if user_privilege is none or user_privilege == "SYS_PENDING_PARTICIPANT" %}
+            disableSharePost();
+        {% endif %}
         renderGoogleMaps("{{ system_neo4j[0][0]['location_lat'] }}",
                 "{{ system_neo4j[0][0]['location_lng'] }}", "{{ system_neo4j[0][0]['name'] }}");
     </script>
