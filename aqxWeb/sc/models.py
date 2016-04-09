@@ -2457,7 +2457,8 @@ class Group:
         except cypher.CypherError, cypher.CypherTransactionError:
             print "Exception occured in function delete_group_member"
 
- ############################################################################
+            ############################################################################
+
     # function : leave_group
     # purpose : When the user leaves the group, we remove the relationship associated between user and group node
     # params :
@@ -2483,7 +2484,8 @@ class Group:
 
 
 
-     ############################################################################
+            ############################################################################
+
     # function : join_group_pending
     # purpose : When the user clicks on "Join" button in the group page, pending relationship
     # is created between the user and group node
@@ -2515,8 +2517,6 @@ class Group:
                                                                                    group_uid=group_uid)
         except cypher.CypherError, cypher.CypherTransactionError:
             print "Exception occured in function join_group_pending"
-
-
 
     ############################################################################
     # function : join_group
@@ -2568,14 +2568,15 @@ class Group:
                 MATCH (g:Group)
                 WHERE g.group_uid={group_uid}
                 SET g.name = {name}, g.description = {description},
-                g.is_private_group = {is_private_group}
+                g.is_private_group = {is_private_group},
+                g.modified_time = {modified_time}
                 RETURN g
         """
         try:
             update_status = get_graph_connection_uri().cypher.execute(update_query, group_uid=group_uid,
-                                                                      name=name,
-                                                                      description=description,
-                                                                      is_private_group=is_private_group)
+                                                                      name=name, description=description,
+                                                                      is_private_group=is_private_group,
+                                                                      modified_time=timestamp())
         except Exception as ex:
             print "Exception occured in function update_group_info: " + str(ex)
 
@@ -2603,10 +2604,10 @@ class Group:
             minimum_depth_level = 2
             friends_group = get_graph_connection_uri().cypher.execute(friends_group_query, sql_id=sql_id)
             mutual_group_between_friends = Group().get_mutual_group_between_friends(friends_group,
-                                                                                       minimum_depth_level)
+                                                                                    minimum_depth_level)
             return mutual_group_between_friends
         except Exception as ex:
-            print "Exception occured in function get_recommended_groups: "+ str(ex.message)
+            print "Exception occured in function get_recommended_groups: " + str(ex.message)
 
     ############################################################################
     # function : get_mutual_group_between_friends
@@ -2649,10 +2650,10 @@ class Group:
                 ORDER By group.name
             """
             mutual_group_between_friends = get_graph_connection_uri().cypher.execute(group_query,
-                                                                                      group_uid_collection=list_of_mutual_groups.keys())
+                                                                                     group_uid_collection=list_of_mutual_groups.keys())
             return mutual_group_between_friends
         except Exception as ex:
-            print "Exception occured in function get_mutual_system_between_friends: "+ str(ex.message)
+            print "Exception occured in function get_mutual_system_between_friends: " + str(ex.message)
 
     ############################################################################
     # function : get_group_members
@@ -2674,7 +2675,7 @@ class Group:
             group_members = get_graph_connection_uri().cypher.execute(query, group_uid=group_uid)
             return group_members
         except Exception as ex:
-            print "Exception occured in function get_group_members: "+ str(ex.message)
+            print "Exception occured in function get_group_members: " + str(ex.message)
 
     ############################################################################
     # function : get_members_pending_approval
@@ -2696,7 +2697,7 @@ class Group:
             members_pending_approval = get_graph_connection_uri().cypher.execute(query, group_uid=group_uid)
             return members_pending_approval
         except Exception as ex:
-            print "Exception occured in function get_members_pending_approval: "+ str(ex.message)
+            print "Exception occured in function get_members_pending_approval: " + str(ex.message)
 
     ############################################################################
     # function : get_admin_groups
@@ -2719,7 +2720,7 @@ class Group:
             admin_groups = get_graph_connection_uri().cypher.execute(query, sql_id=sql_id)
             return admin_groups
         except Exception as ex:
-            print "Exception occured in function get_members_pending_approval: "+ str(ex.message)
+            print "Exception occured in function get_members_pending_approval: " + str(ex.message)
 
     ############################################################################
     # function : get_member_groups
@@ -2742,4 +2743,4 @@ class Group:
             member_groups = get_graph_connection_uri().cypher.execute(query, sql_id=sql_id)
             return member_groups
         except Exception as ex:
-            print "Exception occured in function get_member_groups: "+ str(ex.message)
+            print "Exception occured in function get_member_groups: " + str(ex.message)
