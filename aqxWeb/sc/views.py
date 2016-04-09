@@ -853,6 +853,7 @@ def delete_system_subscriber_or_make_admin():
 def groups():
     sql_id = session.get('uid')
     if sql_id is None:
+
         return redirect(url_for('social.index'))
     else:
         if request.method == 'GET':
@@ -861,7 +862,8 @@ def groups():
             admin_groups = group.get_admin_groups(sql_id)
             member_groups = group.get_member_groups(sql_id)
             return render_template("groups.html", recommended_groups=recommended_groups, admin_groups=admin_groups,
-                                   member_groups = member_groups)
+                                   member_groups=member_groups)
+
 
 #######################################################################################
 # function : search_groups
@@ -897,8 +899,8 @@ def get_groups():
 @social.route('/groups/<group_uid>', methods=['GET', 'POST'])
 def view_group(group_uid):
     sql_id = session.get('uid')
-    #sql_id = 29
-    #group_uid = "456f3f2e3fh411e597b1000c29b92e09"
+    # sql_id = 29
+    # group_uid = "456f3f2e3fh411e597b1000c29b92e09"
     if sql_id is None:
         return redirect(url_for('social.index'))
     try:
@@ -914,9 +916,10 @@ def view_group(group_uid):
                 user_privilege = group.get_user_privilege_for_group(sql_id, group_uid)
                 group_members = group.get_group_members(group_uid)
                 members_pending_approval = group.get_members_pending_approval(group_uid)
+                creation_date = convert_milliseconds_to_normal_date(group_neo4j[0][0]['creation_time'])
                 return render_template("group_social.html", group_neo4j=group_neo4j, logged_in_user=logged_in_user,
-                                       user_privilege=user_privilege, group_members=group_members,
-                                       members_pending_approval=members_pending_approval)
+                                       user_privilege=user_privilege, group_members=group_members, stop_at=3,
+                                       members_pending_approval=members_pending_approval, creation_date=creation_date)
     except Exception as e:
         logging.exception("Exception at view_group: " + str(e))
 
@@ -1772,3 +1775,34 @@ def test_add_comment():
         User(session['uid']).test_add_comment(comment, post_id)
         flash('Your comment has been posted')
     return redirect(url_for('social.index'))
+
+
+#######################################################################################
+@social.route('/groups/join_leave', methods=['POST'])
+# function : join_group
+# purpose : Subscribe/Request To Join the group by an User for the particular group
+# parameters : None
+# Exception : None
+#######################################################################################
+def join_leave_group():
+    if request.method == 'POST':
+        group_uid = request.form["group_uid"]
+        google_id = request.form["google_id"]
+        is_private_group = request.form["is_private_group"]
+        group = Group()
+        sql_id = session.get('uid')
+        if sql_id is not None:
+            user_privilege = group.get_user_privilege_for_group(sql_id, group_uid)
+            if user_privilege is None:
+                if request.form['submit'] == 'Join':
+                    if is_private_group == "false":
+                        group.join_group(google_id, group_uid)
+                    else:
+                        group.join_group_pending(google_id, group_uid)
+            else:
+                if user_privilege == "GROUP_ADMIN" or user_privilege == "GROUP_PENDING_MEMBER" or user_privilege == "GROUP_MEMBER":
+                    if request.form['submit'] == 'Leave':
+                        group.leave_group(google_id, group_uid)
+        return redirect(url_for('social.groups', group_uid=group_uid))
+    else:
+        return redirect(url_for('social.About'))

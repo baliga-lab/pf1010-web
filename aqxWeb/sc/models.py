@@ -2457,6 +2457,91 @@ class Group:
         except cypher.CypherError, cypher.CypherTransactionError:
             print "Exception occured in function delete_group_member"
 
+ ############################################################################
+    # function : leave_group
+    # purpose : When the user leaves the group, we remove the relationship associated between user and group node
+    # params : self system, google_id, group_uid
+    # returns : None
+    # Exceptions : cypher.CypherError, cypher.CypherTransactionError
+    ############################################################################
+    def leave_group(self, google_id, group_uid):
+        remove_relationship_query = """
+                MATCH (u:User)-[rel]->(s:Group)
+                WHERE u.google_id = {google_id} and s.group_uid={group_uid}
+                DETACH DELETE rel
+        """
+        try:
+            remove_relationship_status = get_graph_connection_uri().cypher.execute(remove_relationship_query,
+                                                                                   google_id=google_id,
+                                                                                   group_uid=group_uid)
+        except cypher.CypherError, cypher.CypherTransactionError:
+            print "Exception occured in function leave_group"
+
+
+
+
+     ############################################################################
+    # function : subscribe_to_group_pending
+    # purpose : When the user clicks on "Join" button in the group page, pending relationship
+    # is created between the user and group node
+    # params : self System, google_id, group_uid
+    # returns : None
+    # Exceptions : cypher.CypherError, cypher.CypherTransactionError
+    ############################################################################
+    def join_group_pending(self, google_id, group_uid):
+        remove_relationship_query = """
+                MATCH (u:User)-[rel]->(s:Group)
+                WHERE u.google_id = {google_id} and s.group_uid={group_uid}
+                DETACH DELETE rel
+        """
+        create_subscriber_relationship_query = """
+                MATCH (u:User), (s:Group)
+                WHERE u.google_id = {google_id} and s.group_uid={group_uid}
+                CREATE UNIQUE (u)-[rel:GROUP_PENDING_MEMBER]->(s)
+                RETURN rel
+        """
+        try:
+            remove_relationship_status = get_graph_connection_uri().cypher.execute(remove_relationship_query,
+                                                                                   google_id=google_id,
+                                                                                   group_uid=group_uid)
+            create_relationship_status = get_graph_connection_uri().cypher.execute(create_subscriber_relationship_query,
+                                                                                   google_id=google_id,
+                                                                                   group_uid=group_uid)
+        except cypher.CypherError, cypher.CypherTransactionError:
+            print "Exception occured in function join_group_pending"
+
+
+
+    ############################################################################
+    # function : subscribe_to_group
+    # purpose : When the user clicks on "Join" button in the group page,direct relationship
+    # is created between the user and group node
+    # params : self System, google_id, group_uid
+    # returns : None
+    # Exceptions : cypher.CypherError, cypher.CypherTransactionError
+    ############################################################################
+    def join_group(self, google_id, group_uid):
+        remove_relationship_query = """
+                MATCH (u:User)-[rel]->(s:Group)
+                WHERE u.google_id = {google_id} and s.group_uid={group_uid}
+                DETACH DELETE rel
+        """
+        create_subscriber_relationship_query = """
+                MATCH (u:User), (s:Group)
+                WHERE u.google_id = {google_id} and s.group_uid={group_uid}
+                CREATE UNIQUE (u)-[rel:GROUP_MEMBER]->(s)
+                RETURN rel
+        """
+        try:
+            remove_relationship_status = get_graph_connection_uri().cypher.execute(remove_relationship_query,
+                                                                                   google_id=google_id,
+                                                                                   group_uid=group_uid)
+            create_relationship_status = get_graph_connection_uri().cypher.execute(create_subscriber_relationship_query,
+                                                                                   google_id=google_id,
+                                                                                   group_uid=group_uid)
+        except cypher.CypherError, cypher.CypherTransactionError:
+            print "Exception occured in function join_group"
+
     ############################################################################
     # function : update_group_info
     # purpose : Updates the group node attributes in the Neo4J database

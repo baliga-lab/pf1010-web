@@ -14,12 +14,41 @@
 
         <!-- Div for Left Pane (Group Description, Participant, Manage Requests) - Groups Page -->
         <div class="col-md-3 leftPaneDiv">
+            <div class="row systemDescription">
+                <h4 class="systemName">  {{ group_neo4j[0][0]['name'] }} </h4>
+                <h5 class="systemCreated" id="systemCreatedTime"><b>Created On: </b>
+                    {{ creation_date }}
+                </h5>
+                <h5 class="systemDescription"><b> Description: </b> {{ group_neo4j[0][0]['description'] }}</h5>
+            </div>
 
 
+            <br>
+            <form id="join_leave_group"
+                  action="{{ url_for('social.join_leave_group') }}" method="post">
+                <div class="row sendRequests">
+                    <input type="hidden" name="google_id"
+                           value="{{ logged_in_user["google_id"] }}">
+                    <input type="hidden" name="group_uid"
+                           value="{{ group_neo4j[0][0]["group_uid"] }}">
+                    <input type="hidden" name="is_private_group"
+                           value="{{ group_neo4j[0][0]["is_private_group"] }}">
 
+                    {% if not user_privilege %}
+                        <button class="btn btn-primary" name="submit" value="Join" role="button">Join</button>
+                    {% elif user_privilege=="GROUP_MEMBER" or user_privilege=="GROUP_ADMIN" %}
+                        <button class="btn btn-danger" name="submit" value="Leave" role="button"
+                                onclick="return getUserConsent()">Leave
+                        </button>
 
-
-             <!-- Div for Managing Member Requests (Approve/Reject) Button. Manage System Settings Too -->
+                    {% elif user_privilege=="GROUP_PENDING_MEMBER" %}
+                        <button class="btn btn-danger" name="submit" role="button" value="Leave"
+                                onclick="return getUserConsent()">Cancel Request
+                        </button>
+                    {% endif %}
+                </div>
+            </form>
+            <!-- Div for Managing Member Requests (Approve/Reject) Button. Manage System Settings Too -->
             {% if user_privilege == "GROUP_ADMIN" %}
 
                 <div class="row pendingRequestsTitleDiv">
@@ -79,6 +108,27 @@
 
             <br/>
 
+            <div>
+                <h3>Group members</h3>
+                {% if group_members %}
+
+                    {% for row in group_members %}
+                        {% if loop.index < stop_at %}
+
+                            <li>
+
+                              <img src="{{row[0]['image_url']}}" width="25" height="25">  <a href="{{ url_for('social.profile',google_id=row[0]['google_id']) }}">{{ row[0]['displayName'] }}</a>
+                            </li>
+                        {% endif %}
+                    {% endfor %}
+                {% endif %}
+                <br>
+                <button type="button" class="btn btn-info btn-sm" data-toggle="modal" data-target="#myMembersModal">See
+                    all
+                    Members
+                </button>
+                <br><br>
+            </div>
         </div>
         <!-- End Div for Left Pane (Group Description, Participant, Manage Requests) - Groups Page -->
 
@@ -100,6 +150,36 @@
 
     </div>
     <!-- End of Div for Groups Pane - Container Div -->
+
+
+    <div id="myMembersModal" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">Group members</h4>
+                </div>
+                <div class="modal-body">
+                    <h3>Group members</h3>
+                    {% if group_members %}
+
+                        {% for row in group_members %}
+                            <li>
+                               <img src="{{row[0]['image_url']}}" width="25" height="25">    <a href="{{ url_for('social.profile',google_id=row[0]['google_id']) }}">{{ row[0]['displayName'] }}</a>
+                            </li>
+
+                        {% endfor %}
+                    {% endif %}
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+                <!-- Modal -->
+            </div>
+        </div>
+    </div>
 
 
 {% endblock %}
