@@ -27,8 +27,52 @@
 
         <!-- Create Groups Div -->
         <div class="container" id="createGroupTab">
-
-
+        <form>
+          <div class="form-group">
+                      <label for="txtGroupName">Name:</label> 
+                    <input type="text"
+                           class="form-control"
+                           name="name"
+                           id="txtGroupName"  
+                           pattern=".{1,}"
+                           required 
+                           title="Group Name Cannot Be Empty"
+                           placeholder="Group Name" > </input>
+                </div>
+                 
+                <div class="form-group">
+                      <label for="txtGroupDescription">Description:</label> 
+                    <input type="text"
+                           class="form-control"
+                           name="description"
+                           id="txtGroupDescription"  
+                           pattern=".{1,}"
+                           required 
+                           title="Group Description Cannot Be Empty"
+                           placeholder="Group Description"> </input>
+                </div>
+                 
+                <div class="form-group"> 
+                    <b>Private Group: &nbsp;</b> 
+                    <label class="radio-inline"> 
+                        <input type="radio"
+                               name="is_private_group"
+                               id="rbYes"
+                               value=true
+                               />
+                        Yes 
+                    </label> 
+                    <label class="radio-inline"> 
+                        <input type="radio"
+                               name="is_private_group"
+                               id="rbNo"
+                               value=false  
+                               />
+                        No 
+                    </label> 
+                </div>
+                <button type="submit" class="btn btn-primary form-control" value="Save">Create</button>
+          </form>
         </div>
         <!-- End of Create Groups Div -->
 
