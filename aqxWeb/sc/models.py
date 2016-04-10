@@ -2195,17 +2195,17 @@ class Group:
         user = User(user_sql_id).find()
         group = Node(
             "Group",
-            group_id=str(uuid.uuid4()),
-            group_name=group_name,
-            group_description=group_description,
-            is_private=is_private,
-            userid=user_sql_id,
+            group_uid=str(uuid.uuid4()),
+            name=group_name,
+            description=group_description,
+            is_private_group=is_private,
             creation_time=timestamp(),
             modified_time=timestamp(),
-            date=date()
+            status = 0,
+
         )
-        user_groupadmin_relationship = Relationship(group, "GROUP_ADMIN", user)
-        user_groupmember_relationship = Relationship(group,"GROUP_MEMBER", user)
+        user_groupadmin_relationship = Relationship(user, "GROUP_ADMIN", group)
+
 
         print("In Models.py")
         print(group_name)
@@ -2216,7 +2216,7 @@ class Group:
         try:
             get_graph_connection_uri().create(group)
             get_graph_connection_uri().create(user_groupadmin_relationship)
-            get_graph_connection_uri().create(user_groupmember_relationship)
+
         except cypher.CypherError, cypher.CypherTransactionError:
             print "Exception occured in function create_group "
 

@@ -15,3 +15,16 @@
     height: 32px;
     width: 32px;
 }
+.memberGroups {
+border: 1px solid #23434d;
+overflow-y: auto;
+overflow-x: hidden;
+height: 150px;
+}
+.adminGroups {
+border: 1px solid #23434d;
+overflow-y: auto;
+overflow-x: hidden;
+height: 150px;
+}
+

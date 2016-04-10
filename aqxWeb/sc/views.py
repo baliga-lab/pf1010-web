@@ -990,7 +990,7 @@ def update_group_info():
 
 
 #######################################################################################
-@social.route('/create_group', methods=['POST'])
+@social.route('/manage/groups/create_group', methods=['POST'])
 #######################################################################################
 # function : create_group
 # purpose : creates group
