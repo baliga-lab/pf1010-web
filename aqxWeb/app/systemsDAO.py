@@ -2,6 +2,9 @@
 import datetime
 import json
 import uuid
+from flask import session
+from datetime import datetime
+from flask import current_app
 
 class SystemsDAO:
 
@@ -25,8 +28,7 @@ class SystemsDAO:
                  "ao.name as 'organism', "
                  "sao.num as 'organism_count', "
                  "s.creation_time, "
-                 "s.status, "
-                 "s.state "
+                 "s.status "
                  "FROM systems s "
                  "sao.num as 'organism_count' "
                  "FROM systems s "
@@ -65,8 +67,7 @@ class SystemsDAO:
                  "ao.name as 'organism', "
                  "sao.num as 'organism_count', "
                  "s.creation_time, "
-                 "s.status, "
-                 "s.state "
+                 "s.status "
                  "FROM systems s "
                  "LEFT JOIN aqx_techniques aqt ON s.aqx_technique_id = aqt.id "
                  "LEFT JOIN system_crops sc    ON s.id = sc.system_id "
@@ -90,7 +91,7 @@ class SystemsDAO:
 
     def get_system_by_system_uid(self, system_uid):
         cursor = self.conn.cursor()
-        query = ('select * from systems where system_uid = %s ')
+        query = ('select * from systems_ui where system_uid = %s ')
         try:
             cursor.execute(query, (system_uid,))
             system = cursor.fetchall()
@@ -100,7 +101,7 @@ class SystemsDAO:
 
     def get_system_by_id(self, id):
         cursor = self.conn.cursor()
-        query = ('select * from systems where id = %s ')
+        query = ('select * from systems_ui where id = %s ')
         try:
             cursor.execute(query, (id,))
             system = cursor.fetchall()
@@ -108,13 +109,25 @@ class SystemsDAO:
             cursor.close()
         return system
 
+    def get_system_by_name(self, name):
+        cursor = self.conn.cursor()
+        query = ('select * from systems_ui where name = %s ')
+        try:
+            cursor.execute(query, (name,))
+            system = cursor.fetchall()
+        finally:
+            cursor.close()
+        return system
+
+
+
 
     ###############################################################################
     #     create_system() - takes in a system json object and adds this system into the list of all systems
     #     argument system is a form object
 
     def create_system(self, system):
-        old_system = self.get_system_by_id(system.get('sys.id'))
+        old_system = self.get_system_by_name(system.get('name'))
         if len(old_system) != 0:
             return "System exists"
         cursor = self.conn.cursor()
@@ -122,33 +135,26 @@ class SystemsDAO:
         ###values(111, 111, 'zhibo', date('1977 - 6 - 14'), 0, 1, timestamp('2015-08-11 04:48:21'), 111, 111, 'PRE-ESTABLISHED');
         ###this query works in mysql  date timestamp use ''
 
-        #test purpose wiht hard data and it wokred!
+        #test purpose with hard data and it worked!
         # system ={
-        #     'id' : 222, itis auto generated so it is removed from query
-        #     'user_id': 222,
+        #     #'id' : 222, itis auto generated so it is removed from query
+        #     #'user_id': 222,   #it can be got from session     session['uid']
         #     'name': 'zhibo-TEST',
+        #     #'system_uid': 222222,
         #     'start_date': '1988-09-09',
-        #     'status': 0,
         #     'aqx_technique_id': 1,
         #     'creation_time': '2015-08-11 04:48:21',
         #     'location_lat': 0,
-        #     'location_lng': 0,
-        #     'state': 'PRE-ESTABLISHED',
-        #
+        #     'location_lng': 0
         # }
 
-        #??????????????????????? how to generate system_uid?????????????????????????
-        #data amount match query????
-        #not sure if it is right, but it is working now
 
-
-        query = ('insert into systems (user_id, name, system_uid,start_date, status, aqx_technique_id,'
-                 'creation_time,location_lat,location_lng,state) '
-                 'values(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s); ')
-        data = (system.get('user_id'),system.get('name'),str(uuid.uuid4()),
-                system.get('start_date'),system.get('status'),system.get('aqx_technique_id'),
-                system.get('creation_time'), system.get('location_lat'), system.get('location_lng'),
-                system.get('state'))
+        query = ('insert into systems_ui (user_id, name, system_uid,start_date, aqx_technique_id,'
+                 'creation_time,location_lat,location_lng) '
+                 'values(%s,%s,%s,%s,%s,now(),%s,%s); ')
+        data = (session['uid'],system.get('name'),str(uuid.uuid1().hex),
+                system.get('start_date'),system.get('aqx_technique_id'),
+                system.get('location_lat'), system.get('location_lng'))
 
         try:
             cursor.execute(query,data)
@@ -176,3 +182,78 @@ class SystemsDAO:
             self.conn.close()
 
         return rows
+
+    def new_system_id(self):
+        """Generates a new system id"""
+        return uuid.uuid1().hex
+
+    def get_all_measurement_type_names(self):
+        cursor = self.conn.cursor()
+        query = ('select name from measurement_types ')
+
+        try:
+            cursor.execute(query)
+            rows = cursor.fetchall()
+
+        finally:
+            cursor.close()
+            self.conn.close()
+
+        return rows
+
+
+    def create_table_measurement(self,name,system):
+        cursor = self.conn.cursor()
+        query = "create table if not exists %s ( time timestamp primary key not null, value decimal(13,10) not null )" % \
+                self.measurement_table_name(name, system.get('system_uid'))
+                #self.measurement_table_name(name, '111')
+
+
+        cursor.execute(query)
+
+
+        # cursor = self.conn.cursor()
+        # query = "create table if not exists %s (time timestamp primary key not null, value decimal(13,10) not null)" \
+        #         % self.meas_table_name(system.get('system_uid'), name)
+        #
+        # try:
+        #     cursor.execute(query)
+        #     table = cursor.fetchall()
+        #
+        # finally:
+        #     cursor.close()
+        #     self.conn.close()
+        #
+        # return table
+
+
+    def measurement_table_name(self, measurement_type_name, system_uid):
+        return "aqxs_%s_%s" % (measurement_type_name, system_uid)
+
+    def delete_system_with_system_uid(self, system_uid):
+        cursor = self.conn.cursor()
+        query = ('delete from systems_ui where system_uid = %s limit 1 ')
+        try:
+            cursor.execute(query, (system_uid,))
+            self.conn.commit()
+        finally:
+            cursor.close()
+        return str(True)
+
+    def delete_measurement_tables_with_system_uid(self, system_uid):
+        cursor = self.conn.cursor()
+
+        ATTR_NAMES = {'ammonium', 'o2', 'ph', 'nitrate', 'light', 'temp', 'nitrite', 'chlorine',
+                      'hardness', 'alkalinity'}
+        for name in ATTR_NAMES:
+            query = 'drop table if exists %s '% self.measurement_table_name(name,system_uid)
+            cursor.execute(query)
+        #cursor.execute(query, )
+        # try:
+        #     for name in ATTR_NAMES:
+        #         cursor.execute(query, (self.measurement_table_name(name, system_uid),))
+        #
+        #     self.conn.commit()
+        # finally:
+        #     cursor.close()
+        # return str(1)

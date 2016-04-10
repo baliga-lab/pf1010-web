@@ -95,8 +95,7 @@ class UiAPI:
                        'organism_name': str(system[10]),
                        'organism_count': system[11],
                        'creation_time': str(system[12]),
-                       'status': system[13],
-                       'state': system[14]
+                       'status': system[13]
                       }
                 return json.dumps({'system': obj})
         return json.dumps({'system': 'not found'})
@@ -133,8 +132,7 @@ class UiAPI:
                    'organism_name': system[10],
                    'organism_count': system[11],
                    'creation_time': str(system[12]),
-                   'status': system[13],
-                   'state': system[14]}
+                   'status': system[13]}
 
             systems_list.append(obj)
 
@@ -294,6 +292,10 @@ class UiAPI:
     def create_system(self, system):
         s = SystemsDAO(self.conn)
         result = s.create_system(system)
+        ATTR_NAMES = {'ammonium', 'o2', 'ph', 'nitrate', 'light', 'temp', 'nitrite', 'chlorine',
+                      'hardness', 'alkalinity'}
+        for name in ATTR_NAMES:
+            s.create_table_measurement(name, system)
         message = {
             "message": result
         }
@@ -389,7 +391,7 @@ class UiAPI:
         result = s.view_annotation(system_uid)
         if 'error' in result:
             return json.dumps(result)
-            annotations_list = []
+        annotations_list = []
         for annotation in result:
             # For each system, create a system
             obj = {'id': annotation[0],
@@ -406,3 +408,14 @@ class UiAPI:
             annotations_list.append(obj)
 
         return json.dumps({'annotations': annotations_list})
+
+
+    def delete_metadata(self,system_uid):
+        s = SystemsDAO(self.conn)
+        result = s.delete_system_with_system_uid(system_uid)
+        result_for_measurement_tables = s.delete_measurement_tables_with_system_uid(system_uid)
+        if 'error' in result:
+            return json.dumps(result)
+        # if 'error' in result_for_measurement_tables:
+        #     return json.dumps(result_for_measurement_tables)
+        return json.dumps({'system_deleted?': result})

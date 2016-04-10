@@ -9,10 +9,14 @@ frontend = Blueprint('frontend', __name__, template_folder='templates',static_fo
 pool = None
 
 # Connect to the database
-def init_app(gpool):
+def init_app(gpool,gapp):
     global pool
     pool = gpool
+    global app
+    app = gapp
 
+def get_app():
+    return app
 
 ######################################################################
 # method to get db connection from pool
@@ -97,10 +101,15 @@ def coming():
 ######################################################################
 # API call to get metadata of a given system
 ######################################################################
-@frontend.route('/aqxapi/get/system/meta/<system_uid>', methods=['GET'])
+@frontend.route('/aqxapi/v1/system/meta/<system_uid>', methods=['GET'])
 def get_metadata(system_uid):
     uiAPI = UiAPI(get_conn())
     return uiAPI.get_system_with_system_id(system_uid)
+
+@frontend.route('/aqxapi/v1/system/meta/<system_uid>', methods=['DELETE'])
+def delete_metadata(system_uid):
+    uiAPI = UiAPI(get_conn())
+    return uiAPI.delete_metadata(system_uid)
 
 
 ######################################################################
@@ -198,12 +207,40 @@ def check_system_exists(system_uid):
 # API call to create system  CALL SC API   ????????????????????????????????????????????????????????????????
 ######################################################################
 
-@frontend.route('/add_system', methods=['POST'])
+@frontend.route('/create_system', methods=['POST'])
 def create_system():
     system = request.form
-    scAPI = ScAPI(get_conn())
+    # system_name = request.form['name'] # this is wrong
+    # system_start_date = request.form['start_date']
+    # system_status = request.form['status']
+    # system_aqx_technique_id = request.form['aqx_technique_id']
+    # system_creation_time = request.form['creation_time']
+    # system_location_lat = request.form['location_lat']
+    # system_location_lng = request.form['location_lng']
+    # system_state = request.form['state']
+    # system_user_id = session['uid']
+    #system_uid is using uuid, double check the uuid version
+    #system_id is auto generated in mysql db
+
+    #i should get data from each input field and then put em into a json
+    #system = request.form['field_name_put_here']
+
     uiAPI = UiAPI(get_conn())
-    scAPI.create_system(system)
+
+    #jsonForNeo4jObject=
+    # system_json = {
+    #     "system_id": system_id,    #get this from mysql db after system is inserted into mysql db.
+    #     "system_uid": system_uid,
+    #     "name": "Test SC API System",
+    #     "description": "Test SC API System Description", //make it the same as 'name'
+    #     "location_lat": 42.33866,
+    #     "location_lng": -71.092186,
+    #     "status": 0
+    # }
+    # systemJSONObject = json.dumps({'user': sql_id, 'system': system_json})
+    # call sc api to create system and insert system into their DB
+    # with get_app().test_client() as client:
+    #     response = client.post('/social/aqxapi/v1/system', data=system, content_type='application/json')
     return uiAPI.create_system(system)
 
 ######################################################################
@@ -261,4 +298,8 @@ def add_annotation(system_uid):
 def view_annotation(system_uid):
     uiAPI = UiAPI(get_conn())
     return uiAPI.view_annotation(system_uid)
+
+
+
+
 
