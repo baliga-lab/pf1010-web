@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+
+{% block title %}Add System{% endblock %}
+
+{% block content %}
+    <form>
+        <div class="form_description">
+            <h2>Add a System</h2>
+            <p>All fields are required.</p>
+        </div>
+        <div class="form-group">
+            <label for="sys-name">System Name</label>
+            <input type="text" class="form-control" id="sys-name" required>
+        </div>
+        <div class="form-group">
+            <label for="address">Address</label>
+            <input type="text" class="form-control" id="address" required>
+        </div>
+        <div class="form-group">
+            <label for="start-date">Date Started</label>
+            <input type="date" class="form-control" id="start-date" required>
+        </div>
+        <div class="form-group">
+            <label for="aqx-technique">Aquaponics Technique</label>
+            <select class="form-control" id="aqx-technique" required>
+                <option value="" selected="selected"></option>
+                <option value="2">Ebb and Flow (Media-based)</option>
+                <option value="3">Floating Raft</option>
+                <option value="1">Nutrient Film Technique (NFT)</option>
+                <option value="4">Vertical Flow Through</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="gb-media">Growbed Media</label>
+            <select class="form-control" id="gb-media" required>
+                <option value="" selected="selected"></option>
+                <option value="1">Clay Pebbles</option>
+                <option value="2">Coconut Coir</option>
+                <option value="3">Seed Starter Plugs</option>
+            </select>
+        </div>
+        <div class="crop-controls">
+            <div class="form-group">
+                <label for="crop">Crop</label>
+                <select class="form-control" id="crop" required>
+                    <option value="0"></option>
+                    <option value="10">Basil</option>
+                    <option value="1">Bok Choy</option>
+                    <option value="6">Butternut Squash</option>
+                    <option value="2">Carrot</option>
+                    <option value="15">Chives</option>
+                    <option value="11">Chocolate Mint</option>
+                    <option value="13">Cilantro</option>
+                    <option value="7">Cucumber</option>
+                    <option value="16">Kale</option>
+                    <option value="12">Lemon Balm</option>
+                    <option value="14">Lemon Grass</option>
+                    <option value="3">Lettuce</option>
+                    <option value="17">Nasturtium</option>
+                    <option value="4">Pea</option>
+                    <option value="5">Strawberry</option>
+                    <option value="9">Wheatgrass</option>
+                    <option value="8">Zucchini</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <input type="number" min="0" class="form-control" id="num-crop" placeholder="Number of Crops" required>
+            </div>
+        </div>
+        <div id="add-crop"></div>
+        <div class="form-group">
+            <a id="add-crop-link" href="javascript:void(0)">+ Add another crop</a>
+        </div>
+        <div class="organism-controls">
+            <div class="form-group">
+                <label for="aqua-org">Aquatic Organism</label>
+                <select class="form-control" id="aqua-org" required>
+                    <option value="0"></option>
+                    <option value="8">Betta Fish</option>
+                    <option value="5">Blue Tilapia</option>
+                    <option value="2">Bluegill</option>
+                    <option value="7">Goldfish</option>
+                    <option value="6">Koi</option>
+                    <option value="1">Mozambique Tilapia</option>
+                    <option value="4">Nile Tilapia</option>
+                    <option value="3">Shrimp</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <input type="number" min="0" class="form-control" id="num-aqua-org" placeholder="Number of Organisms" required>
+            </div>
+        </div>
+        <div id="add-organism"></div>
+        <div class="form-group">
+            <a id="add-organism-link" href="javascript:void(0)">+ Add another organism</a>
+        </div>
+        <div class="form-group">
+            <button type="submit" class="btn btn-green" onclick="submit(user_id)">Create</button>
+        </div>
+    </form>
+
+{% endblock %}
+
+{% block scripts %}
+    {{ super() }}
+    <script async defer
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBPogpDVVvhpYRxq1uqfiJcbeWBCV_I_-A"></script>
+    <script type="text/javascript" src="{{ url_for('frontend.static', filename='js/create_system.js') }}"></script>
+{% endblock %}
