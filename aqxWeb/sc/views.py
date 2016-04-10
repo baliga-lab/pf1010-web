@@ -1009,13 +1009,13 @@ def create_group():
     group = Group()
     if is_private == "" or is_private is None:
         flash('Privacy option can not be empty')
-        redirect(request.referrer)
+
     elif description == "" or description is None:
         flash('Description cannot be empty')
-        redirect(request.referrer)
+
     elif name =="" or name is None:
         flash('Name cannot be empty')
-        redirect(request.referrer)
+        
     else:
         group.create_group(session['uid'],name, description,is_private)
         flash('Your Group is created')
