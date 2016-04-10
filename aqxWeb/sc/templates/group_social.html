@@ -61,7 +61,7 @@
                     {% if members_pending_approval %}
                         {% for pending_member in members_pending_approval %}
                             <form action="{{ url_for('social.approve_reject_group_member') }}" method="post">
-                                <div class="pendingRequestElements">
+                                <div class="row pendingRequestElements">
                                     <input type="hidden" name="google_id"
                                            value="{{ pending_member[0]["google_id"] }}">
                                     <input type="hidden" name="group_uid"
@@ -171,7 +171,7 @@
                                     {{ member[0]['displayName'] }}
                                 </a>
                             </li>
-
+                            <br/>
                         {% endfor %}
                     {% endif %}
                 </div>
