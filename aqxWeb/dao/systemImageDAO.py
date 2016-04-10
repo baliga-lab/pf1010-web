@@ -6,7 +6,7 @@ class SystemImageDAO:
 
     # add_image_to_system: it adds an image to the system_image table
     # id is auto increment
-    def add_image_to_system(self, image):
+    def add_image_to_system(self, system_id, image):
         old_image = self.view_image_from_system(image.get('image_id'))
         if len(old_image) != 0:
             return "Image exists"
@@ -31,7 +31,7 @@ class SystemImageDAO:
         return "Image inserted"
 
     #     delete_image_from_system: it delets an image from the system_image table
-    def delete_image_from_system(self, image_id):
+    def delete_image_from_system(self, system_id, image_id):
         cursor = self.conn.cursor()
         query = ("delete from system_images where image_id = %s")
         try:
@@ -47,7 +47,7 @@ class SystemImageDAO:
         return "Image deleted"
 
     # view_image_from_system: it gets an image from the system_image table
-    def view_image_from_system(self, image_id):
+    def view_image_from_system(self, system_id, image_id):
         cursor = self.conn.cursor()
         query = ('select * from system_images where image_id = %s ')
         try:
