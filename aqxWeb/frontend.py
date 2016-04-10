@@ -208,28 +208,28 @@ def check_system_exists(system_uid):
     return uiAPI.check_system_exists(system_uid)
 
 ######################################################################
-# API call to create system  CALL SC API   ????????????????????????????????????????????????????????????????
+# API call to create system both in ui and sc database  
 ######################################################################
 
 @frontend.route('/create_system', methods=['POST'])
 def create_system():
     system = request.form
+    #name, date_created, aqx_technique, gb_media, crop, num_crop, organism, num_org, lat, long
+
     # system_name = request.form['name'] # this is wrong
-    # system_start_date = request.form['start_date']
-    # system_status = request.form['status']
-    # system_aqx_technique_id = request.form['aqx_technique_id']
-    # system_creation_time = request.form['creation_time']
-    # system_location_lat = request.form['location_lat']
-    # system_location_lng = request.form['location_lng']
-    # system_state = request.form['state']
-    # system_user_id = session['uid']
-    #system_uid is using uuid, double check the uuid version
-    #system_id is auto generated in mysql db
+    # system_start_date = request.form['date_created']
+    # system_aqx_technique_id = request.form['aqx_technique']
+    # system_gb_media = request.form['gb_media']
+    # system_crop = request.form['crop']
+    # system_num_crop = request.form['num_crop']
+    # system_organism = request.form['organism']
+    # system_num_org = request.form['num_org']
+    # system_location_lat = request.form['lat']
+    # system_location_lng = request.form['long']
 
-    #i should get data from each input field and then put em into a json
-    #system = request.form['field_name_put_here']
+    #  system_user_id = session['uid']
 
-    uiAPI = UiAPI(get_conn())
+
 
     #jsonForNeo4jObject=
     # system_json = {
@@ -245,6 +245,8 @@ def create_system():
     # call sc api to create system and insert system into their DB
     # with get_app().test_client() as client:
     #     response = client.post('/social/aqxapi/v1/system', data=system, content_type='application/json')
+
+    uiAPI = UiAPI(get_conn())
     return uiAPI.create_system(system)
 
 ######################################################################
