@@ -409,13 +409,11 @@ class UiAPI:
 
         return json.dumps({'annotations': annotations_list})
 
-
+    # delete a row of systems table with the given system_uid and the associated 10 measurement tables
     def delete_metadata(self,system_uid):
         s = SystemsDAO(self.conn)
         result = s.delete_system_with_system_uid(system_uid)
         result_for_measurement_tables = s.delete_measurement_tables_with_system_uid(system_uid)
         if 'error' in result:
             return json.dumps(result)
-        # if 'error' in result_for_measurement_tables:
-        #     return json.dumps(result_for_measurement_tables)
         return json.dumps({'system_deleted?': result})

@@ -183,53 +183,24 @@ class SystemsDAO:
 
         return rows
 
+    # generate new system uid
     def new_system_id(self):
         """Generates a new system id"""
         return uuid.uuid1().hex
 
-    def get_all_measurement_type_names(self):
-        cursor = self.conn.cursor()
-        query = ('select name from measurement_types ')
-
-        try:
-            cursor.execute(query)
-            rows = cursor.fetchall()
-
-        finally:
-            cursor.close()
-            self.conn.close()
-
-        return rows
-
-
+    # create a measurement table for a specific measurement
     def create_table_measurement(self,name,system):
         cursor = self.conn.cursor()
         query = "create table if not exists %s ( time timestamp primary key not null, value decimal(13,10) not null )" % \
                 self.measurement_table_name(name, system.get('system_uid'))
-                #self.measurement_table_name(name, '111')
-
-
         cursor.execute(query)
 
 
-        # cursor = self.conn.cursor()
-        # query = "create table if not exists %s (time timestamp primary key not null, value decimal(13,10) not null)" \
-        #         % self.meas_table_name(system.get('system_uid'), name)
-        #
-        # try:
-        #     cursor.execute(query)
-        #     table = cursor.fetchall()
-        #
-        # finally:
-        #     cursor.close()
-        #     self.conn.close()
-        #
-        # return table
-
-
+    # create a measurement table name with the specific format
     def measurement_table_name(self, measurement_type_name, system_uid):
         return "aqxs_%s_%s" % (measurement_type_name, system_uid)
 
+    #delete a row from systems table wiht the given system_uid
     def delete_system_with_system_uid(self, system_uid):
         cursor = self.conn.cursor()
         query = ('delete from systems_ui where system_uid = %s limit 1 ')
@@ -240,6 +211,7 @@ class SystemsDAO:
             cursor.close()
         return str(True)
 
+    # delete the associated 10 measurement tables of a system with the given system_uid
     def delete_measurement_tables_with_system_uid(self, system_uid):
         cursor = self.conn.cursor()
 
@@ -248,12 +220,3 @@ class SystemsDAO:
         for name in ATTR_NAMES:
             query = 'drop table if exists %s '% self.measurement_table_name(name,system_uid)
             cursor.execute(query)
-        #cursor.execute(query, )
-        # try:
-        #     for name in ATTR_NAMES:
-        #         cursor.execute(query, (self.measurement_table_name(name, system_uid),))
-        #
-        #     self.conn.commit()
-        # finally:
-        #     cursor.close()
-        # return str(1)

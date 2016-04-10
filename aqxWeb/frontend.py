@@ -106,6 +106,10 @@ def get_metadata(system_uid):
     uiAPI = UiAPI(get_conn())
     return uiAPI.get_system_with_system_id(system_uid)
 
+######################################################################
+# API call to delete metadata of a given system
+######################################################################
+
 @frontend.route('/aqxapi/v1/system/meta/<system_uid>', methods=['DELETE'])
 def delete_metadata(system_uid):
     uiAPI = UiAPI(get_conn())
