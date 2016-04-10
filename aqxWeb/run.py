@@ -12,7 +12,6 @@ from sc.views import social
 from flask_bootstrap import Bootstrap
 import frontend as ui
 from frontend import frontend
-
 from nav import nav
 
 os.environ['AQUAPONICS_SETTINGS'] = "system_db.cfg"
@@ -33,8 +32,6 @@ Bootstrap(app)
 ######################################################################
 # method to create connection pool to mySQL DB when application starts
 ######################################################################
-
-
 def create_conn(app):
     global pool
     print("PID %d: initializing pool..." % os.getpid())
