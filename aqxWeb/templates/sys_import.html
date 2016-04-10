@@ -1,0 +1,84 @@
+{% block content %}
+    <div class="panel-body">
+        <form method="post" action="/import-csv" enctype="multipart/form-data">
+            <div class="form-group">
+                <label for="import-file">CSV file
+                    <a id="csvhelp-link" href="#csvhelp-modal" title="CSV Upload Help" data-toggle="modal">
+                        <span class="glyphicon glyphicon-question-sign"></span>
+                    </a>
+                </label>
+                <input type="file" id="import-file" name="import-file">
+                <input type="hidden" class="hidden" name="system-uid" value="afe4458ab9a011e5b962000c29b92d09"></input>
+            </div>
+            <button type="submit" class="btn btn-green">Submit</button>
+        </form>
+    </div>
+
+    <div class="modal fade" id="csvhelp-modal">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                            aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title">CSV Upload Help</h4>
+                </div>
+                <div class="modal-body">
+                    <h3>CSV Upload</h3>
+                    <p>
+                        Aquaponics measurement information can be specified as a
+                        tabular CSV format as follows:
+                    </p>
+                    <h4>Header</h4>
+                    <p>
+                        The header specifies the content of each column, in order for the system
+                        to recognize the type of content, column titles must follow the following
+                        names:
+                    <ul>
+                        <li><strong>time</strong></li>
+                        <li><strong>ph</strong></li>
+                        <li><strong>o2</strong></li>
+                        <li><strong>ammonium</strong></li>
+                        <li><strong>nitrate</strong></li>
+                        <li><strong>nitrite</strong></li>
+                        <li><strong>chlorine</strong></li>
+                        <li><strong>hardness</strong></li>
+                        <li><strong>alkalinity</strong></li>
+                        <li><strong>light</strong></li>
+                    </ul>
+                    </p>
+                    <h4>Data formats</h4>
+                    <p>
+                        Measurement data is expected to be in decimal format. Time information
+                        has the general format
+                    </p>
+                    <p>
+                        <code>MONTH/DAYOFMONTH/YEAR HOURS:MINUTES:SECONDS</code>
+                    </p>
+                    <p>
+                        The <strong>time</strong> field is mandatory, while the user can specify any number
+                        of the other fields for the submitted data.
+                    </p>
+                    <h4>Example</h4>
+                    <p>
+                        The input spreadsheet should look something like this (note headers and value formats).
+                    </p>
+                    <img class="media-object" src="{{ url_for('frontend.static', filename='images/pflogo2.png') }}">
+                    <p>
+                        Exporting this as a CSV file, will produce the following output:
+                    </p>
+                    <p>
+                        <code>
+                            time,o2,ph,nitrate,ammonium,temperature,light<br>
+                            08/13/2015 13:20:15,9.3,6.87,23.23,12.24,24.23,2300<br>
+                            08/14/2015 12:46:15,8.83,6.62,42.51,15.31,24.51,2230<br>
+                            ...<br>
+                        </code>
+                    </p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

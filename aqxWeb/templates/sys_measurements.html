@@ -1,0 +1,152 @@
+{% block content %}
+    <div class="panel-body">
+        <h3>Input Measurements</h3>
+
+        <ul class="nav nav-tabs">
+            <li id="dio-li" role="presentation" class="active"><a id="dio-link" href="javascript:void(0)">Dis.
+                Oxygen</a></li>
+            <li id="temp-li" role="presentation"><a id="temp-link" href="javascript:void(0)">Temperature</a></li>
+            <li id="light-li" role="presentation"><a id="light-link" href="javascript:void(0)">Light</a></li>
+            <li id="nh4-li" role="presentation"><a id="nh4-link" href="javascript:void(0)">Ammonium</a></li>
+            <li id="no3-li" role="presentation"><a id="no3-link" href="javascript:void(0)">Nitrate</a></li>
+            <li id="no2-li" role="presentation"><a id="no2-link" href="javascript:void(0)">Nitrite</a></li>
+            <li id="ph-li" role="presentation"><a id="ph-link" href="javascript:void(0)">pH</a></li>
+            <li id="cl-li" role="presentation"><a id="cl-link" href="javascript:void(0)">Chlorine</a></li>
+            <li id="hard-li" role="presentation"><a id="hard-link" href="javascript:void(0)">Hardness</a></li>
+            <li id="alk-li" role="presentation"><a id="alk-link" href="javascript:void(0)">Alkalinity</a></li>
+        </ul>
+
+        <div class="panel-body">
+            <form class="form-horizontal" method="post" action="/add-measurement">
+                <input type="hidden" class="hidden">
+                <div class="form-group">
+                    <label for="measure-date">Measurement Date</label>
+                    <input class="form-control" type="date" id="measure-date" name="measure-date" required>
+                </div>
+                <div class="form-group">
+                    <label for="measure-time">Measurement Time</label>
+                    <input class="form-control" type="time" id="measure-time" name="measure-time">
+                </div>
+
+                <div id="dio-panel">
+                    <div class="form-group">
+                        <label for="o2-value">Value</label>
+                        <div class="input-group">
+                            <input id="o2-value" class="form-control" name="o2-value" type="number"
+                                   pattern="[0-9]+(.[0-9]+)?" style="text-align: right;" placeholder="0.0" step="0.001"
+                                   aria-describedby="o2-addon">
+                            <span id="o2-addon" class="input-group-addon">mg/l</span>
+                        </div>
+                    </div>
+                </div><!-- dio-panel -->
+
+                <div id="temp-panel" class="hidden">
+                    <div class="form-group">
+                        <label for="temp-value">Value</label>
+                        <div class="input-group">
+                            <input id="temp-value" class="form-control" name="temp-value" type="number"
+                                   pattern="[0-9]+(.[0-9]+)?" style="text-align: right;" placeholder="0.0" step="0.001"
+                                   aria-describedby="temp-addon">
+                            <span id="temp-addon" class="input-group-addon">&deg;C</span>
+                        </div>
+                    </div>
+                </div><!-- temp-panel -->
+
+                <div id="light-panel" class="hidden">
+                    <div class="form-group">
+                        <label for="light-value">Value</label>
+                        <div class="input-group">
+                            <input id="light-value" class="form-control" name="light-value" type="number"
+                                   pattern="[0-9]+(.[0-9]+)?" style="text-align: right;" placeholder="0.0" step="0.001"
+                                   aria-describedby="light-addon">
+                            <span id="light-addon" class="input-group-addon">lux</span>
+                        </div>
+                    </div>
+                </div><!-- light-panel -->
+
+
+                <div id="nh4-panel" class="hidden">
+                    <div class="form-group">
+                        <label for="nh4-value">Value</label>
+                        <div class="input-group">
+                            <input id="nh4-value" class="form-control" name="ammonium-value" type="number"
+                                   pattern="[0-9]+(.[0-9]+)?" style="text-align: right;" placeholder="0.0" step="0.001"
+                                   aria-describedby="ammonium-addon">
+                            <span id="ammonium-addon" class="input-group-addon">mg/l</span>
+                        </div>
+                    </div>
+                </div><!-- nh4-panel -->
+
+                <div id="no3-panel" class="hidden">
+                    <div class="form-group">
+                        <label for="no3-value">Value</label>
+                        <div class="input-group">
+                            <input id="no3-value" class="form-control" name="nitrate-value" type="number"
+                                   pattern="[0-9]+(.[0-9]+)?" style="text-align: right;" placeholder="0.0" step="0.001"
+                                   aria-describedby="nitrate-addon">
+                            <span id="nitrate-addon" class="input-group-addon">mg/l</span>
+                        </div>
+                    </div>
+                </div><!-- no3-panel -->
+
+                <div id="no2-panel" class="hidden">
+                    <div class="form-group">
+                        <label for="no2-value">Value</label>
+                        <div class="input-group">
+                            <input id="no2-value" class="form-control" name="nitrite-value" type="number"
+                                   pattern="[0-9]+(.[0-9]+)?" style="text-align: right;" placeholder="0.0" step="0.001"
+                                   aria-describedby="nitrate-addon">
+                            <span id="nitrite-addon" class="input-group-addon">mg/l</span>
+                        </div>
+                    </div>
+                </div><!-- no2-panel -->
+
+                <div id="ph-panel" class="hidden">
+                    <div class="form-group">
+                        <label for="ph-value">Value</label>
+                        <input id="ph-value" class="form-control" name="ph-value" type="number"
+                               pattern="[0-9]+(.[0-9]+)?" style="text-align: right;" placeholder="0.0" step="0.001">
+                    </div>
+                </div><!-- ph-panel -->
+
+                <div id="cl-panel" class="hidden">
+                    <div class="form-group">
+                        <label for="cl-value">Value</label>
+                        <input id="cl-value" class="form-control" name="chlorine-value" type="number"
+                               pattern="[0-9]+(.[0-9]+)?" style="text-align: right;" placeholder="0.0" step="0.001">
+                    </div>
+                </div><!-- cl-panel -->
+
+                <div id="hard-panel" class="hidden">
+                    <div class="form-group">
+                        <label for="hard-value">Value</label>
+                        <div class="input-group">
+                            <input id="hard-value" class="form-control" name="hardness-value" type="number"
+                                   pattern="[0-9]+(.[0-9]+)?" style="text-align: right;" placeholder="0.0" step="0.001">
+                            <span id="hard-addon" class="input-group-addon">mg/l</span>
+                        </div>
+                    </div>
+                </div><!-- hard-panel -->
+
+                <div id="alk-panel" class="hidden">
+                    <div class="form-group">
+                        <label for="alk-value">Value</label>
+                        <div class="input-group">
+                            <input id="alk-value" class="form-control" name="alkalinity-value" type="number"
+                                   pattern="[0-9]+(.[0-9]+)?" style="text-align: right;" placeholder="0.0" step="0.001">
+                            <span id="alk-addon" class="input-group-addon">meq/l</span>
+                        </div>
+                    </div>
+                </div><!-- alk-panel -->
+
+                <!-- button panel -->
+                <div class="form-group">
+                    <div class="col-sm-10">
+                        <button type="submit" class="btn btn-green">Submit</button>
+                    </div>
+                </div>
+            </form>
+
+        </div>
+    </div>
+{% endblock %}
