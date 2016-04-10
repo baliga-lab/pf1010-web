@@ -27,7 +27,7 @@
 
         <!-- Create Groups Div -->
         <div class="container" id="createGroupTab">
-        <form>
+        <form action="{{ url_for('social.create_group') }}" method="post"> 
           <div class="form-group">
                       <label for="txtGroupName">Name:</label> 
                     <input type="text"
@@ -58,7 +58,7 @@
                         <input type="radio"
                                name="is_private_group"
                                id="rbYes"
-                               value=true
+                               value="true"
                                />
                         Yes 
                     </label> 
@@ -66,7 +66,7 @@
                         <input type="radio"
                                name="is_private_group"
                                id="rbNo"
-                               value=false  
+                               value="false"  
                                />
                         No 
                     </label> 

@@ -988,6 +988,42 @@ def update_group_info():
         print "Exception Occurred at update_group_info: " + str(ex.message)
 
 
+
+#######################################################################################
+@social.route('/create_group', methods=['POST'])
+#######################################################################################
+# function : create_group
+# purpose : creates group
+# parameters : None
+# returns: calls index function
+# Exception : None
+#######################################################################################
+def create_group():
+    name  = request.form['name']
+    description = request.form['description']
+    is_private = request.form['is_private_group']
+    print("In Views.py")
+    print(name)
+    print(description)
+    print(is_private)
+    group = Group()
+    if is_private == "" or is_private is None:
+        flash('Privacy option can not be empty')
+        redirect(request.referrer)
+    elif description == "" or description is None:
+        flash('Description cannot be empty')
+        redirect(request.referrer)
+    elif name =="" or name is None:
+        flash('Name cannot be empty')
+        redirect(request.referrer)
+    else:
+        group.create_group(session['uid'],name, description,is_private)
+        flash('Your Group is created')
+
+    return redirect(url_for('social.groups'))
+
+
+
 #######################################################################################
 @social.route('/manage/groups/approve_reject_member', methods=['POST'])
 # function : approve_reject_group_member for a group
