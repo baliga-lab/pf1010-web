@@ -2205,6 +2205,8 @@ class Group:
             date=date()
         )
         user_groupadmin_relationship = Relationship(group, "GROUP_ADMIN", user)
+        user_groupmember_relationship = Relationship(group,"GROUP_MEMBER", user)
+
         print("In Models.py")
         print(group_name)
         print(group_description)
@@ -2214,6 +2216,7 @@ class Group:
         try:
             get_graph_connection_uri().create(group)
             get_graph_connection_uri().create(user_groupadmin_relationship)
+            get_graph_connection_uri().create(user_groupmember_relationship)
         except cypher.CypherError, cypher.CypherTransactionError:
             print "Exception occured in function create_group "
 

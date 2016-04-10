@@ -1015,7 +1015,7 @@ def create_group():
 
     elif name =="" or name is None:
         flash('Name cannot be empty')
-        
+
     else:
         group.create_group(session['uid'],name, description,is_private)
         flash('Your Group is created')
