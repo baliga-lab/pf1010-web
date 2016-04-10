@@ -3,6 +3,16 @@
 Newsfeed CSS
 
 ***************/
+.main {
+    top: -40px;
+}
+
+@media (min-width: 768px) {
+    .main {
+        top:10px
+    }
+}
+
 .like {
     float:right;
     margin-right: 2%;
@@ -38,7 +48,7 @@ Newsfeed CSS
 }
 
 .taskDescription {
-    margin-top: 10px 0;
+    margin-top: 10px;
 }
 
 .comment-list {
