@@ -53,40 +53,16 @@ $('#add-crop-link').click(function () {
     $('#add-crop').append(html);
 });
 
-// Create system
-function submit(userid) {
-    var output = {
-        userid: userid,
-        name: $("#sys-name").val(),
-        date_created: $("#start-date").val(),
-        aqx_technique: $("#aqx-technique").val(),
-        gb_media: $("#gb-media").val(),
-        crop: $("#crop").val(),
-        num_crop: $("#num-crop").val(),
-        organism: $("#aqua-org").val(),
-        num_org: $("#num-aqua-org").val()
-    };
-
+// Get lat-long coordinates
+function get_latlng() {
     var geocoder = new google.maps.Geocoder();
     geocoder.geocode( { 'address': $("#address").val()}, function(results, status) {
         if (status == google.maps.GeocoderStatus.OK) {
-            output.lat = results[0].geometry.location.latitude;
-            output.lng = results[0].geometry.location.longitude;
+            document.getElementById("lat-val").value = results[0].geometry.location.lat();
+            document.getElementById("lng-val").value = results[0].geometry.location.lng();
         }
         else {
             alert("Geocode was not successful for the following reason: " + status);
         }
     });
-
-    var url = '/aqxapi/system/create';
-
-    function onSuccess(response) {
-        alert('Submission successful');
-    }
-
-    function onFailure(error) {
-        alert(error);
-    }
-
-    $.post(url, output).then(onSuccess, onFailure);
 }
