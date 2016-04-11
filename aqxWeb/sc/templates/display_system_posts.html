@@ -47,7 +47,7 @@
                     {% endfor %}
                     <p>{{ row.post.text }}</p>
                     {% for po in postOwners %}
-                        {% if po.postid == row.post.id and po.userid == session['uid'] %}
+                        {% if po.postid == row.post.id and (po.userid == session['uid'] or user_privilege == "SYS_ADMIN")  %}
                             <div class="form-controls" style=" text-align: right;">
                                 <form action="{{ url_for('social.delete_system_post') }}" method="post">
                                     <input type="hidden" name="postid" value="{{ row.post.id }}">
