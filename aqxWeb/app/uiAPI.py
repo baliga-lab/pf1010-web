@@ -393,7 +393,7 @@ class UiAPI:
             return json.dumps(result)
         annotations_list = []
         for annotation in result:
-            print annotation
+            #print annotation
             obj = {'id': annotation[0],
                    'system_id': annotation[1],
                    'annotation_id': annotation[2],
