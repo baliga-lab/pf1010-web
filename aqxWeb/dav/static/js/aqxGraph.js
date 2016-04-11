@@ -67,11 +67,10 @@ function updateChartDataPointsHC(chart, xType, yTypeList, graphType){
     // and add the new dataPoints to the systems_and_measurements object
     if (measurementsToFetch.length > 0) {
         var measurementIDList = [];
-        var statusID = document.getElementById("selectStatus").value;
         _.each(measurementsToFetch, function(measurement){
             measurementIDList.push(measurement_types_and_info[measurement].id);
         });
-        callAPIForNewData(measurementIDList, statusID);
+        callAPIForNewData(measurementIDList, defaultStatus);
     }
 
     // Handle the x axis, for now just using time
@@ -295,11 +294,14 @@ function clearOldGraphValues(chart) {
  * Returns the Y Axis text selector to default
  */
 function setDefaultYAxis() {
-    $("#selectYAxis").dropdown({
-        maxSelections: MAXSELECTIONS
+    $("#selectYAxis").chosen({
+        max_selected_options: MAXSELECTIONS,
+        no_results_text: "Oops, nothing found!",
+        width: "100%"
     });
-    $("#selectYAxis").dropdown('clear');
-    $("#selectYAxis").dropdown('set selected', DEFAULT_Y_VALUE);
+    $('#selectYAxis').val('');
+    $('#selectYAxis option[value='+DEFAULT_Y_VALUE+']').prop('selected', true);
+    $('#selectYAxis').trigger("chosen:updated");
 }
 
 
@@ -495,10 +497,6 @@ function main(){
 
         // Reset X Axis selection to default
         $('#selectXAxis option').prop(SELECTED, function() {
-            return this.defaultSelected;
-        });
-
-        $('#selectStatus option').prop(SELECTED, function() {
             return this.defaultSelected;
         });
 
