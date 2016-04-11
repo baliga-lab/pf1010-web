@@ -255,7 +255,7 @@ function main(system_and_info_object) {
     $('#alert_placeholder').empty();
 
     $('#analyzeSystem').chosen({
-        max_selected_options: 4,
+        max_selected_options: MAX_SYSTEM_SELECTED,
         no_results_text: "Oops, nothing found!",
         width: "95%"
     });

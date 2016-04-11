@@ -4,7 +4,6 @@
     {{ super() }}
     <link rel="stylesheet" href="{{ url_for('dav.static', filename='css/explore.css') }}">
     <link rel="stylesheet" href="{{ url_for('dav.static', filename='css/semantic.min.css') }}">
-
     <link rel="stylesheet" href="{{ url_for('dav.static', filename='css/chosen.min.css') }}">
 
 {% endblock %}
@@ -60,8 +59,7 @@
             </div>
             <div class="form-group" style="width: 75%; padding-top:2%;">
                  <label class="control-label">Select Systems to Analyze</label>
-                 <select class="chosen-select" multiple id="analyzeSystem">
-                 </select>
+                 <select class="chosen-select" multiple id="analyzeSystem"> </select>
             </div>
             {% if session.uid %}
                 <div class="form-group" style="width: 75%; padding-top:2%;">
@@ -86,10 +84,7 @@
     <script type="text/javascript" src="{{ url_for('dav.static', filename='js/markerclusterer-min.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('dav.static', filename='js/oms-min.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('dav.static', filename='js/semantic.min.js') }}"></script>
-
     <script type="text/javascript" src="{{ url_for('dav.static', filename='js/chosen.jquery.min.js') }}"></script>
-    <script type="text/javascript" src="{{ url_for('dav.static', filename='js/chosen.proto.min.js') }}"></script>
-
     <script type="text/javascript" src="{{ url_for('dav.static', filename='js/aqxmap.js') }}"></script>
     <script>
         var statuses = ['Established', 'Pre-Established', 'Suspended', 'Terminated'];
