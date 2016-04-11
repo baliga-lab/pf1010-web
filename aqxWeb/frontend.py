@@ -347,8 +347,11 @@ def add_annotation(system_id):
 #view a system's all annotations
 @frontend.route('/aqxapi/v1/system/<system_id>/annotations', methods=['GET'])
 def view_annotation(system_id):
-    uiAPI = UiAPI(get_conn())
-    return uiAPI.view_annotation(system_id)
+    try:
+        uiAPI = UiAPI(get_conn())
+        return uiAPI.view_annotation(system_id)
+    except Exception as ex:
+        print "Exception : " + str(ex.message)
 
 #get status by given system uID
 @frontend.route('/aqxapi/v1/system/<system_uid>/status', methods=['GET'])

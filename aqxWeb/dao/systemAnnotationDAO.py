@@ -29,13 +29,15 @@ class SystemAnnotationDAO:
             cursor.close()
         return "Annotation inserted"
 
-    # view_annotation : gets an nnotation from a system
+    # view_annotation : gets annnotation from a system
     def view_annotation(self, system_id):
         cursor = self.conn.cursor()
         query = ('select * from system_annotations where system_id = %s ')
         try:
             cursor.execute(query, (system_id,))
-            system = cursor.fetchall()
+            rows = cursor.fetchall()
+        except Exception as ex:
+            print "Exception : " + str(ex.message)
         finally:
             cursor.close()
-        return system
+        return rows
