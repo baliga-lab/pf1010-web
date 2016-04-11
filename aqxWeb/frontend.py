@@ -208,7 +208,6 @@ def create_system():
             'name': system_name,
             'start_date': system_start_date,
             'aqx_technique_id': system_aqx_technique_id,
-            'creation_time': str(datetime.now().time()),
             'location_lat': system_location_lat,
             'location_lng': system_location_lng
         }
@@ -338,17 +337,18 @@ def get_system_all_images(system_uid):
     return uiAPI.get_system_all_images(system_uid)
 
 # add an annotation to system annotation table
-@frontend.route('/aqxapi/v1/system/<system_uid>/annotations', methods=['POST'])
+@frontend.route('/aqxapi/v1/system/<system_id>/annotations', methods=['POST'])
 
-def add_annotation(system_uid):
+def add_annotation(system_id):
     uiAPI = UiAPI(get_conn())
-    annotation = request.form
-    return uiAPI.add_annotation(system_uid, annotation)
+    #annotation_name = request.form['mySelect']
+    annotation_num = request.form['number']
+    return uiAPI.add_annotation(system_id, annotation_num)
 #view a system's all annotations
-@frontend.route('/aqxapi/v1/system/<system_uid>/annotations', methods=['GET'])
-def view_annotation(system_uid):
+@frontend.route('/aqxapi/v1/system/<system_id>/annotations', methods=['GET'])
+def view_annotation(system_id):
     uiAPI = UiAPI(get_conn())
-    return uiAPI.view_annotation(system_uid)
+    return uiAPI.view_annotation(system_id)
 
 #get status by given system uID
 @frontend.route('/aqxapi/v1/system/<system_uid>/status', methods=['GET'])

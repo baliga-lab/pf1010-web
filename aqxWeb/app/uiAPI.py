@@ -377,34 +377,26 @@ class UiAPI:
         return json.dumps({'images': images_list})
 
     # add an annotation to a system
-    def add_annotation(self, system_uid, annotation):
+    def add_annotation(self, system_uid, annotation_num):
         s = SystemAnnotationDAO(self.conn)
-        result = s.add_annotation(system_uid, annotation)
+        result = s.add_annotation(system_uid, annotation_num)
         message = {
             "message": result
         }
         return json.dumps({'status': message})
 
     # get a system's all annotations
-    def view_annotation(self,system_uid):
+    def view_annotation(self,system_id):
         s = SystemAnnotationDAO(self.conn)
-        result = s.view_annotation(system_uid)
+        result = s.view_annotation(system_id)
         if 'error' in result:
             return json.dumps(result)
         annotations_list = []
         for annotation in result:
-            # For each system, create a system
             obj = {'id': annotation[0],
                    'system_id': annotation[1],
-                   'water': annotation[2],
-                   'pH': str(annotation[3]),
-                   'harvest': str(annotation[4]),
-                   'plant': str(annotation[5]),
-                   'fish': annotation[6],
-                   'bacteria': annotation[7],
-                   'cleanTank': annotation[8],
-                   'reproduction': annotation[9],
-                   'timestamp': annotation[10]}
+                   'annotation_id': annotation[2],
+                   'timestamp': annotation[3]}
             annotations_list.append(obj)
 
         return json.dumps({'annotations': annotations_list})
