@@ -3,14 +3,14 @@
 {% block title %}Add System{% endblock %}
 
 {% block content %}
-    <form method="post" action="#">
+    <form method="POST" action="create_system">
         <div class="form_description">
             <h2>Add a System</h2>
             <p>*All fields are required.</p>
         </div>
         <div class="form-group">
             <label for="system-name">System Name</label>
-            <input type="text" class="form-control" id="system-name" required>
+            <input type="text" class="form-control" id="system-name" name="system-name" required>
         </div>
         <div class="form-group">
             <label for="address">Location</label>
@@ -27,35 +27,34 @@
         <div class="form-group">
             <div class="row">
                 <div class="col-md-6">
-                    <input id="lat-val" class="form-control" placeholder="Latitude">
+                    <input id="lat-val" class="form-control" placeholder="Latitude" name="lat">
                 </div>
                 <div class="col-md-6">
-                    <input id="lng-val" class="col-md-6 form-control" placeholder="Longitude">
+                    <input id="lng-val" class="col-md-6 form-control" placeholder="Longitude" name="long">
                 </div>
             </div>
         </div>
 
         <div class="form-group">
             <label for="start-date">Date Started</label>
-            <input type="date" class="form-control" id="start-date" required>
+            <input type="date" class="form-control" id="start-date" name="start-date" required>
         </div>
         <div class="form-group">
             <label for="aqx-technique">Aquaponics Technique</label>
-            <select class="form-control" id="aqx-technique" required>
+            <select class="form-control" id="aqx-technique" name="aqx-technique-id" required>
                 <option value="" selected="selected"></option>
-                <option value="2">Ebb and Flow (Media-based)</option>
-                <option value="3">Floating Raft</option>
-                <option value="1">Nutrient Film Technique (NFT)</option>
-                <option value="4">Vertical Flow Through</option>
+                {% for technique in metadata_dict['aqx_techniques'] %}
+                    <option value="{{ technique }}">{{ technique }}</option>
+                {% endfor %}
             </select>
         </div>
         <div class="form-group">
             <label for="gb-media">Growbed Media</label>
             <select class="form-control" id="gb-media" required>
                 <option value="" selected="selected"></option>
-                <option value="1">Clay Pebbles</option>
-                <option value="2">Coconut Coir</option>
-                <option value="3">Seed Starter Plugs</option>
+                {% for medium in metadata_dict['growbed_media'] %}
+                    <option value="{{medium}}">{{ medium }}</option>
+                {% endfor %}
             </select>
         </div>
         <div class="crop-controls">
@@ -63,23 +62,9 @@
                 <label for="crop">Crop</label>
                 <select class="form-control" id="crop" required>
                     <option value="0"></option>
-                    <option value="10">Basil</option>
-                    <option value="1">Bok Choy</option>
-                    <option value="6">Butternut Squash</option>
-                    <option value="2">Carrot</option>
-                    <option value="15">Chives</option>
-                    <option value="11">Chocolate Mint</option>
-                    <option value="13">Cilantro</option>
-                    <option value="7">Cucumber</option>
-                    <option value="16">Kale</option>
-                    <option value="12">Lemon Balm</option>
-                    <option value="14">Lemon Grass</option>
-                    <option value="3">Lettuce</option>
-                    <option value="17">Nasturtium</option>
-                    <option value="4">Pea</option>
-                    <option value="5">Strawberry</option>
-                    <option value="9">Wheatgrass</option>
-                    <option value="8">Zucchini</option>
+                    {% for crop in metadata_dict['crops'] %}
+                        <option value="{{crop}}">{{ crop }}</option>
+                    {% endfor %}
                 </select>
             </div>
             <div class="form-group">
@@ -95,14 +80,9 @@
                 <label for="aqua-org">Aquatic Organism</label>
                 <select class="form-control" id="aqua-org" required>
                     <option value="0"></option>
-                    <option value="8">Betta Fish</option>
-                    <option value="5">Blue Tilapia</option>
-                    <option value="2">Bluegill</option>
-                    <option value="7">Goldfish</option>
-                    <option value="6">Koi</option>
-                    <option value="1">Mozambique Tilapia</option>
-                    <option value="4">Nile Tilapia</option>
-                    <option value="3">Shrimp</option>
+                    {% for organism in metadata_dict['aqx_organisms'] %}
+                        <option value="{{organism}}">{{ organism }}</option>
+                    {% endfor %}
                 </select>
             </div>
             <div class="form-group">
@@ -115,7 +95,7 @@
             <a id="add-organism-link" href="javascript:void(0)">+ Add another organism</a>
         </div>
         <div class="form-group">
-            <button type="submit" class="btn btn-green" onclick="submit(user_id)">Create</button>
+            <button type="submit" class="btn btn-green">Create</button>
         </div>
     </form>
 

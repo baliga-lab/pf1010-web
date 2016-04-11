@@ -8,19 +8,22 @@ import json
 import datetime
 from datetime import datetime
 
-frontend = Blueprint('frontend', __name__, template_folder='templates',static_folder='static')
+frontend = Blueprint('frontend', __name__, template_folder='templates', static_folder='static')
 
 pool = None
 
+
 # Connect to the database
-def init_app(gpool,gapp):
+def init_app(gpool, gapp):
     global pool
     pool = gpool
     global app
     app = gapp
 
+
 def get_app():
     return app
+
 
 ######################################################################
 # method to get db connection from pool
@@ -55,14 +58,22 @@ def system():
     return render_template('system.html')
 
 
-@frontend.route('/create_system')
-def add_system():
-    return render_template('create_system.html')
+@frontend.route('/create_system_page')
+def create_system_page():
+    metadata_json = get_all_aqx_metadata()
+    if 'error' in metadata_json:
+        print metadata_json['error']
+        raise AttributeError("Error processing API call for system metadata.")
+
+    metadata_dict = json_loads_byteified(metadata_json)['filters']
+
+    return render_template('create_system.html', **locals())
 
 
 @frontend.route('/badges')
 def badges():
     return render_template('badges.html')
+
 
 #########################
 #                       #
@@ -78,6 +89,7 @@ def badges():
 def get_metadata(system_uid):
     uiAPI = UiAPI(get_conn())
     return uiAPI.get_system_with_system_id(system_uid)
+
 
 ######################################################################
 # API call to delete metadata of a given system
@@ -117,7 +129,7 @@ def get_all_aqx_metadata():
 # API call to get user data
 ######################################################################
 
-#@frontend.route('/aqxapi/get/user/<uid>', methods=['GET']) google sheet removed get user by user id. i leave it here just in case.
+# @frontend.route('/aqxapi/get/user/<uid>', methods=['GET']) google sheet removed get user by user id. i leave it here just in case.
 def get_user(uid):
     uiAPI = UiAPI(get_conn())
     return uiAPI.get_user(uid)
@@ -161,7 +173,7 @@ def insert_user():
 # system_uid,name,user_id owning the system longitude and latitude
 # of system's location as a JSON object.
 ######################################################################
-@frontend.route('/aqxapi/v1/systems',methods=['GET'])
+@frontend.route('/aqxapi/v1/systems', methods=['GET'])
 def get_systems():
     uiAPI = UiAPI(get_conn())
     return uiAPI.get_systems()
@@ -170,35 +182,30 @@ def get_systems():
 ######################################################################
 # API call to Check if the system exists
 # check_system_exists) - It returns "If system exists:
-#{"status":"True"}
-#If system does not exist:
-#{"status":"False"}
+# {"status":"True"}
+# If system does not exist:
+# {"status":"False"}
 ######################################################################
 
-@frontend.route('/aqxapi/v1/system/exists/<system_uid>',methods=['GET'])
+@frontend.route('/aqxapi/v1/system/exists/<system_uid>', methods=['GET'])
 def check_system_exists(system_uid):
     uiAPI = UiAPI(get_conn())
     return uiAPI.check_system_exists(system_uid)
+
 
 ######################################################################
 # API call to create system both in ui and sc database
 ######################################################################
 
-@frontend.route('/aqxapi/v1/system/create', methods=['POST'])
+@frontend.route('/create_system', methods=['POST'])
 def create_system():
     try:
         uiAPI = UiAPI(get_conn())
-        # ui create system accepts a system json object
-        #system_json_ui = request.get_json() #verena's json format may be wrong
-
-
-        #get field value one by one and  put em into a json for crop, org, gb tables and sc api call to create system
-        # in sc database
 
         system_user_id = session['uid']
-        system_name = request.form['system_name']
-        system_start_date = request.form['start_date']
-        system_aqx_technique_id = request.form['aqx_technique_id']
+        system_name = request.form['system-name']
+        system_start_date = request.form['start-date']
+        system_aqx_technique_id = request.form['aqx-technique-id']
         system_location_lat = request.form['lat']
         system_location_lng = request.form['long']
 
@@ -211,87 +218,88 @@ def create_system():
             'location_lat': system_location_lat,
             'location_lng': system_location_lng
         }
+        print system_json_ui
         uiAPI.create_system(system_json_ui)
+        return 'OK'
 
-        #get the newly created system's system id , not system_uid
-        #system id will be used by crop, org, gb_media and sc api all to created system
-        system_id_and_uid_json = uiAPI.get_system_id_and_system_uid_with_user_id_and_system_name(system_user_id,system_json_ui.get('name'))
-        system_id_and_uid_data = json.loads(system_id_and_uid_json)
-        system_id = system_id_and_uid_data['system']['system_id']
-        system_uid = system_id_and_uid_data['system']['system_uid']
-
-
-        #system gb media table
-        system_gb_media = request.form['gb_media']
-        system_num_gb = request.form['num_gb']
-        system_gb_media_json = {
-            "system_id": system_id,
-            "gb_media_id": system_gb_media,
-            "num": system_num_gb
-        }
-        uiAPI.create_system_gb_media_table(system_gb_media_json)
-
-
-        #system crops table
-        system_crop = request.form['crop']
-        system_num_crop = request.form['num_crop']
-        system_crop_json = {
-            "system_id": system_id,
-            "crop_id": system_crop,
-            "num": system_num_crop
-        }
-        uiAPI.create_system_crop_table(system_crop_json)
-
-        # system_aquatic_organisms table
-        system_organism = request.form['organism']
-        system_num_org = request.form['num_org']
-        system_aquatic_organisms_json = {
-            "system_id": system_id,
-            "organism_id": system_organism,
-            "num": system_num_org
-        }
-        uiAPI.create_system_quatic_organisms_table(system_aquatic_organisms_json)
-
-
-
-
-        # calling sc api to create system into sc database
-        #jsonForNeo4jObject
-        system_json = {
-            "system_id": system_id,    #get this from mysql db after system is inserted into mysql db.
-            "system_uid": system_uid, #needs to be a string
-            "name": system_name,
-            "description": system_name, #make it the same as 'name'
-            "location_lat": system_location_lat,
-            "location_lng": system_location_lng,
-            "status": 100
-        }
-        systemJSONObject = json.dumps({'user': system_user_id, 'system': system_json})
-
-
-        # #mocked data test for success
-        # system_json = {
-        #     "system_id": 111111,
-        #     "system_uid": "2wdf2tytpw",
-        #     "name": "Zhibo System",
-        #     "description": "UI Zhibo API System Description",
-        #     "location_lat": 42.33866,
-        #     "location_lng": -71.092186,
-        #     "status": 0
+        # #get the newly created system's system id , not system_uid
+        # #system id will be used by crop, org, gb_media and sc api all to created system
+        # system_id_and_uid_json = uiAPI.get_system_id_and_system_uid_with_user_id_and_system_name(system_user_id,system_json_ui.get('name'))
+        # system_id_and_uid_data = json.loads(system_id_and_uid_json)
+        # system_id = system_id_and_uid_data['system']['system_id']
+        # system_uid = system_id_and_uid_data['system']['system_uid']
+        #
+        #
+        # #system gb media table
+        # system_gb_media = request.form['gb_media']
+        # system_num_gb = request.form['num_gb']
+        # system_gb_media_json = {
+        #     "system_id": system_id,
+        #     "gb_media_id": system_gb_media,
+        #     "num": system_num_gb
         # }
-        print system_json
-        #systemJSONObject = json.dumps({'user': 57, 'system': system_json})
-        with get_app().test_client() as client:
-            response = client.post('/social/aqxapi/v1/system', data=systemJSONObject, content_type='application/json')
-            #print response
-            result = json.loads(response.data)
-            #print result
-        return render_template("system.html")
+        # uiAPI.create_system_gb_media_table(system_gb_media_json)
+        #
+        #
+        # #system crops table
+        # system_crop = request.form['crop']
+        # system_num_crop = request.form['num_crop']
+        # system_crop_json = {
+        #     "system_id": system_id,
+        #     "crop_id": system_crop,
+        #     "num": system_num_crop
+        # }
+        # uiAPI.create_system_crop_table(system_crop_json)
+        #
+        # # system_aquatic_organisms table
+        # system_organism = request.form['organism']
+        # system_num_org = request.form['num_org']
+        # system_aquatic_organisms_json = {
+        #     "system_id": system_id,
+        #     "organism_id": system_organism,
+        #     "num": system_num_org
+        # }
+        # uiAPI.create_system_quatic_organisms_table(system_aquatic_organisms_json)
+        #
+        #
+        # # calling sc api to create system into sc database
+        # #jsonForNeo4jObject
+        # system_json = {
+        #     "system_id": system_id,    #get this from mysql db after system is inserted into mysql db.
+        #     "system_uid": system_uid, #needs to be a string
+        #     "name": system_name,
+        #     "description": system_name, #make it the same as 'name'
+        #     "location_lat": system_location_lat,
+        #     "location_lng": system_location_lng,
+        #     "status": 100
+        # }
+        # systemJSONObject = json.dumps({'user': system_user_id, 'system': system_json})
+        #
+        #
+        # # #mocked data test for success
+        # # system_json = {
+        # #     "system_id": 111111,
+        # #     "system_uid": "2wdf2tytpw",
+        # #     "name": "Zhibo System",
+        # #     "description": "UI Zhibo API System Description",
+        # #     "location_lat": 42.33866,
+        # #     "location_lng": -71.092186,
+        # #     "status": 0
+        # # }
+        # print system_json
+        # #systemJSONObject = json.dumps({'user': 57, 'system': system_json})
+        # with get_app().test_client() as client:
+        #     response = client.post('/social/aqxapi/v1/system', data=systemJSONObject, content_type='application/json')
+        #     #print response
+        #     result = json.loads(response.data)
+        #     #print result
+        #return render_template("system.html")
     except Exception as ex:
-        print "Exception : "+ str(ex.message)
+        print "Exception : " + str(ex.message)
 
 
-    #return uiAPI.create_system(system)
+        # return uiAPI.create_system(system)
+
 
 ######################################################################
 # API call to get all user systems
@@ -302,6 +310,7 @@ def get_all_user_systems(user_id):
     uiAPI = UiAPI(get_conn())
     return uiAPI.get_all_user_systems(user_id)
 
+
 ######################################################################
 # API call to add an image to a system_image table
 ######################################################################
@@ -311,6 +320,7 @@ def add_image_to_system(system_uid):
     uiAPI = UiAPI(get_conn())
     return uiAPI.add_image_to_system(system_uid, image)
 
+
 ######################################################################
 # API call to delete an image from a system
 ######################################################################
@@ -318,6 +328,7 @@ def add_image_to_system(system_uid):
 def delete_image_from_system(system_uid, image_id):
     uiAPI = UiAPI(get_conn())
     return uiAPI.delete_image_from_system(system_uid, image_id)
+
 
 ######################################################################
 # API call to view an image of a system
@@ -327,24 +338,26 @@ def view_image_from_system(system_uid, image_id):
     uiAPI = UiAPI(get_conn())
     return uiAPI.view_image_from_system(system_uid, image_id)
 
+
 ######################################################################
 # API call to view a system's all images
 ######################################################################
 @frontend.route('/aqxapi/v1/system/<system_uid>/images', methods=['GET'])
-
 def get_system_all_images(system_uid):
     uiAPI = UiAPI(get_conn())
     return uiAPI.get_system_all_images(system_uid)
 
+
 # add an annotation to system annotation table
 @frontend.route('/aqxapi/v1/system/<system_id>/annotations', methods=['POST'])
-
 def add_annotation(system_id):
     uiAPI = UiAPI(get_conn())
-    #annotation_name = request.form['mySelect']
+    # annotation_name = request.form['mySelect']
     annotation_num = request.form['number']
     return uiAPI.add_annotation(system_id, annotation_num)
-#view a system's all annotations
+
+
+# view a system's all annotations
 @frontend.route('/aqxapi/v1/system/<system_id>/annotations', methods=['GET'])
 def view_annotation(system_id):
     try:
@@ -353,42 +366,44 @@ def view_annotation(system_id):
     except Exception as ex:
         print "Exception : " + str(ex.message)
 
-#get status by given system uID
+
+# get status by given system uID
 @frontend.route('/aqxapi/v1/system/<system_uid>/status', methods=['GET'])
 def get_status_by_system_uid(system_uid):
     uiAPI = UiAPI(get_conn())
     return uiAPI.get_status_by_system_uid(system_uid)
 
 
-#get system id by given system uID
-#test purpose
+# get system id by given system uID
+# test purpose
 @frontend.route('/aqxapi/v1/system/<user_id>/<name>', methods=['GET'])
-def get_system_id_and_system_uid_with_user_id_and_system_name(user_id,name):
+def get_system_id_and_system_uid_with_user_id_and_system_name(user_id, name):
     uiAPI = UiAPI(get_conn())
-    return uiAPI.get_system_id_and_system_uid_with_user_id_and_system_name(user_id,name)
-
-# work with mocked data
-# @frontend.route('/aqxapi/v1/system/gb_media', methods=['POST'])
-# def create_system_gb_media_table():
-#     uiAPI = UiAPI(get_conn())
-#     return uiAPI.create_system_gb_media_table()
-
-# worked wiht mocked data
-# @frontend.route('/aqxapi/v1/system/crop', methods=['POST'])
-# def create_system_crop_table():
-#     uiAPI = UiAPI(get_conn())
-#     return uiAPI.create_system_crop_table()
-#
-
-#worked with mocked data
-# @frontend.route('/aqxapi/v1/system/org', methods=['POST'])
-# def create_system_quatic_organisms_table():
-#     uiAPI = UiAPI(get_conn())
-#     return uiAPI.create_system_quatic_organisms_table()
+    return uiAPI.get_system_id_and_system_uid_with_user_id_and_system_name(user_id, name)
 
 
+######################################################################
+# Helper functions to parse JSON properly into dicts (with byte Strings)
+######################################################################
+def json_loads_byteified(json_text):
+    return _byteify(
+        json.loads(json_text, object_hook=_byteify),
+        ignore_dicts=True
+    )
 
-
-
-
-
+def _byteify(data, ignore_dicts=False):
+    # if this is a unicode string, return its string representation
+    if isinstance(data, unicode):
+        return data.encode('utf-8')
+    # if this is a list of values, return list of byteified values
+    if isinstance(data, list):
+        return [_byteify(item, ignore_dicts=True) for item in data]
+    # if this is a dictionary, return dictionary of byteified keys and values
+    # but only if we haven't already byteified it
+    if isinstance(data, dict) and not ignore_dicts:
+        return {
+            _byteify(key, ignore_dicts=True): _byteify(value, ignore_dicts=True)
+            for key, value in data.iteritems()
+            }
+    # if it's anything else, return it in its original form
+    return data

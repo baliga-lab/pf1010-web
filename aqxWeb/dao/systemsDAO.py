@@ -150,12 +150,13 @@ class SystemsDAO:
         # }
 
 
-        query = ('insert into systems (user_id, name, system_uid,start_date, aqx_technique_id,'
+        query = ('insert into systems_ui (user_id, name, system_uid,start_date, aqx_technique_id,'
                  'creation_time,location_lat,location_lng) '
                  'values(%s,%s,%s,%s,%s,now(),%s,%s); ')
         data = (session['uid'],system.get('name'),str(uuid.uuid1().hex),
                 system.get('start_date'),system.get('aqx_technique_id'),
                 system.get('location_lat'), system.get('location_lng'))
+
 
         try:
             cursor.execute(query,data)
