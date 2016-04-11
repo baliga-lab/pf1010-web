@@ -870,9 +870,13 @@ class User:
 def get_system_measurements_dav_api(system_uid):
     try:
         app = get_app_instance()
+        server_ip = str(app.config['SERVER_IP'])
+        server_port = str(app.config['SERVER_PORT'])
+        assert server_ip
+        assert server_port
         with app.test_client() as client:
-            # TODO : Change the fixed host and port
-            dav_system_measurement_url = "http://127.0.0.1:5000/dav/aqxapi/v1/measurements"
+            dav_system_measurement_url = "http://" + str(server_ip) + ":" + str(server_port) + "/dav/aqxapi/v1/measurements"
+            print("URL for DAV team : " + dav_system_measurement_url)
             query_param = {'system_uid': system_uid}
             response = client.get(dav_system_measurement_url, query_string=query_param)
             # print response.data
