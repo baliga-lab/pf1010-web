@@ -449,19 +449,23 @@ function toggleSplitMode(){
  ################################################################################################################### */
 
 /**
- *  main - Sets behaviors for Submit and Reset buttons, populates x-axis dropdown, and checks nitrate as default y-axis
+ *  main - Sets behaviors for Submit and Reset buttons, populates y-axis dropdown, and checks nitrate as default y-axis
  */
 function main(){
 
     // Select the default y-axis value
     setDefaultYAxis();
 
+    // Setup overlay/split toggle
     $('.toggle').toggles({text:{on:'OVERLAY',off:'SPLIT'}, on:true});
 
+    // Disable when graphing only one system
     if(_.isEqual(selectedSystemIDs.length, 1)) {
         $('.toggle').toggleClass('disabled', true);
     }
 
+    // Hide split graphs and show overlay when active
+    // When deactivated, create split graphs an hide overlay graph
     $('.toggle').on('toggle', function(e, active) {
         if (active) {
             $('.split-chart').hide();
@@ -500,6 +504,7 @@ function main(){
 
         // Reset Graph Type selection to default
         $('#selectGraphType option').prop(SELECTED, function() {
+            return this.defaultSelected;
         });
 
         $('#alert_placeholder').empty();
