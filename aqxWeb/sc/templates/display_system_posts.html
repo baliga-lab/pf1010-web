@@ -32,7 +32,10 @@
                 {# POST CONTENT #}
                 <div class="media-body">
                     <h4>
-                        {% if user_privilege == "SYS_ADMIN" or user_privilege == "SYS_PARTICIPANT" %}
+                        {% if   user_privilege == "SYS_ADMIN" or
+                                user_privilege == "SYS_PARTICIPANT" or
+                                row.user.sql_id == session['uid']
+                        %}
                             {{ row.displayName }}
                         {% else %}
                             Anonymous
@@ -162,7 +165,10 @@
                                     </div>
                                     <div class="media-body">
                                         <h5>
-                                            {% if user_privilege == "SYS_ADMIN" or user_privilege == "SYS_PARTICIPANT" %}
+                                            {% if   user_privilege == "SYS_ADMIN" or
+                                                    user_privilege == "SYS_PARTICIPANT" or
+                                                    cmt.comment.user_sql_id == session['uid']
+                                            %}
                                             <b>{{ cmt.comment.user_display_name }}</b>
                                             {% else %}
                                             <b>Anonymous</b>
