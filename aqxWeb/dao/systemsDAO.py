@@ -67,7 +67,8 @@ class SystemsDAO:
                  "ao.name as 'organism', "
                  "sao.num as 'organism_count', "
                  "s.creation_time, "
-                 "s.status "
+                 "s.status, "
+                 "s.id "
                  "FROM systems s "
                  "LEFT JOIN aqx_techniques aqt ON s.aqx_technique_id = aqt.id "
                  "LEFT JOIN system_crops sc    ON s.id = sc.system_id "
@@ -91,7 +92,7 @@ class SystemsDAO:
 
     def get_system_by_system_uid(self, system_uid):
         cursor = self.conn.cursor()
-        query = ('select * from systems_ui where system_uid = %s ')
+        query = ('select * from systems where system_uid = %s ')
         try:
             cursor.execute(query, (system_uid,))
             system = cursor.fetchall()
@@ -101,7 +102,7 @@ class SystemsDAO:
 
     def get_system_by_id(self, id):
         cursor = self.conn.cursor()
-        query = ('select * from systems_ui where id = %s ')
+        query = ('select * from systems where id = %s ')
         try:
             cursor.execute(query, (id,))
             system = cursor.fetchall()
@@ -111,7 +112,7 @@ class SystemsDAO:
 
     def get_system_by_name(self, name):
         cursor = self.conn.cursor()
-        query = ('select * from systems_ui where name = %s ')
+        query = ('select * from systems where name = %s ')
         try:
             cursor.execute(query, (name,))
             system = cursor.fetchall()
@@ -149,7 +150,7 @@ class SystemsDAO:
         # }
 
 
-        query = ('insert into systems_ui (user_id, name, system_uid,start_date, aqx_technique_id,'
+        query = ('insert into systems (user_id, name, system_uid,start_date, aqx_technique_id,'
                  'creation_time,location_lat,location_lng) '
                  'values(%s,%s,%s,%s,%s,now(),%s,%s); ')
         data = (session['uid'],system.get('name'),str(uuid.uuid1().hex),
@@ -183,73 +184,139 @@ class SystemsDAO:
 
         return rows
 
+    # generate new system uid
     def new_system_id(self):
         """Generates a new system id"""
         return uuid.uuid1().hex
 
-    def get_all_measurement_type_names(self):
-        cursor = self.conn.cursor()
-        query = ('select name from measurement_types ')
-
-        try:
-            cursor.execute(query)
-            rows = cursor.fetchall()
-
-        finally:
-            cursor.close()
-            self.conn.close()
-
-        return rows
-
-
+    # create a measurement table for a specific measurement
     def create_table_measurement(self,name,system):
         cursor = self.conn.cursor()
         query = "create table if not exists %s ( time timestamp primary key not null, value decimal(13,10) not null )" % \
                 self.measurement_table_name(name, system.get('system_uid'))
-                #self.measurement_table_name(name, '111')
-
-
         cursor.execute(query)
 
 
-        # cursor = self.conn.cursor()
-        # query = "create table if not exists %s (time timestamp primary key not null, value decimal(13,10) not null)" \
-        #         % self.meas_table_name(system.get('system_uid'), name)
-        #
-        # try:
-        #     cursor.execute(query)
-        #     table = cursor.fetchall()
-        #
-        # finally:
-        #     cursor.close()
-        #     self.conn.close()
-        #
-        # return table
-
-
+    # create a measurement table name with the specific format
     def measurement_table_name(self, measurement_type_name, system_uid):
         return "aqxs_%s_%s" % (measurement_type_name, system_uid)
 
+    #delete a row from systems table wiht the given system_uid
     def delete_system_with_system_uid(self, system_uid):
         cursor = self.conn.cursor()
-        query = ('delete from systems_ui where system_uid = %s limit 1 ')
+        query = ('delete from systems where system_uid = %s limit 1 ')
         try:
             cursor.execute(query, (system_uid,))
             self.conn.commit()
         finally:
             cursor.close()
-        return str(1)
+        return str(True)
 
+    # delete the associated 10 measurement tables of a system with the given system_uid
     def delete_measurement_tables_with_system_uid(self, system_uid):
         cursor = self.conn.cursor()
-        query = 'drop table if exists %s '
+
         ATTR_NAMES = {'ammonium', 'o2', 'ph', 'nitrate', 'light', 'temp', 'nitrite', 'chlorine',
                       'hardness', 'alkalinity'}
-        try:
-            for name in ATTR_NAMES:
-                cursor.execute(query, (self.measurement_table_name(name, system_uid),))
+        for name in ATTR_NAMES:
+            query = 'drop table if exists %s '% self.measurement_table_name(name,system_uid)
+            cursor.execute(query)
+        return str(True)
 
+    ###############################################################################
+    #     create_system_gb_media_table() - takes in a system json object and inserts this system into the gb_media table
+    #     test passed
+
+    def create_system_gb_media_table(self,system_gb_media_json):
+            cursor = self.conn.cursor()
+            # system_gb_media_json={
+            #     'system_id': 111,
+            #     'gb_media_id': 1,
+            #     'num': 111
+            #
+            # }
+            query = ('insert into system_gb_media (system_id, gb_media_id,num) '
+                     'values(%s,%s,%s); ')
+            data = (system_gb_media_json.get('system_id'),
+                    system_gb_media_json.get('gb_media_id'),
+                    system_gb_media_json.get('num'))
+
+            try:
+                cursor.execute(query, data)
+                self.conn.commit()
+            except:
+                self.conn.rollback()
+                cursor.close()
+                return "system_gb_media Insert error"
+            finally:
+                cursor.close()
+            return "system_gb_media inserted"
+
+    ###############################################################################
+    #     create_system_quatic_organisms_table() - takes in a system json object and inserts this system
+    #       into the ystem_quatic_organisms table
+    #     test passed
+
+    def create_system_quatic_organisms_table(self,system_aquatic_organisms_json):
+        cursor = self.conn.cursor()
+        # system_aquatic_organisms_json={
+        #     'system_id': 111,
+        #     'organism_id': 1,
+        #     'num': 111
+        #
+        # }
+        query = ('insert into system_aquatic_organisms (system_id, organism_id,num) '
+                 'values(%s,%s,%s); ')
+        data = (system_aquatic_organisms_json.get('system_id'),
+                system_aquatic_organisms_json.get('organism_id'),
+                system_aquatic_organisms_json.get('num'))
+
+        try:
+            cursor.execute(query, data)
             self.conn.commit()
+        except:
+            self.conn.rollback()
+            cursor.close()
+            return "system_quatic_organisms_table Insert error"
         finally:
             cursor.close()
-        return str(1)
+        return "system_quatic_organisms_table inserted"
+
+    ###############################################################################
+    #     create_system_crop_table() - takes in a system json object and inserts this system into the crop table
+    #     test passed
+
+    def create_system_crop_table(self, system_crop_json):
+        cursor = self.conn.cursor()
+        # system_crop_json={
+        #     'system_id': 111,
+        #     'crop_id': 1,
+        #     'num': 111
+        #
+        # }
+        query = ('insert into system_crops (system_id, crop_id,num) '
+                 'values(%s,%s,%s); ')
+        data = (system_crop_json.get('system_id'),
+                system_crop_json.get('crop_id'),
+                system_crop_json.get('num'))
+
+        try:
+            cursor.execute(query, data)
+            self.conn.commit()
+        except:
+            self.conn.rollback()
+            cursor.close()
+            return "system_crop Insert error"
+        finally:
+            cursor.close()
+        return "system_crop inserted"
+
+
+
+
+
+
+
+
+
+

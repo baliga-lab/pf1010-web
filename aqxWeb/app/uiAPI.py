@@ -1,18 +1,64 @@
-from aqxWeb.dao.userDAO import UserDAO
+
+from aqxWeb.dao.UserDAO import UserDAO
 from aqxWeb.dao.systemsDAO import SystemsDAO
-from aqxWeb.dao.metadataDAO import MetadataDAO
-from aqxWeb.dao.systemAnnotationDAO import SystemAnnotationDAO
+from aqxWeb.dao.MetaDataDAO import MetadataDAO
 from aqxWeb.dao.systemImageDAO import SystemImageDAO
+from aqxWeb.dao.systemAnnotationDAO import SystemAnnotationDAO
 from collections import defaultdict
 import json
 
 
+
+
+# user interface data access api
+
+
 class UiAPI:
+
     def __init__(self, conn):
         self.conn = conn
         self.sys = SystemsDAO(self.conn)
         self.user = UserDAO(self.conn)
-        self.metadata = MetadataDAO(self.conn)
+        self.metaData = MetadataDAO(self.conn)
+
+    ###############################################################################
+    # get_system_metadata
+    ###############################################################################
+    # param conn : db connection
+    # param system_id : system id
+    # get_system_metadata(system_uid) - It takes in the system_uid as the input
+    #                                   parameter and returns the metadata for the
+    #                                   given system.
+
+
+    def get_system_metadata(self, system_id):
+        # i wanna use get_metadata to directly get that system, but not work. maybe query is wrong
+        # so i choose to use get_system_with_system_id below
+        s = SystemsDAO(self.conn)
+        system = s.get_metadata(system_id)
+        if 'error' in system:
+            return json.dumps(system)
+        clean_sys = str(system)[2:-2]
+
+
+        # obj = {'system_uid': str(system[0]),
+        #        'user_id': system[1],
+        #        'system_name': str(system[2]),
+        #        'start_date': str(system[3]),
+        #        'lat': str(system[4]),
+        #        'lng': str(system[5]),
+        #        'aqx_technique_name': str(system[6]),
+        #        'growbed_media': system[7],
+        #        'crop_name': str(system[8]),
+        #        'crop_count': system[9],
+        #        'organism_name': str(system[10]),
+        #        'organism_count': system[11],
+        #        'creation_time': str(system[12]),
+        #        'status': system[13],
+        #        'state': str(system[14])
+        #        }
+
+        return json.dumps({'system': str(system)})
 
     ###############################################################################
     #         get_system_with_system_id
@@ -27,8 +73,8 @@ class UiAPI:
         systems = self.sys.get_all_systems_info()
         if 'error' in systems:
             return json.dumps(systems)
-        # systems[0] is a system json
-        # return json.dumps({'system': str(systems[0][0])})  which is system id
+        #systems[0] is a system json
+        #return json.dumps({'system': str(systems[0][0])})  which is system id
         for system in systems:
             if system[0] == system_id:
                 obj = {'system_uid': str(system[0]),
@@ -44,10 +90,14 @@ class UiAPI:
                        'organism_name': str(system[10]),
                        'organism_count': system[11],
                        'creation_time': str(system[12]),
-                       'status': system[13]
-                       }
+                       'status': system[13],
+                       'id': system[14]
+                      }
                 return json.dumps({'system': obj})
         return json.dumps({'system': 'not found'})
+
+
+
 
     ###############################################################################
     # get_all_systems_info
@@ -78,11 +128,13 @@ class UiAPI:
                    'organism_name': system[10],
                    'organism_count': system[11],
                    'creation_time': str(system[12]),
-                   'status': system[13]}
+                   'status': system[13],
+                   'id': system[14]}
 
             systems_list.append(obj)
 
         return json.dumps({'systems': systems_list})
+
 
     ###############################################################################
     # fetches all filter criteria
@@ -92,7 +144,7 @@ class UiAPI:
     #                            to filter the displayed systems.
 
     def get_all_filters_metadata(self):
-        results = self.metadata.get_all_filters()
+        results = self.metaData.get_all_filters()
         if 'error' in results:
             return json.dumps(results)
         vals = defaultdict(list)
@@ -102,12 +154,14 @@ class UiAPI:
             vals[type].append(value)
         return json.dumps({'filters': vals})
 
+
     ###############################################################################
     # fetch fetch existing user data
     ###############################################################################
     # param conn : db connection
     # param user_id : user's google id
     # get_user - It returns user details based on google id.
+
     def get_user(self, user_id):
         u = UserDAO(self.conn)
         result_temp = u.get_user(user_id)
@@ -115,13 +169,14 @@ class UiAPI:
             return json.dumps(result_temp)
         result = result_temp[0]
         user = {
-            "id": result[0],
+            "id" : result[0],
             "google_id": result[1],
             "email": result[2],
             "latitude": str(result[3]),
-            "longitude": str(result[4])
+            "longitude":str(result[4])
         }
         return json.dumps({'user': user})
+
 
     ###############################################################################
     # fetch existing user data
@@ -129,6 +184,7 @@ class UiAPI:
     # param conn : db connection
     # param user_id : user's google id
     # get_user_with_google_id - It returns user details using google id.
+
     def get_user_with_google_id(self, google_id):
         u = UserDAO(self.conn)
         result_temp = u.get_user_by_google_id(google_id)
@@ -136,13 +192,15 @@ class UiAPI:
             return json.dumps(result_temp)
         result = result_temp[0]
         user = {
-            "id": result[0],
-            "google_id": result[1],
-            "email": result[2],
-            "latitude": str(result[3]),
-            "longitude": str(result[4])
+            "id" : result[0],
+            "google_id" : result[1],
+            "email" : result[2],
+            "latitude" : str(result[3]),
+            "longitude" :str(result[4])
         }
         return json.dumps({'user': user})
+
+
 
     ###############################################################################
     # insert user data
@@ -150,6 +208,7 @@ class UiAPI:
     # param conn : db connection
     # param user : user details in the form of a json structure
     # get_user - It inserts the user details into the users table
+
     def put_user(self, user):
         u = UserDAO(self.conn)
         result = u.put_user(user)
@@ -158,19 +217,22 @@ class UiAPI:
         }
         return json.dumps({'status': message})
 
+
     ###############################################################################
     # insert user data
     ###############################################################################
     # param conn : db connection
     # param user : user details in the form of a json structure
     # insert_user - It inserts the user details into the users table
+
     def insert_user(self, user):
         u = UserDAO(self.conn)
         result = u.put_user(user)
         message = {
-            "message": result
+            "message" : result
         }
         return json.dumps({"status": message})
+
 
     ###############################################################################
     # get_all_systems
@@ -178,6 +240,7 @@ class UiAPI:
     # param conn : db connection
     # get_all_systems() - It returns List of all aquaponics systems, system_uid,name,user_id owning
     # the system longitude and latitude of system's location as a JSON object.
+
     def get_systems(self):
         systems = self.sys.get_all_systems_info()
         if 'error' in systems:
@@ -197,14 +260,16 @@ class UiAPI:
 
         return json.dumps({'systems': systems_list})
 
+
     ###############################################################################
     # check_system_exists
     ###############################################################################
     # param conn : db connection, system_uid
     # check_system_exists() - It returns "If system exists:
-    # {"status":"True"}
-    # If system does not exist:
-    # {"status":"False"}
+    #{"status":"True"}
+    #If system does not exist:
+    #{"status":"False"}
+
     def check_system_exists(self, system_uid):
         systems = self.sys.get_all_systems_info()
         if 'error' in systems:
@@ -224,6 +289,9 @@ class UiAPI:
     def create_system(self, system):
         s = SystemsDAO(self.conn)
         result = s.create_system(system)
+        # system_crops = s.create_system_crops_table(system)
+        # system_gb_media = s.create_system_gb_media(system)
+        # system_aquatic_organisms = s.create_system_aquatic_organisms(system)
         ATTR_NAMES = {'ammonium', 'o2', 'ph', 'nitrate', 'light', 'temp', 'nitrite', 'chlorine',
                       'hardness', 'alkalinity'}
         for name in ATTR_NAMES:
@@ -255,7 +323,7 @@ class UiAPI:
                    'status': system[7],
                    'lat': str(system[8]),
                    'lng': str(system[9]),
-                   'state': system[10]}
+                    'state': system[10]}
 
             systems_list.append(obj)
 
@@ -318,7 +386,7 @@ class UiAPI:
         return json.dumps({'status': message})
 
     # get a system's all annotations
-    def view_annotation(self, system_uid):
+    def view_annotation(self,system_uid):
         s = SystemAnnotationDAO(self.conn)
         result = s.view_annotation(system_uid)
         if 'error' in result:
@@ -342,10 +410,79 @@ class UiAPI:
         return json.dumps({'annotations': annotations_list})
 
     # delete a row of systems table with the given system_uid and the associated 10 measurement tables
-    def delete_metadata(self, system_uid):
+    def delete_metadata(self,system_uid):
         s = SystemsDAO(self.conn)
         result = s.delete_system_with_system_uid(system_uid)
         result_for_measurement_tables = s.delete_measurement_tables_with_system_uid(system_uid)
         if 'error' in result:
             return json.dumps(result)
         return json.dumps({'system_deleted?': result})
+
+    # get system id, not system_uid for sc api call
+    def get_system_id_and_system_uid_with_user_id_and_system_name(self, user_id, name):
+        systems = self.sys.get_all_systems_info()
+        if 'error' in systems:
+            return json.dumps(systems)
+
+        for system in systems:
+            if str(system[1]) == user_id and str(system[2]) == name:
+                obj = {
+                    'system_id': system[14],
+                    'system_uid': system[0]
+                }
+                # print json.loads(json.dumps({'system': obj}))['system']['system_id']
+                # print json.loads(json.dumps({'system': obj}))['system']['system_uid']
+                return json.dumps({'system': obj})
+        return json.dumps({'system_id': 'not found'})
+
+    # get status by given system uID
+    def get_status_by_system_uid(self, system_uid):
+        systems = self.sys.get_all_systems_info()
+        if 'error' in systems:
+            return json.dumps(systems)
+        for system in systems:
+            if system[0] == system_uid:
+                obj = {
+                       'status': system[13]
+                       }
+                return json.dumps({'system': obj})
+        return json.dumps({'system': 'not found'})
+
+    # system gb media table
+    def create_system_gb_media_table(self, system_gb_media_json):
+        try:
+
+            s = SystemsDAO(self.conn)
+            result = s.create_system_gb_media_table(system_gb_media_json)
+            message = {
+                "message": result
+            }
+            return json.dumps({'status': message})
+        except Exception as ex:
+            print "Exception : " + str(ex.message)
+
+    # system crops table
+    def create_system_crop_table(self, system_crop_json):
+        try:
+
+            s = SystemsDAO(self.conn)
+            result = s.create_system_crop_table(system_crop_json)
+            message = {
+                "message": result
+            }
+            return json.dumps({'status': message})
+        except Exception as ex:
+            print "Exception : " + str(ex.message)
+
+    # system_aquatic_organisms table
+    def create_system_quatic_organisms_table(self, system_aquatic_organisms_json):
+        try:
+
+            s = SystemsDAO(self.conn)
+            result = s.create_system_quatic_organisms_table(system_aquatic_organisms_json)
+            message = {
+                "message": result
+            }
+            return json.dumps({'status': message})
+        except Exception as ex:
+            print "Exception : " + str(ex.message)
