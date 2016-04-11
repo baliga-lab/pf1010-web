@@ -16,7 +16,6 @@ from frontend import frontend
 from nav import nav
 
 os.environ['AQUAPONICS_SETTINGS'] = "system_db.cfg"
-os.environ['SYSTEM_SETTINGS'] = "system.cfg"
 # To hold db connection pool
 app = Flask(__name__)
 # Secret key for the Session
@@ -28,7 +27,6 @@ pool = None
 # Social Component DB Configuration Settings
 app.config.from_pyfile("sc/settings.cfg")
 app.config['BOOTSTRAP_SERVE_LOCAL'] = True
-app.config.from_pyfile("sc/settings.cfg")
 
 Bootstrap(app)
 
@@ -54,6 +52,7 @@ def create_conn(app):
 def index():
     return render_template('index.html')
 
+
 ######################################################################
 # render error page
 ######################################################################
@@ -67,7 +66,6 @@ if __name__ == "__main__":
     # Initialize the aquaponics db connection
     app.debug = True
     app.config.from_envvar('AQUAPONICS_SETTINGS')
-    app.config.from_envvar('SYSTEM_SETTINGS')
     create_conn(app)
     init_dav(pool)
     ui.init_app(pool)
@@ -75,8 +73,4 @@ if __name__ == "__main__":
     init_sc_app(app)
     # Initialise UI's nav routing
     nav.init_app(app)
-    host = app.config['SERVER_IP']
-    #print(host)
-    port = app.config['SERVER_PORT']
-    #print(port)
-    app.run(host=host, port=port, debug=True)
+    app.run(debug=True)

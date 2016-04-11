@@ -27,8 +27,8 @@
 
         <!-- Create Groups Div -->
         <div class="container" id="createGroupTab">
-        <form action="{{ url_for('social.create_group') }}" method="post"> 
-          <div class="form-group">
+            <form action="{{ url_for('social.create_group') }}" method="post"> 
+                <div class="form-group">
                       <label for="txtGroupName">Name:</label> 
                     <input type="text"
                            class="form-control"
@@ -37,7 +37,7 @@
                            pattern=".{1,}"
                            required 
                            title="Group Name Cannot Be Empty"
-                           placeholder="Group Name" > </input>
+                           placeholder="Group Name"  > </input>
                 </div>
                  
                 <div class="form-group">
@@ -61,7 +61,7 @@
                                value="true"
                                autofocus
                                required
-                               />
+                        />
                         Yes 
                     </label> 
                     <label class="radio-inline"> 
@@ -70,25 +70,42 @@
                                id="rbNo"
                                value="false"
                                required 
-                               />
+                        />
                         No 
                     </label> 
                 </div>
                 <button type="submit" class="btn btn-primary form-control" value="Save">Create</button>
-          </form>
+            </form>
         </div>
         <!-- End of Create Groups Div -->
 
         <!-- My Groups Div -->
         <div class="row" id="myGroupsTab">
-            <div class="col-md-6 adminGroups">
-                <p><b>Admin Groups:</b></p>
-                <br>
-                {% if admin_groups %}
+
+            <!-- My Groups Header Title Div -->
+            <div class="container" id="myGroupsHeader">
+                <div class="col-md-6 adminGroupsHeader">
+                    <p><b>Admin Groups:</b></p>
+                </div>
+                <div class="col-md-6 memberGroupsHeader">
+                    <p><b>Member Groups:</b></p>
+                </div>
+            </div>
+            <!-- End Of My Groups Header Title Div -->
+
+
+            <!-- Container Div For Admin/MyGroups Div -->
+            <div class="container">
+
+                <!-- Admin Groups Div -->
+                <div class="col-md-6 adminGroups">
+                    <br>
+                    {% if admin_groups %}
                         {% for row in admin_groups %}
                             <div class="row">
                                 <ul>
-                                    <a href="{{ url_for('social.view_group', group_uid=row.group.group_uid) }}"><i class="fa fa-users fa-2x"></i>&nbsp;{{ row.group.name }}</a>
+                                    <a href="{{ url_for('social.view_group', group_uid=row.group.group_uid) }}"><i
+                                            class="fa fa-users fa-2x"></i>&nbsp;{{ row.group.name }}</a>
                                 </ul>
                                 <br>
                             </div>
@@ -100,15 +117,19 @@
                             </ul>
                         </div>
                     {% endif %}
-            </div>
-            <div class="col-md-6 memberGroups">
-                <p><b>Member Groups:</b></p>
-                <br>
-                {% if member_groups %}
+                </div>
+                <!-- End Of Admin Groups Div -->
+
+
+                <!-- Member Groups Div -->
+                <div class="col-md-6 memberGroups">
+                    <br>
+                    {% if member_groups %}
                         {% for row in member_groups %}
                             <div class="row">
                                 <ul>
-                                    <a href="{{ url_for('social.view_group', group_uid=row.group.group_uid) }}"><i class="fa fa-university fa-2x"></i>&nbsp;{{ row.group.name }}</a>
+                                    <a href="{{ url_for('social.view_group', group_uid=row.group.group_uid) }}"><i
+                                            class="fa fa-university fa-2x"></i>&nbsp;{{ row.group.name }}</a>
                                 </ul>
                             </div>
                         {% endfor %}
@@ -120,7 +141,12 @@
                         </div>
                     {% endif %}
 
+                </div>
+                <!-- End Of Member Groups Div -->
+
             </div>
+            <!-- End Of Container Div For Admin/MyGroups Div -->
+
         </div>
         <!-- End of My Groups Div -->
 
@@ -136,39 +162,38 @@
 
         <!-- Recommended Groups Div -->
         <div class="container" id="recommendedGroupsTab">
-
+            <h4>Recommended Groups</h4>
+            <hr>
             <!-- Div To Display Recommended Groups -->
             <div class="row recommendedGroups">
-
-                    <h4>Recommended Groups</h4>
-                    <hr>
-
-                    {% if recommended_groups %}
-                        {% for row in recommended_groups %}
-                            <div class="row">
-                                <ul class="pull-left">
-                                    <img class="groupImage" src="{{ url_for('social.static', filename='images/groups.png') }}"
-                                         alt="Groups">
-                                </ul>
-                                <br/>
-                                <ul>
-                                    <a href="{{ url_for('social.view_group', group_uid=row.group.group_uid) }}">{{ row.group.name }}</a>
-                                </ul>
-                            </div>
-                        {% endfor %}
-                    {% else %}
+                {% if recommended_groups %}
+                    {% for row in recommended_groups %}
                         <div class="row">
                             <ul class="pull-left">
-                                <img class="sadSmileyImage" src="{{ url_for('social.static', filename='images/sad_smiley.png') }}" alt="Groups">
+                                <img class="groupImage"
+                                     src="{{ url_for('social.static', filename='images/groups.png') }}"
+                                     alt="Groups">
                             </ul>
                             <br/>
                             <ul>
-                                Sorry, We did not find any recommended groups.
+                                <a href="{{ url_for('social.view_group', group_uid=row.group.group_uid) }}">{{ row.group.name }}</a>
                             </ul>
                         </div>
-                    {% endif %}
+                    {% endfor %}
+                {% else %}
+                    <div class="row">
+                        <ul class="pull-left">
+                            <img class="sadSmileyImage"
+                                 src="{{ url_for('social.static', filename='images/sad_smiley.png') }}" alt="Groups">
+                        </ul>
+                        <br/>
+                        <ul>
+                            Sorry, We did not find any recommended groups.
+                        </ul>
+                    </div>
+                {% endif %}
 
-                </div>
+            </div>
             <!-- End of Div To Display Recommended Groups -->
 
         </div>
@@ -195,18 +220,18 @@
                 url: '{{ url_for("social.get_groups") }}'
             }).done(function (data) {
                 $("#autocomplete").autocomplete({
-                    minLength: 1,
-                    source: data.json_list,
-                    focus: function (event, ui) {
-                        $("#autocomplete").val(ui.item.label);
-                        return false;
-                    },
-                    select: function (event, ui) {
-                        $("#autocomplete").val(ui.item.label);
-                        return false;
-                    }
-                })
-                .autocomplete("instance")._renderItem = function (ul, item) {
+                            minLength: 1,
+                            source: data.json_list,
+                            focus: function (event, ui) {
+                                $("#autocomplete").val(ui.item.label);
+                                return false;
+                            },
+                            select: function (event, ui) {
+                                $("#autocomplete").val(ui.item.label);
+                                return false;
+                            }
+                        })
+                        .autocomplete("instance")._renderItem = function (ul, item) {
                     var grp_uid = item.uid;
                     var $a = $("<div></div>");
                     $("<b></b>").text(item.label).appendTo($a).click(function () {

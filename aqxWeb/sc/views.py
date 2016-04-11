@@ -615,8 +615,8 @@ def search_systems():
 @social.route('/systems/<system_uid>', methods=['GET', 'POST'])
 def view_system(system_uid):
     sql_id = session.get('uid')
-    #sql_id = 29
-    #system_uid = "2e79ea8a411011e5aac7000c29b92d09"
+    # sql_id = 29
+    # system_uid = "2e79ea8a411011e5aac7000c29b92d09"
     if sql_id is None:
         return redirect(url_for('social.search_systems'))
     try:
@@ -634,8 +634,6 @@ def view_system(system_uid):
                                                            system_neo4j[0][0]['location_lng'])
                 # system_mysql = System().get_mysql_system_by_uid(system_uid)
                 system_mysql = system_neo4j
-                # measurements = analyticsViews.get_system_measurements(sql_id)
-                # print (measurements)
                 user_privilege = system.get_user_privilege_for_system(sql_id, system_uid)
                 system_admins = system.get_system_admins(system_uid)
                 system_participants = system.get_system_participants(system_uid)
@@ -656,15 +654,10 @@ def view_system(system_uid):
                 total_likes = system.get_total_likes_for_system_posts(system_uid)
                 post_owners = system.get_system_post_owners(system_uid)
                 measurements_output_dav = get_system_measurements_dav_api(system_uid)
-                # print "measurements_output_dav"
-                # print measurements_output_dav
                 json_output_measurement = json.loads(measurements_output_dav)
-                # print "json_output_measurement"
-                # print json_output_measurement
-                # TODO: Add error handling here
-                measurements = json_output_measurement['measurements']
-                # print "measurements"
-                # print measurements
+                measurements = None
+                if "error" not in json_output_measurement:
+                    measurements = json_output_measurement['measurements']
                 return render_template("system_social.html", system_neo4j=system_neo4j, system_mysql=system_mysql,
                                        logged_in_user=logged_in_user, created_date=created_date,
                                        system_location=system_location,
@@ -995,7 +988,6 @@ def update_group_info():
         print "Exception Occurred at update_group_info: " + str(ex.message)
 
 
-
 #######################################################################################
 @social.route('/manage/groups/create_group', methods=['POST'])
 #######################################################################################
@@ -1006,13 +998,12 @@ def update_group_info():
 # Exception : None
 #######################################################################################
 def create_group():
-    name  = request.form['name']
+    sql_id = session.get('uid')
+    if sql_id is None:
+        return redirect(url_for('social.groups'))
+    name = request.form['name']
     description = request.form['description']
     is_private = request.form['is_private_group']
-    print("In Views.py")
-    print(name)
-    print(description)
-    print(is_private)
     group = Group()
     if is_private == "" or is_private is None:
         flash('Privacy option can not be empty')
@@ -1020,15 +1011,13 @@ def create_group():
     elif description == "" or description is None:
         flash('Description cannot be empty')
 
-    elif name =="" or name is None:
+    elif name == "" or name is None:
         flash('Name cannot be empty')
 
     else:
-        group.create_group(session['uid'],name, description,is_private)
-        flash('Your Group is created')
-
+        group.create_group(sql_id, name, description, is_private)
+        flash('Your Group is successfully created!')
     return redirect(url_for('social.groups'))
-
 
 
 #######################################################################################
@@ -1130,8 +1119,8 @@ def join_leave_group():
                     else:
                         group.join_group_pending(google_id, group_uid)
             else:
-                if user_privilege == "GROUP_ADMIN" or\
-                                user_privilege == "GROUP_PENDING_MEMBER" or\
+                if user_privilege == "GROUP_ADMIN" or \
+                                user_privilege == "GROUP_PENDING_MEMBER" or \
                                 user_privilege == "GROUP_MEMBER":
                     if request.form['submit'] == 'Leave':
                         group.leave_group(google_id, group_uid)
@@ -1852,5 +1841,3 @@ def test_add_comment():
         User(session['uid']).test_add_comment(comment, post_id)
         flash('Your comment has been posted')
     return redirect(url_for('social.index'))
-
-

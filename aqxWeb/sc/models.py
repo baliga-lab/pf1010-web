@@ -1,4 +1,6 @@
 from py2neo import Graph, Node, Relationship, cypher
+from flask import request
+from urlparse import urlparse
 import time
 import datetime
 import uuid
@@ -869,19 +871,13 @@ class User:
 
 def get_system_measurements_dav_api(system_uid):
     try:
+        base_url = urlparse(request.url).netloc
+        dav_system_measurement_url = "http://" + str(base_url) + "/dav/aqxapi/v1/measurements"
         app = get_app_instance()
-        server_ip = str(app.config['SERVER_IP'])
-        server_port = str(app.config['SERVER_PORT'])
-        assert server_ip
-        assert server_port
         with app.test_client() as client:
-            dav_system_measurement_url = "http://" + str(server_ip) + ":" + str(server_port) + "/dav/aqxapi/v1/measurements"
-            print("URL for DAV team : " + dav_system_measurement_url)
             query_param = {'system_uid': system_uid}
             response = client.get(dav_system_measurement_url, query_string=query_param)
-            # print response.data
             return response.data
-            # print "end"
     except Exception as ex:
         print "Exception in get_system_measurements_dav_api"
         print str(ex)
@@ -2191,36 +2187,25 @@ class Group:
     # returns : None
     # Exceptions : cypher.CypherError, cypher.CypherTransactionError
     ############################################################################
-    def create_group(self,user_sql_id, group_name, group_description, is_private):
-        user = User(user_sql_id).find()
-        group = Node(
-            "Group",
-            group_uid=str(uuid.uuid4()),
-            name=group_name,
-            description=group_description,
-            is_private_group=is_private,
-            creation_time=timestamp(),
-            modified_time=timestamp(),
-            status = 0,
-
-        )
-        user_groupadmin_relationship = Relationship(user, "GROUP_ADMIN", group)
-
-
-        print("In Models.py")
-        print(group_name)
-        print(group_description)
-        print(is_private)
-        print(user)
-        print(group)
+    def create_group(self, user_sql_id, group_name, group_description, is_private):
         try:
+            user = User(user_sql_id).find()
+            group = Node(
+                "Group",
+                group_uid=str(uuid.uuid4()),
+                name=group_name,
+                description=group_description,
+                is_private_group=is_private,
+                creation_time=timestamp(),
+                modified_time=timestamp(),
+                status=0,
+
+            )
+            user_groupadmin_relationship = Relationship(user, "GROUP_ADMIN", group)
             get_graph_connection_uri().create(group)
             get_graph_connection_uri().create(user_groupadmin_relationship)
-
         except cypher.CypherError, cypher.CypherTransactionError:
             print "Exception occured in function create_group "
-
-
 
     ############################################################################
     # function : find

@@ -275,13 +275,15 @@
                         </tr>
                         </thead>
                         <tbody>
-                        {% for row in measurements %}
-                            <tr>
-                                <td> {{ row.name }} </td>
-                                <td> {{ row.value }} </td>
-                                <td>  {{ row.time }}  </td>
-                            </tr>
-                        {% endfor %}
+                        {% if measurements is not none %}
+                            {% for row in measurements %}
+                                <tr>
+                                    <td> {{ row.name }} </td>
+                                    <td> {{ row.value }} </td>
+                                    <td>  {{ row.time }}  </td>
+                                </tr>
+                            {% endfor %}
+                        {% endif %}
                         </tbody>
                     </table>
                 </div>
@@ -351,38 +353,38 @@
                 <div class="modal-body">
                     <ul>
                         {% for subscriber in system_subscribers %}
-                        <li>
-                            <!-- Only Admin and Participants Has The Privilege To View The Picture & Name Of All Participants-->
-                            {% if user_privilege == "SYS_ADMIN" or user_privilege == "SYS_PARTICIPANT" %}
-                                <a href="{{ url_for('social.profile', google_id=subscriber[0]["google_id"]) }}">
-                                    <img class="participantImage img-circle" src="{{ subscriber[0]["image_url"] }}">
-                                    {% if subscriber[0]["displayName"] is not none %}
-                                        {{ subscriber[0]["displayName"] }}
-                                    {% else %}
-                                        No Display Name
-                                    {% endif %}
-                                </a>
-                                <!-- Guest, Subscribers & Pending Users Shall Not Be Able To See The Picture & Name Of All Participants-->
-                            {% else %}
-                                <!-- The subscriber will be able to see his/her own name and picture -->
-                                {% if subscriber[0]["sql_id"] == logged_in_user["sql_id"] %}
+                            <li>
+                                <!-- Only Admin and Participants Has The Privilege To View The Picture & Name Of All Participants-->
+                                {% if user_privilege == "SYS_ADMIN" or user_privilege == "SYS_PARTICIPANT" %}
                                     <a href="{{ url_for('social.profile', google_id=subscriber[0]["google_id"]) }}">
-                                        <img class="participantImage" src="{{ session["img"] }}">
+                                        <img class="participantImage img-circle" src="{{ subscriber[0]["image_url"] }}">
                                         {% if subscriber[0]["displayName"] is not none %}
                                             {{ subscriber[0]["displayName"] }}
                                         {% else %}
                                             No Display Name
                                         {% endif %}
                                     </a>
+                                    <!-- Guest, Subscribers & Pending Users Shall Not Be Able To See The Picture & Name Of All Participants-->
                                 {% else %}
-                                    <img class="participantImage"
-                                         src="{{ url_for('social.static', filename='images/default_profile_pic.png') }}">
-                                    Anonymous
+                                    <!-- The subscriber will be able to see his/her own name and picture -->
+                                    {% if subscriber[0]["sql_id"] == logged_in_user["sql_id"] %}
+                                        <a href="{{ url_for('social.profile', google_id=subscriber[0]["google_id"]) }}">
+                                            <img class="participantImage" src="{{ session["img"] }}">
+                                            {% if subscriber[0]["displayName"] is not none %}
+                                                {{ subscriber[0]["displayName"] }}
+                                            {% else %}
+                                                No Display Name
+                                            {% endif %}
+                                        </a>
+                                    {% else %}
+                                        <img class="participantImage"
+                                             src="{{ url_for('social.static', filename='images/default_profile_pic.png') }}">
+                                        Anonymous
+                                    {% endif %}
                                 {% endif %}
-                            {% endif %}
-                        </li>
-                        </br>
-                    {% endfor %}  
+                            </li>
+                            </br>
+                        {% endfor %}  
                     </ul>
                 </div>
                 <div class="modal-footer">
