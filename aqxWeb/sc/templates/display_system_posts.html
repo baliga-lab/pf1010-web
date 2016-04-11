@@ -3,246 +3,251 @@
     {% if posts %}
         {% for row in posts %}
             <br>
-            <div class="post detail-box">
-                {# USER OF POST #}
-                <div class="media-left">
-                    {# LINK TO USER'S PROFILE #}
-                    {% if user_privilege == "SYS_ADMIN" or user_privilege == "SYS_PARTICIPANT" %}
-                        <a href="/social/profile/{% if row.user %}{{ row.user.google_id }}{% endif %}">
-                            {% if row.user.image_url %}
-                            <img class="media-object" src="{{ row.user.image_url }}"
-                                 alt="{{ row.displayName }}'s Picture"
-                                 height="32" width="32">
-                            {# PLACEHOLDER IMAGE FOR USER'S PROFILE PIC #}
+            {% if   (row.post.privacy == "participants" and
+                        (user_privilege == "SYS_ADMIN" or user_privilege == "SYS_PARTICIPANT" )) or
+                    (row.post.privacy == "public" and
+                         (user_privilege == "SYS_ADMIN" or user_privilege == "SYS_PARTICIPANT" or user_privilege == "SYS_SUBSCRIBER" ))
+            %}
+                <div class="post detail-box">
+                    {# USER OF POST #}
+                    <div class="media-left">
+                        {# LINK TO USER'S PROFILE #}
+                        {% if user_privilege == "SYS_ADMIN" or user_privilege == "SYS_PARTICIPANT" %}
+                            <a href="/social/profile/{% if row.user %}{{ row.user.google_id }}{% endif %}">
+                                {% if row.user.image_url %}
+                                <img class="media-object" src="{{ row.user.image_url }}"
+                                     alt="{{ row.displayName }}'s Picture"
+                                     height="32" width="32">
+                                {# PLACEHOLDER IMAGE FOR USER'S PROFILE PIC #}
+                                {% else %}
+                                <img class="media-object"
+                                     src="{{ url_for('frontend.static', filename='images/users/oddish.png') }}"
+                                     alt="User has no profile picture"
+                                     height="32" width="32">
+                                {# PLACEHOLDER IMAGE FOR USER WITH NO PROFILE PICTURE #}
+                                {% endif %}
+                                {% else %}
+                                <img class="participantImage"
+                                         src="{{ url_for('frontend.static', filename='images/users/oddish.png') }}">
+
+                                {% endif %}
+                        </a>
+                    </div>
+
+                    {# POST CONTENT #}
+                    <div class="media-body">
+                        <h4>
+                            {% if   user_privilege == "SYS_ADMIN" or
+                                    user_privilege == "SYS_PARTICIPANT" or
+                                    row.user.sql_id == session['uid']
+                            %}
+                                {{ row.displayName }}
                             {% else %}
-                            <img class="media-object"
-                                 src="{{ url_for('frontend.static', filename='images/users/oddish.png') }}"
-                                 alt="User has no profile picture"
-                                 height="32" width="32">
-                            {# PLACEHOLDER IMAGE FOR USER WITH NO PROFILE PICTURE #}
+                                Anonymous
                             {% endif %}
-                            {% else %}
-                            <img class="participantImage"
-                                     src="{{ url_for('frontend.static', filename='images/users/oddish.png') }}">
+
+                            <span class="date sub-text">posted on {{ row.post.date }}</span>
+                            <span class="privacy sub-text">@{{ row.post.privacy }}</span>
+                        </h4>
+                        {% for po in postOwners %}
+                            {% if po.postid == row.post.id and po.userid == session['uid'] %}
 
                             {% endif %}
-                    </a>
-                </div>
-
-                {# POST CONTENT #}
-                <div class="media-body">
-                    <h4>
-                        {% if   user_privilege == "SYS_ADMIN" or
-                                user_privilege == "SYS_PARTICIPANT" or
-                                row.user.sql_id == session['uid']
-                        %}
-                            {{ row.displayName }}
-                        {% else %}
-                            Anonymous
-                        {% endif %}
-
-                        <span class="date sub-text">posted on {{ row.post.date }}</span>
-                    </h4>
-                    {% for po in postOwners %}
-                        {% if po.postid == row.post.id and po.userid == session['uid'] %}
-
-                        {% endif %}
-                    {% endfor %}
-                    <p>{{ row.post.text }}</p>
-                    {% for po in postOwners %}
-                        {% if po.postid == row.post.id and (po.userid == session['uid'] or user_privilege == "SYS_ADMIN")  %}
-                            <div class="form-controls" style=" text-align: right;">
-                                <form action="{{ url_for('social.delete_system_post') }}" method="post">
-                                    <input type="hidden" name="postid" value="{{ row.post.id }}">
-                                    <input type="hidden" name="system_uid" value="{{ system_uid }}">
-                                    <button type="submit" name="submit" class="btn btn-danger"
-                                            aria-label="Left Align" value="deletePost">
-                                        Delete <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
-                                    </button>
-                                </form>
-                            </div>
-                            <div class="form-controls" style=" text-align: right;">
-                                <button type="submit" class="btn btn-warning" name="submit"
-                                        value="edit" aria-label="Left Align"
-                                        onclick="showEditCommentDiv('{{ row.post.id }}')">
-                                    Edit <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>
-                                </button>
-                                <div id="{{ row.post.id }}" class="form-controls"
-                                     style="display:none; width: 100% ; text-align:left">
-                                    <form action="{{ url_for('social.edit_system_post') }}" method="post">
+                        {% endfor %}
+                        <p>{{ row.post.text }}</p>
+                        {% for po in postOwners %}
+                            {% if po.postid == row.post.id and (po.userid == session['uid'] or user_privilege == "SYS_ADMIN")  %}
+                                <div class="form-controls" style=" text-align: right;">
+                                    <form action="{{ url_for('social.delete_system_post') }}" method="post">
                                         <input type="hidden" name="postid" value="{{ row.post.id }}">
                                         <input type="hidden" name="system_uid" value="{{ system_uid }}">
-                                        <input id="editedpost" name="editedpost" style="width: 100%"
-                                               value="{{ row.post.text }}"
-                                               placeholder="Edit Post">
-                                        <button type="submit" class="btn btn-green" name="submit"
-                                                value="editComment" aria-label="right Align">
-                                            Update <span class="glyphicon glyphicon-ok" aria-hidden="true"></span>
+                                        <button type="submit" name="submit" class="btn btn-danger"
+                                                aria-label="Left Align" value="deletePost">
+                                            Delete <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
                                         </button>
                                     </form>
                                 </div>
-                            </div>
+                                <div class="form-controls" style=" text-align: right;">
+                                    <button type="submit" class="btn btn-warning" name="submit"
+                                            value="edit" aria-label="Left Align"
+                                            onclick="showEditCommentDiv('{{ row.post.id }}')">
+                                        Edit <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>
+                                    </button>
+                                    <div id="{{ row.post.id }}" class="form-controls"
+                                         style="display:none; width: 100% ; text-align:left">
+                                        <form action="{{ url_for('social.edit_system_post') }}" method="post">
+                                            <input type="hidden" name="postid" value="{{ row.post.id }}">
+                                            <input type="hidden" name="system_uid" value="{{ system_uid }}">
+                                            <input id="editedpost" name="editedpost" style="width: 100%"
+                                                   value="{{ row.post.text }}"
+                                                   placeholder="Edit Post">
+                                            <button type="submit" class="btn btn-green" name="submit"
+                                                    value="editComment" aria-label="right Align">
+                                                Update <span class="glyphicon glyphicon-ok" aria-hidden="true"></span>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                            {% endif %}
+                        {% endfor %}
+
+                        {% if row.post.link %}
+                            {# image/gif content #}
+                            {% if row.post.link.endswith(".jpg") or row.post.link.endswith(".png") or row.post.link.endswith(".gif") %}
+                                <img class="attachedImg" src="{{ row.post.link }}"
+                                     onclick="window.open('{{ row.post.link }}', '_blank');" height="32" width="32"/>
+
+                                {# video content #}
+                            {% else %}
+                                <div class="embed-responsive embed-responsive-16by9">
+                                    <iframe class="embed-responsive-item"
+                                            src="{{ row.post.link.replace("/watch?v=", "/embed/") }}" allowfullscreen>
+                                        [Your browser does not support frames or is currently configured not to display
+                                        frames.
+                                        Please use an up-to-date browser that is capable of displaying frames.]
+                                    </iframe>
+                                </div>
+                            {% endif %}
                         {% endif %}
-                    {% endfor %}
+                    </div>
 
-                    {% if row.post.link %}
-                        {# image/gif content #}
-                        {% if row.post.link.endswith(".jpg") or row.post.link.endswith(".png") or row.post.link.endswith(".gif") %}
-                            <img class="attachedImg" src="{{ row.post.link }}"
-                                 onclick="window.open('{{ row.post.link }}', '_blank');" height="32" width="32"/>
-
-                            {# video content #}
-                        {% else %}
-                            <div class="embed-responsive embed-responsive-16by9">
-                                <iframe class="embed-responsive-item"
-                                        src="{{ row.post.link.replace("/watch?v=", "/embed/") }}" allowfullscreen>
-                                    [Your browser does not support frames or is currently configured not to display
-                                    frames.
-                                    Please use an up-to-date browser that is capable of displaying frames.]
-                                </iframe>
-                            </div>
-                        {% endif %}
-                    {% endif %}
-                </div>
-
-                {# POST OPTIONS #}
-                <div class="options">
-                    <div class="form-controls" style=" text-align: right;">
-                        <form action="{{ url_for('social.like_or_unlike_system_post') }}"
-                              method="post">
-                            <input type="hidden" name="postid" value="{{ row.post.id }}">
-                            <input type="hidden" name="system_uid" value="{{ system_uid }}">
-                            <button type="submit" name="submit" class="btn btn-success" aria-label="Left Align"
-                                    value="likePost">
-                                Like
-                                {% for i in totalLikes %}
-                                    {% if i.postid == row.post.id %}
-                                        {{ i.likecount }}
+                    {# POST OPTIONS #}
+                    <div class="options">
+                        <div class="form-controls" style=" text-align: right;">
+                            <form action="{{ url_for('social.like_or_unlike_system_post') }}"
+                                  method="post">
+                                <input type="hidden" name="postid" value="{{ row.post.id }}">
+                                <input type="hidden" name="system_uid" value="{{ system_uid }}">
+                                <button type="submit" name="submit" class="btn btn-success" aria-label="Left Align"
+                                        value="likePost">
+                                    Like
+                                    {% for i in totalLikes %}
+                                        {% if i.postid == row.post.id %}
+                                            {{ i.likecount }}
+                                        {% endif %}
+                                    {% endfor %}
+                                    <span class="glyphicon glyphicon-thumbs-up" aria-hidden="true"></span>
+                                </button>
+                                {% for l in likes %}
+                                    {% if l.postid == row.post.id %}
+                                        {% if l.userid == session['uid'] %}
+                                            <button type="submit" name="submit" class="btn btn-danger"
+                                                    aria-label="Left Align" value="unlikePost">
+                                                Unlike <span class="glyphicon glyphicon-thumbs-down"
+                                                             aria-hidden="true"></span>
+                                            </button>
+                                        {% endif %}
                                     {% endif %}
                                 {% endfor %}
-                                <span class="glyphicon glyphicon-thumbs-up" aria-hidden="true"></span>
-                            </button>
-                            {% for l in likes %}
-                                {% if l.postid == row.post.id %}
-                                    {% if l.userid == session['uid'] %}
-                                        <button type="submit" name="submit" class="btn btn-danger"
-                                                aria-label="Left Align" value="unlikePost">
-                                            Unlike <span class="glyphicon glyphicon-thumbs-down"
-                                                         aria-hidden="true"></span>
-                                        </button>
-                                    {% endif %}
-                                {% endif %}
-                            {% endfor %}
-                        </form>
+                            </form>
+                        </div>
                     </div>
-                </div>
-                Comments:
-                {# POST'S COMMENTS #}
-                <div class="comment comment-box">
-                    <ul class="comment-list nav nav-pills nav-stacked">
-                        {% for cmt in comments %}
-                            {% if cmt.postid == row.post.id %}
-                                <li>
-                                    <div class="media-left">
-                                        <a href="#"> {# LINK TO USER'S PROFILE #}
-                                            {% if user_privilege == "SYS_ADMIN" or user_privilege == "SYS_PARTICIPANT" %}
-                                                {% if row.user and row.user.image_url %}
-                                                    <img class="media-object" src="{{ cmt.user.image_url }}"
-                                                        alt="{{ cmt.displayName }}'s Picture" height="32" width="32"/>
-                                                    {# PLACEHOLDER IMAGE FOR USER'S PROFILE PIC #}
+                    Comments:
+                    {# POST'S COMMENTS #}
+                    <div class="comment comment-box">
+                        <ul class="comment-list nav nav-pills nav-stacked">
+                            {% for cmt in comments %}
+                                {% if cmt.postid == row.post.id %}
+                                    <li>
+                                        <div class="media-left">
+                                            <a href="#"> {# LINK TO USER'S PROFILE #}
+                                                {% if user_privilege == "SYS_ADMIN" or user_privilege == "SYS_PARTICIPANT" %}
+                                                    {% if row.user and row.user.image_url %}
+                                                        <img class="media-object" src="{{ cmt.user.image_url }}"
+                                                            alt="{{ cmt.displayName }}'s Picture" height="32" width="32"/>
+                                                        {# PLACEHOLDER IMAGE FOR USER'S PROFILE PIC #}
+                                                    {% else %}
+                                                        <img class="media-object"
+                                                            src="{{ url_for('frontend.static', filename='images/users/gloom.png') }}"
+                                                            alt="" height="32" width="32"/>
+                                                        {# PLACEHOLDER IMAGE FOR USER'S PROFILE PIC #}
+                                                    {% endif %}
                                                 {% else %}
                                                     <img class="media-object"
-                                                        src="{{ url_for('frontend.static', filename='images/users/gloom.png') }}"
-                                                        alt="" height="32" width="32"/>
-                                                    {# PLACEHOLDER IMAGE FOR USER'S PROFILE PIC #}
+                                                            src="{{ url_for('frontend.static', filename='images/users/gloom.png') }}"
+                                                            alt="" height="32" width="32"/>
                                                 {% endif %}
-                                            {% else %}
-                                                <img class="media-object"
-                                                        src="{{ url_for('frontend.static', filename='images/users/gloom.png') }}"
-                                                        alt="" height="32" width="32"/>
-                                            {% endif %}
-                                        </a>
-                                    </div>
-                                    <div class="media-body">
-                                        <h5>
-                                            {% if   user_privilege == "SYS_ADMIN" or
-                                                    user_privilege == "SYS_PARTICIPANT" or
-                                                    cmt.comment.user_sql_id == session['uid']
-                                            %}
-                                            <b>{{ cmt.comment.user_display_name }}</b>
-                                            {% else %}
-                                            <b>Anonymous</b>
-                                            {% endif %}
-                                            <span class="date sub-text">replied with</span>
-                                        </h5>
-
-                                        <div class="input-group col-md-12">
-                                            <p>{{ cmt.comment.content }}</p>
-                                            {% if cmt.comment.user_sql_id == session['uid'] %}
-                                                <button type="submit" class="btn btn-warning" name="submit"
-                                                        value="edit"
-                                                        aria-label="Left Align"
-                                                        onclick="showEditCommentDiv('{{ cmt.comment.id }}')">
-                                                    Edit <span class="glyphicon glyphicon-pencil"
-                                                               aria-hidden="true"></span>
-                                                </button>
-
-                                                <div id="{{ cmt.comment.id }}" class="form-controls"
-                                                     style="display:none; width: 100% ; text-align:left">
-                                                    <form action="{{ url_for('social.edit_or_delete_system_comment') }}"
-                                                          method="post">
-                                                        <input type="hidden" name="commentid"
-                                                               value="{{ cmt.comment.id }}">
-                                                        <input type="hidden" name="system_uid" value="{{ system_uid }}">
-                                                        <input id="editedcomment" name="editedcomment"
-                                                               style="width: 100%"
-                                                               value="{{ cmt.comment.content }}"
-                                                               placeholder="Edit comment">
-                                                        <button type="submit" class="btn btn-green" name="submit"
-                                                                value="editComment" aria-label="right Align">
-                                                            Update <span class="glyphicon glyphicon-ok"
-                                                                         aria-hidden="true"></span>
-                                                        </button>
-                                                        <button type="submit" class="btn btn-danger" name="submit"
-                                                                value="deleteComment" aria-label="right Align">
-                                                            Delete <span class="glyphicon glyphicon-remove"
-                                                                         aria-hidden="true"></span>
-                                                        </button>
-                                                    </form>
-                                                </div>
-                                            {% endif %}
+                                            </a>
                                         </div>
-                                    </div>
-                                </li>
-                            {% endif %}
+                                        <div class="media-body">
+                                            <h5>
+                                                {% if   user_privilege == "SYS_ADMIN" or
+                                                        user_privilege == "SYS_PARTICIPANT" or
+                                                        cmt.comment.user_sql_id == session['uid']
+                                                %}
+                                                <b>{{ cmt.comment.user_display_name }}</b>
+                                                {% else %}
+                                                <b>Anonymous</b>
+                                                {% endif %}
+                                                <span class="date sub-text">replied with</span>
+                                            </h5>
 
-                            {# edit comment #}
+                                            <div class="input-group col-md-12">
+                                                <p>{{ cmt.comment.content }}</p>
+                                                {% if cmt.comment.user_sql_id == session['uid'] %}
+                                                    <button type="submit" class="btn btn-warning" name="submit"
+                                                            value="edit"
+                                                            aria-label="Left Align"
+                                                            onclick="showEditCommentDiv('{{ cmt.comment.id }}')">
+                                                        Edit <span class="glyphicon glyphicon-pencil"
+                                                                   aria-hidden="true"></span>
+                                                    </button>
 
-                        {% endfor %}
-                    </ul>
-                </div>
+                                                    <div id="{{ cmt.comment.id }}" class="form-controls"
+                                                         style="display:none; width: 100% ; text-align:left">
+                                                        <form action="{{ url_for('social.edit_or_delete_system_comment') }}"
+                                                              method="post">
+                                                            <input type="hidden" name="commentid"
+                                                                   value="{{ cmt.comment.id }}">
+                                                            <input type="hidden" name="system_uid" value="{{ system_uid }}">
+                                                            <input id="editedcomment" name="editedcomment"
+                                                                   style="width: 100%"
+                                                                   value="{{ cmt.comment.content }}"
+                                                                   placeholder="Edit comment">
+                                                            <button type="submit" class="btn btn-green" name="submit"
+                                                                    value="editComment" aria-label="right Align">
+                                                                Update <span class="glyphicon glyphicon-ok"
+                                                                             aria-hidden="true"></span>
+                                                            </button>
+                                                            <button type="submit" class="btn btn-danger" name="submit"
+                                                                    value="deleteComment" aria-label="right Align">
+                                                                Delete <span class="glyphicon glyphicon-remove"
+                                                                             aria-hidden="true"></span>
+                                                            </button>
+                                                        </form>
+                                                    </div>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    </li>
+                                {% endif %}
 
-                {# ADD COMMENT #}
-                <form action="{{ url_for('social.add_system_comment') }}" method="post">
-                    <div class="input-group col-md-12">
-                        <input type="hidden" name="postid" value="{{ row.post.id }}">
-                        <input type="hidden" name="system_uid" value="{{ system_uid }}">
-                        <input id="newcomment" name="newcomment" class="form-control" placeholder="Share comment">
-                        <span class="input-group-btn">
-                            <input type="submit" class="btn btn-green" value="Comment">
-                        </span>
+                                {# edit comment #}
+
+                            {% endfor %}
+                        </ul>
                     </div>
-                </form>
-            </div>
+
+                    {# ADD COMMENT #}
+                    <form action="{{ url_for('social.add_system_comment') }}" method="post">
+                        <div class="input-group col-md-12">
+                            <input type="hidden" name="postid" value="{{ row.post.id }}">
+                            <input type="hidden" name="system_uid" value="{{ system_uid }}">
+                            <input id="newcomment" name="newcomment" class="form-control" placeholder="Share comment">
+                            <span class="input-group-btn">
+                                <input type="submit" class="btn btn-green" value="Comment">
+                            </span>
+                        </div>
+                    </form>
+                </div>
+            {% endif %}
         {% endfor %}
     {% endif %}
-
     {% if not posts %}
-        <p>There are no posts yet!</p>
+        <p>There are no posts yet for this System...
+            Be the first one to post! :) </p>
     {% endif %}
-
 {% endblock %}
-
 
 {% block scripts %}
     <script>

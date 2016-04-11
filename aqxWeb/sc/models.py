@@ -2139,10 +2139,6 @@ class Privacy:
     PRIVATE = "Private"
     PUBLIC = "Public"
     PARTICIPANTS = "Participants"  # Participants Only
-    SUBSCRIBERS = "Subscribers"  # Participants and Subscribers
-    ANYONE = "Anyone"  # Anyone is approved by default
-    ADMIN_APPROVAL = "Approval"  # Needs to be approved by Admin
-    SPECIFIED = "Specified"  # Defined per post by User
 
     ############################################################################
     # function : __init__

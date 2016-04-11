@@ -642,7 +642,14 @@ def view_system(system_uid):
                 system_subscribers = system.get_system_subscribers(system_uid)
                 participants_pending_approval = system.get_participants_pending_approval(system_uid)
                 subscribers_pending_approval = system.get_subscribers_pending_approval(system_uid)
-                privacy_options = {"Members", "Public"}
+                if user_privilege == "SYS_ADMIN" or user_privilege == "SYS_PARTICIPANT":
+                    privacy_options = [Privacy.PARTICIPANTS, Privacy.PUBLIC]
+                    privacy_default = Privacy.PARTICIPANTS
+                else:
+                    privacy_options = [Privacy.PUBLIC]
+                    privacy_default = Privacy.PUBLIC
+
+                privacy = Privacy(privacy_options, privacy_default, 'system_social', sql_id)
                 posts = system.get_system_recent_posts(system_uid)
                 comments = system.get_system_recent_comments(system_uid)
                 likes = system.get_system_recent_likes(system_uid)
@@ -665,7 +672,7 @@ def view_system(system_uid):
                                        system_participants=system_participants, system_subscribers=system_subscribers,
                                        participants_pending_approval=participants_pending_approval,
                                        subscribers_pending_approval=subscribers_pending_approval,
-                                       system_uid=system_uid, privacy_options=privacy_options,
+                                       system_uid=system_uid, privacy_info=privacy,
                                        posts=posts, comments=comments, likes=likes,
                                        totalLikes=total_likes, postOwners=post_owners, measurements=measurements)
     except Exception as e:
