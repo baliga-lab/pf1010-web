@@ -10,14 +10,14 @@ html {
 
 body {
     padding-top: 70px;
-    margin-bottom: 100px;
+    margin-bottom: 115px;
     font-family: Circular, "Helvetica Neue", Helvetica, Arial, sans-serif;
     color: #474440;
 }
 
 @media (min-width: 768px) {
     body {
-        padding-top: 120px;
+        padding-top: 130px;
     }
 }
 
@@ -138,6 +138,7 @@ Footer
     background-color: #333;
     color: #fff;
     font-size: x-small;
+    z-index: 2000;
 }
 
 
