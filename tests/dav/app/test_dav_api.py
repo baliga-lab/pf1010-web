@@ -52,7 +52,6 @@ class DavApiTest(unittest.TestCase):
         expected_status_code = 201
         actual_result_temp = json.loads(response.data)
         actual_result = json.dumps(actual_result_temp)
-        print actual_result
         expected_result = '{"status": {"message": "Record successfully inserted"}}'
         self.assertEquals(expected_result, actual_result)
         self.assertEquals(expected_status_code, actual_status_code)
@@ -133,13 +132,13 @@ class DavApiTest(unittest.TestCase):
         self.assertEquals(expected_result, actual_result)
         self.assertEquals(expected_status_code, actual_status_code)
 
-    # method to insert test data
+    #method to insert test data
     # def test_generate_data(self):
     #     davAPI = DavAPI(self.conn)
     #     davAPI.generate_data(0,10,
-    #               ['5cc8402478ee11e59d5c000c29b92d09'],
+    #               [''],
     #              # ['o2','ph','temp','alkalinity','ammonium','chlorine','hardness','light','nitrate'])
-    #                          ['light'])
+    #                          ['o2','ph','light'])
     #     self.assertEqual("", "", "Test fail")
 
 
@@ -167,7 +166,6 @@ class DavApiTest(unittest.TestCase):
 
         with open('data/test_get_readings_for_plot2_er.txt') as f:
             expected_result = f.readlines()[0]
-        print actual_result
         self.assertEqual(expected_result, actual_result)
 
     # 3  data present for nitrate for "555d0cfe9ebc11e58153000c29b92d09","5cc8402478ee11e59d5c000c29b92d09","6b62eb76451211e5a1d4000c29b92d09"
@@ -177,11 +175,9 @@ class DavApiTest(unittest.TestCase):
                            "6b62eb76451211e5a1d4000c29b92d09"]
         msr_id_list = [6]
 
-        actual_result = analytics_views.get_readings_for_tsplot(system_uid_list, msr_id_list)
+        actual_result = analytics_views.get_readings_for_tsplot(system_uid_list, msr_id_list,200)
         with open('data/test_get_readings_for_plot3_er.txt') as f:
             expected_result = f.readlines()[0]
-        print actual_result
-
         self.assertEqual(expected_result, actual_result)
 
     # 4 data present for nitrate,O2,pH for "555d0cfe9ebc11e58153000c29b92d09","5cc8402478ee11e59d5c000c29b92d09","6b62eb76451211e5a1d4000c29b92d09"
@@ -206,7 +202,7 @@ class DavApiTest(unittest.TestCase):
     def test_get_readings_for_plot5(self):
         system_uid_list = ["b9752004864911e58f3f000c29b92d09", "3ddb948a5afe11e5a2ac000c29b92d09"]
         msr_id_list = ["1", "3", "4"]
-        actual_result = analytics_views.get_readings_for_tsplot(system_uid_list, msr_id_list)
+        actual_result = analytics_views.get_readings_for_tsplot(system_uid_list, msr_id_list,200)
         with open('data/test_get_readings_for_plot5_er.txt') as f:
             expected_result = f.readlines()[0]
 
@@ -220,43 +216,77 @@ class DavApiTest(unittest.TestCase):
     def test_get_readings_for_plot6(self):
         system_uid_list = ["3ddb948a5afe11e5a2ac000c29b92d09", "b9cf213a8efa11e587db000c29b92d09"]
         msr_id_list = [1, 5]
-        actual_result = analytics_views.get_readings_for_tsplot(system_uid_list, msr_id_list)
-        print actual_result
+        actual_result = analytics_views.get_readings_for_tsplot(system_uid_list, msr_id_list,200)
         with open('data/test_get_readings_for_plot6_er.txt') as f:
             expected_result = f.readlines()[0]
 
         self.assertEqual(expected_result, actual_result)
 
     def test_get_readings_for_plot7(self):
-        system_uid_list = ["cb08e32e41f111e5b93f000c29b92d09", "8fb1f712bf1d11e5adcc000c29b92d09"]
+        system_uid_list = ["cb08e32e41f111e5b93f000c29b92d09", "8fb1f712bf1d11e5adcc000c29b92d09",200]
         msr_id_list = [6, 8, 9]
 
         actual_result = analytics_views.get_readings_for_tsplot(system_uid_list, msr_id_list)
-        print actual_result
         with open('data/test_get_readings_for_plot7_er.txt') as f:
             expected_result = f.readlines()[0]
 
         self.assertEqual(expected_result, actual_result)
 
-    def test_get_readings_for_phases_plot1(self):
+    def test_get_readings_for_plot_phases1(self):
         system_uid_list = ["eecce02681bb11e5904b000c29b92d09"]
         msr_id_list = [8]
-        status_id = 400
+        status_id = 200
         actual_result = analytics_views.get_readings_for_tsplot(system_uid_list, msr_id_list, status_id)
-        print actual_result
+        with open('data/test_get_readings_for_plot_phase1_er.txt') as f:
+            expected_result = f.readlines()[0]
 
-    def test_get_readings_for_phases_plot2(self):
+        self.assertEqual(expected_result, actual_result)
+
+
+    def test_get_readings_for_plot_phases2(self):
         system_uid_list = ["eecce02681bb11e5904b000c29b92d09", "555d0cfe9ebc11e58153000c29b92d09"]
         msr_id_list = [8]
         status_id = 200
         actual_result = analytics_views.get_readings_for_tsplot(system_uid_list, msr_id_list, status_id)
-        print actual_result
+        with open('data/test_get_readings_for_plot_phase2_er.txt') as f:
+            expected_result = f.readlines()[0]
 
-    def test_get_readings_for_phases_plot3(self):
+        self.assertEqual(expected_result, actual_result)
+
+    def test_get_readings_for_plot_phases3(self):
         system_uid_list = ["eecce02681bb11e5904b000c29b92d09", "555d0cfe9ebc11e58153000c29b92d09"]
         msr_id_list = [6, 8]
         status_id = 200
         actual_result = analytics_views.get_readings_for_tsplot(system_uid_list, msr_id_list, status_id)
+        with open('data/test_get_readings_for_plot_phase3_er.txt') as f:
+            expected_result = f.readlines()[0]
+
+        self.assertEqual(expected_result, actual_result)
+
+    # test for annotations during same time frame of measurements
+
+    def test_get_readings_for_plot_annotations1(self):
+        system_uid_list = ["ad0ecd9c8efa11e5997f000c29b92d09","41c154185afe11e59fd1000c29b92d09"]
+        msr_id_list = [8]
+        status_id = 200
+        actual_result = analytics_views.get_readings_for_tsplot(system_uid_list, msr_id_list, status_id)
+        print actual_result
+        with open('data/test_get_readings_for_plot_annotations1_er.txt') as f:
+            expected_result = f.readlines()[0]
+
+        self.assertEqual(expected_result, actual_result)
+
+    # ad0ecd9c8efa11e5997f000c29b92d09,pH - all annotations are after the last date for pH measurements
+    # 41c154185afe11e59fd1000c29b92d09, pH - all annotations are before the start date for O2 measurements
+    def test_get_readings_for_plot_annotations2(self):
+        system_uid_list = ["ad0ecd9c8efa11e5997f000c29b92d09","41c154185afe11e59fd1000c29b92d09"]
+        msr_id_list = [8,9]
+        status_id = 200
+        actual_result = analytics_views.get_readings_for_tsplot(system_uid_list, msr_id_list, status_id)
+        with open('data/test_get_readings_for_plot_annotations2_er.txt') as f:
+            expected_result = f.readlines()[0]
+
+        self.assertEqual(expected_result, actual_result)
         print actual_result
 
     # negative test case, querying non existent table

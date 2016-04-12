@@ -46,6 +46,11 @@ class MeasurementsDAOTest(unittest.TestCase):
         print response
         self.assertEqual('established',response)
 
+    def test_get_annotations(self):
+        m = MeasurementsDAO(self.conn)
+        systems = ["ad0ecd9c8efa11e5997f000c29b92d09","41c154185afe11e59fd1000c29b92d09"]
+        response = m.get_annotations(systems)
+        print response
 
 if __name__ == '__main__':
     unittest.main()
