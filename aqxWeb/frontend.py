@@ -35,6 +35,13 @@ def index():
     return render_template('index.html')
 
 
+@frontend.route('/aqx/v1/mailing', methods = ['POST'])
+def addEmail():
+    api = API(get_conn())
+    email = request.get_json()
+    return api.addEmail(email)
+
+
 @frontend.route('/about')
 def about():
     return render_template('about.html')

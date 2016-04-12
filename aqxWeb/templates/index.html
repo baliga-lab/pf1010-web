@@ -24,7 +24,7 @@
                     <div class="carousel-caption">
                         <h1 class="main-title">Project Feed 1010</h1>
                         <p>Store, measure, monitor, and share your Aquaponics data.</p>
-                        <p><a class="btn btn-lg btn-green" href="{{ url_for('frontend.about') }} role="button">Learn more</a></p>
+                        <p><a class="btn btn-lg btn-green" href="{{ url_for('frontend.about') }}" role="button">Learn more</a></p>
                     </div>
                 </div>
             </div>
@@ -35,7 +35,7 @@
                     <div class="carousel-caption">
                         <h1>System Spotlight</h1>
                         <p>Check out what this system grew and how much resources they saved!</p>
-                        <p><a class="btn btn-lg btn-green" href="#" role="button">See more</a></p>
+                        <p><a class="btn btn-lg btn-green" href="http://www.projectfeed1010.com/blog/2016/03/06/spotlight-natallie-windsor/" role="button">See more</a></p>
                     </div>
                 </div>
             </div>
@@ -104,18 +104,19 @@
         <hr class="featurette-divider">
 
         <div class="row featurette">
-            <div class="col-md-7">
+            <div ng-controller="AddEmailController" class="col-md-6">
                 <h2 class="featurette-heading">Get notified of any updates.</h2>
                 <p class="lead">Join our mailing list by entering your email!</p>
                 <div class="input-group">
-                    <input type="email" class="form-control" placeholder="Email Address">
+                    <input type="email" class="form-control" ng-model="email" placeholder="Email Address">
                 <span class="input-group-btn">
-                <button class="btn btn-green" type="button">Get Notified</button>
+                <button class="btn btn-green" type="button" ng-click="addEmail(email)">Get Notified</button>
                 </span>
                 </div><!-- /input-group -->
             </div>
+            <div class="col-md-1"></div>
             <div class="col-md-5">
-                <h1 class="featurette-heading">Say hi and keep in touch.</h1>
+                <h2 class="featurette-heading">Say hi and keep in touch.</h2>
                 <p class="lead">Connect with us today!</p>
                 <ul class="list-inline">
                     <!-- Google+
