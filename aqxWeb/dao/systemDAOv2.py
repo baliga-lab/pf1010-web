@@ -8,13 +8,14 @@ class systemDAO:
     def getSystem(self, system_uid):
         cursor = self.conn.cursor()
 
-        query = ("SELECT s.id, s.system_uid, s.user_id, s.name, s.creation_time, s.start_date, s.location_lat, s.location_lng, "
-                 "aqt.name as 'aqx_technique', "
-                 "st.status_type as 'status' "
-                 "FROM systems s "
-                 "LEFT JOIN aqx_techniques aqt ON s.aqx_technique_id = aqt.id "
-                 "LEFT JOIN status_types st    ON s.status = st.id "
-                 "WHERE s.system_uid = %s")
+        query = (
+        "SELECT s.id, s.system_uid, s.user_id, s.name, s.creation_time, s.start_date, s.location_lat, s.location_lng, "
+        "aqt.name as 'aqx_technique', "
+        "st.status_type as 'status' "
+        "FROM systems s "
+        "LEFT JOIN aqx_techniques aqt ON s.aqx_technique_id = aqt.id "
+        "LEFT JOIN status_types st    ON s.status = st.id "
+        "WHERE s.system_uid = %s")
 
         try:
             cursor.execute(query, (system_uid,))
@@ -25,7 +26,6 @@ class systemDAO:
             cursor.close()
 
         return result
-
 
     def getOrganismsForSystem(self, system_id):
         cursor = self.conn.cursor()
@@ -45,7 +45,6 @@ class systemDAO:
 
         return results
 
-
     def getCropsForSystem(self, system_id):
         cursor = self.conn.cursor()
 
@@ -64,7 +63,6 @@ class systemDAO:
 
         return results
 
-
     def getGrowBedMediaForSystem(self, system_id):
         cursor = self.conn.cursor()
 
@@ -82,7 +80,6 @@ class systemDAO:
             cursor.close()
 
         return results
-
 
     def createSystem(self, system):
         cursor = self.conn.cursor()
@@ -103,8 +100,9 @@ class systemDAO:
 
         # The following inserts into systems table
 
-        query1 = ('INSERT INTO systems (user_id, name, system_uid, start_date, aqx_technique_id, location_lat, location_lng)'
-                  'VALUES (%s, %s, %s, %s, %s, %s, %s)')
+        query1 = (
+        'INSERT INTO systems (user_id, name, system_uid, start_date, aqx_technique_id, location_lat, location_lng)'
+        'VALUES (%s, %s, %s, %s, %s, %s, %s)')
 
         values1 = (userID, name, systemUID, startDate, techniqueID, locationLat, locationLng)
 
@@ -139,7 +137,6 @@ class systemDAO:
             cursor.close()
 
         return {'userID': userID, 'systemID': systemID, 'systemUID': systemUID}
-
 
     def getSystemsForUser(self, userID):
         cursor = self.conn.cursor()

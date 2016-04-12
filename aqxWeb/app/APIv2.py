@@ -6,8 +6,8 @@ from collections import defaultdict
 
 import json
 
-class API:
 
+class API:
     def __init__(self, conn):
         self.conn = conn
         self.systemDAO = systemDAO(self.conn)

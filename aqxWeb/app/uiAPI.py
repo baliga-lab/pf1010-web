@@ -1,6 +1,6 @@
 from aqxWeb.dao.UserDAO import UserDAO
 from aqxWeb.dao.systemsDAO import SystemsDAO
-from aqxWeb.dao.MetaDataDAO import MetadataDAO
+from aqxWeb.dao.metadataDAO import MetadataDAO
 from aqxWeb.dao.systemImageDAO import SystemImageDAO
 from aqxWeb.dao.systemAnnotationDAO import SystemAnnotationDAO
 from collections import defaultdict

@@ -9,6 +9,7 @@ frontend = Blueprint('frontend', __name__, template_folder='templates', static_f
 
 pool = None
 
+
 # Connect to the database
 def init_app(gpool, gapp):
     global pool
@@ -49,6 +50,11 @@ def curriculum():
     return render_template('curriculum.html')
 
 
+@frontend.route('/contact', methods=['GET'])
+def contact():
+    return render_template('contact.html')
+
+
 @frontend.route('/system')
 def system():
     return render_template('system.html')
@@ -67,11 +73,9 @@ def badges():
 
 #########################
 #                       #
-#  SYSTEMS METADATA     #
+#  METADATA ROUTES      #
 #                       #
-# #######################
-
-
+#########################
 ######################################################################
 # API call to get metadata of a given system
 ######################################################################
@@ -84,7 +88,6 @@ def get_metadata(system_uid):
 ######################################################################
 # API call to delete metadata of a given system
 ######################################################################
-
 @frontend.route('/aqxapi/v1/system/meta/<system_uid>', methods=['DELETE'])
 def delete_metadata(system_uid):
     uiAPI = UiAPI(get_conn())
@@ -94,7 +97,6 @@ def delete_metadata(system_uid):
 ######################################################################
 # API call to get metadata of all the systems
 ######################################################################
-
 # get_all_systems_info() - It returns the system information as a JSON
 #                          object.
 @frontend.route('/aqxapi/v1/systems/metadata', methods=['GET'])
@@ -106,7 +108,6 @@ def get_all_systems_info():
 ######################################################################
 # API call to get filtering criteria
 ######################################################################
-
 # get_all_aqx_metadata - It returns all the metadata that are needed
 #                        to filter the displayed systems.
 @frontend.route('/aqxapi/v1/systems/filters', methods=['GET'])
@@ -115,10 +116,14 @@ def get_all_aqx_metadata():
     return uiAPI.get_all_filters_metadata()
 
 
+#########################
+#                       #
+#  USER ROUTES          #
+#                       #
+#########################
 ######################################################################
 # API call to get user data
 ######################################################################
-
 # @frontend.route('/aqxapi/get/user/<uid>', methods=['GET']) google sheet removed get user by user id. i leave it here just in case.
 def get_user(uid):
     uiAPI = UiAPI(get_conn())
@@ -128,7 +133,6 @@ def get_user(uid):
 ######################################################################
 # API call to get user data with googleid
 ######################################################################
-
 @frontend.route('/aqxapi/v1/user/<googleid>', methods=['GET'])
 def get_user_with_google_id(googleid):
     uiAPI = UiAPI(get_conn())
@@ -138,7 +142,6 @@ def get_user_with_google_id(googleid):
 ######################################################################
 # API call to put user data
 ######################################################################
-
 @frontend.route('/aqxapi/v1/user', methods=['POST'])
 def put_user():
     user = request.get_json()
@@ -149,7 +152,6 @@ def put_user():
 ######################################################################
 # API call to inserting user data
 ######################################################################
-
 @frontend.route('/aqxapi/v1/user', methods=['POST'])
 def insert_user():
     user = request.get_json()
@@ -157,6 +159,11 @@ def insert_user():
     return uiAPI.insert_user(user)
 
 
+#########################
+#                       #
+#  SYSTEM ROUTES        #
+#                       #
+#########################
 ######################################################################
 # API call to get all systems
 # get_all_systems) - It returns List of all aquaponics systems,
@@ -170,13 +177,12 @@ def get_systems():
 
 
 ######################################################################
-# API call to Check if the system exists
+# API call to check if the system exists
 # check_system_exists) - It returns "If system exists:
 # {"status":"True"}
 # If system does not exist:
 # {"status":"False"}
 ######################################################################
-
 @frontend.route('/aqxapi/v1/system/exists/<system_uid>', methods=['GET'])
 def check_system_exists(system_uid):
     uiAPI = UiAPI(get_conn())
@@ -186,13 +192,17 @@ def check_system_exists(system_uid):
 ######################################################################
 # API call to get all user systems
 ######################################################################
-
 @frontend.route('/aqxapi/v1/user/<user_id>/systems', methods=['GET'])
 def get_all_user_systems(user_id):
     uiAPI = UiAPI(get_conn())
     return uiAPI.get_all_user_systems(user_id)
 
 
+#########################
+#                       #
+#  IMAGE ROUTES         #
+#                       #
+#########################
 ######################################################################
 # API call to add an image to a system_image table
 ######################################################################
@@ -230,6 +240,11 @@ def get_system_all_images(system_uid):
     return uiAPI.get_system_all_images(system_uid)
 
 
+#########################
+#                       #
+#  ANNOTATION ROUTES    #
+#                       #
+#########################
 # add an annotation to system annotation table
 @frontend.route('/aqxapi/v1/system/<system_id>/annotations', methods=['POST'])
 def add_annotation(system_id):
@@ -267,21 +282,23 @@ def get_system_id_and_system_uid_with_user_id_and_system_name(user_id, name):
 ######################################################################
 # API Overhaul
 ######################################################################
-
 @frontend.route('/aqxapi/v2/user/<googleID>', methods=['GET'])
 def getUserID(googleID):
     api = API(get_conn())
     return api.getUserID(googleID)
+
 
 @frontend.route('/aqxapi/v2/user/<userID>/system', methods=['GET'])
 def getSystemsForUser(userID):
     api = API(get_conn())
     return api.getSystemsForUser(userID)
 
+
 @frontend.route('/aqxapi/v2/system/<systemUID>', methods=['GET'])
 def getSystem(systemUID):
     api = API(get_conn())
     return api.getSystem(systemUID)
+
 
 @frontend.route('/aqxapi/v2/system', methods=['POST'])
 def createSystem():
@@ -289,6 +306,7 @@ def createSystem():
     system = request.get_json()
     system['userID'] = session['uid']
     return api.createSystem(system)
+
 
 @frontend.route('/aqxapi/v2/enums', methods=['GET'])
 def getEnums():
