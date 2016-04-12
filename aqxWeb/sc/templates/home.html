@@ -49,17 +49,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.simpleWeather/3.1.0/jquery.simpleWeather.min.js"></script>
     <script src="{{ url_for('frontend.static', filename='js/weather.js') }}"></script>
     <script src="{{ url_for('frontend.static', filename='js/newsfeed.js') }}"></script>
-    <script>
-        $("#addUrl").click(function () {
-            var link = $("#new_link").val();
-            if (link.length > 0) {
-                $(".links").empty();
-                $(".links").append("<a href='" + link + "'>" + link + "</a>");
-                $(".links").append("<input type='hidden' name='link' value='" + link + "'/><br/>");
-                $("#add_link").attr("disabled", "disabled");
-            }
-        });
-    </script>
     <!-- jQuery Script To Display Logged In User Profile Details -->
     <script type="text/javascript" src="{{ url_for('social.static', filename='js/home.js') }}"></script>
 {% endblock %}
