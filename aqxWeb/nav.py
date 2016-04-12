@@ -49,7 +49,7 @@ class SidedSearchBox(RawTag):
 def guest():
     return Navbar(
         SidedViewImage('https://aquaponics.systemsbiology.net/static/images/pflogo2.png', 'Project Feed 1010', True, 'frontend.index'),
-        SidedLink('Login with Google+', 'social/Home', False),
+        SidedLink('Login with Google+', '/social/Home', False),
         View('Home', 'frontend.index'),
         View('About', 'frontend.about'),
         View('Explore', 'dav.explore'),
