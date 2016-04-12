@@ -7,7 +7,7 @@
                 <li id="li_1">
                     <label class="description" for="mySelect">Select the details</label>
                     <div>
-                        <select name="mySelect" id="mySelect">
+                        <select name="mySelect" id="mySelect" class="form-control">
                             <option value="Choose">Choose Annotation</option>
                             <option value="ph">ph</option>
                             <option value="harvest">harvest</option>
@@ -18,37 +18,52 @@
                         </select>
                     </div>
                 </li>
-
+                <br>
                 <li>
-                    <p id="otherType1" style="display:none;">
+                    <div id="otherType1" style="display:none;">
                     <span class="segmented">
-                        <label><input type="radio" name="seg1" value="Add"><span class="label">Add</span></label>
-                        <label><input type="radio" name="seg1" value="Remove"><span class="label">Remove</span></label>
+                        <label style="display: inline; font-size: 100%;font-weight: 200;"><input type="radio"
+                                                                                                 name="seg1"
+                                                                                                 value="Add"><span
+                                class="label">Add</span></label>
+                        <label style="display: inline;font-size: 100%;font-weight: 200;"><input type="radio" name="seg1"
+                                                                                                value="Remove"><span
+                                class="label">Remove</span></label>
                     </span>
-                    </p>
-                    <br/>
-                    <p id="otherType2" style="display:none;">
+                    </div>
+
+                    <div id="otherType2" style="display:none;">
                     <span class="segmented">
-                        <label><input type="radio" name="seg2" value="High"><span class="label">High</span></label>
-                        <label><input type="radio" name="seg2" value="Constant"><span
+                        <label style="display: inline;font-size: 100%;font-weight: 200;"><input type="radio" name="seg2"
+                                                                                                value="High"><span
+                                class="label">High</span></label>
+                        <label style="display: inline;font-size: 100%;font-weight: 200;"><input type="radio" name="seg2"
+                                                                                                value="Constant"><span
                                 class="label">Constant</span></label>
-                        <label><input type="radio" name="seg2" value="Low"><span class="label">Low</span></label>
+                        <label style="display: inline;font-size: 100%;font-weight: 200;"><input type="radio" name="seg2"
+                                                                                                value="Low"><span
+                                class="label">Low</span></label>
                     </span>
-                    </p>
-                    <br/>
-                    <p id="otherType3" style="display:none;">
+                    </div>
+
+                    <div id="otherType3" style="display:none;">
                     <span class="segmented">
-                        <label><input type="radio" name="seg3" value="Yes"><span class="label">Yes</span></label>
-                        <label><input type="radio" name="seg3" value="No"><span class="label">No</span></label>
+                        <label style="display: inline;font-size: 100%;font-weight: 200;"><input type="radio" name="seg3"
+                                                                                                value="Yes"><span
+                                class="label">Yes</span></label>
+                        <label style="display: inline;font-size: 100%;font-weight: 200;"><input type="radio" name="seg3"
+                                                                                                value="No"><span
+                                class="label">No</span></label>
                     </span>
-                    </p>
+                    </div>
                 </li>
+                <br>
                 <li>
                     <input type="text" name="number" id="number">
                 </li>
             </ul>
 
         </form>
-        <button class="btn btn-green" type="button" onclick="myFunction()">Submit</button>
+        <button class="btn btn-green" type="button" onclick="dataSubmit()">Submit</button>
     </div>
 {% endblock %}
