@@ -202,10 +202,15 @@ def create_system():
     try:
         uiAPI = UiAPI(get_conn())
 
+        aqx_techniques = ['', 'Nutrient Film Technique (NFT)', 'Ebb and Flow (Media-based)', 'Floating Raft', 'Vertical Flow Through']
+        crops = ['','Bok Choy','Carrot','Lettuce','Pea','Strawberry','Butternut Squash','Cucumber','Zucchini','Wheatgrass','Basil','Chocolate Mint','Lemon Balm','Cilantro','Lemon Grass','Chives']
+        gb_medias = ['','Clay Pebbles','Coconut Coir','Seed Starter Plugs']
+        organisms = ['','Mozambique Tilapia','Bluegill','Shrimp','Nile Tilapia','Blue Tilapia','Koi','Goldfish','Betta Fish']
+
         system_user_id = session['uid']
         system_name = request.form['system-name']
         system_start_date = request.form['start-date']
-        system_aqx_technique_id = request.form['aqx-technique-id']
+        system_aqx_technique_id = aqx_techniques.index(request.form['aqx-technique-id'])
         system_location_lat = request.form['lat']
         system_location_lng = request.form['long']
 
@@ -220,7 +225,6 @@ def create_system():
         }
         print system_json_ui
         uiAPI.create_system(system_json_ui)
-        return 'OK'
 
         # #get the newly created system's system id , not system_uid
         # #system id will be used by crop, org, gb_media and sc api all to created system
@@ -231,8 +235,8 @@ def create_system():
         #
         #
         # #system gb media table
-        # system_gb_media = request.form['gb_media']
-        # system_num_gb = request.form['num_gb']
+        # system_gb_media = gb_medias.index(request.form['gb-media'])
+        # system_num_gb = request.form['num-gb']
         # system_gb_media_json = {
         #     "system_id": system_id,
         #     "gb_media_id": system_gb_media,
@@ -242,8 +246,8 @@ def create_system():
         #
         #
         # #system crops table
-        # system_crop = request.form['crop']
-        # system_num_crop = request.form['num_crop']
+        # system_crop = crops.index(request.form['crop'])
+        # system_num_crop = request.form['num-crop']
         # system_crop_json = {
         #     "system_id": system_id,
         #     "crop_id": system_crop,
@@ -252,8 +256,8 @@ def create_system():
         # uiAPI.create_system_crop_table(system_crop_json)
         #
         # # system_aquatic_organisms table
-        # system_organism = request.form['organism']
-        # system_num_org = request.form['num_org']
+        # system_organism = organisms.index(request.form['aqua-org'])
+        # system_num_org = request.form['num-org']
         # system_aquatic_organisms_json = {
         #     "system_id": system_id,
         #     "organism_id": system_organism,
@@ -293,7 +297,7 @@ def create_system():
         #     #print response
         #     result = json.loads(response.data)
         #     #print result
-        #return render_template("system.html")
+        return render_template("system.html")
     except Exception as ex:
         print "Exception : " + str(ex.message)
 

@@ -50,17 +50,20 @@
         </div>
         <div class="form-group">
             <label for="gb-media">Growbed Media</label>
-            <select class="form-control" id="gb-media" required>
+            <select class="form-control" id="gb-media" name="gb-media" required>
                 <option value="" selected="selected"></option>
                 {% for medium in metadata_dict['growbed_media'] %}
                     <option value="{{medium}}">{{ medium }}</option>
                 {% endfor %}
             </select>
         </div>
+        <div class="form-group">
+            <input type="number" min="0" class="form-control" id="num-gb" name="num-gb" placeholder="Number of Media" required>
+        </div>
         <div class="crop-controls">
             <div class="form-group">
                 <label for="crop">Crop</label>
-                <select class="form-control" id="crop" required>
+                <select class="form-control" id="crop" name="crop" required>
                     <option value="0"></option>
                     {% for crop in metadata_dict['crops'] %}
                         <option value="{{crop}}">{{ crop }}</option>
@@ -68,17 +71,21 @@
                 </select>
             </div>
             <div class="form-group">
-                <input type="number" min="0" class="form-control" id="num-crop" placeholder="Number of Crops" required>
+                <input type="number" min="0" class="form-control" id="num-crop" name="num-crop" placeholder="Number of Crops" required>
             </div>
         </div>
+
+        <!-- Adding mulitple crops
         <div id="add-crop"></div>
         <div class="form-group">
             <a id="add-crop-link" href="javascript:void(0)">+ Add another crop</a>
         </div>
+        -->
+
         <div class="organism-controls">
             <div class="form-group">
                 <label for="aqua-org">Aquatic Organism</label>
-                <select class="form-control" id="aqua-org" required>
+                <select class="form-control" id="aqua-org" name="aqua-org" required>
                     <option value="0"></option>
                     {% for organism in metadata_dict['aqx_organisms'] %}
                         <option value="{{organism}}">{{ organism }}</option>
@@ -86,14 +93,18 @@
                 </select>
             </div>
             <div class="form-group">
-                <input type="number" min="0" class="form-control" id="num-aqua-org" placeholder="Number of Organisms"
+                <input type="number" min="0" class="form-control" id="num-aqua-org" name="num-org" placeholder="Number of Organisms"
                        required>
             </div>
         </div>
+
+        <!-- Adding multiple organisms
         <div id="add-organism"></div>
         <div class="form-group">
             <a id="add-organism-link" href="javascript:void(0)">+ Add another organism</a>
         </div>
+        -->
+
         <div class="form-group">
             <button type="submit" class="btn btn-green">Create</button>
         </div>
