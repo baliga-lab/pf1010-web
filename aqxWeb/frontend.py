@@ -8,6 +8,8 @@ import json
 import datetime
 from datetime import datetime
 
+from app.APIv2 import API
+
 frontend = Blueprint('frontend', __name__, template_folder='templates', static_folder='static')
 
 pool = None
@@ -411,3 +413,28 @@ def _byteify(data, ignore_dicts=False):
             }
     # if it's anything else, return it in its original form
     return data
+
+
+# API Overhaul
+
+@frontend.route('/aqxapi/v2/user/<googleID>', methods=['GET'])
+def getUserID(googleID):
+    api = API(get_conn())
+    return api.getUserID(googleID)
+
+@frontend.route('/aqxapi/v2/user/<userID>/system', methods=['GET'])
+def getSystemsForUser(userID):
+    api = API(get_conn())
+    return api.getSystemsForUser(userID)
+
+@frontend.route('/aqxapi/v2/system/<systemUID>', methods=['GET'])
+def getSystem(systemUID):
+    api = API(get_conn())
+    return api.getSystem(systemUID)
+
+@frontend.route('/aqxapi/v2/system', methods=['POST'])
+def createSystem():
+    api = API(get_conn())
+    system = request.get_json()
+    system['userID'] = session['uid']
+    return api.createSystem(system)
