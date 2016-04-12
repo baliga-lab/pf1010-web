@@ -440,4 +440,6 @@ $('#analyzeOptions').on('submit',function() {
     }
     var selectedSystems = systemsSelectedToAnalyze.join(",");
     document.getElementById("selectedSystems").value = JSON.stringify(selectedSystems);
+    //TODO: Make sure that the value is an integer
+    document.getElementById("systemStatus").value = document.getElementById(SELECT_SYSTEM_STATUS).value;
 });

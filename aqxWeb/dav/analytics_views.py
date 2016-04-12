@@ -88,13 +88,14 @@ def analyze_graph():
     selected_systemID_list = []
     try:
         selected_systemID_list = json.dumps(request.form.get('selectedSystems')).translate(None, '\"\\').split(",")
+        # TODO: Use request.form.get('systemStatus') to get statusId
+        default_status = 200
     except:
         traceback.print_exc()
         if not selected_systemID_list:
-            print("System ID list is undefined.")
+            print("System ID list or Status is undefined.")
         raise AttributeError("Error processing selected systems form.")
 
-    default_status = 200
     systems_and_measurements_json = get_readings_for_tsplot(selected_systemID_list, msr_id_list, default_status)
     if 'error' in systems_and_measurements_json:
         print systems_and_measurements_json['error']
