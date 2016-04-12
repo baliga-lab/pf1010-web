@@ -1,6 +1,6 @@
 from aqxWeb.dao.UserDAO import UserDAO
 from aqxWeb.dao.systemsDAO import SystemsDAO
-from aqxWeb.dao.metadataDAO import MetadataDAO
+from aqxWeb.dao.MetaDataDAO import MetadataDAO
 from aqxWeb.dao.systemImageDAO import SystemImageDAO
 from aqxWeb.dao.systemAnnotationDAO import SystemAnnotationDAO
 from collections import defaultdict
@@ -264,8 +264,7 @@ class UiAPI:
                    'aqx_technique_id': system[6],
                    'status': system[7],
                    'lat': str(system[8]),
-                   'lng': str(system[9]),
-                   'state': system[10]}
+                   'lng': str(system[9])}
 
             systems_list.append(obj)
 
