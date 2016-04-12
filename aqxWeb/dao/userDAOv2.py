@@ -20,6 +20,7 @@ class userDAO:
 
         return result
 
+
     def getUserID(self, googleID):
         cursor = self.conn.cursor()
 
@@ -36,3 +37,21 @@ class userDAO:
             cursor.close()
 
         return result
+
+
+    def createUser(self, googleProfile):
+        cursor = self.conn.cursor()
+
+        query = ("INSERT INTO users ('google_id', 'email')"
+                 "VALUES (%s, %s)")
+
+        values = (googleProfile.id, googleProfile.email)
+
+        try:
+            cursor.execute(query, values)
+        except:
+            return 'Error creating user'
+        finally:
+            cursor.close()
+
+        return cursor.lastrowid

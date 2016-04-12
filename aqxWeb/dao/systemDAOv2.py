@@ -102,8 +102,8 @@ class systemDAO:
 
         # The following inserts into systems table
 
-        query1 = ('INSERT INTO system (user_id, name, system_uid, start_date, aqx_technique_id, location_lat, location_lng)'
-                  'VALUES (%s, %s, %s, %s, %s, %s, %s)')
+        query1 = ("INSERT INTO system ('user_id', 'name', 'system_uid', 'start_date', 'aqx_technique_id', 'location_lat', 'location_lng')"
+                  "VALUES (%s, %s, %s, %s, %s, %s, %s)")
 
         values1 = (userID, name, systemUID, startDate, techniqueID, locationLat, locationLng)
 
