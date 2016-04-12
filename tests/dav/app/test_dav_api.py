@@ -28,10 +28,10 @@ class DavApiTest(unittest.TestCase):
 
     # get all systems
     def test_get_all_systems_info(self):
-        response = self.app.get('/dav/aqxapi/get/systems/metadata')
-        print(response)
-        result = json.loads(response.data)
-        self.assertNotEqual(len(result), 0, 'systems exist')
+        actual_result = analytics_views.get_all_systems_info()
+        with open('data/test_get_all_systems_info.txt') as f:
+            expected_result = f.readlines()[0]
+        self.assertEquals(expected_result, actual_result)
 
     # get all measurement types
     def test_get_all_measurement_names(self):
