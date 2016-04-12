@@ -12,9 +12,8 @@
                 <input type="hidden" name="link" value=""/>
             </div>
             <div class="controls form-inline">
-                <button type="button" class="btn btn-blue" data-toggle="modal" data-target="#linkModal"><i class="fa fa-link"></i></button>
+                <button type="button" class="btn btn-blue btn-sm" data-toggle="modal" data-target="#linkModal"><i class="fa fa-link"></i>Add link</button>
                 <div class="form-group pull-right">
-                    <i class="fa fa-lock"></i>
                     <select name="privacy" class="form-control">
                         {% if privacy_info %}
                             {% for privacy in privacy_info.privacy_options %}

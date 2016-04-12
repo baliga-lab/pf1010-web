@@ -11,26 +11,26 @@
 {% block content %}
     {% if session.uid %}
         <div class="row">
-        {# SIDEBAR #}
-        <div class="col-sm-3 sidebar">
-            <h3>
-            Weather
-            <button class="js-geolocation btn btn-blue btn-xs"><i class="fa fa-location-arrow"></i>Current</button>
-        </h3>
-        <div id="weather"></div>
-        <hr>
-            {% include "sidebar.html" %}
-        </div>
+            {# SIDEBAR #}
+            <div class="col-sm-3 sidebar">
+                <h3>
+                Weather
+                <button class="js-geolocation btn btn-blue btn-xs"><i class="fa fa-location-arrow"></i>Current</button>
+            </h3>
+            <div id="weather"></div>
+            <hr>
+                {% include "sidebar.html" %}
+            </div>
 
-        {# NEWSFEED #}
-        <div class="col-sm-9 col-sm-offset-3 main">
-            {% include "post_form.html" %}
+            {# NEWSFEED #}
+            <div class="col-sm-9 col-sm-offset-3 main">
+                {% include "post_form.html" %}
 
-            <h3>Recent Posts</h3>
-            {% include "display_posts.html" %}
+                <h3>Recent Posts</h3>
+                {% include "display_posts.html" %}
+            </div>
         </div>
     {% endif %}
-</div>
 
 {% endblock %}
 

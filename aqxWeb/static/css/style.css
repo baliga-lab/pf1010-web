@@ -29,6 +29,11 @@ a {
     margin-top: 5px;
 }
 
+.btn-grey {
+    background-color: transparent;
+    color: grey;
+}
+
 .btn-blue {
     background-color: transparent;
     color: #6ab7b9;
@@ -93,7 +98,6 @@ Sidebar
         top: 112px;
         bottom: 0;
         left: 0;
-        width: 250px;
         z-index: 1000;
         display: block;
         padding-left: 20px;
@@ -138,7 +142,6 @@ Footer
     background-color: #333;
     color: #fff;
     font-size: x-small;
-    z-index: 2000;
 }
 
 
