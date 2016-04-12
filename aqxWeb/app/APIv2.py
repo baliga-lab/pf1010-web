@@ -73,8 +73,8 @@ class API:
         return json.dumps(systems)
 
     def createSystem(self, system):
-        systemID = self.systemDAO.createSystem(system)
-        return json.dumps({'systemID': systemID})
+        systemInfo = self.systemDAO.createSystem(system)
+        return json.dumps(systemInfo)
 
     # UserAPI
 

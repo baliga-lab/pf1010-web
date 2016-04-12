@@ -17,12 +17,28 @@ app.controller('CreateSystemController', function ($scope, $http) {
     $scope.create = function(system) {
         function onSuccess(response) {
             console.log(response);
+            var socSystem = {
+                'user': { 'sql_id': response.data.userID },
+                'system': {
+                    'system_id': response.data.systemID,
+                    'system_uid': response.data.systemUID,
+                    'name': system.name,
+                    'description': '',
+                    'location_lat': system.location.lat,
+                    'location_lng': system.location.lng,
+                    'status': 100
+                }
+            };
+            $http.post('/social/aqxapi/v1/system', socSystem).then(onSuccess2, onFailure);
+        }
+        function onSuccess2(response) {
+            console.log(response);
         }
         function onFailure(error) {
             console.error(error);
         }
         $http.post('/aqxapi/v2/system', system).then(onSuccess, onFailure);
-    }
+    };
 
     $scope.geocode = function(address) {
         var geocoder = new google.maps.Geocoder();
@@ -35,5 +51,5 @@ app.controller('CreateSystemController', function ($scope, $http) {
                 alert("Geocode was not successful for the following reason: " + status);
             }
         });
-    }
+    };
 });

@@ -1,19 +1,13 @@
 from flask import Blueprint, render_template, request, session
-from mysql.connector.pooling import MySQLConnectionPool
-import os
-from app.uiAPI import UiAPI
-from sc.app.scAPI import ScAPI
-import uuid
-import json
-import datetime
-from datetime import datetime
 
+from app.uiAPI import UiAPI
 from app.APIv2 import API
+
+import json
 
 frontend = Blueprint('frontend', __name__, template_folder='templates', static_folder='static')
 
 pool = None
-
 
 # Connect to the database
 def init_app(gpool, gapp):
@@ -190,121 +184,6 @@ def check_system_exists(system_uid):
 
 
 ######################################################################
-# API call to create system both in ui and sc database
-######################################################################
-
-
-
-
-@frontend.route('/create_system', methods=['POST'])
-def create_system():
-    try:
-        uiAPI = UiAPI(get_conn())
-
-        aqx_techniques = ['', 'Nutrient Film Technique (NFT)', 'Ebb and Flow (Media-based)', 'Floating Raft', 'Vertical Flow Through']
-        crops = ['','Bok Choy','Carrot','Lettuce','Pea','Strawberry','Butternut Squash','Cucumber','Zucchini','Wheatgrass','Basil','Chocolate Mint','Lemon Balm','Cilantro','Lemon Grass','Chives']
-        gb_medias = ['','Clay Pebbles','Coconut Coir','Seed Starter Plugs']
-        organisms = ['','Mozambique Tilapia','Bluegill','Shrimp','Nile Tilapia','Blue Tilapia','Koi','Goldfish','Betta Fish']
-
-        system_user_id = session['uid']
-        system_name = request.form['system-name']
-        system_start_date = request.form['start-date']
-        system_aqx_technique_id = aqx_techniques.index(request.form['aqx-technique-id'])
-        system_location_lat = request.form['lat']
-        system_location_lng = request.form['long']
-
-        # create system json for ui's create system
-        system_json_ui = {
-            'user_id': system_user_id,
-            'name': system_name,
-            'start_date': system_start_date,
-            'aqx_technique_id': system_aqx_technique_id,
-            'location_lat': system_location_lat,
-            'location_lng': system_location_lng
-        }
-        print system_json_ui
-        uiAPI.create_system(system_json_ui)
-
-        # #get the newly created system's system id , not system_uid
-        # #system id will be used by crop, org, gb_media and sc api all to created system
-        # system_id_and_uid_json = uiAPI.get_system_id_and_system_uid_with_user_id_and_system_name(system_user_id,system_json_ui.get('name'))
-        # system_id_and_uid_data = json.loads(system_id_and_uid_json)
-        # system_id = system_id_and_uid_data['system']['system_id']
-        # system_uid = system_id_and_uid_data['system']['system_uid']
-        #
-        #
-        # #system gb media table
-        # system_gb_media = gb_medias.index(request.form['gb-media'])
-        # system_num_gb = request.form['num-gb']
-        # system_gb_media_json = {
-        #     "system_id": system_id,
-        #     "gb_media_id": system_gb_media,
-        #     "num": system_num_gb
-        # }
-        # uiAPI.create_system_gb_media_table(system_gb_media_json)
-        #
-        #
-        # #system crops table
-        # system_crop = crops.index(request.form['crop'])
-        # system_num_crop = request.form['num-crop']
-        # system_crop_json = {
-        #     "system_id": system_id,
-        #     "crop_id": system_crop,
-        #     "num": system_num_crop
-        # }
-        # uiAPI.create_system_crop_table(system_crop_json)
-        #
-        # # system_aquatic_organisms table
-        # system_organism = organisms.index(request.form['aqua-org'])
-        # system_num_org = request.form['num-org']
-        # system_aquatic_organisms_json = {
-        #     "system_id": system_id,
-        #     "organism_id": system_organism,
-        #     "num": system_num_org
-        # }
-        # uiAPI.create_system_quatic_organisms_table(system_aquatic_organisms_json)
-        #
-        #
-        # # calling sc api to create system into sc database
-        # #jsonForNeo4jObject
-        # system_json = {
-        #     "system_id": system_id,    #get this from mysql db after system is inserted into mysql db.
-        #     "system_uid": system_uid, #needs to be a string
-        #     "name": system_name,
-        #     "description": system_name, #make it the same as 'name'
-        #     "location_lat": system_location_lat,
-        #     "location_lng": system_location_lng,
-        #     "status": 100
-        # }
-        # systemJSONObject = json.dumps({'user': system_user_id, 'system': system_json})
-        #
-        #
-        # # #mocked data test for success
-        # # system_json = {
-        # #     "system_id": 111111,
-        # #     "system_uid": "2wdf2tytpw",
-        # #     "name": "Zhibo System",
-        # #     "description": "UI Zhibo API System Description",
-        # #     "location_lat": 42.33866,
-        # #     "location_lng": -71.092186,
-        # #     "status": 0
-        # # }
-        # print system_json
-        # #systemJSONObject = json.dumps({'user': 57, 'system': system_json})
-        # with get_app().test_client() as client:
-        #     response = client.post('/social/aqxapi/v1/system', data=systemJSONObject, content_type='application/json')
-        #     #print response
-        #     result = json.loads(response.data)
-        #     #print result
-        return render_template("system.html")
-    except Exception as ex:
-        print "Exception : " + str(ex.message)
-
-
-        # return uiAPI.create_system(system)
-
-
-######################################################################
 # API call to get all user systems
 ######################################################################
 
@@ -386,33 +265,8 @@ def get_system_id_and_system_uid_with_user_id_and_system_name(user_id, name):
 
 
 ######################################################################
-# Helper functions to parse JSON properly into dicts (with byte Strings)
-######################################################################
-def json_loads_byteified(json_text):
-    return _byteify(
-        json.loads(json_text, object_hook=_byteify),
-        ignore_dicts=True
-    )
-
-def _byteify(data, ignore_dicts=False):
-    # if this is a unicode string, return its string representation
-    if isinstance(data, unicode):
-        return data.encode('utf-8')
-    # if this is a list of values, return list of byteified values
-    if isinstance(data, list):
-        return [_byteify(item, ignore_dicts=True) for item in data]
-    # if this is a dictionary, return dictionary of byteified keys and values
-    # but only if we haven't already byteified it
-    if isinstance(data, dict) and not ignore_dicts:
-        return {
-            _byteify(key, ignore_dicts=True): _byteify(value, ignore_dicts=True)
-            for key, value in data.iteritems()
-            }
-    # if it's anything else, return it in its original form
-    return data
-
-
 # API Overhaul
+######################################################################
 
 @frontend.route('/aqxapi/v2/user/<googleID>', methods=['GET'])
 def getUserID(googleID):

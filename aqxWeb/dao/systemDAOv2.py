@@ -107,7 +107,6 @@ class systemDAO:
                   'VALUES (%s, %s, %s, %s, %s, %s, %s)')
 
         values1 = (userID, name, systemUID, startDate, techniqueID, locationLat, locationLng)
-        print(values1)
 
         # The following insert into system_gb_media table, system_aquatic_organisms, and, system_crops
 
@@ -123,9 +122,6 @@ class systemDAO:
             cursor.execute(query1, values1)
             self.conn.commit()
             systemID = cursor.lastrowid
-            print(gbMedia)
-            print(crops)
-            print(organisms)
             for medium in gbMedia:
                 values2 = (systemID, medium['ID'], medium['count'])
                 cursor.execute(query2, values2)
@@ -142,7 +138,7 @@ class systemDAO:
         finally:
             cursor.close()
 
-        return systemID
+        return {'userID': userID, 'systemID': systemID, 'systemUID': systemUID}
 
 
     def getSystemsForUser(self, userID):
