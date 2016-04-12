@@ -307,6 +307,10 @@ def createSystem():
     system['userID'] = session['uid']
     return api.createSystem(system)
 
+@frontend.route('/aqxapi/v2/system/<systemUID>', methods=['DELETE'])
+def deleteSystem(systemUID):
+    api = API(get_conn())
+    return api.deleteSystem(systemUID)
 
 @frontend.route('/aqxapi/v2/enums', methods=['GET'])
 def getEnums():
