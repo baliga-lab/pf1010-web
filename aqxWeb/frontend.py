@@ -62,13 +62,7 @@ def system():
 
 @frontend.route('/create_system_page')
 def create_system_page():
-    metadata_json = get_all_aqx_metadata()
-    if 'error' in metadata_json:
-        print metadata_json['error']
-        raise AttributeError("Error processing API call for system metadata.")
-
-    metadata_dict = json_loads_byteified(metadata_json)['filters']
-
+    enums = json.loads(getEnums())
     return render_template('create_system.html', **locals())
 
 
@@ -198,6 +192,9 @@ def check_system_exists(system_uid):
 ######################################################################
 # API call to create system both in ui and sc database
 ######################################################################
+
+
+
 
 @frontend.route('/create_system', methods=['POST'])
 def create_system():
@@ -438,3 +435,8 @@ def createSystem():
     system = request.get_json()
     system['userID'] = session['uid']
     return api.createSystem(system)
+
+@frontend.route('/aqxapi/v2/enums', methods=['GET'])
+def getEnums():
+    api = API(get_conn())
+    return api.getEnums()
