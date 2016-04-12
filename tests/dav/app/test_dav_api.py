@@ -35,9 +35,10 @@ class DavApiTest(unittest.TestCase):
 
     # get all measurement types
     def test_get_all_measurement_names(self):
-        response = self.app.get('/dav/aqxapi/get/system/measurement_types')
-        result = json.loads(response.data)
-        self.assertNotEqual(len(result), 0, 'measurements exist')
+        actual_result = analytics_views.get_all_measurement_names()
+        print actual_result
+        expected_result = '{"types": [["alkalinity"], ["ammonium"], ["chlorine"], ["hardness"], ["light"], ["nitrate"], ["nitrite"], ["o2"], ["ph"], ["temp"], ["time"], "time"]}'
+        self.assertEquals(expected_result, actual_result)
 
     # insert system measurement - current time
     def test_put_system_measurement_new(self):

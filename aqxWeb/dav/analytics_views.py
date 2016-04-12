@@ -192,6 +192,7 @@ def put_system_measurement():
 
 ######################################################################
 # API to get the readings of the time series plot
+# the measurements are sorted in order of the date (ascending)
 ######################################################################
 
 def get_readings_for_tsplot(system_uid_list, msr_id_list,status_id):
@@ -199,6 +200,10 @@ def get_readings_for_tsplot(system_uid_list, msr_id_list,status_id):
     return dav_api.get_readings_for_plot(system_uid_list, msr_id_list,status_id)
 
 
+######################################################################
+# API to get the readings of the time series plot
+# the measurements are sorted in order of the date (ascending)
+######################################################################
 @dav.route('/aqxapi/v1/measurements/plot', methods=['POST'])
 def get_readings_for_plot():
     dav_api = DavAPI(get_conn())
