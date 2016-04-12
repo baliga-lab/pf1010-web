@@ -14,6 +14,9 @@
     <link rel="stylesheet" type="text/css" href="{{ url_for('frontend.static', filename='css/style.css') }}">
 {% endblock %}
 
+{% block body_attribs %}
+    ng-app="aqx"
+{% endblock body_attribs %}
 {% block body %}
 
     {% block navbar %}
