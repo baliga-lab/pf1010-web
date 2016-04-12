@@ -5,10 +5,7 @@ var app = angular.module('aqx');
 app.controller('CreateSystemController', function ($scope, $http) {
 
     $scope.system = {
-        location: {
-            lat: null,
-            lng: null
-        },
+        location: {},
         gbMedia: [{}],
         crops: [{}],
         organisms: [{}]

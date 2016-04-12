@@ -108,13 +108,22 @@ class systemDAO:
 
         values1 = (userID, name, systemUID, startDate, techniqueID, locationLat, locationLng)
 
-        # The following insert into system_gb_media table, system_aquatic_organisms, and, system_crops
+        # The following insert into system_gb_media table, system_aquatic_organisms, and system_crops
 
-        query2 = ('INSERT INTO system_gb_media VALUES (%s, %s, %s)')
+        query2 = ('INSERT INTO system_gb_media '
+                  'VALUES (%s, %s, %s)')
 
-        query3 = ('INSERT INTO system_aquatic_organisms VALUES (%s, %s, %s)')
+        query3 = ('INSERT INTO system_aquatic_organisms '
+                  'VALUES (%s, %s, %s)')
 
-        query4 = ('INSERT INTO system_crops VALUES (%s, %s, %s)')
+        query4 = ('INSERT INTO system_crops '
+                  'VALUES (%s, %s, %s)')
+
+        # The following create measurement tables
+
+        measurements = ['ammonium', 'o2', 'ph', 'nitrate', 'light', 'temp', 'nitrite', 'chlorine', 'hardness', 'alkalinity']
+        names = list(map(lambda m: 'aqxs_' + m + '_' + systemUID, measurements))
+        query5 = 'CREATE TABLE %s (time TIMESTAMP PRIMARY KEY NOT NULL, value DECIMAL(13,10) NOT NULL)'
 
         # Execute the queries
 
@@ -131,6 +140,8 @@ class systemDAO:
             for crop in crops:
                 values4 = (systemID, crop['ID'], crop['count'])
                 cursor.execute(query4, values4)
+            for name in names:
+                cursor.execute(query5 % name)
             self.conn.commit()
         except:
             self.conn.rollback()
@@ -150,10 +161,73 @@ class systemDAO:
 
         try:
             cursor.execute(query, (userID,))
-            result = cursor.fetchall()
+            results = cursor.fetchall()
+        except:
+            raise
+        finally:
+            cursor.close()
+
+        return results
+
+
+    def getSystemID(self, systemUID):
+        cursor = self.conn.cursor()
+
+        query = ('SELECT s.id '
+                 'FROM systems s '
+                 'WHERE s.system_uid = %s')
+
+        try:
+            cursor.execute(query, (systemUID,))
+            result = cursor.fetchone()
         except:
             raise
         finally:
             cursor.close()
 
         return result
+
+
+    def deleteSystem(self, systemUID):
+        cursor = self.conn.cursor()
+
+        systemID = self.getSystemID(systemUID)
+
+        # The following deletes from system table
+
+        query1 = ('DELETE FROM systems s '
+                  'WHERE s.system_uid = %s '
+                  'LIMIT 1;')
+
+        # The following delete from system_gb_media table, system_aquatic_organisms, and system_crops
+
+        query2 = ('DELETE FROM system_gb_media sgm '
+                  'WHERE sgm.system_id = %s;')
+
+        query3 = ('DELETE FROM system_aquatic_organisms sao '
+                  'WHERE sao.system_id = %s;')
+
+        query4 = ('DELETE FROM system_crops_media sc '
+                  'WHERE sc.system_id = %s;')
+
+        # The following will delete measurement tables
+
+        measurements = ['ammonium', 'o2', 'ph', 'nitrate', 'light', 'temp', 'nitrite', 'chlorine', 'hardness', 'alkalinity']
+        names = list(map(lambda m: 'aqxs_' + m + '_' + systemUID, measurements))
+        query5 = 'DROP TABLE IF EXISTS %s'
+
+        try:
+            cursor.execute(query1, (systemUID,))
+            cursor.execute(query2, (systemID,))
+            cursor.execute(query3, (systemID,))
+            cursor.execute(query4, (systemID,))
+            for name in names:
+                cursor.execute(query5 % name)
+            self.conn.commit()
+        except:
+            self.conn.rollback()
+            raise
+        finally:
+            cursor.close()
+
+        return True

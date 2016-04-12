@@ -76,6 +76,10 @@ class API:
         systemInfo = self.systemDAO.createSystem(system)
         return json.dumps(systemInfo)
 
+    def deleteSystem(self, systemUID):
+        success = self.systemDAO.deleteSystem(systemUID)
+        return json.dumps({'success': success})
+
     # UserAPI
 
     def getUserID(self, googleID):
