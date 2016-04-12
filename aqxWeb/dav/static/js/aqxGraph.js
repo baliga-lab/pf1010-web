@@ -67,11 +67,10 @@ function updateChartDataPointsHC(chart, xType, yTypeList, graphType){
     // and add the new dataPoints to the systems_and_measurements object
     if (measurementsToFetch.length > 0) {
         var measurementIDList = [];
-        var statusID = document.getElementById("selectStatus").value;
         _.each(measurementsToFetch, function(measurement){
             measurementIDList.push(measurement_types_and_info[measurement].id);
         });
-        callAPIForNewData(measurementIDList, statusID);
+        callAPIForNewData(measurementIDList, defaultStatus);
     }
 
     // Handle the x axis, for now just using time
@@ -295,11 +294,14 @@ function clearOldGraphValues(chart) {
  * Returns the Y Axis text selector to default
  */
 function setDefaultYAxis() {
-    $("#selectYAxis").dropdown({
-        maxSelections: MAXSELECTIONS
+    $("#selectYAxis").chosen({
+        max_selected_options: MAXSELECTIONS,
+        no_results_text: "Oops, nothing found!",
+        width: "100%"
     });
-    $("#selectYAxis").dropdown('clear');
-    $("#selectYAxis").dropdown('set selected', DEFAULT_Y_VALUE);
+    $('#selectYAxis').val('');
+    $('#selectYAxis option[value='+DEFAULT_Y_VALUE+']').prop('selected', true);
+    $('#selectYAxis').trigger("chosen:updated");
 }
 
 
@@ -449,19 +451,23 @@ function toggleSplitMode(){
  ################################################################################################################### */
 
 /**
- *  main - Sets behaviors for Submit and Reset buttons, populates x-axis dropdown, and checks nitrate as default y-axis
+ *  main - Sets behaviors for Submit and Reset buttons, populates y-axis dropdown, and checks nitrate as default y-axis
  */
 function main(){
 
     // Select the default y-axis value
     setDefaultYAxis();
 
+    // Setup overlay/split toggle
     $('.toggle').toggles({text:{on:'OVERLAY',off:'SPLIT'}, on:true});
 
+    // Disable when graphing only one system
     if(_.isEqual(selectedSystemIDs.length, 1)) {
         $('.toggle').toggleClass('disabled', true);
     }
 
+    // Hide split graphs and show overlay when active
+    // When deactivated, create split graphs an hide overlay graph
     $('.toggle').on('toggle', function(e, active) {
         if (active) {
             $('.split-chart').hide();
@@ -494,12 +500,9 @@ function main(){
             return this.defaultSelected;
         });
 
-        $('#selectStatus option').prop(SELECTED, function() {
-            return this.defaultSelected;
-        });
-
         // Reset Graph Type selection to default
         $('#selectGraphType option').prop(SELECTED, function() {
+            return this.defaultSelected;
         });
 
         $('#alert_placeholder').empty();

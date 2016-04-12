@@ -4,6 +4,8 @@
     {{ super() }}
     <link rel="stylesheet" href="{{ url_for('dav.static', filename='css/explore.css') }}">
     <link rel="stylesheet" href="{{ url_for('dav.static', filename='css/semantic.min.css') }}">
+    <link rel="stylesheet" href="{{ url_for('dav.static', filename='css/chosen.min.css') }}">
+
 {% endblock %}
 
 {% block title %}Explore{% endblock %}
@@ -56,12 +58,8 @@
                 <input class="btn btn-blue" type="button" id="resetbtn" name="reset" value="Reset" onclick="reset()"/>
             </div>
             <div class="form-group" style="width: 75%; padding-top:2%;">
-                <label class="control-label">Select Systems to Analyze</label>
-                <select class="ui fluid search dropdown" multiple="" id="analyzeSystem">
-                    {% for sys in systems | sort(attribute='system_name') %}
-                        <option value="{{sys['system_uid']}}">{{sys['system_name']}}</option>
-                    {% endfor %}
-                </select>
+                 <label class="control-label">Select Systems to Analyze</label>
+                 <select class="chosen-select" multiple id="analyzeSystem"> </select>
             </div>
             {% if session.uid %}
                 <div class="form-group" style="width: 75%; padding-top:2%;">
@@ -86,6 +84,7 @@
     <script type="text/javascript" src="{{ url_for('dav.static', filename='js/markerclusterer-min.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('dav.static', filename='js/oms-min.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('dav.static', filename='js/semantic.min.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('dav.static', filename='js/chosen.jquery.min.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('dav.static', filename='js/aqxmap.js') }}"></script>
     <script>
         var statuses = ['Established', 'Pre-Established', 'Suspended', 'Terminated'];
@@ -96,6 +95,12 @@
             system.status = statuses[Math.floor(Math.random() * (4))];
             if(_.isEqual(system.status, statuses[0])) {
                 count = count + 1;
+            }
+            //TODO: Should be removed
+            if(count%2 == 0) {
+                system.user_id = 1;
+            } else {
+                system.user_id = 2;
             }
         });
 
