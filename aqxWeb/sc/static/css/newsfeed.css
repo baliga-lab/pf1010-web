@@ -3,16 +3,6 @@
 Newsfeed CSS
 
 ***************/
-.main {
-    top: -40px;
-}
-
-@media (min-width: 768px) {
-    .main {
-        top:10px
-    }
-}
-
 .like {
     float:right;
     margin-right: 2%;
