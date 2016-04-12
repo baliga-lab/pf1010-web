@@ -111,7 +111,6 @@ def analyze_graph():
 
 # get_all_systems_info() - It returns the system information as a JSON
 #                          object.
-# @dav.route('/aqxapi/get/systems/metadata')
 def get_all_systems_info():
     dav_api = DavAPI(get_conn())
     return dav_api.get_all_systems_info()
