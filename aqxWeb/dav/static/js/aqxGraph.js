@@ -302,9 +302,6 @@ function setDefaultYAxis() {
     $('#selectYAxis').val('');
     $('#selectYAxis option[value='+DEFAULT_Y_VALUE+']').prop('selected', true);
     $('#selectYAxis').trigger("chosen:updated");
-    $('#selectYAxis').bind("chosen:maxselected", function () {
-        $('#alert_placeholder').html(getAlertHTMLString("You can select up to " + MAX_SYSTEM_SELECTED + " systems", 'danger'));
-    });
 }
 
 
@@ -518,6 +515,10 @@ function main(){
         setDefaultYAxis();
 
         drawChart();
+    });
+
+    $('#selectYAxis').bind("chosen:maxselected", function () {
+        $('#alert_placeholder').html(getAlertHTMLString("You can select up to " + MAXSELECTIONS + " systems", 'danger'));
     });
 }
 
