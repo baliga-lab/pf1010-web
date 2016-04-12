@@ -1,6 +1,7 @@
 from aqxWeb.dao.userDAOv2 import userDAO
 from aqxWeb.dao.systemDAOv2 import systemDAO
 from aqxWeb.dao.metadataDAOv2 import metadataDAO
+from aqxWeb.dao.mailingListDAO import mailingListDAO
 
 from collections import defaultdict
 
@@ -13,6 +14,7 @@ class API:
         self.systemDAO = systemDAO(self.conn)
         self.userDAO = userDAO(self.conn)
         self.metadataDAO = metadataDAO(self.conn)
+        self.mailingDAO = mailingListDAO(self.conn)
 
     # SystemAPI
 
@@ -105,3 +107,11 @@ class API:
                 'name': result[2]
             })
         return json.dumps(enums)
+
+
+    # Mailing List API
+
+    # addEmail will add email address to mailing list table in database
+    def addEmail(self, email):
+        emailInfo = self.mailingDAO.addEmail(email)
+        return json.dumps(emailInfo)
