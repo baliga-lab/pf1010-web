@@ -3,6 +3,7 @@
 {% block styles %}
     {{ super() }}
     <link rel="stylesheet" type="text/css" href="{{ url_for('frontend.static', filename='css/system.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('frontend.static', filename='css/annotations.css') }}">
 {% endblock %}
 
 {% block title %}System{% endblock %}
@@ -24,12 +25,10 @@
                 <li id="annotate-li">
                     <a href="javascript:void(0)" title="Annotations" id="annotation-link">Annotations</a>
                 </li>
+                {# STILL DOING NOTES?
                 <li id="notes-li">
                     <a href="javascript:void(0)" title="Notes" id="notes-link">Notes</a>
-                </li>
-                <li id="connect-li">
-                    <a href="javascript:void(0)" title="Connect" id="connect-link">Connect</a>
-                </li>
+                </li>#}
                 {# STILL DOING IMPORTS?
                 <li id="import-li">
                     <a href="javascript:void(0)" title="Alerts" id="import-link">Import</a>
@@ -49,12 +48,9 @@
         <div id="annotation-panel" class="panel hidden">
             {% include "sys_annotations.html" %}
         </div>
-        <div id="notes-panel" class="panel hidden">
+        {#<div id="notes-panel" class="panel hidden">
             {% include "sys_notes.html" %}
-        </div>
-        <div id="connect-panel" class="panel hidden">
-            {% include "sys_analytics.html" %}
-        </div>
+        </div>#}
         {#<div id="import-panel" class="panel hidden">
             {% include "sys_import.html" %}
         </div>#}
@@ -66,4 +62,5 @@
     {{ super() }}
     <script src="{{ url_for('frontend.static', filename='js/jquery.slides.min.js') }}"></script>
     <script src="{{ url_for('frontend.static', filename='js/systems.js') }}"></script>
+    <script src="{{ url_for('frontend.static', filename='js/annotation.js') }}"></script>
 {% endblock scripts %}
