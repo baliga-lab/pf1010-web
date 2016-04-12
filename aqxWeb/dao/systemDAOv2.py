@@ -20,7 +20,7 @@ class systemDAO:
             cursor.execute(query, (system_uid,))
             result = cursor.fetchone()
         except:
-            return "Error getting system"
+            raise
         finally:
             cursor.close()
 
@@ -39,7 +39,7 @@ class systemDAO:
             cursor.execute(query, (system_id,))
             results = cursor.fetchall()
         except:
-            return "Error getting system's organisms"
+            raise
         finally:
             cursor.close()
 
@@ -58,7 +58,7 @@ class systemDAO:
             cursor.execute(query, (system_id,))
             results = cursor.fetchall()
         except:
-            return "Error getting system's crops"
+            raise
         finally:
             cursor.close()
 
@@ -77,7 +77,7 @@ class systemDAO:
             cursor.execute(query, (system_id,))
             results = cursor.fetchall()
         except:
-            return "Error getting system's growbed media"
+            raise
         finally:
             cursor.close()
 
@@ -92,8 +92,9 @@ class systemDAO:
         systemUID = str(uuid.uuid1().hex)
         startDate = system['startDate']
         techniqueID = system['techniqueID']
-        locationLat = system['lat']
-        locationLng = system['lng']
+        location = system['location']
+        locationLat = location['lat']
+        locationLng = location['lng']
         gbMedia = system['gbMedia']
         crops = system['crops']
         organisms = system['organisms']
@@ -102,10 +103,11 @@ class systemDAO:
 
         # The following inserts into systems table
 
-        query1 = ("INSERT INTO system ('user_id', 'name', 'system_uid', 'start_date', 'aqx_technique_id', 'location_lat', 'location_lng')"
-                  "VALUES (%s, %s, %s, %s, %s, %s, %s)")
+        query1 = ('INSERT INTO systems (user_id, name, system_uid, start_date, aqx_technique_id, location_lat, location_lng)'
+                  'VALUES (%s, %s, %s, %s, %s, %s, %s)')
 
         values1 = (userID, name, systemUID, startDate, techniqueID, locationLat, locationLng)
+        print(values1)
 
         # The following insert into system_gb_media table, system_aquatic_organisms, and, system_crops
 
@@ -121,6 +123,9 @@ class systemDAO:
             cursor.execute(query1, values1)
             self.conn.commit()
             systemID = cursor.lastrowid
+            print(gbMedia)
+            print(crops)
+            print(organisms)
             for medium in gbMedia:
                 values2 = (systemID, medium['ID'], medium['count'])
                 cursor.execute(query2, values2)
@@ -133,7 +138,7 @@ class systemDAO:
             self.conn.commit()
         except:
             self.conn.rollback()
-            return 'Error adding system'
+            raise
         finally:
             cursor.close()
 
@@ -151,7 +156,7 @@ class systemDAO:
             cursor.execute(query, (userID,))
             result = cursor.fetchall()
         except:
-            return 'Error getting system'
+            raise
         finally:
             cursor.close()
 

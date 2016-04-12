@@ -1,5 +1,8 @@
 from aqxWeb.dao.userDAOv2 import userDAO
 from aqxWeb.dao.systemDAOv2 import systemDAO
+from aqxWeb.dao.metadataDAOv2 import metadataDAO
+
+from collections import defaultdict
 
 import json
 
@@ -9,6 +12,7 @@ class API:
         self.conn = conn
         self.systemDAO = systemDAO(self.conn)
         self.userDAO = userDAO(self.conn)
+        self.metadataDAO = metadataDAO(self.conn)
 
     # SystemAPI
 
@@ -81,3 +85,19 @@ class API:
     def hasUser(self, googleID):
         count = self.userDAO.hasUser(googleID)
         return json.dumps({'hasUser': count == 1})
+
+    # Metadata API
+
+    def getEnums(self):
+        results = self.metadataDAO.getEnums()
+        enums = defaultdict(list)
+        for result in results:
+            table = result[0]
+            enums[table] = []
+        for result in results:
+            table = result[0]
+            enums[table].append({
+                'ID': result[1],
+                'name': result[2]
+            })
+        return json.dumps(enums)

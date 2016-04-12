@@ -14,7 +14,7 @@ class userDAO:
             cursor.execute(query, (googleID,))
             result = cursor.fetchone()
         except:
-            return 'Error getting user'
+            raise
         finally:
             cursor.close()
 
@@ -32,7 +32,7 @@ class userDAO:
             cursor.execute(query, (googleID,))
             result = cursor.fetchone()
         except:
-            return 'Error getting user'
+            raise
         finally:
             cursor.close()
 
@@ -42,15 +42,15 @@ class userDAO:
     def createUser(self, googleProfile):
         cursor = self.conn.cursor()
 
-        query = ("INSERT INTO users ('google_id', 'email')"
-                 "VALUES (%s, %s)")
+        query = ('INSERT INTO users (google_id, email)'
+                 'VALUES (%s, %s)')
 
         values = (googleProfile.id, googleProfile.email)
 
         try:
             cursor.execute(query, values)
         except:
-            return 'Error creating user'
+            raise
         finally:
             cursor.close()
 
