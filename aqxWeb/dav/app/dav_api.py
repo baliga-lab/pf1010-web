@@ -281,6 +281,10 @@ class DavAPI:
 
         # Retrieve the measurements calling DAO
         data_retrieved = self.mea.get_measurements(system_uid_list, measurement_name_list,status_id)
+
+        # Retrieve the annotations
+        annotations = self.mea.get_annotations(system_uid_list)
+
         status = self.mea.get_status_type(status_id)
 
         if 'error' in data_retrieved:
@@ -290,7 +294,8 @@ class DavAPI:
 
         for system_uid in system_uid_list:
             readings = data_retrieved[system_uid]
-            system_measurement_json = self.form_system_measurement_json(system_uid, readings,
+
+            system_measurement_json = self.form_system_measurement_json(system_uid, readings, annotations[system_uid],
                                                                         measurement_name_list,status)
             system_measurement_list.append(system_measurement_json)
 
@@ -305,7 +310,7 @@ class DavAPI:
     # form_system_measurement_json  - It returns the json for all information needed
     # for the plot for the input system_uid
     #
-    def form_system_measurement_json(self, system_uid, readings, measurement_type_list,status):
+    def form_system_measurement_json(self, system_uid, readings,annotations, measurement_type_list,status):
         measurement_list = []
 
         # For each measurement type, form the list of readings
@@ -316,6 +321,9 @@ class DavAPI:
             if readings:
                 if readings[measurement_type]:
                     value_list = self.form_values_list(self, measurement_type, readings[measurement_type])
+
+                    if value_list :
+                        value_list = self.update_value_list(value_list,annotations)
                 else:
                     value_list = []
 
@@ -412,28 +420,108 @@ class DavAPI:
 
         return value_list
 
-    ###############################################################################
+    #####################################################################################
     # Build the values object
-    ###############################################################################
-    # param x : x value of reading
-    # param y  : y value of reading
+    ####################################################################################
+    # param x             : x value of reading
+    # param y             : y value of reading
     # param reading_date  : date of reading
-    #  build_values - It returns the values object formed from x,y and reading date
+    # build_values        : It returns the values object formed from x,y and reading date
     @staticmethod
     def build_values(x, y, reading_date):
         values = {
             "x": x,
             "y": round(y, 2),
-            "date": str(reading_date)
+            #"date": str(reading_date)
+            "date": reading_date
+
         }
+        return values
+
+    ###############################################################################
+    # Update value list to add annotations and convert date to string
+    ###############################################################################
+    # param value_list  : list of all reading values
+    # param annotations : list of associated annotations
+    # update_value_list : It returns the updated value list after adding any eligible .
+    #                     annotation and converting the date to string format.
+    #                     Annotation is added to the closest reading available after
+    #                     the annotation timestamp. So there can be multiple
+    #                     annotations associated with one reading.
+
+    def update_value_list(self,value_list,annotations):
+        updated_value_list = []
+        index=0
+
+        if annotations:
+            cur_annotation = annotations[index]
+            annotation_date = cur_annotation[2]
+
+            for value in value_list:
+                if(value["date"] > annotation_date) and index < len(annotations):
+                    annotation_list = []
+
+                    while(value["date"] > annotation_date)  :
+                        annotation_list.append(cur_annotation)
+                        index= index +1
+
+                        if(index < len(annotations)):
+                            cur_annotation = annotations[index]
+                            annotation_date = cur_annotation[2]
+                        else:
+                            break
+
+                    updated_value = self.update_values(value,annotation_list)
+                    updated_value_list.append(updated_value)
+                else:
+                     updated_value = self.update_values(value,None)
+                     updated_value_list.append(updated_value)
+        else:
+            for value in value_list:
+                updated_value = self.update_values(value,None)
+                updated_value_list.append(updated_value)
+
+        return updated_value_list
+
+    ###############################################################################
+    # Update the values object
+    ###############################################################################
+    # param value       : value to be updated
+    # param annotations : annotations associated with the values
+    # update_values     : It returns the updated values object. Values are modified to
+    #                     to include any associated annotations and date in string format
+    @staticmethod
+    def update_values(value,annotations):
+        if(annotations is None):
+            values = {
+                "x": value["x"],
+                "y": value["y"],
+                "date": str(value["date"])
+            }
+        else:
+            annotation_list = []
+            for annotation in annotations:
+                obj = {
+                    "id" : annotation[1],
+                    "date" : str(annotation[2])
+                }
+                annotation_list.append(obj)
+
+            values = {
+                "x": value["x"],
+                "y": value["y"],
+                "date": str(value["date"]),
+                "annotations" : annotation_list
+            }
+
         return values
 
     ###############################################################################
     # Get the system name
     ###############################################################################
-    # param conn : db connection
+    # param conn       : db connection
     # param  system_id : Unique id of the system
-    # get_system_name  - It returns the name of the system
+    # get_system_name  : It returns the name of the system
     #
     @staticmethod
     def get_system_name(conn, system_id):

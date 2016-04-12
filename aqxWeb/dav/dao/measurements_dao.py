@@ -158,7 +158,7 @@ class MeasurementsDAO:
             for system in systems:
                 time_ranges = self.get_time_ranges_for_status(system,status_id);
 
-                query = self.create_query(system, measurements,time_ranges)
+                query = self.create_measurement_query(system, measurements,time_ranges)
                 cursor.execute(query)
                 payload[system] = cursor.fetchall()
 
@@ -189,13 +189,12 @@ class MeasurementsDAO:
 
 
     ###############################################################################
-
-    # create_query: method to create query to fetch measurements from a system
+    # create_measurement_query: method to create query to fetch measurements from a system
     # param system system_id
     # param measurements list of measurements
     # return query
     @staticmethod
-    def create_query(system, measurements,time_ranges):
+    def create_measurement_query(system, measurements,time_ranges):
         query = ""
         for i in range(0, len(measurements)):
             # query += """select {prefix}, {prefix}.time as time,
@@ -218,46 +217,38 @@ class MeasurementsDAO:
 
             else:
                 query += "1=1"
-        # " where time between " + start_time + " and " + end_time
 
             if i == len(measurements) - 1:
                 query += " order by time "
             else:
                 query += " union "
 
-        print query
         return query
 
     ###############################################################################
-
-    # get_all_measurement_info: method to fetch the id, name, units, min and max
-    #                           of all the measurements
-    # returns the id, name, units, min, max of all the measurements
+    # get_time_ranges_for_status: method to get the time range for measurements for
+    #                            a  system_uid for a phase
+    # param system_id the system's unique id
+    # param status_id status_id for system
+    # returns the start time and end time for measurements for a given system_uid
+    #  and status
     def get_time_ranges_for_status(self,system_id,status_id):
         cursor = self.conn.cursor()
         query_time_ranges = ("select start_time, end_time from system_status"  \
                              + " where system_uid = %s"
                              + " and sys_status_id = %s" )
         try:
-            print query_time_ranges
             cursor.execute(query_time_ranges,(system_id,status_id,))
             time_ranges = cursor.fetchall()
-
-            # time_range_list = []
-            # for time_range in time_ranges:
-            #     time_range_list.append(time_range)
 
         except Error as e:
             return {'error': e.msg}
         finally:
             cursor.close()
-        print time_ranges
         return time_ranges
 
     ###############################################################################
 
-
-    #
 
     def get_status_type(self, status_id):
         cursor = self.conn.cursor()
@@ -274,10 +265,11 @@ class MeasurementsDAO:
             cursor.close()
         return status_type
 
-
+    ###############################################################################
     # get_all_measurement_info: method to fetch the id, name, units, min and max
     #                           of all the measurements
     # returns the id, name, units, min, max of all the measurements
+    ###############################################################################
     def get_all_measurement_info(self):
         cursor = self.conn.cursor()
         query_mea_info = ("SELECT * "
@@ -290,6 +282,56 @@ class MeasurementsDAO:
         finally:
             cursor.close()
         return measurement_info
+
+    ###############################################################################
+    # get_annotations: method to fetch annotations for multiple systems
+    # param system list of system_id
+    # returns dictionary with system_id as key and list of annotations[annotation_id,timestamp]
+
+    def get_annotations(self, systems):
+        annotations = {}
+        cursor = self.conn.cursor()
+        try:
+             system_id_list_str = self.form_in_list(systems)
+
+             query =  "select s.system_uid, annotation_id, timestamp from system_annotations sa" + \
+                      " join systems s on" + \
+                      " s.id = sa.system_id" +\
+                      " where s.system_uid in " + system_id_list_str + \
+                      " order by s.system_uid,timestamp"
+
+             cursor.execute(query)
+             annotations_fetched = cursor.fetchall()
+
+             for s in systems:
+                 annotations[s] = []
+
+             for annotation in annotations_fetched:
+                 system_id = annotation[0]
+                 annotations[system_id].append(annotation)
+
+             return annotations
+
+        except Error as e:
+            return {'error': e.msg + "system: :" + str(systems)}
+        finally:
+            cursor.close()
+
+    ###############################################################################
+    # form_in_list: method to form the the "in" string from given list
+    # param id_list list of system_ids
+    # returns the string formed from the given id_list
+
+    def form_in_list(self,id_list):
+        id_list_str = "("
+        for i in range(0, len(id_list)):
+            id_list_str = id_list_str + "'" + id_list[i] + "',"
+
+        id_list_str = list(id_list_str)
+        id_list_str[len(id_list_str) - 1] = ")"
+
+        id_list_str = ''.join(id_list_str)
+        return id_list_str
 
     # Destructor to close the self connection
     def __del__(self):
