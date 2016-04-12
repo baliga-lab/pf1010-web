@@ -31,8 +31,8 @@ google = oauth.remote_app('google',
                           access_token_url='https://accounts.google.com/o/oauth2/token',
                           access_token_method='POST',
                           access_token_params={'grant_type': 'authorization_code'},
-                          consumer_key='757190606234-pnqru7tabom1p1hhvpm0d3c3lnjk2vv4.apps.googleusercontent.com',
-                          consumer_secret='wklqAsOoVtn44AP-EIePEGmQ')
+                          consumer_key='942461862574-ghm0gs1j16m730tgd1pct5pd5kfv7akk.apps.googleusercontent.com',
+                          consumer_secret='pb7FUHfE7Dmrh8XMAjt6Gz1j')
 
 social = Blueprint('social', __name__, template_folder='templates', static_folder="static")
 
@@ -99,43 +99,6 @@ def index():
                            totalLikes=total_likes, post_owners=post_owners)
 
 
-@social.route('/login')
-#######################################################################################
-# function : login
-# purpose : renders login.html
-# parameters : None
-# returns: login.html page
-#######################################################################################
-def login():
-    return render_template('login.html')
-
-
-@social.route('/Home')
-#######################################################################################
-# function : home
-# purpose : renders userData.html
-# parameters : None
-# returns: userData.html page
-#######################################################################################
-def Home():
-    access_token = session.get('access_token')
-    if access_token is None:
-        return redirect(url_for('social.getToken'))
-
-    access_token = access_token[0]
-    from urllib2 import Request, urlopen, URLError
-
-    headers = {'Authorization': 'OAuth ' + access_token}
-    req = Request('https://www.googleapis.com/oauth2/v1/userinfo',
-                  None, headers)
-    try:
-        res = urlopen(req)
-    except URLError, e:
-        if e.code == 401:
-            # Unauthorized - bad token
-            session.pop('access_token', None)
-            return redirect(url_for('social.getToken'))
-    return redirect(url_for('social.signin'))
 
 
 @social.route('/signin')
@@ -328,7 +291,7 @@ def profile(google_id):
         else:
             result = get_sql_id(google_id)
             if not (result and result.one):
-                return redirect(url_for('social.Home'))
+                return redirect(url_for('social/Home'))
             else:
                 sql_id = result.one
                 status = User(session['uid']).check_status(session['uid'], sql_id)
