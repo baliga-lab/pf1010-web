@@ -6,7 +6,7 @@ import datetime
 import uuid
 import requests
 import json
-
+from flask import url_for
 
 ############################################################################
 # function : init_sc_app
@@ -112,6 +112,22 @@ class User:
                                                              user_type=user_type, dob=dob)
         except Exception as e:
             raise "Exception occured in function updateprofile()"
+
+
+
+ ############################################################################
+    # function : redirect_url
+    # purpose : function which redirects the user to the same page from which the
+    #            service is called
+    # params :
+    #        default : default page
+    # returns : URL
+    # Exceptions : None
+    ############################################################################
+    def redirect_url(default='social.index'):
+        return request.args.get('next') or \
+           request.referrer or \
+           url_for(default)
 
     ############################################################################
     # function : verify_password

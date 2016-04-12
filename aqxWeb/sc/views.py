@@ -313,11 +313,11 @@ def profile(google_id):
             posts = get_all_profile_posts(sql_id)
             total_likes = get_total_likes_for_posts()
             likes = get_all_recent_likes()
-
+            stop_at=3
             return render_template("profile.html", user_profile=user_profile, google_profile=google_profile,
                                    posts=posts, privacy_info=privacy, likes=likes, total_likes=total_likes,
                                    participated_systems=participated_systems, subscribed_systems=subscribed_systems,
-                                   admin_systems=admin_systems, friends=friends, status=status, sql_id=sql_id)
+                                   admin_systems=admin_systems, friends=friends, status=status, sql_id=sql_id,stop_at=stop_at)
 
     except Exception as e:
         logging.exception("Exception at view_profile: " + str(e))
@@ -439,6 +439,19 @@ def delete_friend(u_sql_id):
     flash('Friend  Deleted');
     return redirect(url_for('social.friends'))
 
+#######################################################################################
+# function : delete_friend_timeline
+# purpose : deletes friend
+# parameters : None
+# returns: returns to the caller page
+# Exception : None
+###############################################################################
+@social.route('/delete_friend_timeline/<u_sql_id>', methods=['GET', 'POST'])
+def delete_friend_timeline(u_sql_id):
+    accepted_sql_id = u_sql_id
+    User(session['uid']).delete_friend(accepted_sql_id)
+    flash('Friend  Deleted');
+    return redirect(User(session['uid']).redirect_url())
 
 #######################################################################################
 # function : myFriends
@@ -528,6 +541,20 @@ def send_friend_request(u_sql_id):
     receiver_sql_id = u_sql_id
     User(session['uid']).send_friend_request(receiver_sql_id)
     return redirect(url_for('social.friends'))
+
+#######################################################################################
+# function : send_friend_request_timeline
+# purpose : send a friend request to a user clicked on the UI
+# parameters : None
+# returns: returns to the caller page
+# Exception : None
+#######################################################################################
+@social.route('/send_friend_request_timeline/<u_sql_id>', methods=['GET', 'POST'])
+def send_friend_request_timeline(u_sql_id):
+    receiver_sql_id = u_sql_id
+    User(session['uid']).send_friend_request(receiver_sql_id)
+    return redirect(User(session['uid']).redirect_url())
+
 
 
 #######################################################################################
@@ -1087,9 +1114,8 @@ def join_leave_group():
                                 user_privilege == "GROUP_MEMBER":
                     if request.form['submit'] == 'Leave':
                         group.leave_group(google_id, group_uid)
-        return redirect(url_for('social.view_group', group_uid=group_uid))
-    else:
-        return redirect(url_for('social.index'))
+        return redirect(User(session['uid']).redirect_url())
+
 
 
 #######################################################################################
