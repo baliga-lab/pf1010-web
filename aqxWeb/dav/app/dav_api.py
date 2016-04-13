@@ -323,13 +323,15 @@ class DavAPI:
                     value_list = self.form_values_list(self, measurement_type, readings[measurement_type])
 
                     if value_list :
-                        value_list = self.update_value_list(value_list,annotations)
+                        updated = self.update_value_list(value_list,annotations)
+
                 else:
                     value_list = []
 
             measurement = {
                 "type": measurement_type,
-                "values": value_list
+                "annotation_indices": updated["annotation_index_list"],
+                "values": updated["value_list"]
             }
             measurement_list.append(measurement)
         system_measurement = {
@@ -450,16 +452,21 @@ class DavAPI:
     #                     annotations associated with one reading.
 
     def update_value_list(self,value_list,annotations):
-        updated_value_list = []
         index=0
+        updated_value_list = []
+
+        value_index=0
+        annotation_index_list = []
 
         if annotations:
             cur_annotation = annotations[index]
             annotation_date = cur_annotation[2]
 
             for value in value_list:
+
                 if(value["date"] > annotation_date) and index < len(annotations):
                     annotation_list = []
+                    annotation_index_list.append(value_index)
 
                     while(value["date"] > annotation_date)  :
                         annotation_list.append(cur_annotation)
@@ -476,12 +483,19 @@ class DavAPI:
                 else:
                      updated_value = self.update_values(value,None)
                      updated_value_list.append(updated_value)
+
+                value_index = value_index + 1
         else:
             for value in value_list:
                 updated_value = self.update_values(value,None)
                 updated_value_list.append(updated_value)
 
-        return updated_value_list
+        obj = {
+            "value_list" : updated_value_list,
+            "annotation_index_list" : annotation_index_list
+        }
+
+        return obj
 
     ###############################################################################
     # Update the values object

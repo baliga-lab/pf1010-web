@@ -287,7 +287,6 @@ class DavApiTest(unittest.TestCase):
             expected_result = f.readlines()[0]
 
         self.assertEqual(expected_result, actual_result)
-        print actual_result
 
     # negative test case, querying non existent table
 
