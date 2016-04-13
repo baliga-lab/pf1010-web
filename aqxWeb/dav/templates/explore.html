@@ -102,12 +102,6 @@
             if(_.isEqual(system.status, statuses[0])) {
                 count = count + 1;
             }
-{#            //TODO: Should be removed#}
-{#            if(count%2 == 0) {#}
-{#                system.user_id = 1;#}
-{#            } else {#}
-{#                system.user_id = 2;#}
-{#            }#}
         });
 
         $(document).ready(main(system_and_info_object));
