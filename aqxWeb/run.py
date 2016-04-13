@@ -1,18 +1,24 @@
-import os
+from flask import Flask, render_template
+from flask_bootstrap import Bootstrap
 from mysql.connector.pooling import MySQLConnectionPool
 
-from flask import Flask, render_template
-
-from dav.analytics_views import dav
-from dav.analytics_views import init_dav
-from sc.models import init_sc_app
-from sc.views import social
-
 # UI imports
-from flask_bootstrap import Bootstrap
-import frontend as ui
-from frontend import frontend
+from frontend import frontend as ui
+from services import init_app as init_ui_app
+from servicesV2 import init_app as init_ui_app2
 from nav import nav
+import views
+
+# DAV imports
+from dav.analytics_views import dav
+from dav.analytics_views import init_dav as init_dav_app
+
+# Social imports
+from sc.views import social
+from sc.models import init_sc_app
+
+import os
+
 
 os.environ['AQUAPONICS_SETTINGS'] = "system_db.cfg"
 # To hold db connection pool
@@ -21,7 +27,7 @@ app = Flask(__name__)
 app.secret_key = os.urandom(24)
 app.register_blueprint(dav, url_prefix='/dav')
 app.register_blueprint(social, url_prefix='/social')
-app.register_blueprint(frontend, url_prefix='')
+app.register_blueprint(ui, url_prefix='')
 pool = None
 # Social Component DB Configuration Settings
 app.config.from_pyfile("sc/settings.cfg")
@@ -44,10 +50,6 @@ def create_conn(app):
     pool = MySQLConnectionPool(pool_name="mypool", pool_size=app.config['POOLSIZE'], **dbconfig)
 
 
-@app.route('/')
-def index():
-    return render_template('index.html')
-
 ######################################################################
 # render error page
 ######################################################################
@@ -58,14 +60,12 @@ def page_not_found(e):
 
 # Common init method for application
 if __name__ == "__main__":
-    # Initialize the aquaponics db connection
     app.debug = True
     app.config.from_envvar('AQUAPONICS_SETTINGS')
     create_conn(app)
-    init_dav(pool)
-    ui.init_app(pool,app)
-    # Intialize the social component global app instance
+    init_ui_app(pool) # includes api v1
+    init_ui_app2(pool) # includes api v2
+    init_dav_app(pool)
     init_sc_app(app)
-    # Initialise UI's nav routing
     nav.init_app(app)
     app.run(debug=True)

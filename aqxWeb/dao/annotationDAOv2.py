@@ -19,3 +19,46 @@ class annotationDAO:
             cursor.close()
 
         return result
+
+
+    def addAnnotation(self, annotation):
+        cursor = self.conn.cursor()
+
+        systemID = annotation['systemID'],
+        annotationID = annotation['annotationID']
+        timestamp = annotation['timestamp']
+
+        query = ('INSERT INTO system_annotations sa (system_id, annotation_id, timestamp)'
+                 'VALUES (%s, %s, %s)')
+
+        values = (systemID, annotationID, timestamp)
+
+        try:
+            cursor.execute(query, values)
+            self.conn.commit()
+        except:
+            self.conn.rollback()
+            raise
+        finally:
+            cursor.close()
+
+        return cursor.lastrowid
+
+
+    def getAnnotationsForSystem(self, systemID):
+        cursor = self.conn.cursor()
+
+        query = ('SELECT a.annotation_key, a.annotation_value, a.annotation_desc, sa.timestamp '
+                 'FROM system_annotations sa '
+                 'LEFT JOIN annotations a ON sa.annotation_id = a.id'
+                 'WHERE sa.system_id = %s ')
+
+        try:
+            cursor.execute(query, (systemID,))
+            result = cursor.fetchall()
+        except:
+            raise
+        finally:
+            cursor.close()
+
+        return result

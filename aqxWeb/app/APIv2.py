@@ -10,6 +10,7 @@ import json
 
 
 class API:
+
     def __init__(self, conn):
         self.conn = conn
         self.systemDAO = systemDAO(self.conn)
@@ -18,7 +19,9 @@ class API:
         self.subscriptionDAO = subscriptionDAO(self.conn)
         self.annotationDAO = annotationDAO(self.conn)
 
+    ###########################################################################
     # SystemAPI
+    ###########################################################################
 
     def getSystem(self, systemUID):
 
@@ -84,7 +87,9 @@ class API:
         success = self.systemDAO.deleteSystem(systemUID)
         return json.dumps({'success': success})
 
+    ###########################################################################
     # UserAPI
+    ###########################################################################
 
     def getUserID(self, googleID):
         userID = self.userDAO.getUserID(googleID)
@@ -94,7 +99,17 @@ class API:
         count = self.userDAO.hasUser(googleID)
         return json.dumps({'hasUser': count == 1})
 
-    # Metadata API
+    def createUser(self, googleProfile):
+        userID = self.userDAO.createUser(googleProfile)
+        return json.dumps({'userID': userID})
+
+    def deleteUser(self, userID):
+        success = self.userDAO.deleteUser(userID)
+        return json.dumps({'success': success})
+
+    ###########################################################################
+    # MetadataAPI
+    ###########################################################################
 
     def getEnums(self):
         results = self.metadataDAO.getEnums()
@@ -109,15 +124,34 @@ class API:
             })
         return json.dumps(enums)
 
-    # Annotation API
+    ###########################################################################
+    # AnnotationAPI
+    ###########################################################################
 
     def getReadableAnnotation(self, annotationID):
         readable = self.annotationDAO.getReadableAnnotation(annotationID)
         return json.dumps(readable)
 
-    # Mailing List API
+    def addAnnotation(self, annotation):
+        rowID = self.annotationDAO.addAnnotation(annotation)
+        return json.dumps({rowID: rowID})
+
+    def getAnnotationsForSystem(self, systemID):
+        annotations = []
+        results = self.annotationDAO.getAnnotationsForSystem(systemID)
+        for result in results:
+            annotations.append({
+                'key': result[0],
+                'value': result[1],
+                'description': result[2]
+            })
+        return json.dumps(annotations)
+
+    ###########################################################################
+    # SubscriptionAPI
+    ###########################################################################
 
     def subscribe(self, email):
         subscriptionID = self.subscriptionDAO.subscribe(email)
-        return json.dumps(subscriptionID)
+        return json.dumps({subscriptionID: subscriptionID})
 

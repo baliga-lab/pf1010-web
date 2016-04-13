@@ -9,7 +9,8 @@ class metadataDAO:
         query = ("SELECT \'crops\', c.id, c.name FROM crops c UNION "
                  "SELECT \'techniques\' , t.id, t.name  FROM aqx_techniques t UNION "
                  "SELECT \'organisms\', ao.id, ao.name FROM aquatic_organisms ao UNION "
-                 "SELECT \'growbedMedia\', gm.id, gm.name FROM growbed_media gm")
+                 "SELECT \'growbedMedia\', gm.id, gm.name FROM growbed_media gm UNION "
+                 "SELECT \'statuses\', st.id, st.status_type FROM status_types st")
 
         try:
             cursor.execute(query)

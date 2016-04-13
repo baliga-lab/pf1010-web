@@ -51,8 +51,28 @@ class userDAO:
             cursor.execute(query, values)
             self.conn.commit()
         except:
+            self.conn.rollback()
             raise
         finally:
             cursor.close()
 
         return cursor.lastrowid
+
+
+    def deleteUser(self, userID):
+        cursor = self.conn.cursor()
+
+        query = ('DELETE FROM users u '
+                 'WHERE u.id = %s '
+                 'LIMIT 1')
+
+        try:
+            cursor.execute(query, (userID,))
+            self.conn.commit()
+        except:
+            self.conn.rollback()
+            raise
+        finally:
+            cursor.close()
+
+        return True

@@ -11,6 +11,6 @@ app.controller('AddEmailController', function ($scope, $http) {
         function onFailure(error) {
             console.log(error);
         }
-        $http.post('/aqxapi/v1/mailing', {email: email}).then(onSuccess, onFailure);
+        $http.post('/aqxapi/v2/mailing', {email: email}).then(onSuccess, onFailure);
     };
 });
