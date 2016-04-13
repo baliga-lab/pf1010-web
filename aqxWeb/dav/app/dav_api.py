@@ -317,22 +317,22 @@ class DavAPI:
         # For each measurement type, form the list of readings
         for measurement_type in measurement_type_list:
 
-            value_list = []
-
+            reading_obj = {
+                         "value_list" : [],
+                         "annotation_index_list" : []
+            }
             if readings:
                 if readings[measurement_type]:
                     value_list = self.form_values_list(self, measurement_type, readings[measurement_type])
 
                     if value_list :
-                        updated = self.update_value_list(value_list,annotations)
+                        reading_obj = self.update_value_list(value_list,annotations)
 
-                else:
-                    value_list = []
 
             measurement = {
                 "type": measurement_type,
-                "annotation_indices": updated["annotation_index_list"],
-                "values": updated["value_list"]
+                "annotation_indices": reading_obj["annotation_index_list"],
+                "values": reading_obj["value_list"]
             }
             measurement_list.append(measurement)
         system_measurement = {
