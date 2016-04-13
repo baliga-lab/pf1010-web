@@ -68,13 +68,15 @@
                             {# image/gif content #}
                             {% if row.post.link.endswith(".jpg") or row.post.link.endswith(".png") or row.post.link.endswith(".gif") %}
                                 <img class="attachedImg" src="{{ row.post.link }}"
-                                     onclick="window.open('{{ row.post.link }}', '_blank');"/>
+                                     onclick="window.open('{{ row.post.link }}', '_blank');" />
 
                                 {# video content #}
                             {% else %}
                                 <div class="embed-responsive embed-responsive-16by9">
                                     <iframe class="embed-responsive-item"
-                                            src="{{ row.post.link.replace("/watch?v=", "/embed/") }}" allowfullscreen>
+                                            src="{{ row.post.link.replace("/watch?v=", "/embed/")
+                                            .replace("https://vimeo.com", "https://player.vimeo.com/video") }}"
+                                            allowfullscreen>
                                         [Your browser does not support frames or is currently configured not to display
                                         frames.
                                         Please use an up-to-date browser that is capable of displaying frames.]
