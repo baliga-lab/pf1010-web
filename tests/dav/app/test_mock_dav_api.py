@@ -147,6 +147,16 @@ class DavTests(unittest.TestCase):
         result = d.get_all_measurement_info()
         self.assertEquals('{"measurement_info": {"temp": {"max": "30", "id": 10, "unit": "celsius", "min": "22"}, "light": {"max": null, "id": 5, "unit": null, "min": null}, "alkalinity": {"max": "140", "id": 1, "unit": "mg/L", "min": "60"}, "ammonium": {"max": "1", "id": 2, "unit": "mg/L", "min": "0"}, "nitrite": {"max": "0.25", "id": 7, "unit": "mg/L", "min": "0"}, "chlorine": {"max": null, "id": 3, "unit": "mg/L", "min": null}, "time": {"max": null, "id": 11, "unit": null, "min": null}, "nitrate": {"max": "150", "id": 6, "unit": "mg/L", "min": "5"}, "ph": {"max": "7.0", "id": 9, "unit": null, "min": "6.0"}, "o2": {"max": null, "id": 8, "unit": "mg/L", "min": null}, "hardness": {"max": "140", "id": 4, "unit": "mg/L", "min": "60"}}}', result)
 
+    # test get_all_systems_info
+    def test_get_all_systems_info(self):
+        d = DavAPI(Mock())
+        d.sys = Mock()
+        systems = [(u'5cc8402478ee11e59d5c000c29b92d09', 6, u'AQXQA', '2015-12-10', 47.6394234000, -122.3553359000, 100, u'Nutrient Film Technique (NFT)', None, None, None, u'Goldfish', 10)]
+        d.sys.get_all_systems_info.return_value = systems
+        actual_result = d.get_all_systems_info()
+        expected_result = '{"systems": [{"status": "100", "system_uid": "5cc8402478ee11e59d5c000c29b92d09", "growbed_media": null, "crop_count": null, "organism_count": 10, "lat": "47.6394234", "lng": "-122.3553359", "organism_name": "Goldfish", "system_name": "AQXQA", "user_id": 6, "aqx_technique_name": "Nutrient Film Technique (NFT)", "crop_name": null, "start_date": "2015-12-10"}]}'
+        self.assertEquals(expected_result, actual_result)
+
 
 
 
