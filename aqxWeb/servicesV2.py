@@ -142,3 +142,10 @@ def subscribe():
 def getReadableAnnotation(annotationID):
     api = API(get_conn())
     return api.getReadableAnnotation(annotationID)
+
+
+# Get (somewhat) readable annotations map
+@frontend.route('/aqxapi/v2/annotation', methods=['GET'])
+def getReadableAnnotations():
+    api = API(get_conn())
+    return api.getReadableAnnotations()

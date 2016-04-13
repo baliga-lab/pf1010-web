@@ -21,6 +21,23 @@ class annotationDAO:
         return result
 
 
+    def getReadableAnnotations(self):
+        cursor = self.conn.cursor()
+
+        query = ('SELECT a.id, a.annotation_key, a.annotation_desc '
+                 'FROM annotations a ')
+
+        try:
+            cursor.execute(query)
+            results = cursor.fetchall()
+        except:
+            raise
+        finally:
+            cursor.close()
+
+        return results
+
+
     def addAnnotation(self, annotation):
         cursor = self.conn.cursor()
 

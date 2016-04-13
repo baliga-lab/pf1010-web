@@ -134,6 +134,13 @@ class API:
         readable = self.annotationDAO.getReadableAnnotation(annotationID)
         return json.dumps(readable)
 
+    def getReadableAnnotations(self):
+        map = {}
+        results = self.annotationDAO.getReadableAnnotations()
+        for result in results:
+            map[result[0]] = result[1:3]
+        return json.dumps(map)
+
     def addAnnotation(self, annotation):
         rowID = self.annotationDAO.addAnnotation(annotation)
         return json.dumps({rowID: rowID})
