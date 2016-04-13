@@ -53,12 +53,13 @@ class DavAPI:
                    'start_date': str(system[3]),
                    'lat': str(system[4]),
                    'lng': str(system[5]),
-                   'aqx_technique_name': system[6],
-                   'growbed_media': system[7],
-                   'crop_name': system[8],
-                   'crop_count': system[9],
-                   'organism_name': system[10],
-                   'organism_count': system[11]}
+                   'status': str(system[6]),
+                   'aqx_technique_name': system[7],
+                   'growbed_media': system[8],
+                   'crop_name': system[9],
+                   'crop_count': system[10],
+                   'organism_name': system[11],
+                   'organism_count': system[12]}
 
             systems_list.append(obj)
 
