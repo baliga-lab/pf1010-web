@@ -95,6 +95,21 @@ def addAnnotation(systemID):
     return api.addAnnotation(annotation)
 
 
+# Get latest reading of a system with given systemUID for each measurement type
+@frontend.route('/aqxapi/v2/system/<systemUID>/reading', methods=['GET'])
+def getLatestReadingsForSystem(systemUID):
+    api = API(get_conn())
+    return api.getLatestReadingsForSystem(systemUID)
+
+
+# Submit reading for given measurementType for system with given systemUID
+@frontend.route('/aqxapi/v2/system/<systemUID>/reading/<measurementType>', methods=['POST'])
+def submitReading(systemUID, measurementType):
+    api = API(get_conn())
+    reading = request.get_json()
+    return api.submitReading(measurementType, systemUID, reading)
+
+
 ######################################################################
 # Metadata Services
 ######################################################################
@@ -115,7 +130,6 @@ def getEnums():
 def subscribe():
     api = API(get_conn())
     email = request.get_json()['email']
-    print(email)
     return api.subscribe(email)
 
 
@@ -128,6 +142,3 @@ def subscribe():
 def getReadableAnnotation(annotationID):
     api = API(get_conn())
     return api.getReadableAnnotation(annotationID)
-
-
-

@@ -120,14 +120,13 @@ class systemDAO:
         # The following create measurement tables
 
         measurements = ['ammonium', 'o2', 'ph', 'nitrate', 'light', 'temp', 'nitrite', 'chlorine', 'hardness', 'alkalinity']
-        names = list(map(lambda m: 'aqxs_' + m + '_' + systemUID, measurements))
+        names = list(map(getTableName, measurements))
         query5 = 'CREATE TABLE %s (time TIMESTAMP PRIMARY KEY NOT NULL, value DECIMAL(13,10) NOT NULL)'
 
         # Execute the queries
 
         try:
             cursor.execute(query1, values1)
-            self.conn.commit()
             systemID = cursor.lastrowid
             for medium in gbMedia:
                 values2 = (systemID, medium['ID'], medium['count'])
@@ -210,7 +209,7 @@ class systemDAO:
         # The following will delete measurement tables
 
         measurements = ['ammonium', 'o2', 'ph', 'nitrate', 'light', 'temp', 'nitrite', 'chlorine', 'hardness', 'alkalinity']
-        names = list(map(lambda m: 'aqxs_' + m + '_' + systemUID, measurements))
+        names = list(map(getTableName, measurements))
         query5 = 'DROP TABLE IF EXISTS %s'
 
         try:
@@ -228,3 +227,7 @@ class systemDAO:
             cursor.close()
 
         return True
+
+
+def getTableName(measurementType, systemUID):
+    return 'aqxs_' + measurementType + '_' + systemUID

@@ -3,6 +3,7 @@ from aqxWeb.dao.systemDAOv2 import systemDAO
 from aqxWeb.dao.metadataDAOv2 import metadataDAO
 from aqxWeb.dao.annotationDAOv2 import annotationDAO
 from aqxWeb.dao.subscriptionDAO import subscriptionDAO
+from aqxWeb.dao.measurementDAOv2 import measurementDAO
 
 from collections import defaultdict
 
@@ -18,6 +19,7 @@ class API:
         self.metadataDAO = metadataDAO(self.conn)
         self.subscriptionDAO = subscriptionDAO(self.conn)
         self.annotationDAO = annotationDAO(self.conn)
+        self.measurementDAO = measurementDAO(self.conn)
 
     ###########################################################################
     # SystemAPI
@@ -155,3 +157,14 @@ class API:
         subscriptionID = self.subscriptionDAO.subscribe(email)
         return json.dumps({subscriptionID: subscriptionID})
 
+    ###########################################################################
+    # MeasurementAPI
+    ###########################################################################
+
+    def getLatestReadingsForSystem(self, systemUID):
+        readings = self.measurementDAO.getLatestReadingsForSystem(systemUID)
+        return json.dumps(readings)
+
+    def submitReading(self, measurementType, systemUID, reading):
+        rowID = self.measurementDAO.submitReading(measurementType, systemUID, reading)
+        return json.dumps({rowID: rowID})
