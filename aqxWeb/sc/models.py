@@ -288,13 +288,12 @@ class User:
         MATCH (post:Post)
         WHERE post.id = {post_id}
         SET post.text = {new_content},
-        post.modified_time = {timenow}
-        post.
+        post.modified_time = {time_now}
         RETURN post
         """
         try:
             get_graph_connection_uri().cypher.execute(query, post_id=post_id,
-                                                      new_content=new_content, timenow=timestamp())
+                                                      new_content=new_content, time_now=timestamp())
         except cypher.CypherError, cypher.CypherTransactionError:
             raise "Exception occured in function edit_post"
 
@@ -2522,8 +2521,8 @@ class Group:
     ############################################################################
     def get_group_recent_likes(self, group_id):
         query = """
-        MATCH (u:User)-[r:GROUP_LIKED]->(p:GroupPost)<-[r1:GROUP_POSTED]-(s:System)
-        WHERE s.group_uid = {group_uid}
+        MATCH (u:User)-[r:GROUP_LIKED]->(p:GroupPost)<-[r1:GROUP_POSTED]-(g:Group)
+        WHERE g.group_uid = {group_id}
         RETURN p.id as postid, u.sql_id as userid
         ORDER BY p.modified_time DESC
         """

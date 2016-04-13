@@ -1405,7 +1405,7 @@ def add_system_post():
 def add_group_post():
     user_sql_id = session.get('uid')
     if user_sql_id is None:
-        return redirect(url_for('social.groups'))
+        return redirect(url_for('social.index'))
     group = Group()
     if request.method == 'POST':
         group_uid = request.form['group_uid']
@@ -1444,7 +1444,7 @@ def delete_group_post():
     else:
         Group().delete_group_post(post_id)
         flash('Your comment has been updated')
-    return redirect(url_for('social.groups', group_uid=group_uid))
+    return redirect(url_for('social.view_group', group_uid=group_uid))
 
 #######################################################################################
 # function : edit_group_post
@@ -1466,9 +1466,9 @@ def edit_group_post():
     else:
         Group().edit_group_post(new_post, post_id)
         flash('Your comment has been updated')
-    return redirect(url_for('social.groups', group_uid=group_uid))
+    return redirect(url_for('social.view_group', group_uid=group_uid))
 
-@social.route('/like_or_unlike_post', methods=['POST'])
+
 #######################################################################################
 # function : like_or_unlike_post
 # purpose : like or unlike existing post using unique post id
@@ -1476,6 +1476,7 @@ def edit_group_post():
 # returns: calls index function
 # Exception : None
 #######################################################################################
+@social.route('/like_or_unlike_post', methods=['POST'])
 def like_or_unlike_post():
     if request.method == 'POST':
         if session.get('uid') is not None:
@@ -1632,7 +1633,7 @@ def like_or_unlike_system_post():
                     flash('You unliked the post')
     return redirect(url_for('social.view_system', system_uid=system_uid))
 
-@social.route('/like_or_unlike_group_post', methods=['POST'])
+
 #######################################################################################
 # function : like_or_unlike_group_post
 # purpose : like or unlike existing post using unique post id
@@ -1640,21 +1641,22 @@ def like_or_unlike_system_post():
 # returns: to system timeline page
 # Exception : None
 #######################################################################################
+@social.route('/like_or_unlike_group_post', methods=['POST'])
 def like_or_unlike_group_post():
     if request.method == 'POST':
         if session.get('uid') is not None:
-            postid = request.form['postid']
-            userid = session['uid']
+            post_id = request.form['postid']
+            user_id = session['uid']
             group_uid = request.form['group_uid']
             print(request.form['submit'])
-            if postid == "":
+            if post_id == "":
                 flash('Can not find the post to delete.')
             else:
                 if request.form['submit'] == 'likePost':
-                    Group().like_group_post(userid, postid)
+                    Group().like_group_post(user_id, post_id)
                     flash('You liked the post')
                 elif request.form['submit'] == 'unlikePost':
-                    Group().unlike_group_post(userid, postid)
+                    Group().unlike_group_post(user_id, post_id)
                     flash('You unliked the post')
     return redirect(url_for('social.view_group', group_uid=group_uid))
 
