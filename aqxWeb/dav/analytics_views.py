@@ -122,7 +122,6 @@ def get_all_systems_info():
 
 # get_all_aqx_metadata - It returns all the metadata that are needed
 #                        to filter the displayed systems.
-@dav.route('/aqxapi/get/systems/filters')
 def get_all_aqx_metadata():
     dav_api = DavAPI(get_conn())
     return dav_api.get_all_filters_metadata()

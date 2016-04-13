@@ -33,6 +33,13 @@ class DavApiTest(unittest.TestCase):
             expected_result = f.readlines()[0]
         self.assertEquals(expected_result, actual_result)
 
+    # get_all_aqx_metadata
+    def test_get_all_aqx_metadata(self):
+        actual_result = analytics_views.get_all_aqx_metadata()
+        with open('data/test_get_all_aqx_metadata.txt') as f:
+            expected_result = f.readlines()[0]
+        self.assertEquals(expected_result, actual_result)
+
     # get all measurement types
     def test_get_all_measurement_names(self):
         actual_result = analytics_views.get_all_measurement_names()
