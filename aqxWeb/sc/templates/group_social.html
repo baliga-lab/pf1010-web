@@ -5,6 +5,8 @@
 {% block styles %}
     {{ super() }}
     <link rel="stylesheet" href="{{ url_for('social.static', filename='css/group_social.css') }}">
+	<link rel="stylesheet" type="text/css" href="{{ url_for('social.static', filename='css/layout.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('social.static', filename='css/newsfeed.css') }}">
 {% endblock %}
 
 {% block content %}
@@ -134,19 +136,15 @@
         <!-- End Div for Left Pane (Group Description, Participant, Manage Requests) - Groups Page -->
 
 
-        <!-- This rightPaneDiv for Group posts - Group Page -->
-        <div class="col-md-9 rightPaneDiv">
+        <!-- This centerPaneDiv for Group posts - Group Page -->
+        <div class="main col-sm-9">
+            {# NEWSFEED #}
+            {% include "post_group_form.html" %}
 
-            <p>
-                "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et
-                dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip
-                ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu
-                fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia
-                deserunt mollit anim id est laborum."
-            </p>
-
+            <h3>Recent Posts</h3>
+            {% include "display_group_posts.html" %}
         </div>
-        <!-- End of rightPaneDiv (Group Posts) - Group Page -->
+        <!-- End of centerPaneDiv (Group Posts) - Group Page -->
 
 
     </div>

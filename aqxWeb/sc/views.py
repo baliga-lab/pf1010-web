@@ -908,9 +908,24 @@ def view_group(group_uid):
                 group_members = group.get_group_members(group_uid)
                 members_pending_approval = group.get_members_pending_approval(group_uid)
                 creation_date = convert_milliseconds_to_normal_date(group_neo4j[0][0]['creation_time'])
+                if user_privilege == "GROUP_ADMIN" or user_privilege == "GROUP_MEMBER":
+                    privacy_options = [Privacy.PARTICIPANTS, Privacy.PUBLIC]
+                    privacy_default = Privacy.PARTICIPANTS
+                else:
+                    privacy_options = [Privacy.PUBLIC]
+                    privacy_default = Privacy.PUBLIC
+
+                privacy = Privacy(privacy_options, privacy_default, 'groups', sql_id)
+                posts = group.get_group_recent_posts(group_uid)
+                comments = group.get_group_recent_comments(group_uid)
+                likes = group.get_group_recent_likes(group_uid)
+                total_likes = group.get_total_likes_for_group_posts(group_uid)
+                post_owners = group.get_group_post_owners(group_uid)
                 return render_template("group_social.html", group_neo4j=group_neo4j, logged_in_user=logged_in_user,
                                        user_privilege=user_privilege, group_members=group_members, stop_at=3,
-                                       members_pending_approval=members_pending_approval, creation_date=creation_date)
+                                       members_pending_approval=members_pending_approval, creation_date=creation_date,
+                                       privacy_info=privacy,posts=posts,comments=comments,likes=likes,
+                                       total_likes=total_likes, post_owners=post_owners, group_uid=group_uid)
     except Exception as e:
         logging.exception("Exception at view_group: " + str(e))
 
@@ -1200,9 +1215,35 @@ def edit_or_delete_system_comment():
     return redirect(url_for('social.view_system', system_uid=system_uid))
 
 
+@social.route('/edit_or_delete_group_comment', methods=['POST'])
+#######################################################################################
+# function : edit_or_delete_group_comment
+# purpose : edits or delete existing comments using unique comment id
+# parameters : None
+# returns: calls index function
+# Exception : None
+#######################################################################################
+def edit_or_delete_group_comment():
+    if session.get('uid') is not None:
+        comment_id = request.form['commentid']
+        group_uid = request.form['group_uid']
+        if comment_id == "" or comment_id is None:
+            flash('Comment not found to edit')
+            return redirect(url_for('social.view_group', group_uid=group_uid))
+        else:
+            comment = request.form['editedcomment']
+            if request.form['submit'] == 'deleteComment':
+                Group().delete_group_comment(comment_id)
+                flash('Your post has been deleted')
+            elif request.form['submit'] == 'editComment':
+                if comment == "" or comment is None:
+                    flash('Comment can not be empty')
+                else:
+                    Group().edit_group_comment(comment, comment_id)
+                    flash('Your comment has been updated')
+    return redirect(url_for('social.view_group', group_uid=group_uid))
+
 social.route('/edit_comment', methods=['POST'])
-
-
 #######################################################################################
 # function : edit_comment
 # purpose : edits comments using unique comment id
@@ -1353,6 +1394,80 @@ def add_system_post():
     return redirect(url_for('social.view_system', system_uid=system_uid))
 
 
+#######################################################################################
+# function : add_group_post
+# purpose : renders group_social.html
+# parameters : group_uid
+# returns: group_social.html
+# Exception : General Exception
+#######################################################################################
+@social.route('/groups/add_group_post', methods=['POST'])
+def add_group_post():
+    user_sql_id = session.get('uid')
+    if user_sql_id is None:
+        return redirect(url_for('social.groups'))
+    group = Group()
+    if request.method == 'POST':
+        group_uid = request.form['group_uid']
+        group_neo4j = group.get_group_by_uid(group_uid)
+        # InValid System_UID
+        if not group_neo4j:
+            flash('Group not found in neo4j.')
+            return redirect(url_for('social.view_group', group_uid=group_uid))
+            # Valid System_UID
+        else:
+            logged_in_user = User(user_sql_id).find()
+            created_date = convert_milliseconds_to_normal_date(group_neo4j[0][0]['creation_time'])
+            privacy = request.form['privacy']
+            text = request.form['text']
+            link = request.form['link']
+            if text == "":
+                flash('Post cannot be empty.')
+            else:
+                Group().add_group_post(group_uid, user_sql_id, text, privacy, link)
+    return redirect(url_for('social.view_group', group_uid=group_uid))
+
+
+#######################################################################################
+# function : delete_group_post
+# purpose : deletes existing group post using unique post id
+# parameters : None
+# returns: to group timeline page
+# Exception : None
+#######################################################################################
+@social.route('/delete_group_post', methods=['POST'])
+def delete_group_post():
+    post_id = request.form['postid']
+    group_uid = request.form['group_uid']
+    if post_id == "" or post_id is None:
+        flash('Post not found to delete')
+    else:
+        Group().delete_group_post(post_id)
+        flash('Your comment has been updated')
+    return redirect(url_for('social.groups', group_uid=group_uid))
+
+#######################################################################################
+# function : edit_group_post
+# purpose : edits existing group comments using unique comment id
+# parameters : None
+# returns: calls index function
+# Exception : None
+#######################################################################################
+@social.route('/edit_group_post', methods=['POST'])
+def edit_group_post():
+    new_post = request.form['editedpost']
+    post_id = request.form['postid']
+    group_uid = request.form['group_uid']
+
+    if new_post == "" or new_post is None:
+        flash('New post can not be empty')
+    elif post_id == "" or post_id is None:
+        flash('Post not found to edit')
+    else:
+        Group().edit_group_post(new_post, post_id)
+        flash('Your comment has been updated')
+    return redirect(url_for('social.groups', group_uid=group_uid))
+
 @social.route('/like_or_unlike_post', methods=['POST'])
 #######################################################################################
 # function : like_or_unlike_post
@@ -1420,6 +1535,30 @@ def add_system_comment():
         System().add_system_comment(userid, comment, postid)
         flash('Your comment has been posted')
     return redirect(url_for('social.view_system', system_uid=system_uid))
+
+@social.route('/add_group_comment', methods=['POST'])
+#######################################################################################
+# function : add_group_comment
+# purpose : adds comments to the post
+# parameters : None
+# returns: calls index function
+# Exception : None
+#######################################################################################
+def add_group_comment():
+    comment = request.form['newcomment']
+    postid = request.form['postid']
+    userid = session['uid']
+    group_uid = request.form['group_uid']
+    if comment == "" or comment is None:
+        flash('Comment can not be empty')
+        redirect(url_for('social.view_group', group_uid=group_uid))
+    elif postid == "" or postid is None:
+        flash('Post not found to comment on')
+        redirect(url_for('social.view_group', group_uid=group_uid))
+    else:
+        Group().add_group_comment(userid, comment, postid)
+        flash('Your comment has been posted')
+    return redirect(url_for('social.view_group', group_uid=group_uid))
 
 
 @social.route('/edit_system_post', methods=['POST'])
@@ -1492,6 +1631,32 @@ def like_or_unlike_system_post():
                     System().unlike_system_post(userid, postid)
                     flash('You unliked the post')
     return redirect(url_for('social.view_system', system_uid=system_uid))
+
+@social.route('/like_or_unlike_group_post', methods=['POST'])
+#######################################################################################
+# function : like_or_unlike_group_post
+# purpose : like or unlike existing post using unique post id
+# parameters : None
+# returns: to system timeline page
+# Exception : None
+#######################################################################################
+def like_or_unlike_group_post():
+    if request.method == 'POST':
+        if session.get('uid') is not None:
+            postid = request.form['postid']
+            userid = session['uid']
+            group_uid = request.form['group_uid']
+            print(request.form['submit'])
+            if postid == "":
+                flash('Can not find the post to delete.')
+            else:
+                if request.form['submit'] == 'likePost':
+                    Group().like_group_post(userid, postid)
+                    flash('You liked the post')
+                elif request.form['submit'] == 'unlikePost':
+                    Group().unlike_group_post(userid, postid)
+                    flash('You unliked the post')
+    return redirect(url_for('social.view_group', group_uid=group_uid))
 
 
 @social.route('/like_system_post', methods=['POST'])

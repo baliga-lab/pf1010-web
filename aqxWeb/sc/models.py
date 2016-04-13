@@ -1215,8 +1215,8 @@ class System:
         RETURN p.id as postid, count(*) as likecount
         """
         try:
-            totalLikes = get_graph_connection_uri().cypher.execute(query, system_uid=system_uid)
-            return totalLikes
+            total_likes = get_graph_connection_uri().cypher.execute(query, system_uid=system_uid)
+            return total_likes
         except cypher.CypherError, cypher.CypherTransactionError:
             print "Exception occured in function get_total_likes_for_system_posts"
 
@@ -2051,10 +2051,11 @@ class System:
             print "Exception occured in function add_system_comment "
 
     ############################################################################
-    # function : unlike_post
+    # function : unlike_system_post
     # purpose : removes LIKED relationship between User and Post
     # params :self system,
-    #        postid : post id for which user liked
+    #         user_sql_id : user sql id
+    #        postid : post id to unlike
     # returns : None
     # Exceptions : cypher.CypherError, cypher.CypherTransactionError
     ############################################################################
@@ -2070,7 +2071,7 @@ class System:
         try:
             get_graph_connection_uri().cypher.execute(query, postid=system_postid, userSqlId=user_sql_id)
         except cypher.CypherError, cypher.CypherTransactionError:
-            print "Exception occured in function get_search_friends"
+            print "Exception occured in function unlike_system_post"
 
     ############################################################################
     # function : get_mutual_system_between_friends
@@ -2261,6 +2262,319 @@ class Group:
             return group_neo4j
         except cypher.CypherError, cypher.CypherTransactionError:
             print "Exception occured in function get_group_by_uid"
+
+    ############################################################################
+    # function : add_group_post
+    # purpose : adds post related to a group with user_id and post content in neo4j database
+    # params : self group, group_uid, user_sql_id, text, privacy, link
+    # returns : None
+    # Exceptions : cypher.CypherError, cypher.CypherTransactionError
+    ############################################################################
+    def add_group_post(self, group_uid, user_sql_id, text, privacy, link):
+        group = Group().find(group_uid)
+        user = User(user_sql_id).find()
+        post = Node(
+            "GroupPost",
+            id=str(uuid.uuid4()),
+            text=text,
+            link=link,
+            privacy=privacy,
+            userid=user_sql_id,
+            creation_time=timestamp(),
+            modified_time=timestamp(),
+            date=date()
+        )
+        group_post_relationship = Relationship(group, "GROUP_POSTED", post)
+        user_group_post_relationship = Relationship(user, "USER_POSTED", post)
+        try:
+            get_graph_connection_uri().create(group_post_relationship)
+            get_graph_connection_uri().create(user_group_post_relationship)
+        except cypher.CypherError, cypher.CypherTransactionError:
+            print "Exception occured in function add_group_post "
+
+    ############################################################################
+    # function : edit_group_post
+    # purpose : Edits post node in neo4j with the given id
+    # params :self group,
+    #        new_content : contains the data shared in comment
+    #        post_id : comment id which is being added
+    # Exceptions : cypher.CypherError, cypher.CypherTransactionError
+    # returns : None
+    ############################################################################
+    def edit_group_post(self, new_content, post_id):
+        query = """
+        MATCH (post:GroupPost)
+        WHERE post.id = {post_id}
+        SET post.text = {new_content},
+        post.modified_time = {time_now}
+        RETURN post
+        """
+        try:
+            get_graph_connection_uri().cypher.execute(query, post_id=post_id,
+                                                      new_content=new_content, time_now=timestamp())
+        except cypher.CypherError, cypher.CypherTransactionError:
+            print "Exception occurred in function edit_group_post"
+
+    ############################################################################
+    # function : delete_group_post
+    # purpose : deletes comments and all related relationships first
+    #           and then deletes post and all relationships
+    # params :self group,
+    #        post_id : post id for which user liked
+    # returns : None
+    # Exceptions : cypher.CypherError, cypher.CypherTransactionError
+    ############################################################################
+    def delete_group_post(self, post_id):
+        # Deletes comments and all related relationships
+
+        delete_group_comments_query = """
+            MATCH (post:GroupPost)-[r:HAS]->(comment:GroupComment)
+            WHERE post.id= {post_id}
+            DETACH DELETE comment
+            """
+        try:
+            get_graph_connection_uri().cypher.execute(delete_group_comments_query, post_id=post_id)
+        except cypher.CypherError, cypher.CypherTransactionError:
+            print "Exception occurred in function delete_group_post : deleteGroupCommentsQuery "
+
+        # Deletes posts and all related relationships
+
+        delete_group_post_query = """
+            MATCH (post:GroupPost)
+            WHERE post.id= {post_id}
+            DETACH DELETE post
+            """
+        try:
+            get_graph_connection_uri().cypher.execute(delete_group_post_query, post_id=post_id)
+        except cypher.CypherError, cypher.CypherTransactionError:
+            print "Exception occurred in function delete_group_post :deleteGroupPostQuery "
+
+    ############################################################################
+    # function : like_group_post
+    # purpose : creates a unique LIKED relationship between User and Post
+    # params : self group, user_sql_id : user id
+    #        group_postid : post id for which user liked
+    # returns : None
+    # Exceptions : cypher.CypherError, cypher.CypherTransactionError
+    ############################################################################
+
+    def like_group_post(self, user_sql_id, group_postid):
+        user = User(user_sql_id).find()
+        post = get_graph_connection_uri().find_one("GroupPost", "id", group_postid)
+        rel = Relationship(user, 'GROUP_LIKED', post)
+        try:
+            get_graph_connection_uri().create_unique(rel)
+        except cypher.CypherError, cypher.CypherTransactionError:
+            print "Exception occured in function like_group_post "
+
+    ############################################################################
+    # function : unlike_group_post
+    # purpose : removes LIKED relationship between User and Post
+    # params :self group,
+    #         user_sql_id : user sql id
+    #        postid : post id to unlike
+    # returns : None
+    # Exceptions : cypher.CypherError, cypher.CypherTransactionError
+    ############################################################################
+
+    def unlike_group_post(self, user_sql_id, group_postid):
+        user = User(user_sql_id).find()
+        post = get_graph_connection_uri().find_one("GroupPost", "id", group_postid)
+        query = """
+            MATCH (u:User)-[r:GROUP_LIKED]->(p:GroupPost)
+            WHERE p.id= {postid} and u.sql_id = {userSqlId}
+            DELETE r
+        """
+        try:
+            get_graph_connection_uri().cypher.execute(query, postid=group_postid, userSqlId=user_sql_id)
+        except cypher.CypherError, cypher.CypherTransactionError:
+            print "Exception occured in function unlike_group_post"
+
+    ############################################################################
+    # function : add_group_comment
+    # purpose : Adds new comment node in neo4j with the given information and creates
+    #            POSTED relationship between Post and User node
+    # params :
+    #        new_comment : contains the data shared in comment
+    #        post_id : post id for which the comment has been added
+    # Exceptions : cypher.CypherError, cypher.CypherTransactionError
+    # returns : None
+    ############################################################################
+
+    def add_group_comment(self, user_sql_id, new_comment, group_postid):
+        user = User(user_sql_id).find()
+        post = get_graph_connection_uri().find_one("GroupPost", "id", group_postid)
+        comment = Node(
+            "GroupComment",
+            id=str(uuid.uuid4()),
+            content=new_comment,
+            user_sql_id=user_sql_id,
+            user_display_name=user['displayName'],
+            creation_time=timestamp(),
+            modified_time=timestamp())
+        rel = Relationship(post, 'HAS', comment)
+        try:
+            get_graph_connection_uri().create(rel)
+        except cypher.CypherError, cypher.CypherTransactionError:
+            print "Exception occured in function add_group_comment "
+
+    ############################################################################
+    # function : edit_group_comment
+    # purpose : Edits comment node in neo4j with the given id
+    # params :self Group,
+    #        new_comment : contains the data shared in comment
+    #        comment_id : comment id which is being added
+    # Exceptions : cypher.CypherError, cypher.CypherTransactionError
+    # returns : None
+    ############################################################################
+
+    def edit_group_comment(self, new_comment, comment_id):
+        query = """
+        MATCH (comment:GroupComment)
+        WHERE comment.id = {commentid}
+        SET comment.content = {newcomment},
+        comment.modified_time = {timenow}
+        RETURN comment
+        """
+        try:
+            get_graph_connection_uri().cypher.execute(query, commentid=comment_id,
+                                                      newcomment=new_comment, timenow=timestamp())
+        except cypher.CypherError, cypher.CypherTransactionError:
+            print "Exception occured in function edit_group_comment"
+
+    ############################################################################
+    # function : delete_group_comment
+    # purpose : deletes group comment node in neo4j with the given id
+    # params :self group,
+    #        commentid : comment id which is being added
+    # Exceptions : cypher.CypherError, cypher.CypherTransactionError
+    # returns : None
+    ############################################################################
+
+    def delete_group_comment(self, commentid):
+        query = """
+        MATCH (comment:GroupComment)
+        WHERE comment.id = {commentid}
+        DETACH DELETE comment
+        """
+        try:
+            get_graph_connection_uri().cypher.execute(query, commentid=commentid)
+        except cypher.CypherError, cypher.CypherTransactionError:
+            print "Exception occured in function delete_group_comment "
+
+
+    ############################################################################
+    # function : get_group_recent_comments
+    # purpose : gets all group comments from db
+    # params :
+    #       self : Group
+    #       group_uid : uid of a group
+    # returns : set of usernames and posts
+    # Exceptions : cypher.CypherError, cypher.CypherTransactionError
+    ############################################################################
+
+    def get_group_recent_comments(self, group_uid):
+        query = """
+        MATCH (user:User),
+        (group:Group)-[r1:GROUP_POSTED]->(post:GroupPost)-[r:HAS]->(comment:GroupComment)
+        WHERE group.group_uid = {group_uid}
+            and user.sql_id = comment.user_sql_id
+        RETURN post.id AS postid, user, comment
+        ORDER BY comment.creation_time
+        """
+        try:
+            comments = get_graph_connection_uri().cypher.execute(query, group_uid=group_uid)
+            return comments
+        except cypher.CypherError, cypher.CypherTransactionError:
+            print "Exception occured in function get_group_recent_comments "
+
+    ############################################################################
+    # function : get_group_recent_posts
+    # purpose : gets all group posts from db
+    # params :
+    #       self : Group
+    #       group_uid : uid of a group
+    # returns : set of user names and posts
+    # Exceptions : cypher.CypherError, cypher.CypherTransactionError
+    ############################################################################
+
+    def get_group_recent_posts(self, group_uid):
+        query = """
+        MATCH (group:Group)-[r1:GROUP_POSTED]->(post:GroupPost)<-[r2:USER_POSTED]-(user:User)
+        WHERE group.group_uid = {group_uid}
+        RETURN user.displayName AS displayName, user, post
+        ORDER BY post.modified_time DESC
+        """
+        try:
+            posts = get_graph_connection_uri().cypher.execute(query, group_uid=group_uid)
+            return posts
+        except cypher.CypherError, cypher.CypherTransactionError:
+            print "Exception occured in function get_group_recent_posts "
+
+    ############################################################################
+    # function : get_group_recent_likes
+    # purpose : gets all likes for group posts from db
+    # params :
+    #       self : Group
+    #       group_uid : uid of a group
+    # returns : set of post ids and user ids who liked those posts
+    # Exceptions : cypher.CypherError, cypher.CypherTransactionError
+    ############################################################################
+    def get_group_recent_likes(self, group_id):
+        query = """
+        MATCH (u:User)-[r:GROUP_LIKED]->(p:GroupPost)<-[r1:GROUP_POSTED]-(s:System)
+        WHERE s.group_uid = {group_uid}
+        RETURN p.id as postid, u.sql_id as userid
+        ORDER BY p.modified_time DESC
+        """
+        try:
+            likes = get_graph_connection_uri().cypher.execute(query, group_id=group_id)
+            return likes
+        except cypher.CypherError, cypher.CypherTransactionError:
+            print "Exception occured in function get_group_recent_likes"
+
+    ############################################################################
+    # function : get_total_likes_for_group_posts
+    # purpose : gets all likes from db
+    # params :
+    #       self : Group
+    #       group_uid : uid of a group
+    # returns : set of postids and number of likes for all posts
+    # Exceptions : cypher.CypherError, cypher.CypherTransactionError
+    ############################################################################
+    def get_total_likes_for_group_posts(self, group_uid):
+        query = """
+        MATCH (u:User)-[r:GROUP_LIKED]->(p:GroupPost)<-[r1:GROUP_POSTED]-(s:Group)
+        WHERE s.group_uid = {group_uid}
+        RETURN p.id as postid, count(*) as likecount
+        """
+        try:
+            total_likes = get_graph_connection_uri().cypher.execute(query, group_uid=group_uid)
+            return total_likes
+        except cypher.CypherError, cypher.CypherTransactionError:
+            print "Exception occured in function get_total_likes_for_group_posts"
+
+    ############################################################################
+    # function : get_group_post_owners
+    # purpose : gets all group post owners from db
+    # params :
+    #       self : Group
+    #       group_uid : uid of a group
+    # returns : set of post ids and number of likes for all posts
+    # Exceptions : cypher.CypherError, cypher.CypherTransactionError
+    ############################################################################
+    def get_group_post_owners(self, group_uid):
+        query = """
+        MATCH (u:User)-[r:USER_POSTED]->(p:GroupPost)<-[r2:GROUP_POSTED]-(s:Group)
+        WHERE s.group_uid = {group_uid}
+        RETURN p.id as postid, u.sql_id as userid
+        ORDER BY p.modified_time DESC
+        """
+        try:
+            likes = get_graph_connection_uri().cypher.execute(query, group_uid=group_uid)
+            return likes
+        except cypher.CypherError, cypher.CypherTransactionError:
+            print "Exception occured in function get_group_post_owners"
 
     ############################################################################
     # function : get_user_privilege_for_group
