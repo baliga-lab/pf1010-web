@@ -8,6 +8,14 @@ var XAXIS = "selectXAxis";
 var XAXIS_TITLE = 'Hours since creation';
 var CHART = "";
 var GRAPH_TYPE = "selectGraphType";
+/*
+Used to display data that was entered by user in the past
+    "" - Used to display all the data that user has recorded
+    30 - Displays all the data recorded in the past 30 days
+    60 - Displays all the data recorded in the past 60 days
+    90 - Displays all the data recorded in the past 90 days
+ */
+var NUMBER_OF_ENTRIES = 'selectNumberOfEntries';
 var SELECTED = 'selected';
 var DEFAULT_Y_TEXT = "Nitrate";
 var DEFAULT_Y_VALUE = DEFAULT_Y_TEXT.toLowerCase();
@@ -41,9 +49,10 @@ function drawChart(){
 
     // Get measurement types to display on the y-axis
     var yTypes = $("#selectYAxis").val();
+    var numberOfEntries = document.getElementById(NUMBER_OF_ENTRIES).value;
 
     // Generate a data Series for each y-value type, and assign them all to the CHART
-    updateChartDataPointsHC(CHART, xType, yTypes, graphType).redraw();
+    updateChartDataPointsHC(CHART, xType, yTypes, graphType, numberOfEntries).redraw();
 }
 
 
@@ -53,8 +62,9 @@ function drawChart(){
  * @param xType - X-axis value chosen from dropdown
  * @param yTypeList - List of y-axis values selected from the checklist
  * @param graphType - The graph type chosen from dropdown
+ * @param numberOfEntries - used to display data entered by user in the past
  */
-function updateChartDataPointsHC(chart, xType, yTypeList, graphType){
+function updateChartDataPointsHC(chart, xType, yTypeList, graphType, numberOfEntries){
 
     // Clear the old chart's yAxis and dataPoints. Unfortunately this must be done manually.
     chart = clearOldGraphValues(chart);
@@ -78,7 +88,7 @@ function updateChartDataPointsHC(chart, xType, yTypeList, graphType){
     chart.xAxis[0].setTitle({ text: XAXIS_TITLE });
 
     // Get dataPoints and their configs for the chart, using systems_and_measurements and add them
-    var newDataSeries = getDataPointsForPlotHC(chart, xType, yTypeList, graphType);
+    var newDataSeries = getDataPointsForPlotHC(chart, xType, yTypeList, graphType, numberOfEntries);
     _.each(newDataSeries, function(series) {
         chart.addSeries(series);
     });
@@ -93,9 +103,10 @@ function updateChartDataPointsHC(chart, xType, yTypeList, graphType){
  * @param xType - X-axis values. Ex: Time, pH, Hardness
  * @param yTypeList - Y-axis values. Ex: [pH, Nitrate]
  * @param graphType - Type of graph to display. Ex: line, scatter
+ * @param numberOfEntries - used to display data entered by user in the past
  * @returns {Array} - An array of dataPoints of yType measurement data for all systems
  */
-function getDataPointsForPlotHC (chart, xType, yTypeList, graphType){
+function getDataPointsForPlotHC (chart, xType, yTypeList, graphType, numberOfEntries){
 
     // DataPoints to add to chart
     var dataPointsList = [];
@@ -140,9 +151,14 @@ function getDataPointsForPlotHC (chart, xType, yTypeList, graphType){
                             axes[yType].axis = numAxes++;
                         }
                         var yAxis = axes[yType].axis;
+                        // IMPORTANT: MEASUREMENT VALUES should be sorted by date to display
+                        var dataValues = measurement.values;
+                        if(!_.isEmpty(numberOfEntries)) {
+                            dataValues = _.last(dataValues, numberOfEntries);
+                        }
                         // Push valid dataPoints and their configs to the list of dataPoints to plot
                         dataPointsList.push(
-                            getDataPoints(system.name, measurement.values, graphType, systemId, linkedTo, COLORS[yAxis], yAxis, DASHSTYLES[j], MARKERTYPES[j], yType));
+                            getDataPoints(system.name, dataValues, graphType, systemId, linkedTo, COLORS[yAxis], yAxis, DASHSTYLES[j], MARKERTYPES[j], yType));
                         linkedTo = true;
                     }
 
@@ -505,6 +521,10 @@ function main(){
             return this.defaultSelected;
         });
 
+        $('#'+NUMBER_OF_ENTRIES+' option').prop(SELECTED, function() {
+            return this.defaultSelected;
+        });
+
         $('#alert_placeholder').empty();
 
         $('.split-chart').hide();
@@ -515,6 +535,10 @@ function main(){
         setDefaultYAxis();
 
         drawChart();
+    });
+
+    $('#selectYAxis').bind("chosen:maxselected", function () {
+        $('#alert_placeholder').html(getAlertHTMLString("You can select up to " + MAXSELECTIONS + " systems", 'danger'));
     });
 }
 
@@ -598,10 +622,10 @@ function tooltipFormatter(){
     yVal = yVal.charAt(0).toUpperCase() + yVal.slice(1);
     var datetime = this.point.date.split(" ");
     var eventString = "";
-    if (this.point.event) {
+    if (this.point.annotations) {
         console.log('event found');
         eventString = "<br><p>Most recent event(s): </p>";
-        _.each(this.point.event, function (event) {
+        _.each(this.point.annotations, function (event) {
             console.log(event);
             eventString = eventString + '<br><p>' + event.id + " at " + event.date + '<p>'
         });

@@ -88,13 +88,14 @@ def analyze_graph():
     selected_systemID_list = []
     try:
         selected_systemID_list = json.dumps(request.form.get('selectedSystems')).translate(None, '\"\\').split(",")
+        # TODO: Use request.form.get('systemStatus') to get statusId
+        default_status = 200
     except:
         traceback.print_exc()
         if not selected_systemID_list:
-            print("System ID list is undefined.")
+            print("System ID list or Status is undefined.")
         raise AttributeError("Error processing selected systems form.")
 
-    default_status = 200
     systems_and_measurements_json = get_readings_for_tsplot(selected_systemID_list, msr_id_list, default_status)
     if 'error' in systems_and_measurements_json:
         print systems_and_measurements_json['error']
@@ -110,7 +111,6 @@ def analyze_graph():
 
 # get_all_systems_info() - It returns the system information as a JSON
 #                          object.
-@dav.route('/aqxapi/get/systems/metadata')
 def get_all_systems_info():
     dav_api = DavAPI(get_conn())
     return dav_api.get_all_systems_info()
@@ -122,7 +122,6 @@ def get_all_systems_info():
 
 # get_all_aqx_metadata - It returns all the metadata that are needed
 #                        to filter the displayed systems.
-@dav.route('/aqxapi/get/systems/filters')
 def get_all_aqx_metadata():
     dav_api = DavAPI(get_conn())
     return dav_api.get_all_filters_metadata()
@@ -191,6 +190,7 @@ def put_system_measurement():
 
 ######################################################################
 # API to get the readings of the time series plot
+# the measurements should be sorted in order of the date (ascending)
 ######################################################################
 
 def get_readings_for_tsplot(system_uid_list, msr_id_list,status_id):
@@ -198,6 +198,10 @@ def get_readings_for_tsplot(system_uid_list, msr_id_list,status_id):
     return dav_api.get_readings_for_plot(system_uid_list, msr_id_list,status_id)
 
 
+######################################################################
+# API to get the readings of the time series plot
+# the measurements should be sorted in order of the date (ascending)
+######################################################################
 @dav.route('/aqxapi/v1/measurements/plot', methods=['POST'])
 def get_readings_for_plot():
     dav_api = DavAPI(get_conn())

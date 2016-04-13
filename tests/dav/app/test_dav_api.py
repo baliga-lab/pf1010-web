@@ -28,16 +28,25 @@ class DavApiTest(unittest.TestCase):
 
     # get all systems
     def test_get_all_systems_info(self):
-        response = self.app.get('/dav/aqxapi/get/systems/metadata')
-        print(response)
-        result = json.loads(response.data)
-        self.assertNotEqual(len(result), 0, 'systems exist')
+        actual_result = analytics_views.get_all_systems_info()
+        self.assertNotEqual(len(actual_result), 0, 'System exists')
+        # with open('data/test_get_all_systems_info.txt') as f:
+        #     expected_result = f.readlines()[0]
+        # self.assertEquals(expected_result, actual_result)
+
+    # get_all_aqx_metadata
+    def test_get_all_aqx_metadata(self):
+        actual_result = analytics_views.get_all_aqx_metadata()
+        with open('data/test_get_all_aqx_metadata.txt') as f:
+            expected_result = f.readlines()[0]
+        self.assertEquals(expected_result, actual_result)
 
     # get all measurement types
     def test_get_all_measurement_names(self):
-        response = self.app.get('/dav/aqxapi/get/system/measurement_types')
-        result = json.loads(response.data)
-        self.assertNotEqual(len(result), 0, 'measurements exist')
+        actual_result = analytics_views.get_all_measurement_names()
+        print actual_result
+        expected_result = '{"types": [["alkalinity"], ["ammonium"], ["chlorine"], ["hardness"], ["light"], ["nitrate"], ["nitrite"], ["o2"], ["ph"], ["temp"], ["time"], "time"]}'
+        self.assertEquals(expected_result, actual_result)
 
     # insert system measurement - current time
     def test_put_system_measurement_new(self):

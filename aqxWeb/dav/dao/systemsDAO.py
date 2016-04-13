@@ -32,6 +32,7 @@ class SystemsDAO:
     def get_all_systems_info(self):
         cursor = self.conn.cursor()
         query = ("SELECT s.system_uid, s.user_id, s.name, s.start_date, s.location_lat, location_lng, "
+                 "s.status,"
                  "aqt.name as 'aqx_technique', "
                  "gm.name as 'growbed_media', "
                  "cr.name as 'crop_name', "

@@ -48,10 +48,10 @@
                 </select>
                 <br><br>
                 <select class="explore-dropdown" id="selectStatus">
-                    <option value="Established" selected="selected">Established</option>
-                    <option value="Pre-Established">Pre-Established</option>
-                    <option value="Suspended">Suspended</option>
-                    <option value="Terminated">Terminated</option>
+                    <option value="200" selected="selected">Established</option>
+                    <option value="100">Pre-Established</option>
+                    <option value="300">Suspended</option>
+                    <option value="400">Terminated</option>
                 </select>
                 <br><br>
                 <input class="btn btn-green" type="submit" id="submitbtn" name="mysubmit" value="Submit" onclick="filterSystemsBasedOnDropdownValues()"/>
@@ -70,6 +70,7 @@
             {% endif %}
             <form id="analyzeOptions" action="analyzeGraph" method="POST">
                 <input  name="selectedSystems" type="hidden" id="selectedSystems" value="abc"/>
+                <input name="systemStatus" type="hidden" id="systemStatus" value="200"/>
                 <input class="btn btn-green" type="submit" value="Analyze" id="analyzebtn"/>
             </form>
         </div>
@@ -89,19 +90,24 @@
     <script>
         var statuses = ['Established', 'Pre-Established', 'Suspended', 'Terminated'];
         var system_and_info_object = {{ systems_and_info_json|safe }};
+        var session_userId="";
+        {% if session.uid %}
+            session_userId = {{ session.uid }}
+        {% endif %}
         system_and_info_object = system_and_info_object.systems;
+        console.log(system_and_info_object[0]);
         var count = 0;
         _.each(system_and_info_object, function(system){
-            system.status = statuses[Math.floor(Math.random() * (4))];
+{#            system.status = statuses[Math.floor(Math.random() * (4))];#}
             if(_.isEqual(system.status, statuses[0])) {
                 count = count + 1;
             }
-            //TODO: Should be removed
-            if(count%2 == 0) {
-                system.user_id = 1;
-            } else {
-                system.user_id = 2;
-            }
+{#            //TODO: Should be removed#}
+{#            if(count%2 == 0) {#}
+{#                system.user_id = 1;#}
+{#            } else {#}
+{#                system.user_id = 2;#}
+{#            }#}
         });
 
         $(document).ready(main(system_and_info_object));
