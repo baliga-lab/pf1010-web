@@ -95,7 +95,7 @@ function flipIcons(marker, systemID) {
             marker.setIcon(DEFAULT_ICON);
             removeSelectedValues(systemID);
         }
-        $('#chosenAnalyze').trigger('chosen:updated');
+        $('#analyzeSystem').trigger('chosen:updated');
     }
 }
 
@@ -322,7 +322,7 @@ function filterSystemsBasedOnDropdownValues() {
             system.marker.setVisible(true);
             filteredSystemsCount++;
             //TODO: used to test the login feature. This should be replaced with actual userId from session
-            if(_.isEqual(system.user_id,1)) {
+            if(_.isEqual(system.user_id, session_userId)) {
                 mySystems.push(system);
             } else {
                 otherUserSystems.push(system)

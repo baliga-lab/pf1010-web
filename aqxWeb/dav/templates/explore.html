@@ -90,6 +90,10 @@
     <script>
         var statuses = ['Established', 'Pre-Established', 'Suspended', 'Terminated'];
         var system_and_info_object = {{ systems_and_info_json|safe }};
+        var session_userId="";
+        {% if session.uid %}
+            session_userId = {{ session.uid }}
+        {% endif %}
         system_and_info_object = system_and_info_object.systems;
         var count = 0;
         _.each(system_and_info_object, function(system){
