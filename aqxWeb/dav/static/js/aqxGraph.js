@@ -622,10 +622,10 @@ function tooltipFormatter(){
     yVal = yVal.charAt(0).toUpperCase() + yVal.slice(1);
     var datetime = this.point.date.split(" ");
     var eventString = "";
-    if (this.point.event) {
+    if (this.point.annotations) {
         console.log('event found');
         eventString = "<br><p>Most recent event(s): </p>";
-        _.each(this.point.event, function (event) {
+        _.each(this.point.annotations, function (event) {
             console.log(event);
             eventString = eventString + '<br><p>' + event.id + " at " + event.date + '<p>'
         });

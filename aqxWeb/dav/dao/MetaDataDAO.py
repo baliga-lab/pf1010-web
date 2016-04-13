@@ -13,7 +13,8 @@ class MetadataDAO:
         query_filters = ("select \'crops\', c.name from crops c union "
                          "select \'aqx_techniques\' , aqt.name  from aqx_techniques aqt union "
                          "select \'aqx_organisms\', ao.name  from aquatic_organisms ao union "
-                         "select \'growbed_media\', gbm.name  from growbed_media gbm;")
+                         "select \'growbed_media\', gbm.name  from growbed_media gbm union "
+                         "select \'status_types\', concat(id,':',status_type) as name  from status_types;")
         try:
             cursor.execute(query_filters)
             aqx_techniques = cursor.fetchall()
