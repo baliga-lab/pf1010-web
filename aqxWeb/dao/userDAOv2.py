@@ -49,6 +49,7 @@ class userDAO:
 
         try:
             cursor.execute(query, values)
+            self.conn.commit()
         except:
             raise
         finally:

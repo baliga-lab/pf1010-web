@@ -1,7 +1,8 @@
 from aqxWeb.dao.userDAOv2 import userDAO
 from aqxWeb.dao.systemDAOv2 import systemDAO
 from aqxWeb.dao.metadataDAOv2 import metadataDAO
-from aqxWeb.dao.mailingListDAO import mailingListDAO
+from aqxWeb.dao.annotationDAOv2 import annotationDAO
+from aqxWeb.dao.subscriptionDAO import subscriptionDAO
 
 from collections import defaultdict
 
@@ -14,7 +15,8 @@ class API:
         self.systemDAO = systemDAO(self.conn)
         self.userDAO = userDAO(self.conn)
         self.metadataDAO = metadataDAO(self.conn)
-        self.mailingDAO = mailingListDAO(self.conn)
+        self.subscriptionDAO = subscriptionDAO(self.conn)
+        self.annotationDAO = annotationDAO(self.conn)
 
     # SystemAPI
 
@@ -99,19 +101,23 @@ class API:
         enums = defaultdict(list)
         for result in results:
             table = result[0]
-            enums[table] = []
-        for result in results:
-            table = result[0]
+            if not enums[table]:
+                enums[table] = []
             enums[table].append({
                 'ID': result[1],
                 'name': result[2]
             })
         return json.dumps(enums)
 
+    # Annotation API
+
+    def getReadableAnnotation(self, annotationID):
+        readable = self.annotationDAO.getReadableAnnotation(annotationID)
+        return json.dumps(readable)
 
     # Mailing List API
 
-    # addEmail will add email address to mailing list table in database
-    def addEmail(self, email):
-        emailInfo = self.mailingDAO.addEmail(email)
-        return json.dumps(emailInfo)
+    def subscribe(self, email):
+        subscriptionID = self.subscriptionDAO.subscribe(email)
+        return json.dumps(subscriptionID)
+

@@ -35,13 +35,6 @@ def index():
     return render_template('index.html')
 
 
-@frontend.route('/aqx/v1/mailing', methods = ['POST'])
-def addEmail():
-    api = API(get_conn())
-    email = request.get_json()
-    return api.addEmail(email)
-
-
 @frontend.route('/about')
 def about():
     return render_template('about.html')
@@ -289,6 +282,7 @@ def get_system_id_and_system_uid_with_user_id_and_system_name(user_id, name):
 ######################################################################
 # API Overhaul
 ######################################################################
+
 @frontend.route('/aqxapi/v2/user/<googleID>', methods=['GET'])
 def getUserID(googleID):
     api = API(get_conn())
@@ -314,12 +308,28 @@ def createSystem():
     system['userID'] = session['uid']
     return api.createSystem(system)
 
+
 @frontend.route('/aqxapi/v2/system/<systemUID>', methods=['DELETE'])
 def deleteSystem(systemUID):
     api = API(get_conn())
     return api.deleteSystem(systemUID)
 
+
 @frontend.route('/aqxapi/v2/enums', methods=['GET'])
 def getEnums():
     api = API(get_conn())
     return api.getEnums()
+
+
+@frontend.route('/aqxapi/v1/mailing', methods = ['POST'])
+def subscribe():
+    api = API(get_conn())
+    email = request.get_json()['email']
+    print(email)
+    return api.subscribe(email)
+
+
+@frontend.route('/aqxapi/v2/annotation/<annotationID>', methods=['GET'])
+def getReadableAnnotation(annotationID):
+    api = API(get_conn())
+    return api.getReadableAnnotation(annotationID)
