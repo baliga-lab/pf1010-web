@@ -233,10 +233,10 @@
                         })
                         .autocomplete("instance")._renderItem = function (ul, item) {
                     var grp_uid = item.uid;
-                    var $a = $("<div></div>");
-                    $("<b></b>").text(item.label).appendTo($a).click(function () {
+                    var $a = $("<div></div>").click(function () {
                         window.location = "/social/groups/" + grp_uid;
-                    });
+                    });;
+                    $("<b></b>").text(item.label).appendTo($a);
                     $("<br>").appendTo($a);
                     $("<span class='m-desc'></span>").text(item.desc).appendTo($a);
 
