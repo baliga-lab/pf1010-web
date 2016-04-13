@@ -15,7 +15,7 @@ app.controller('CreateSystemController', function ($scope, $http) {
         function onSuccess(response) {
             console.log(response);
             var socSystem = {
-                'user': { 'sql_id': response.data.userID },
+                'user': response.data.userID,
                 'system': {
                     'system_id': response.data.systemID,
                     'system_uid': response.data.systemUID,
