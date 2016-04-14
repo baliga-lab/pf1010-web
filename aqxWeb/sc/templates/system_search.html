@@ -13,17 +13,36 @@
     <div class="container" id="searchSystemsTab">
         <h3 class="page-header">&nbsp;Systems</h3>
         <ul class="nav nav-tabs" id="tab-headers">
-            <li><a href="#mySystemsTab">My Systems</a></li>
-            <li><a href="#allSystemsTab">All Systems</a></li>
+            <li>
+                <a href="#searchSystemsTab">
+                <span class="glyphicon glyphicon-search" aria-hidden="true">
+                </span>
+                &nbsp;Search Systems
+                </a>
+            </li>
+            <li>
+                <a href="#mySystemsTab">
+                    <span class="glyphicon glyphicon-user" aria-hidden="true">
+                    </span>
+                    &nbsp;My Systems
+                </a>
+            </li>
+            <li>
+                <a href="#allSystemsTab">
+                    <span class="glyphicon glyphicon-tasks" aria-hidden="true">
+                    </span>
+                    &nbsp;All Systems
+                </a>
+            </li>
         </ul>
         <br>
 
-        <!-- My Systems Div -->
-        <div class="row" id="mySystemsTab">
+        <!-- Search Systems -->
+        <div class="row" id="searchSystemsTab">
 
             <form action="{{ url_for('social.search_systems') }}" method="post">
                 <!-- Search Box and Button Control Div -->
-                <div class="row systemSearchDiv">
+                <div class="container systemSearchDiv">
                     <div class="input-group col-md-6 pull-left">
                           <input type="text" class="form-control"
                                  name="txtSystemName"   pattern=".{1,}" required
@@ -44,7 +63,7 @@
                 <br/><br/>
                 <!-- Search Results Div -->
                 <h4 class="page-header" style="padding-left: 10px">Search Results:</h4>
-                <div class="container systemSearchResults">
+                <div class="row systemSearchResults">
                     {% if system_search_results %}
                         {% for row in system_search_results %}
                             <div class="row">
@@ -73,7 +92,10 @@
                 <!-- End of Search Results Div -->
             {% endif %}
 
-            <br/>
+        </div>
+
+        <!-- My Systems Div -->
+        <div class="row" id="mySystemsTab">
 
             <!-- Div To Display System Where The Logged In User Is Administrator/Participant For That System -->
             <div class="container">
