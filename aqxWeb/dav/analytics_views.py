@@ -89,7 +89,7 @@ def analyze_graph():
     try:
         selected_systemID_list = json.dumps(request.form.get('selectedSystems')).translate(None, '\"\\').split(",")
         # TODO: Use request.form.get('systemStatus') to get statusId
-        default_status = 200
+        default_status = request.form.get('systemStatus')
     except:
         traceback.print_exc()
         if not selected_systemID_list:
