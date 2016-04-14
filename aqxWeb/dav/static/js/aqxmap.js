@@ -254,6 +254,8 @@ function main(system_and_info_object) {
 
     $('#alert_placeholder').empty();
 
+    $("#selectStatus option[text='pre-established']").attr("selected","selected");
+
     $('#analyzeSystem').chosen({
         max_selected_options: MAX_SYSTEM_SELECTED,
         no_results_text: "Oops, nothing found!",
