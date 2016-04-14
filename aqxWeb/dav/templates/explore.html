@@ -2,20 +2,20 @@
 
 {% block styles %}
     {{ super() }}
+    <link rel="stylesheet" href="{{ url_for('dav.static', filename='css/chosen.min.css') }}">
     <link rel="stylesheet" href="{{ url_for('dav.static', filename='css/explore.css') }}">
-    <link rel="stylesheet" href="{{ url_for('dav.static', filename='css/semantic.min.css') }}">
+
 {% endblock %}
 
 {% block title %}Explore{% endblock %}
 
 {% block content %}
-    <h1 class="page-header">Explore</h1>
     <div class="container" style="width: 100%; margin-top: 2%; margin-left: 2%">
         <div id = "alert_placeholder" style="width: 93%"></div>
         <div style="width: 70%; float: left; position: relative; overflow: hidden; background-color: rgb(229, 227, 223);" id="map"></div>
         <div style="width: 30%; padding-left:2%; float:left;">
             <div style="width: 75%;" class="form-group">
-                <label class="control-label">Select filtering criteria</label>
+                <label class="control-label">Select Filtering Criteria</label>
                 <br>
                 <select class="explore-dropdown" id="selectTechnique">
                     <option value="" selected="selected">Choose an Aquaponics Technique</option>
@@ -45,33 +45,23 @@
                     {% endfor %}
                 </select>
                 <br><br>
+                <label class="control-label">Select System Status</label>
                 <select class="explore-dropdown" id="selectStatus">
-                    <option value="Established" selected="selected">Established</option>
-                    <option value="Pre-Established">Pre-Established</option>
-                    <option value="Suspended">Suspended</option>
-                    <option value="Terminated">Terminated</option>
+                    {% for status in metadata_dict['status_types'] %}
+                        <option value="{{status.split(':')[0]}}">{{ status.split(':')[1] }}</option>
+                    {% endfor %}
                 </select>
                 <br><br>
                 <input class="btn btn-green" type="submit" id="submitbtn" name="mysubmit" value="Submit" onclick="filterSystemsBasedOnDropdownValues()"/>
                 <input class="btn btn-blue" type="button" id="resetbtn" name="reset" value="Reset" onclick="reset()"/>
             </div>
-            <div class="form-group" style="width: 75%; padding-top:2%;">
-                <label class="control-label">Select up to 5 systems</label>
-                <select class="ui fluid search dropdown" multiple="" id="analyzeSystem">
-                    {% for sys in systems | sort(attribute='system_name') %}
-                        <option value="{{sys['system_uid']}}">{{sys['system_name']}}</option>
-                    {% endfor %}
-                </select>
+            <div class="form-group" style="width: 78%; padding-top:2%;">
+                <label class="control-label">Select Systems to Analyze</label>
+                <select class="chosen-select" data-placeholder="Select up to 4 Systems" multiple id="analyzeSystem"> </select>
             </div>
-            {% if session.uid %}
-                <div class="form-group" style="width: 75%; padding-top:2%;">
-                    <label class="control-label">Select from your systems</label>
-                    <ul id="listOfMySystems" style="overflow-y: scroll; max-height: 120px;">
-                    </ul>
-                </div>
-            {% endif %}
             <form id="analyzeOptions" action="analyzeGraph" method="POST">
                 <input  name="selectedSystems" type="hidden" id="selectedSystems" value="abc"/>
+                <input name="systemStatus" type="hidden" id="systemStatus" value="200"/>
                 <input class="btn btn-green" type="submit" value="Analyze" id="analyzebtn"/>
             </form>
         </div>
@@ -82,19 +72,19 @@
 {% block scripts %}
     {{ super() }}
     <script type="text/javascript" src="http://maps.googleapis.com/maps/api/js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
     <script type="text/javascript" src="{{ url_for('dav.static', filename='js/underscore-min.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('dav.static', filename='js/markerclusterer-min.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('dav.static', filename='js/oms-min.js') }}"></script>
-    <script type="text/javascript" src="{{ url_for('dav.static', filename='js/semantic.min.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('dav.static', filename='js/chosen.jquery.min.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('dav.static', filename='js/aqxmap.js') }}"></script>
     <script>
-        var statuses = ['Established', 'Pre-Established', 'Suspended', 'Terminated'];
         var system_and_info_object = {{ systems_and_info_json|safe }};
+        var session_userId = '';
+        {% if session.uid %}
+            session_userId = {{ session.uid }}
+        {% endif %}
         system_and_info_object = system_and_info_object.systems;
-        _.each(system_and_info_object, function(system){
-            system.status = statuses[Math.floor(Math.random() * (4))];
-        });
-
         $(document).ready(main(system_and_info_object));
     </script>
 {% endblock %}

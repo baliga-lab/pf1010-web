@@ -26,14 +26,15 @@ var SELECT_TECHNIQUE = "selectTechnique";
 var SELECT_ORGANISM = "selectOrganism";
 var SELECT_CROP = "selectCrop";
 var SELECT_GROWBED_MEDIUM = "selectGrowbedMedium";
-var SELECT_SYSTEM_STATUS = "selectStatus"
+var SELECT_SYSTEM_STATUS = "selectStatus";
 var MOUSEOVER = 'mouseover';
 var CLICK = 'dblclick';
 var CLUSTER_CLICK = 'clusterclick';
 var MOUSEOUT = 'mouseout';
 var SELECTED = 'selected';
 var MIN_CLUSTER_ZOOM = 15;
-var MAX_SYSTEM_SELECTED = 5;
+var MAX_SYSTEM_SELECTED = 4;
+var INFO_WINDOW_TIMEOUT = '2000';
 
 // Markerclusterer and OverlappingMarkerSpiderfier need global scope
 var MC;
@@ -69,15 +70,8 @@ function buildContentString(system) {
         "<li>Crop: " + crop + "</li></ul>";
 }
 
-/**
- * Adds the given system to analyze dropdown
- * @param system 
- */
-function addSystemToAnalyzeSystemDropdown(system) {
-    $('#analyzeSystem').append($("<option></option>")
-                        .attr("value",system.system_uid)
-                        .text(system.system_name));
-}
+
+
 
 /**
  * Flips the current Marker icon from SELECTED_ICON to DEFAULT_ICON
@@ -88,33 +82,24 @@ function addSystemToAnalyzeSystemDropdown(system) {
  * @param systemID The System_UID for the system represented by marker
  */
 function flipIcons(marker, systemID) {
-    var selectedSystems = getAnalyzeSystemValues();
+    var selectedSystems = getSelectedSystemIds();
     if(selectedSystems.length >= MAX_SYSTEM_SELECTED && !markerIsStarred(marker)) {
         $('#alert_placeholder').html(getAlertHTMLString("You can select up to " + MAX_SYSTEM_SELECTED + " systems", 'danger'));
     } else {
-        $('#analyzeSystem').dropdown('clear');
+        $('#alert_placeholder').empty();
         if (!markerIsStarred(marker)) {
             marker.setZIndex(google.maps.Marker.MAX_ZINDEX + 1);
             marker.setIcon(SELECTED_ICON);
-            selectedSystems.push(systemID);
+            setSelectedValues(systemID);
         } else {
             marker.setZIndex(google.maps.Marker.MIN_ZINDEX);
             marker.setIcon(DEFAULT_ICON);
-            selectedSystems = _.reject(selectedSystems, function (id) {
-                return _.isEqual(id, systemID);
-            });
+            removeSelectedValues(systemID);
         }
-        $('#analyzeSystem').dropdown('set selected', selectedSystems);
+        $('#analyzeSystem').trigger('chosen:updated');
     }
 }
 
-/**
- * Returns selected system's Id from dropdown or []
- */
-function getAnalyzeSystemValues() {
-    var systemIds = $('#analyzeSystem').val();
-    return _.isNull(systemIds) ? [] : systemIds;
-}
 /**
  * Resets all markers to a visible state, and resets dropdowns
  * to their default values.
@@ -124,13 +109,10 @@ function reset() {
     // AnalyzeSystem dropdown values has to be flushed before resetting the marker property
     clearAnalyzeDropdown();
 
-    // Sets all markers as visible and gives them the default Marker icon
-    _.each(_.sortBy(system_and_info_object,'system_name'), function(system) {
+     _.each(system_and_info_object, function(system) {
         system.marker.setVisible(true);
         system.marker.setIcon(DEFAULT_ICON);
-        addSystemToAnalyzeSystemDropdown(system);
-    });
-
+     });
     // Repaint the clusters on reset
     MC.repaint();
 
@@ -153,6 +135,12 @@ function reset() {
     $('#selectGrowbedMedium option').prop(SELECTED, function() {
         return this.defaultSelected;
     });
+
+    $('#selectStatus option').prop(SELECTED, function() {
+        return this.defaultSelected;
+    });
+
+    filterSystemsBasedOnDropdownValues();
 }
 
 /**
@@ -209,7 +197,10 @@ function main(system_and_info_object) {
         // Add a listener that closes the infoWindow when the mouse moves away from the marker
         google.maps.event.addListener(marker, MOUSEOUT, (function () {
             return function () {
-                infoWindow.close();
+                setTimeout(function(){
+                    infoWindow.close();
+                }, INFO_WINDOW_TIMEOUT);
+
             };
         })(marker));
 
@@ -263,13 +254,22 @@ function main(system_and_info_object) {
     }
     initializeMap();
 
-    // Populate the checklist
-    // All systems are visible at this point, so this list contains each system name
-    $('#analyzeSystem').dropdown({
-        maxSelections: MAX_SYSTEM_SELECTED,
-        onChange: function(value, text) {
-            updateAnalyzeSystems();
-        }
+    filterSystemsBasedOnDropdownValues();
+
+    $('#alert_placeholder').empty();
+
+    $("#selectStatus option[text='pre-established']").attr("selected","selected");
+
+    $('#analyzeSystem').chosen({
+        max_selected_options: MAX_SYSTEM_SELECTED,
+        no_results_text: "Oops, nothing found!",
+        width: "95%"
+    });
+    $('#analyzeSystem').on('change', function(e) {
+       updateMarkerIconForSelectedSystemsOnMap();
+    });
+    $('#analyzeSystem').bind("chosen:maxselected", function () {
+        $('#alert_placeholder').html(getAlertHTMLString("You can select up to " + MAX_SYSTEM_SELECTED + " systems", 'danger'));
     });
 }
 
@@ -311,55 +311,120 @@ function filterSystemsBasedOnDropdownValues() {
     var ddAqxCrop = document.getElementById(SELECT_CROP).value;
     var ddAqxMedia = document.getElementById(SELECT_GROWBED_MEDIUM).value;
     var ddStatus = document.getElementById(SELECT_SYSTEM_STATUS).value;
-    var fileteredSystemsCount = 0;
+    var filteredSystemsCount = 0;
+    var mySystems = [];
+    var otherUserSystems = [];
+    var selectedSystemIds = getSelectedSystemIds();
 
-    var selectedSystems = getAnalyzeSystemValues();
     clearAnalyzeDropdown();
     _.each(_.sortBy(system_and_info_object,'system_name'), function(system) {
         if (systemMetadataDoesNotMatchesAnyDropdown(system, ddAqxTech, ddAqxOrg, ddAqxCrop, ddAqxMedia, ddStatus)){
-            selectedSystems = _.reject(selectedSystems, function (id) {
+            selectedSystemIds = _.reject(selectedSystemIds, function (id) {
                 return _.isEqual(id, system.system_uid);
             });
             system.marker.setVisible(false);
         } else {
             MAP.panTo(system.marker.position);
             system.marker.setVisible(true);
-            //selectedSystems.push(system.system_uid);
-            addSystemToAnalyzeSystemDropdown(system);
-            fileteredSystemsCount++;
+            filteredSystemsCount++;
+            //TODO: used to test the login feature. This should be replaced with actual userId from session
+            if(_.isEqual(system.user_id, session_userId)) {
+                mySystems.push(system);
+            } else {
+                otherUserSystems.push(system)
+            }
         }
     });
-     $('#analyzeSystem').dropdown('set selected', selectedSystems);
-    if (fileteredSystemsCount > 0){
-        $('#alert_placeholder').html(getAlertHTMLString("Found "+ fileteredSystemsCount + " systems based on filtering criteria.", 'success'));
+
+    if (filteredSystemsCount > 0){
+        $('#alert_placeholder').html(getAlertHTMLString("Found "+ filteredSystemsCount + " systems based on filtering criteria.", 'success'));
     }else {
         $('#alert_placeholder').html(getAlertHTMLString("No system(s) found. Please select a different filtering criteria and try again.", 'danger'));
     }
 
+    populateAnalyzeDropdown(mySystems, otherUserSystems, selectedSystemIds);
     // Repaint clustered markers now that we've filtered
     MC.repaint();
+}
+
+/**
+ * Adds the given system to analyze dropdown and sets the selected systems in dropdown
+ * @param mySystems - LoggedIn users systems
+ * @param otherUserSystems - Other users systems
+ * @param selectedSystemIds - Selected System's Id from dropdown
+ */
+function populateAnalyzeDropdown(mySystems, otherUserSystems, selectedSystemIds) {
+    selectedSystemIds = _.uniq(selectedSystemIds);
+    if(mySystems.length > 0) {
+        var opTag1 = $("<optgroup label='My systems'></optgroup>");
+        _.each(mySystems, function(system) {
+            opTag1.append($("<option>").attr('value',system.system_uid).text(system.system_name));
+        });
+        var opTag2 = $("<optgroup label='Other systems'></optgroup>");
+        _.each(otherUserSystems, function(system) {
+            opTag2.append($("<option>").attr('value',system.system_uid).text(system.system_name));
+        });
+        $('#analyzeSystem').append(opTag1, opTag2);
+    } else {
+        _.each(otherUserSystems, function(system) {
+            $('#analyzeSystem').append($("<option>").attr('value',system.system_uid).text(system.system_name));
+        });
+    }
+    $('#analyzeSystem').trigger("chosen:updated");
+    _.each(selectedSystemIds, function(id) {
+        setSelectedValues(id)
+    });
+}
+
+/**
+ * @param systemId
+ * Marks the systemId as selected in dropdown
+ */
+function setSelectedValues(systemId) {
+    $('#analyzeSystem option[value='+systemId+']').prop('selected', true);
+    $('#analyzeSystem').trigger("chosen:updated");
+}
+
+/**
+ * @param systemId
+ * Deselects the given systemId from dropdown
+ */
+function removeSelectedValues(systemId) {
+    $('#analyzeSystem option[value='+systemId+']').removeAttr('selected');
+    $('#analyzeSystem').trigger("chosen:updated");
 }
 
 /**
  * Clear analyzeSystem dropdown selection and values
  */
 function clearAnalyzeDropdown() {
-    $('#analyzeSystem').dropdown('clear');
     $('#analyzeSystem').empty();
+    $('#analyzeSystem').trigger('chosen:updated');
 }
+
+/**
+ * Returns an array
+ *  - EmptyArray - if no systems are selected in the dropdown OR
+ *  - Selected SystemIds from dropdown
+ */
+function getSelectedSystemIds() {
+    var systemIds = $('#analyzeSystem').val();
+    return _.isNull(systemIds) ? [] : systemIds;
+
+}
+
 /**
  * Change the marker icon to "Selected" or "Default" in Map
  */
-function updateAnalyzeSystems() {
-    // Generate the list of selected System Names
-    var checkedNames = getAnalyzeSystemValues();
-    if(checkedNames.length <= MAX_SYSTEM_SELECTED) {
+function updateMarkerIconForSelectedSystemsOnMap() {
+    var selectedSystemIds =  getSelectedSystemIds();
+    if(selectedSystemIds.length <= MAX_SYSTEM_SELECTED) {
         $('#alert_placeholder').empty();
     }
-    // For each System, if its name is in the checkedNames list, give it the star Icon
+    // For each System, if its ID is in the selectedSystemId list, give it the star Icon
     // otherwise ensure it has the default Icon
     _.each(system_and_info_object, function (system) {
-        if (_.contains(checkedNames, system.system_uid)) {
+        if (_.contains(selectedSystemIds, system.system_uid)) {
             system.marker.setIcon(SELECTED_ICON);
             system.marker.setZIndex(google.maps.Marker.MAX_ZINDEX + 1);
         } else {
@@ -374,11 +439,13 @@ function updateAnalyzeSystems() {
  * before submitting the action
  */
 $('#analyzeOptions').on('submit',function() {
-    var systemsSelectedToAnalyze = getAnalyzeSystemValues();
+    var systemsSelectedToAnalyze = getSelectedSystemIds();
     if(systemsSelectedToAnalyze.length <= 0) {
         $('#alert_placeholder').html(getAlertHTMLString("Please select systems from checkbox to analyze.", 'danger'));
         return false;
     }
     var selectedSystems = systemsSelectedToAnalyze.join(",");
     document.getElementById("selectedSystems").value = JSON.stringify(selectedSystems);
+    //TODO: Make sure that the value is an integer
+    document.getElementById("systemStatus").value = document.getElementById(SELECT_SYSTEM_STATUS).value;
 });
