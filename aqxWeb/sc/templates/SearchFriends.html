@@ -55,11 +55,11 @@
                     var store_sql_id = item.user_sql_id;
                     var google_id = item.gid;
 
-                    var $a = $("<div></div>");
-                    $("<b id='profile' class='col-md-6'></b>").text(item.label).appendTo($a).click(function () {
-                        window.location = "profile/" + google_id;
+                    var $a = $("<div></div>").click(function () {
+                         window.location = "profile/" + google_id;
                     });
-
+                    $("<b id='profile' class='col-md-6'></b>").text(item.label).appendTo($a);
+                    
                     if (item.friend_status == "Add Friend") {
                         $("<button type='button' class='btn btn-primary'></button>").text(item.friend_status).appendTo($a).click(function () {
 

@@ -17,11 +17,15 @@
             <img class="groupIcon" src="{{ url_for('social.static', filename='images/groups.png') }}">
             <h3 class="page-header">&nbsp; Groups</h3>
         </span>
-        <ul class="nav nav-tabs" id="tab-headers">
-            <li><a href="#createGroupTab"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span>&nbsp;Create Group</a></li>
-            <li><a href="#myGroupsTab"><span class="glyphicon glyphicon-user" aria-hidden="true"></span>&nbsp;My Groups</a></li>
-            <li><a href="#searchGroupsTab"><span class="glyphicon glyphicon-search" aria-hidden="true"></span>&nbsp;Search Groups</a></li>
-            <li><a href="#recommendedGroupsTab"><span class="glyphicon glyphicon-star" aria-hidden="true"></span>&nbsp;Recommended Groups</a></li>
+        <ul class="nav nav-pills">
+            <li><a href="#createGroupTab"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span>&nbsp;Create
+                Group</a></li>
+            <li><a href="#myGroupsTab"><span class="glyphicon glyphicon-user" aria-hidden="true"></span>&nbsp;My Groups</a>
+            </li>
+            <li><a href="#searchGroupsTab"><span class="glyphicon glyphicon-search" aria-hidden="true"></span>&nbsp;Search
+                Groups</a></li>
+            <li><a href="#recommendedGroupsTab"><span class="glyphicon glyphicon-star" aria-hidden="true"></span>&nbsp;Recommended
+                Groups</a></li>
         </ul>
         <br>
 
@@ -154,7 +158,7 @@
         <!-- Search Groups Div -->
         <div class="container" id="searchGroupsTab">
             <div class="input-group col-md-12">
-                <input type="text" id="autocomplete" class="form-control input-lg" placeholder="Search groups"/>
+                <input type="text" id="autocomplete" class="form-control input-lg" placeholder="Search Groups"/>
             </div>
         </div>
         <!-- End of Search Groups Div -->
@@ -162,7 +166,7 @@
 
         <!-- Recommended Groups Div -->
         <div class="container" id="recommendedGroupsTab">
-            <h4>Recommended Groups</h4>
+            <h4 class="recommendedGroupsHeader"><b>Recommended Groups</b></h4>
             <hr>
             <!-- Div To Display Recommended Groups -->
             <div class="row recommendedGroups">
@@ -209,7 +213,6 @@
     {{ super() }}
     <!-- jQuery Script For DOM Manipulation In Search Groups Page -->
     <script type="text/javascript" src="{{ url_for('social.static', filename='js/groups.js') }}"></script>
-    <script src="http://code.jquery.com/jquery-1.10.2.js"></script>
     <script src="http://code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.6.3/js/bootstrap-select.js"></script>
 
@@ -235,7 +238,8 @@
                     var grp_uid = item.uid;
                     var $a = $("<div></div>").click(function () {
                         window.location = "/social/groups/" + grp_uid;
-                    });;
+                    });
+                    ;
                     $("<b></b>").text(item.label).appendTo($a);
                     $("<br>").appendTo($a);
                     $("<span class='m-desc'></span>").text(item.desc).appendTo($a);

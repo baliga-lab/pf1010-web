@@ -8,6 +8,7 @@ import requests
 import json
 from flask import url_for
 
+
 ############################################################################
 # function : init_sc_app
 # purpose : Initialize the app_instance and graph_instance
@@ -115,7 +116,8 @@ class User:
 
 
 
- ############################################################################
+            ############################################################################
+
     # function : redirect_url
     # purpose : function which redirects the user to the same page from which the
     #            service is called
@@ -126,8 +128,8 @@ class User:
     ############################################################################
     def redirect_url(default='social.index'):
         return request.args.get('next') or \
-           request.referrer or \
-           url_for(default)
+               request.referrer or \
+               url_for(default)
 
     ############################################################################
     # function : verify_password
@@ -2200,15 +2202,16 @@ class Group:
     # function : create_group
     # purpose : Create group using the details provided by the user
     # params : self ,user_sql_id, group_name, group_description, is_private
-    # returns : None
+    # returns : group_uid
     # Exceptions : cypher.CypherError, cypher.CypherTransactionError
     ############################################################################
     def create_group(self, user_sql_id, group_name, group_description, is_private):
         try:
+            group_uid = str(uuid.uuid4())
             user = User(user_sql_id).find()
             group = Node(
                 "Group",
-                group_uid=str(uuid.uuid4()),
+                group_uid=group_uid,
                 name=group_name,
                 description=group_description,
                 is_private_group=is_private,
@@ -2220,6 +2223,7 @@ class Group:
             user_groupadmin_relationship = Relationship(user, "GROUP_ADMIN", group)
             get_graph_connection_uri().create(group)
             get_graph_connection_uri().create(user_groupadmin_relationship)
+            return group_uid
         except cypher.CypherError, cypher.CypherTransactionError:
             print "Exception occured in function create_group "
 
@@ -2460,7 +2464,6 @@ class Group:
             get_graph_connection_uri().cypher.execute(query, commentid=commentid)
         except cypher.CypherError, cypher.CypherTransactionError:
             print "Exception occured in function delete_group_comment "
-
 
     ############################################################################
     # function : get_group_recent_comments

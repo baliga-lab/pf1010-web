@@ -99,8 +99,6 @@ def index():
                            totalLikes=total_likes, post_owners=post_owners)
 
 
-
-
 @social.route('/signin')
 #######################################################################################
 # function : signin
@@ -313,11 +311,12 @@ def profile(google_id):
             posts = get_all_profile_posts(sql_id)
             total_likes = get_total_likes_for_posts()
             likes = get_all_recent_likes()
-            stop_at=3
+            stop_at = 3
             return render_template("profile.html", user_profile=user_profile, google_profile=google_profile,
                                    posts=posts, privacy_info=privacy, likes=likes, total_likes=total_likes,
                                    participated_systems=participated_systems, subscribed_systems=subscribed_systems,
-                                   admin_systems=admin_systems, friends=friends, status=status, sql_id=sql_id,stop_at=stop_at)
+                                   admin_systems=admin_systems, friends=friends, status=status, sql_id=sql_id,
+                                   stop_at=stop_at)
 
     except Exception as e:
         logging.exception("Exception at view_profile: " + str(e))
@@ -439,6 +438,7 @@ def delete_friend(u_sql_id):
     flash('Friend  Deleted');
     return redirect(url_for('social.friends'))
 
+
 #######################################################################################
 # function : delete_friend_timeline
 # purpose : deletes friend
@@ -452,6 +452,7 @@ def delete_friend_timeline(u_sql_id):
     User(session['uid']).delete_friend(accepted_sql_id)
     flash('Friend  Deleted');
     return redirect(User(session['uid']).redirect_url())
+
 
 #######################################################################################
 # function : myFriends
@@ -542,6 +543,7 @@ def send_friend_request(u_sql_id):
     User(session['uid']).send_friend_request(receiver_sql_id)
     return redirect(url_for('social.friends'))
 
+
 #######################################################################################
 # function : send_friend_request_timeline
 # purpose : send a friend request to a user clicked on the UI
@@ -554,7 +556,6 @@ def send_friend_request_timeline(u_sql_id):
     receiver_sql_id = u_sql_id
     User(session['uid']).send_friend_request(receiver_sql_id)
     return redirect(User(session['uid']).redirect_url())
-
 
 
 #######################################################################################
@@ -924,7 +925,7 @@ def view_group(group_uid):
                 return render_template("group_social.html", group_neo4j=group_neo4j, logged_in_user=logged_in_user,
                                        user_privilege=user_privilege, group_members=group_members, stop_at=3,
                                        members_pending_approval=members_pending_approval, creation_date=creation_date,
-                                       privacy_info=privacy,posts=posts,comments=comments,likes=likes,
+                                       privacy_info=privacy, posts=posts, comments=comments, likes=likes,
                                        total_likes=total_likes, post_owners=post_owners, group_uid=group_uid)
     except Exception as e:
         logging.exception("Exception at view_group: " + str(e))
@@ -1020,8 +1021,9 @@ def create_group():
         flash('Name cannot be empty')
 
     else:
-        group.create_group(sql_id, name, description, is_private)
-        flash('Your Group is successfully created!')
+        group_uid = group.create_group(sql_id, name, description, is_private)
+        flash('Your Group has been Successfully Ccreated!')
+        return redirect(url_for('social.view_group', group_uid=group_uid))
     return redirect(url_for('social.groups'))
 
 
@@ -1130,7 +1132,6 @@ def join_leave_group():
                     if request.form['submit'] == 'Leave':
                         group.leave_group(google_id, group_uid)
         return redirect(User(session['uid']).redirect_url())
-
 
 
 #######################################################################################
@@ -1243,7 +1244,10 @@ def edit_or_delete_group_comment():
                     flash('Your comment has been updated')
     return redirect(url_for('social.view_group', group_uid=group_uid))
 
+
 social.route('/edit_comment', methods=['POST'])
+
+
 #######################################################################################
 # function : edit_comment
 # purpose : edits comments using unique comment id
@@ -1446,6 +1450,7 @@ def delete_group_post():
         flash('Your comment has been updated')
     return redirect(url_for('social.view_group', group_uid=group_uid))
 
+
 #######################################################################################
 # function : edit_group_post
 # purpose : edits existing group comments using unique comment id
@@ -1536,6 +1541,7 @@ def add_system_comment():
         System().add_system_comment(userid, comment, postid)
         flash('Your comment has been posted')
     return redirect(url_for('social.view_system', system_uid=system_uid))
+
 
 @social.route('/add_group_comment', methods=['POST'])
 #######################################################################################

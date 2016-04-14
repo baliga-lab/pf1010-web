@@ -15,16 +15,24 @@
     height: 32px;
     width: 32px;
 }
+
+.adminGroupsHeader, .memberGroupsHeader, .recommendedGroupsHeader{
+    color: #449d44
+}
+
 .memberGroups {
-border: 1px solid #23434d;
-overflow-y: auto;
-overflow-x: hidden;
-height: 150px;
+    border: 1px solid #23434d;
+    overflow-y: auto;
+    overflow-x: hidden;
+    height: 150px;
 }
+
 .adminGroups {
-border: 1px solid #23434d;
-overflow-y: auto;
-overflow-x: hidden;
-height: 150px;
+    border: 1px solid #23434d;
+    overflow-y: auto;
+    overflow-x: hidden;
+    height: 150px;
 }
+
+
 
