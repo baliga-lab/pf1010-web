@@ -443,15 +443,13 @@ function toggleSplitMode(){
 
         _.each(selectedSystemIDs, function(systemID, k) {
             var new_opts = HC_OPTIONS;
-
+            new_opts.title.text = "NO DATA FOR THIS SYSTEM";
             new_opts.chart.renderTo = "chart-" + k;
             new_opts.yAxis = copyYAxes(yAxes);
             new_opts.series = copySeries(series, systemID);
-            var notFound = true;
-            for (var i=0; (i<series.length&&notFound); i++){
+            for (var i=0; (i<series.length); i++){
                 if(_.isEqual(systemID, series[i].userOptions.id)){
                     new_opts.title.text = series[i].name.split(",")[0].trim();
-                    notFound = false;
                 }
             }
             var chart = new Highcharts.Chart(new_opts);
@@ -498,7 +496,6 @@ function main(){
     // When the submit button is clicked, redraw the graph based on user selections
     $('#submitbtn').on('click', function() {
         $('#alert_placeholder').empty();
-
         drawChart();
 
         // Check if the toggle is active. (i.e, overlay mode enabled)
