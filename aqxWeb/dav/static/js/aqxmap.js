@@ -67,7 +67,8 @@ function buildContentString(system) {
         "<ul><li>Aquaponics Technique: " + technique + "</li>" +
         "<li>Aquatic organism: " + organism+ "</li>" +
         "<li>Growbed Medium: " + growbed + "</li>" +
-        "<li>Crop: " + crop + "</li></ul>";
+        "<li>Crop: " + crop + "</li>" +
+        "<li><a href='/about'>System Overview</a></li></ul>";
 }
 
 
