@@ -1,15 +1,9 @@
 <footer class="footer">
 
-        <div class="row pull-right">
-            <div class="col-xs-5">
-                <img src="{{ url_for('frontend.static', filename='images/pflogo.png') }}" height="50px">
-            </div>
-            <div class="col-xs-1"></div>
-            <div class="col-xs-6">
-                <p>401 Terry Ave N <br/>
-                Seattle WA 98109</p>
-                <h6><a class="btn-blue" href="{{ url_for('frontend.contact') }}">Contact Us!</a></h6>
-            </div>
+        <div class="row text-center">
+            © Project Feed 1010 |
+            <span class="hidden-sm hidden-xs">401 Terry Ave N | Seattle, WA 98109 |</span>
+            <a class="btn-blue" href="{{ url_for('frontend.contact') }}">Contact Us</a>
         </div>
 
 </footer>

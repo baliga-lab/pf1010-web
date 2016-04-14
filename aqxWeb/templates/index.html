@@ -44,7 +44,7 @@
                      alt="Third slide">
                 <div class="container">
                     <div class="carousel-caption">
-                        <h1>Need a curriculum?</h1>
+                        <h1>Need curriculum?</h1>
                         <p>Take a look at our lessons and get started with your classroom!</p>
                         <p><a class="btn btn-lg btn-green" href="{{ url_for('frontend.curriculum') }}" role="button">See curriculum</a></p>
                     </div>
@@ -109,10 +109,17 @@
                 <p class="lead">Join our mailing list by entering your email!</p>
                 <div class="input-group">
                     <input type="email" class="form-control" ng-model="email" placeholder="Email Address">
-                <span class="input-group-btn">
-                <button class="btn btn-green" type="button" ng-click="addEmail(email)">Get Notified</button>
-                </span>
+                    <span class="input-group-btn">
+                    <button class="btn btn-green" type="button" ng-click="addEmail(email)">Get Notified</button>
+                    </span>
                 </div><!-- /input-group -->
+                <br>
+                <div ng-show="message" class="alert alert-warning alert-dismissable" role="alert">
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                    Thank you! You have been added to the mailing list.
+                </div>
             </div>
             <div class="col-md-1"></div>
             <div class="col-md-5">

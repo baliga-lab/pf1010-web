@@ -3,10 +3,12 @@
 var app = angular.module('aqx');
 
 app.controller('AddEmailController', function ($scope, $http) {
+    $scope.message = false;
 
     $scope.addEmail = function(email) {
         function onSuccess(response) {
             console.log(response);
+            $scope.message = true;
         }
         function onFailure(error) {
             console.log(error);

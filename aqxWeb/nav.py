@@ -56,7 +56,8 @@ def guest():
         Subgroup('Education',
             View('Curriculum', 'frontend.curriculum'),
             View('Resources', 'frontend.resources')
-        )
+        ),
+        View('Questions?', 'frontend.contact'),
     )
 
 
@@ -76,6 +77,7 @@ def member():
             View('Curriculum', 'frontend.curriculum'),
             View('Resources', 'frontend.resources')
         ),
+        View('Questions?', 'frontend.contact'),
         SidedSearchBox(False),
         SidedSubgroup(session['displayName'], False,
             View('Edit Profile', 'social.editprofile'),
