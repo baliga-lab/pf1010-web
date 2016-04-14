@@ -10,7 +10,7 @@
             {% if admin_systems %}
                 {% for row in admin_systems %}
                     <li>
-                        <a href="{{ url_for('frontend.system', system_uid=row.system.system_uid) }}">{{ row.system.name }}</a>
+                        <a href="{{ url_for('frontend.sys_overview', system_uid=row.system.system_uid) }}">{{ row.system.name }}</a>
                     </li>
                 {% endfor %}
             {% else %}

@@ -1,26 +1,56 @@
-{% block content %}
-    <div class="panel-body">
-        <h3>Annotations</h3>
+{% extends "base.html" %}
 
-        <form id="myForm" class="appnitro" method="post" action="">
-            <ul>
-                <li id="li_1">
-                    <label class="description" for="mySelect">Select the details</label>
-                    <div>
-                        <select name="mySelect" id="mySelect" class="form-control">
-                            <option value="Choose">Choose Annotation</option>
-                            <option value="ph">ph</option>
-                            <option value="harvest">harvest</option>
-                            <option value="fish">fish</option>
-                            <option value="bacteria">bacteria</option>
-                            <option value="cleartank">cleartank</option>
-                            <option value="reproduction">reproduction</option>
-                        </select>
-                    </div>
+{% block styles %}
+    {{ super() }}
+    <link rel="stylesheet" type="text/css" href="{{ url_for('frontend.static', filename='css/system.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('frontend.static', filename='css/annotations.css') }}">
+{% endblock %}
+
+{% block title %}System{% endblock %}
+
+{% block content %}
+
+    <div class="container">
+        <div class="row">
+            <ul class="nav nav-pills nav-justified">
+                <li id="overview-li"><a
+                        href="{{ url_for("frontend.sys_overview", system_uid=metadata.UID) }}" title="Overview">
+                    Overview <span class="sr-only">(current)</span></a>
                 </li>
-                <br>
-                <li>
-                    <div id="otherType1" style="display:none;">
+                <li id="analytics-li">
+                    <a href="#" title="Analytics">Analytics</a>
+                </li>
+                <li id="measurement-li">
+                    <a href="{{ url_for("frontend.sys_measurements", system_uid=metadata.UID) }}" title="Measurement">Input</a>
+                </li>
+                <li id="annotate-li" class="active">
+                    <a href="{{ url_for("frontend.sys_annotations", system_uid=metadata.UID) }}"
+                       title="Annotations">Annotations</a>
+                </li>
+            </ul>
+        </div>
+        <div class="row">
+            <h3>Annotations</h3>
+
+            <form id="myForm" class="appnitro" method="post" action="">
+                <ul>
+                    <li id="li_1">
+                        <label class="description" for="mySelect">Select the details</label>
+                        <div>
+                            <select name="mySelect" id="mySelect" class="form-control">
+                                <option value="Choose">Choose Annotation</option>
+                                <option value="ph">ph</option>
+                                <option value="harvest">harvest</option>
+                                <option value="fish">fish</option>
+                                <option value="bacteria">bacteria</option>
+                                <option value="cleartank">cleartank</option>
+                                <option value="reproduction">reproduction</option>
+                            </select>
+                        </div>
+                    </li>
+                    <br>
+                    <li>
+                        <div id="otherType1" style="display:none;">
                     <span class="segmented">
                         <label style="display: inline; font-size: 100%;font-weight: 200;"><input type="radio"
                                                                                                  name="seg1"
@@ -30,9 +60,9 @@
                                                                                                 value="Remove"><span
                                 class="label">Remove</span></label>
                     </span>
-                    </div>
+                        </div>
 
-                    <div id="otherType2" style="display:none;">
+                        <div id="otherType2" style="display:none;">
                     <span class="segmented">
                         <label style="display: inline;font-size: 100%;font-weight: 200;"><input type="radio" name="seg2"
                                                                                                 value="High"><span
@@ -44,9 +74,9 @@
                                                                                                 value="Low"><span
                                 class="label">Low</span></label>
                     </span>
-                    </div>
+                        </div>
 
-                    <div id="otherType3" style="display:none;">
+                        <div id="otherType3" style="display:none;">
                     <span class="segmented">
                         <label style="display: inline;font-size: 100%;font-weight: 200;"><input type="radio" name="seg3"
                                                                                                 value="Yes"><span
@@ -55,15 +85,24 @@
                                                                                                 value="No"><span
                                 class="label">No</span></label>
                     </span>
-                    </div>
-                </li>
-                <br>
-                <li>
-                    <input type="text" name="number" id="number">
-                </li>
-            </ul>
+                        </div>
+                    </li>
+                    <br>
+                    <li>
+                        <input type="text" name="number" id="number">
+                    </li>
+                </ul>
 
-        </form>
-        <button class="btn btn-green" type="button" onclick="dataSubmit()">Submit</button>
+            </form>
+            <button class="btn btn-green" type="button" onclick="dataSubmit()">Submit</button>
+        </div>
     </div>
+
 {% endblock %}
+
+{% block scripts %}
+    {{ super() }}
+    <script src="{{ url_for('frontend.static', filename='js/jquery.slides.min.js') }}"></script>
+    <script src="{{ url_for('frontend.static', filename='js/systems.js') }}"></script>
+    <script src="{{ url_for('frontend.static', filename='js/annotation.js') }}"></script>
+{% endblock scripts %}

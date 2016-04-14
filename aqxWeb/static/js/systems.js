@@ -24,51 +24,6 @@
  });
  })();*/
 
-// SYSTEM TABS
-function activateSectionGeneric(section, panelSelectors, liSelectors) {
-    var selector = "#" + section + "-panel";
-    for (var i = 0; i < panelSelectors.length; i++) {
-        if (panelSelectors[i] !== selector) {
-            $(panelSelectors[i]).removeClass('hidden');
-            $(panelSelectors[i]).addClass('hidden');
-        }
-    }
-    $(selector).removeClass('hidden');
-    selector = "#" + section + "-li";
-    for (var i = 0; i < liSelectors.length; i++) {
-        $(liSelectors[i]).removeClass('active');
-    }
-    $(selector).addClass('active');
-}
-
-function activateSection(section) {
-    var panelSelectors = ["#overview-panel", "#analytics-panel", "#measurement-panel", "#annotation-panel", "#notes-panel", "#import-panel", "#connect-panel"];
-    var liSelectors = ["#overview-li", "#analytics-li", "#measurement-li", "#annotation-li", "#notes-li", "#import-li", "#connect-li"];
-    activateSectionGeneric(section, panelSelectors, liSelectors);
-}
-
-$('#analytics-link').click(function () {
-    activateSection("analytics");
-});
-$('#overview-link').click(function () {
-    activateSection("overview");
-});
-$('#measurement-link').click(function () {
-    activateSection("measurement");
-});
-$('#annotation-link').click(function () {
-    activateSection("annotation");
-});
-$('#notes-link').click(function () {
-    activateSection("notes");
-});
-$('#connect-link').click(function () {
-    activateSection("connect");
-});
-$('#import-link').click(function () {
-    activateSection("import");
-});
-
 // MEASUREMENTS TABS
 function activateTab(section) {
     var panelSelectors = ["#dio-panel", "#temp-panel", "#light-panel", "#nh4-panel", "#no3-panel", "#no2-panel", "#ph-panel", "#cl-panel", "#hard-panel", "#alk-panel"];
