@@ -34,6 +34,7 @@ var MOUSEOUT = 'mouseout';
 var SELECTED = 'selected';
 var MIN_CLUSTER_ZOOM = 15;
 var MAX_SYSTEM_SELECTED = 4;
+var INFO_WINDOW_TIMEOUT = '2000';
 
 // Markerclusterer and OverlappingMarkerSpiderfier need global scope
 var MC;
@@ -196,7 +197,10 @@ function main(system_and_info_object) {
         // Add a listener that closes the infoWindow when the mouse moves away from the marker
         google.maps.event.addListener(marker, MOUSEOUT, (function () {
             return function () {
-                infoWindow.close();
+                setTimeout(function(){
+                    infoWindow.close();
+                }, INFO_WINDOW_TIMEOUT);
+
             };
         })(marker));
 
