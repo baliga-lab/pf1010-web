@@ -10,7 +10,7 @@ html {
 
 body {
     padding-top: 70px;
-    margin-bottom: 115px;
+    margin-bottom: 75px;
     font-family: Circular, "Helvetica Neue", Helvetica, Arial, sans-serif;
     color: #474440;
 }
@@ -98,7 +98,7 @@ Sidebar
         top: 112px;
         bottom: 0;
         left: 0;
-        z-index: 1000;
+
         display: block;
         padding-left: 20px;
         padding-bottom: 20px;
@@ -135,13 +135,13 @@ Footer
 ***************/
 .footer {
     position: absolute;
-    padding: 25px 15px;
+    padding: 15px;
     bottom: 0;
     width: 100%;
-    height: 100px;
+    height: 50px;
     background-color: #333;
     color: #fff;
-    font-size: x-small;
+    font-size: 12px;
 }
 
 
@@ -239,4 +239,8 @@ Responsive CSS
     .main-title {
         font-size: 65px;
     }
+}
+
+.switcher {
+    font-size: 25px;
 }

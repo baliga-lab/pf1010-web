@@ -20,7 +20,7 @@ app.controller('CreateSystemController', function ($scope, $http) {
                     'system_id': response.data.systemID,
                     'system_uid': response.data.systemUID,
                     'name': system.name,
-                    'description': '',
+                    'description': system.name,
                     'location_lat': system.location.lat,
                     'location_lng': system.location.lng,
                     'status': 100

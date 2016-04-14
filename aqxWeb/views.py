@@ -1,7 +1,7 @@
 from flask import render_template
 from frontend import frontend
 
-from servicesV2 import getEnums
+from servicesV2 import getEnums, getSystem
 
 import json
 
@@ -37,7 +37,8 @@ def contact():
 
 @frontend.route('/system/<system_uid>')
 def system(system_uid):
-    return render_template('system.html')
+    metadata = json.loads(getSystem(system_uid))
+    return render_template('system.html', **locals())
 
 
 @frontend.route('/create_system_page')
