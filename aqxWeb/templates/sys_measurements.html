@@ -6,16 +6,15 @@
     <link rel="stylesheet" type="text/css" href="{{ url_for('frontend.static', filename='css/annotations.css') }}">
 {% endblock %}
 
-{% block title %}System{% endblock %}
+{% block title %}{{ metadata.name }} Measurements{% endblock %}
 
 {% block content %}
-
-    <div class="container">
-        <div class="row">
-            <ul class="nav nav-pills nav-justified">
-                <li id="overview-li"><a
-                        href="{{ url_for("frontend.sys_overview", system_uid=metadata.UID) }}" title="Overview">
-                    Overview <span class="sr-only">(current)</span></a>
+    <div class="row">
+        <div class="col-sm-3">
+            <ul class="nav nav-stacked">
+                <li id="social-li"><a
+                        href="{{ url_for("social.view_system", system_uid=metadata.UID) }}" title="Social">
+                    Social <span class="sr-only">(current)</span></a>
                 </li>
                 <li id="analytics-li">
                     <a href="#" title="Analytics">Analytics</a>
@@ -29,163 +28,166 @@
                 </li>
             </ul>
         </div>
-        <div class="row">
+        <div class="col-sm-9">
             <h3>Input Measurements</h3>
 
-            {#<ul class="nav nav-tabs">
-            <li id="dio-li" role="presentation" class="active"><a id="dio-link" href="javascript:void(0)">Dis.
-                Oxygen</a></li>
-            <li id="temp-li" role="presentation"><a id="temp-link" href="javascript:void(0)">Temperature</a></li>
-            <li id="light-li" role="presentation"><a id="light-link" href="javascript:void(0)">Light</a></li>
-            <li id="nh4-li" role="presentation"><a id="nh4-link" href="javascript:void(0)">Ammonium</a></li>
-            <li id="no3-li" role="presentation"><a id="no3-link" href="javascript:void(0)">Nitrate</a></li>
-            <li id="no2-li" role="presentation"><a id="no2-link" href="javascript:void(0)">Nitrite</a></li>
-            <li id="ph-li" role="presentation"><a id="ph-link" href="javascript:void(0)">pH</a></li>
-            <li id="cl-li" role="presentation"><a id="cl-link" href="javascript:void(0)">Chlorine</a></li>
-            <li id="hard-li" role="presentation"><a id="hard-link" href="javascript:void(0)">Hardness</a></li>
-            <li id="alk-li" role="presentation"><a id="alk-link" href="javascript:void(0)">Alkalinity</a></li>
-        </ul>#}
-
-            <div class="panel-body">
-                <form ng-submit="addMeasurement()">
+            <div ng-controller="MeasurementController">
+                <div class="form-group">
+                    <label>Measurement Type:</label>
+                    <select class="form-control" ng-model="measure.id">
+                        <option value="1">Alkalinity</option>
+                        <option value="2">Ammonium</option>
+                        <option value="3">Chlorine</option>
+                        <option value="4">Hardness</option>
+                        <option value="5">Light</option>
+                        <option value="6">Nitrate</option>
+                        <option value="7">Nitrite</option>
+                        <option value="8">Dis. Oxygen</option>
+                        <option value="9">pH</option>
+                        <option value="10">Temperature</option>
+                    </select>
+                <hr>
+                </div>
+                <form>
                     <input type="hidden" class="hidden">
                     <div class="form-group">
                         <label for="measure-date">Measurement Date</label>
-                        <input class="form-control" type="date" id="measure-date" name="measure-date" required>
+                        <input class="form-control" type="date" id="measure-date" name="measure-date"
+                               ng-model="measure.date" required>
                     </div>
                     <div class="form-group">
                         <label for="measure-time">Measurement Time</label>
-                        <input class="form-control" type="time" id="measure-time" name="measure-time">
+                        <input class="form-control" type="time" id="measure-time" name="measure-time"
+                               ng-model="measure.time">
                     </div>
 
                     <div id="dio-panel">
                         <div class="form-group">
-                            <label for="o2-value">Value</label>
+                            <label for="o2-value">Dis. Oxygen</label>
                             <div class="input-group">
                                 <input id="o2-value" class="form-control" name="o2-value" type="number"
                                        pattern="[0-9]+(.[0-9]+)?" style="text-align: right;" placeholder="0.0"
                                        step="0.001"
-                                       aria-describedby="o2-addon">
+                                       aria-describedby="o2-addon" ng-model="measure.o2">
                                 <span id="o2-addon" class="input-group-addon">mg/l</span>
                             </div>
                         </div>
                     </div><!-- dio-panel -->
+                    <!-- button panel -->
+                    <div class="form-group">
+                        <div class="col-sm-10">
+                            <button type="submit" class="btn btn-green" ng-click="addMeasurement(measure)">Submit
+                            </button>
+                        </div>
+                    </div>
+                </form>
 
-                    <div id="temp-panel" class="hidden">
+                {#<div id="temp-panel">
                         <div class="form-group">
-                            <label for="temp-value">Value</label>
+                            <label for="temp-value">Temperature</label>
                             <div class="input-group">
                                 <input id="temp-value" class="form-control" name="temp-value" type="number"
                                        pattern="[0-9]+(.[0-9]+)?" style="text-align: right;" placeholder="0.0"
                                        step="0.001"
-                                       aria-describedby="temp-addon">
+                                       aria-describedby="temp-addon" ng-model="measure.temp">
                                 <span id="temp-addon" class="input-group-addon">&deg;C</span>
                             </div>
                         </div>
                     </div><!-- temp-panel -->
 
-                    <div id="light-panel" class="hidden">
+                    <div id="light-panel">
                         <div class="form-group">
-                            <label for="light-value">Value</label>
+                            <label for="light-value">Light Intensity</label>
                             <div class="input-group">
                                 <input id="light-value" class="form-control" name="light-value" type="number"
                                        pattern="[0-9]+(.[0-9]+)?" style="text-align: right;" placeholder="0.0"
                                        step="0.001"
-                                       aria-describedby="light-addon">
+                                       aria-describedby="light-addon" ng-model="measure.light">
                                 <span id="light-addon" class="input-group-addon">lux</span>
                             </div>
                         </div>
                     </div><!-- light-panel -->
 
 
-                    <div id="nh4-panel" class="hidden">
+                    <div id="nh4-panel">
                         <div class="form-group">
-                            <label for="nh4-value">Value</label>
+                            <label for="nh4-value">Ammonium</label>
                             <div class="input-group">
                                 <input id="nh4-value" class="form-control" name="ammonium-value" type="number"
                                        pattern="[0-9]+(.[0-9]+)?" style="text-align: right;" placeholder="0.0"
                                        step="0.001"
-                                       aria-describedby="ammonium-addon">
+                                       aria-describedby="ammonium-addon" ng-model="measure.nh4">
                                 <span id="ammonium-addon" class="input-group-addon">mg/l</span>
                             </div>
                         </div>
                     </div><!-- nh4-panel -->
 
-                    <div id="no3-panel" class="hidden">
+                    <div id="no3-panel">
                         <div class="form-group">
-                            <label for="no3-value">Value</label>
+                            <label for="no3-value">Nitrate</label>
                             <div class="input-group">
                                 <input id="no3-value" class="form-control" name="nitrate-value" type="number"
                                        pattern="[0-9]+(.[0-9]+)?" style="text-align: right;" placeholder="0.0"
                                        step="0.001"
-                                       aria-describedby="nitrate-addon">
+                                       aria-describedby="nitrate-addon" ng-model="measure.no3">
                                 <span id="nitrate-addon" class="input-group-addon">mg/l</span>
                             </div>
                         </div>
                     </div><!-- no3-panel -->
 
-                    <div id="no2-panel" class="hidden">
+                    <div id="no2-panel">
                         <div class="form-group">
-                            <label for="no2-value">Value</label>
+                            <label for="no2-value">Nitrite</label>
                             <div class="input-group">
                                 <input id="no2-value" class="form-control" name="nitrite-value" type="number"
                                        pattern="[0-9]+(.[0-9]+)?" style="text-align: right;" placeholder="0.0"
                                        step="0.001"
-                                       aria-describedby="nitrate-addon">
+                                       aria-describedby="nitrate-addon" ng-model="measure.no2">
                                 <span id="nitrite-addon" class="input-group-addon">mg/l</span>
                             </div>
                         </div>
                     </div><!-- no2-panel -->
 
-                    <div id="ph-panel" class="hidden">
+                    <div id="ph-panel">
                         <div class="form-group">
-                            <label for="ph-value">Value</label>
+                            <label for="ph-value">pH</label>
                             <input id="ph-value" class="form-control" name="ph-value" type="number"
-                                   pattern="[0-9]+(.[0-9]+)?" style="text-align: right;" placeholder="0.0" step="0.001">
+                                   pattern="[0-9]+(.[0-9]+)?" style="text-align: right;" placeholder="0.0" step="0.001" ng-model="measure.ph">
                         </div>
                     </div><!-- ph-panel -->
 
-                    <div id="cl-panel" class="hidden">
+                    <div id="cl-panel">
                         <div class="form-group">
-                            <label for="cl-value">Value</label>
+                            <label for="cl-value">Chlorine</label>
                             <input id="cl-value" class="form-control" name="chlorine-value" type="number"
-                                   pattern="[0-9]+(.[0-9]+)?" style="text-align: right;" placeholder="0.0" step="0.001">
+                                   pattern="[0-9]+(.[0-9]+)?" style="text-align: right;" placeholder="0.0" step="0.001" ng-model="measure.cl">
                         </div>
                     </div><!-- cl-panel -->
 
-                    <div id="hard-panel" class="hidden">
+                    <div id="hard-panel">
                         <div class="form-group">
-                            <label for="hard-value">Value</label>
+                            <label for="hard-value">Hardness</label>
                             <div class="input-group">
                                 <input id="hard-value" class="form-control" name="hardness-value" type="number"
                                        pattern="[0-9]+(.[0-9]+)?" style="text-align: right;" placeholder="0.0"
-                                       step="0.001">
+                                       step="0.001" ng-model="measure.hard">
                                 <span id="hard-addon" class="input-group-addon">mg/l</span>
                             </div>
                         </div>
                     </div><!-- hard-panel -->
 
-                    <div id="alk-panel" class="hidden">
+                    <div id="alk-panel">
                         <div class="form-group">
-                            <label for="alk-value">Value</label>
+                            <label for="alk-value">Alkalinity</label>
                             <div class="input-group">
                                 <input id="alk-value" class="form-control" name="alkalinity-value" type="number"
                                        pattern="[0-9]+(.[0-9]+)?" style="text-align: right;" placeholder="0.0"
-                                       step="0.001">
+                                       step="0.001" ng-model="measure.alk">
                                 <span id="alk-addon" class="input-group-addon">meq/l</span>
                             </div>
                         </div>
-                    </div><!-- alk-panel -->
-
-                    <!-- button panel -->
-                    <div class="form-group">
-                        <div class="col-sm-10">
-                            <button type="submit" class="btn btn-green">Submit</button>
-                        </div>
-                    </div>
-                </form>
+                    </div><!-- alk-panel -->#}
             </div>
-        </div>
         </div>
     </div>
 
@@ -195,5 +197,4 @@
     {{ super() }}
     <script src="{{ url_for('frontend.static', filename='js/jquery.slides.min.js') }}"></script>
     <script src="{{ url_for('frontend.static', filename='js/systems.js') }}"></script>
-    <script src="{{ url_for('frontend.static', filename='js/annotation.js') }}"></script>
 {% endblock scripts %}

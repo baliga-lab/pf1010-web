@@ -6,30 +6,30 @@
     <link rel="stylesheet" type="text/css" href="{{ url_for('frontend.static', filename='css/annotations.css') }}">
 {% endblock %}
 
-{% block title %}System{% endblock %}
+{% block title %}{{ metadata.name }} Annotations{% endblock %}
 
 {% block content %}
 
-    <div class="container">
-        <div class="row">
-            <ul class="nav nav-pills nav-justified">
-                <li id="overview-li"><a
-                        href="{{ url_for("frontend.sys_overview", system_uid=metadata.UID) }}" title="Overview">
-                    Overview <span class="sr-only">(current)</span></a>
+    <div class="row">
+        <div class="col-sm-3">
+            <ul class="nav nav-stacked">
+                <li id="social-li"><a
+                        href="{{ url_for("social.view_system", system_uid=metadata.UID) }}" title="Social">
+                    Social <span class="sr-only">(current)</span></a>
                 </li>
                 <li id="analytics-li">
                     <a href="#" title="Analytics">Analytics</a>
                 </li>
-                <li id="measurement-li">
+                <li id="measurement-li" class="active">
                     <a href="{{ url_for("frontend.sys_measurements", system_uid=metadata.UID) }}" title="Measurement">Input</a>
                 </li>
-                <li id="annotate-li" class="active">
+                <li id="annotate-li">
                     <a href="{{ url_for("frontend.sys_annotations", system_uid=metadata.UID) }}"
                        title="Annotations">Annotations</a>
                 </li>
             </ul>
         </div>
-        <div class="row">
+        <div class="col-sm-9">
             <h3>Annotations</h3>
 
             <form id="myForm" class="appnitro" method="post" action="">

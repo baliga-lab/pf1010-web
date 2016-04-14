@@ -40,20 +40,24 @@ def sys_overview(system_uid):
     metadata = json.loads(getSystem(system_uid))
     return render_template('sys_overview.html', **locals())
 
+
 @frontend.route('/system/<system_uid>/measurements')
 def sys_measurements(system_uid):
     metadata = json.loads(getSystem(system_uid))
     return render_template('sys_measurements.html', **locals())
+
 
 @frontend.route('/system/<system_uid>/annotations')
 def sys_annotations(system_uid):
     metadata = json.loads(getSystem(system_uid))
     return render_template('sys_annotations.html', **locals())
 
+
 @frontend.route('/create_system_page')
 def create_system_page():
     enums = json.loads(getEnums())
     return render_template('create_system.html', **locals())
+
 
 @frontend.route('/badges')
 def badges():
