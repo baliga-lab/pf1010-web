@@ -21,7 +21,7 @@ class measurementDAO:
 
         try:
             for measurement in measurements:
-                table = getTableName(measurement)
+                table = getTableName(measurement, systemUID)
                 cursor.execute(query % table)
                 reading = cursor.fetchone()
                 readings[measurement] = reading
@@ -39,7 +39,7 @@ class measurementDAO:
         value = reading['value']
         timestamp = reading['timestamp']
 
-        table = getTableName(measurementType)
+        table = getTableName(measurementType, systemUID)
 
         query = ('INSERT INTO ' + table + ' (value, time) '
                  'VALUES (%s, %s)')

@@ -120,7 +120,7 @@ class systemDAO:
         # The following create measurement tables
 
         measurements = ['ammonium', 'o2', 'ph', 'nitrate', 'light', 'temp', 'nitrite', 'chlorine', 'hardness', 'alkalinity']
-        names = list(map(getTableName, measurements))
+        names = list(map(lambda x: 'aqxs_' + x + '_' + systemUID, measurements))
         query5 = 'CREATE TABLE %s (time TIMESTAMP PRIMARY KEY NOT NULL, value DECIMAL(13,10) NOT NULL)'
 
         # Execute the queries
@@ -209,7 +209,7 @@ class systemDAO:
         # The following will delete measurement tables
 
         measurements = ['ammonium', 'o2', 'ph', 'nitrate', 'light', 'temp', 'nitrite', 'chlorine', 'hardness', 'alkalinity']
-        names = list(map(getTableName, measurements))
+        names = list(map(lambda x: 'aqxs_' + x + '_' + systemUID, measurements))
         query5 = 'DROP TABLE IF EXISTS %s'
 
         try:
