@@ -106,6 +106,45 @@ def analyze_graph():
 
 
 ######################################################################
+# Interactive graph analysis of a given system measurements
+######################################################################
+
+@dav.route('/analyzeGraph/system/<system_uid>', methods=['GET'])
+def system_analyze(system_uid):
+    msr_id_list = [6, 7, 2, 1, 9, 8, 10]
+
+    # Load JSON formatted String from API.
+    # This will be piped into Javascript as a JS Object accessible in that scope
+    # TODO: There are currently no error pages, we're just stubbing abort for now
+    measurement_types_and_info = get_all_measurement_info()
+    if 'error' in measurement_types_and_info:
+        print measurement_types_and_info['error']
+        raise AttributeError("Error processing API call for measurement types.")
+
+    # Load JSON into Python dict with only Byte values, for use in populating dropdowns
+    measurement_types = json_loads_byteified(measurement_types_and_info)['measurement_info']
+    measurement_names = measurement_types.keys()
+    measurement_names.sort()
+
+    selected_systemID_list = []
+    try:
+        selected_systemID_list = json.dumps(system_uid).translate(None, '\"\\').split(",")
+    except:
+        traceback.print_exc()
+        if not selected_systemID_list:
+            print("System ID list is undefined.")
+        raise AttributeError("Error processing selected systems form.")
+
+    current_status = 100
+    #current_status = get_metadata(system_uid)
+    systems_and_measurements_json = get_readings_for_tsplot(selected_systemID_list, msr_id_list, current_status)
+    if 'error' in systems_and_measurements_json:
+        print systems_and_measurements_json['error']
+        raise AttributeError("Error processing API call for measurement readings.")
+    return render_template("systemAnalyze.html", **locals())
+
+
+######################################################################
 # API call to get metadata of all the systems
 ######################################################################
 
