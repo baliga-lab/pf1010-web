@@ -3,19 +3,23 @@ from mysql.connector.pooling import MySQLConnectionPool
 from flask import url_for
 from flask import Flask, render_template,redirect
 from flask import session
-from dav.analytics_views import dav
-from dav.analytics_views import init_dav
-from sc.models import init_sc_app
-from sc.views import social
+from flask_oauth import OAuth
 
 # UI imports
 from flask_bootstrap import Bootstrap
-import frontend as ui
-from frontend import frontend
-
+from frontend import frontend as ui
+from services import init_app as init_ui_app
+from servicesV2 import init_app as init_ui_app2
 from nav import nav
+import views
 
-from flask_oauth import OAuth
+# DAV imports
+from dav.analytics_views import dav
+from dav.analytics_views import init_dav as init_dav_app
+
+# Social imports
+from sc.models import init_sc_app
+from sc.views import social
 
 os.environ['AQUAPONICS_SETTINGS'] = "system_db.cfg"
 # To hold db connection pool
@@ -24,7 +28,7 @@ app = Flask(__name__)
 app.secret_key = os.urandom(24)
 app.register_blueprint(dav, url_prefix='/dav')
 app.register_blueprint(social, url_prefix='/social')
-app.register_blueprint(frontend, url_prefix='')
+app.register_blueprint(ui, url_prefix='')
 pool = None
 # Social Component DB Configuration Settings
 app.config.from_pyfile("sc/settings.cfg")
@@ -36,8 +40,6 @@ Bootstrap(app)
 ######################################################################
 # method to create connection pool to mySQL DB when application starts
 ######################################################################
-
-
 def create_conn(app):
     global pool
     print("PID %d: initializing pool..." % os.getpid())
@@ -48,7 +50,6 @@ def create_conn(app):
         "db": app.config['DB']
     }
     pool = MySQLConnectionPool(pool_name="mypool", pool_size=app.config['POOLSIZE'], **dbconfig)
-
 
 @app.route('/')
 def index():
@@ -63,8 +64,8 @@ def page_not_found(e):
     return render_template('error.html'), 500
 
 
-
 oauth = OAuth()
+
 
 google = oauth.remote_app('google',
                           base_url='https://www.google.com/accounts/',
@@ -78,7 +79,6 @@ google = oauth.remote_app('google',
                           access_token_params={'grant_type': 'authorization_code'},
                           consumer_key='942461862574-ghm0gs1j16m730tgd1pct5pd5kfv7akk.apps.googleusercontent.com',
                           consumer_secret='pb7FUHfE7Dmrh8XMAjt6Gz1j')
-
 
 
 @app.route('/getToken')
@@ -129,14 +129,12 @@ def Home():
 
 # Common init method for application
 if __name__ == "__main__":
-    # Initialize the aquaponics db connection
     app.debug = True
     app.config.from_envvar('AQUAPONICS_SETTINGS')
     create_conn(app)
-    init_dav(pool)
-    ui.init_app(pool)
-    # Intialize the social component global app instance
+    init_ui_app(pool) # includes api v1
+    init_ui_app2(pool) # includes api v2
+    init_dav_app(pool)
     init_sc_app(app)
-    # Initialise UI's nav routing
     nav.init_app(app)
     app.run(debug=True)

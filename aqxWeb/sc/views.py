@@ -94,9 +94,13 @@ def index():
     privacy = Privacy([Privacy.FRIENDS, Privacy.PUBLIC], Privacy.FRIENDS,
                       'home', session['uid'])  # info about timeline/page)
     privacy.user_relation = None
+    admin_systems = System().get_admin_systems(session['uid'])
+    participated_systems = System().get_participated_systems(session['uid'])
+    subscribed_systems = System().get_subscribed_systems(session['uid'])
     return render_template('home.html', posts=posts, comments=comments,
                            privacy_info=privacy, likes=likes,
-                           totalLikes=total_likes, post_owners=post_owners)
+                           totalLikes=total_likes, postOwners=post_owners,
+                           admin_systems=admin_systems)
 
 
 @social.route('/signin')
@@ -362,6 +366,7 @@ def get_user_privacy(sql_id):
 #        return render_template("friends.html")
 #    else:
 #        return render_template("/home.html")
+
 
 #######################################################################################
 # function : accept_friend_request

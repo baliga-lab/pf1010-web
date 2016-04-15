@@ -1,4 +1,5 @@
 from datetime import datetime
+
 # DAO for users table
 
 
@@ -7,14 +8,31 @@ class UserDAO:
     def __init__(self, conn):
         self.conn = conn
 
+
+
     ###############################################################################
     # get_user(user_id) - method to fetch user details
     # param user_id : users google id
 
-    def get_user(self, user_id):
+    def get_user_by_google_id(self, user_id):
         cursor = self.conn.cursor()
         query = ("select id,google_id,email,default_site_location_lat,"
                  "default_site_location_lng from users where google_id = %s")
+        try:
+            cursor.execute(query, (user_id,))
+            users = cursor.fetchall()
+        finally:
+            cursor.close()
+        return users
+
+        ###############################################################################
+        # get_user(user_id) - method to fetch user details
+        # param user_id : users user id
+
+    def get_user(self, user_id):
+        cursor = self.conn.cursor()
+        query = ("select id,google_id,email,default_site_location_lat,"
+                 "default_site_location_lng from users where id = %s")
         try:
             cursor.execute(query, (user_id,))
             users = cursor.fetchall()
@@ -28,7 +46,7 @@ class UserDAO:
 
     def put_user(self, user):
 
-        old_user = self.get_user(user.get('googleid'))
+        old_user = self.get_user_by_google_id(user.get('googleid'))
         if len(old_user) != 0:
             return "User exists"
         cursor = self.conn.cursor()

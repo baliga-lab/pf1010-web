@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+
+{% block styles %}
+    {{ super() }}
+    <link rel="stylesheet" type="text/css" href="{{ url_for('frontend.static', filename='css/system.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('frontend.static', filename='css/annotations.css') }}">
+{% endblock %}
+
+{% block title %}{{ metadata.name }} Annotations{% endblock %}
+
+{% block content %}
+
+    <div class="row">
+        <div class="col-sm-3">
+            <ul class="nav nav-stacked">
+                <li id="social-li"><a
+                        href="{{ url_for("social.view_system", system_uid=metadata.UID) }}" title="Social">
+                    Social <span class="sr-only">(current)</span></a>
+                </li>
+                <li id="analytics-li">
+                    {# <a href="{{ url_for('dav.system_analyze', system_uid=metadata.UID) }}" title="Analytics">Analytics</a> #}
+                </li>
+                <li id="measurement-li" class="active">
+                    <a href="{{ url_for("frontend.sys_measurements", system_uid=metadata.UID) }}" title="Measurement">Measurements</a>
+                </li>
+                <li id="annotate-li">
+                    <a href="{{ url_for("frontend.sys_annotations", system_uid=metadata.UID) }}"
+                       title="Annotations">Annotations</a>
+                </li>
+            </ul>
+        </div>
+        <div class="col-sm-9">
+            <h3>Add Annotations</h3>
+
+            <form id="myForm" class="appnitro" method="post" action="">
+                <ul>
+                    <li id="li_1">
+                        <label class="description" for="mySelect">Select the details</label>
+                        <div>
+                            <select name="mySelect" id="mySelect" class="form-control">
+                                <option value="Choose">Choose Annotation</option>
+                                <option value="ph">ph</option>
+                                <option value="harvest">harvest</option>
+                                <option value="fish">fish</option>
+                                <option value="bacteria">bacteria</option>
+                                <option value="cleartank">cleartank</option>
+                                <option value="reproduction">reproduction</option>
+                            </select>
+                        </div>
+                    </li>
+                    <br>
+                    <li>
+                        <div id="otherType1" style="display:none;">
+                    <span class="segmented">
+                        <label style="display: inline; font-size: 100%;font-weight: 200;"><input type="radio"
+                                                                                                 name="seg1"
+                                                                                                 value="Add"><span
+                                class="label">Add</span></label>
+                        <label style="display: inline;font-size: 100%;font-weight: 200;"><input type="radio" name="seg1"
+                                                                                                value="Remove"><span
+                                class="label">Remove</span></label>
+                    </span>
+                        </div>
+
+                        <div id="otherType2" style="display:none;">
+                    <span class="segmented">
+                        <label style="display: inline;font-size: 100%;font-weight: 200;"><input type="radio" name="seg2"
+                                                                                                value="High"><span
+                                class="label">High</span></label>
+                        <label style="display: inline;font-size: 100%;font-weight: 200;"><input type="radio" name="seg2"
+                                                                                                value="Constant"><span
+                                class="label">Constant</span></label>
+                        <label style="display: inline;font-size: 100%;font-weight: 200;"><input type="radio" name="seg2"
+                                                                                                value="Low"><span
+                                class="label">Low</span></label>
+                    </span>
+                        </div>
+
+                        <div id="otherType3" style="display:none;">
+                    <span class="segmented">
+                        <label style="display: inline;font-size: 100%;font-weight: 200;"><input type="radio" name="seg3"
+                                                                                                value="Yes"><span
+                                class="label">Yes</span></label>
+                        <label style="display: inline;font-size: 100%;font-weight: 200;"><input type="radio" name="seg3"
+                                                                                                value="No"><span
+                                class="label">No</span></label>
+                    </span>
+                        </div>
+                    </li>
+                    <br>
+                    <li>
+                        <input type="text" name="number" id="number">
+                    </li>
+                </ul>
+
+            </form>
+            <button class="btn btn-green" type="button" onclick="dataSubmit()">Submit</button>
+        </div>
+    </div>
+
+{% endblock %}
+
+{% block scripts %}
+    {{ super() }}
+    <script src="{{ url_for('frontend.static', filename='js/jquery.slides.min.js') }}"></script>
+    <script src="{{ url_for('frontend.static', filename='js/systems.js') }}"></script>
+    <script src="{{ url_for('frontend.static', filename='js/annotation.js') }}"></script>
+{% endblock scripts %}

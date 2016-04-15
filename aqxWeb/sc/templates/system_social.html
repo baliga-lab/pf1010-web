@@ -260,38 +260,36 @@
 
         <!-- This is the rightPaneDiv for system data -->
         <div class="col-md-3 rightPaneDiv">
-
+            <h2>Summary</h2>
+            <a class="btn-blue" href="{{ url_for('frontend.sys_measurements', system_uid=id) }}"><i
+                    class="fa fa-plus"></i> Input Measurements</a>
             <div class="row">
-
-                <h2> Summary</h2>
-
-                <div class="row">
-                    <table id="placar" class="table table-responsive">
-                        <thead>
-                        <tr>
-                            <th>Name</th>
-                            <th>Value</th>
-                            <th>Last Updated</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        {% if measurements is not none %}
-                            {% for row in measurements %}
-                                <tr>
-                                    <td> {{ row.name }} </td>
-                                    <td> {{ row.value }} </td>
-                                    <td>  {{ row.time }}  </td>
-                                </tr>
-                            {% endfor %}
-                        {% endif %}
-                        </tbody>
-                    </table>
-                </div>
+                <table id="placar" class="table table-responsive">
+                    <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Value</th>
+                        <th>Last Updated</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% if measurements is not none %}
+                        {% for row in measurements %}
+                            <tr>
+                                <td> {{ row.name }} </td>
+                                <td> {{ row.value }} </td>
+                                <td>  {{ row.time }}  </td>
+                            </tr>
+                        {% endfor %}
+                    {% endif %}
+                    </tbody>
+                </table>
             </div>
         </div>
-        <!-- End Div for Right Pane (System Data) - Systems Page -->
+    </div>
+    <!-- End Div for Right Pane (System Data) - Systems Page -->
 
-        <!-- ---------------------------------------------------------  -->
+    <!-- ---------------------------------------------------------  -->
 
     </div>
     <!-- End of Div for Systems Pane - Container Div -->

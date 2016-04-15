@@ -11,10 +11,10 @@
 
 
 {% block content %}
-
-    <div class="col-sm-3">
-        <div class="row">
-            <img class="imgstyle" id="userImage" src="{{ google_profile['img_url'] or user_profile['image_url'] }}"
+<div class="row">
+    <div class="sidebar col-sm-3">
+        <div class="profile">
+            <img class="imgstyle img-responsive" id="userImage" src="{{ google_profile['img_url'] or user_profile['image_url'] }}"
                  width="200"/> <br/>
             <h3 class="username">  {{ user_profile['displayName'] }} </h3>
             {% if google_profile['plus_url'] %}
@@ -89,7 +89,7 @@
                 {% endif %}
             </ul>
 
-            <button type="button" class="btn btn-info btn-sm" data-toggle="modal" data-target="#myModal">See all
+            <button type="button" class="btn btn-grey btn-sm" data-toggle="modal" data-target="#myModal">See all
                 systems
             </button>
         </div>
@@ -114,7 +114,7 @@
                     <li>None</li>
                 {% endif %}
             </ul>
-            <button type="button" class="btn btn-info btn-sm" data-toggle="modal" data-target="#myFriendModal">See all
+            <button type="button" class="btn btn-grey btn-sm" data-toggle="modal" data-target="#myFriendModal">See all
                 Friends
             </button>
 
@@ -124,7 +124,7 @@
     </div>
 
     {# NEWSFEED #}
-    <div class="main col-sm-9">
+    <div class="col-sm-9 col-sm-offset-3 main">
         {% include "post_form.html" %}
 
         <h3>User Posts</h3>
@@ -217,5 +217,5 @@
             </div>
         </div>
     </div>
-
+</div>
 {% endblock %}
