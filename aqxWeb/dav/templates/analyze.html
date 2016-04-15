@@ -4,7 +4,9 @@
     {{ super() }}
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap-theme.min.css" integrity="sha384-fLW2N01lMqjakBkx3l/M9EahuwpSfeNvV63J5ezn3uZzapT0u7EYsXMjQV+0En5r" crossorigin="anonymous">
     <link rel="stylesheet" href="{{ url_for('dav.static', filename='css/explore.css') }}">
-    <link rel="stylesheet" href="{{ url_for('dav.static', filename='css/semantic.min.css') }}">
+    <link rel="stylesheet" href="{{ url_for('dav.static', filename='css/toggles.css') }}">
+    <link rel="stylesheet" href="{{ url_for('dav.static', filename='css/toggles-soft.css') }}">
+    <link rel="stylesheet" href="{{ url_for('dav.static', filename='css/chosen.min.css') }}">
 {% endblock %}
 
 {% block title %}Analyze{% endblock %}
@@ -14,13 +16,23 @@
         <div style="width: 100%">
             <div id = "alert_placeholder" style="width: 90%"></div>
             <div style="width: 90%;">
-                <div id="analyzeContainer" style="height: 500px; width: 100%;"> </div>
+                <div id="analyzeContainer" style="height: 500px; width: 100%;"></div>
             </div>
-            <div id="measurementLegend"style="width: 50%;">
+            <div style="width: 100%; display: table;">
+                <div style="display: table-row">
+                    <div id="chart-0" class="split-chart" style="width: 50%; display: table-cell;"></div>
+                    <div id="chart-1" class="split-chart" style="width: 50%; display: table-cell;"></div>
+                </div>
+                <div style="display: table-row">
+                    <div id="chart-2" class="split-chart" style="width: 50%; display: table-cell;"></div>
+                    <div id="chart-3" class="split-chart" style="width: 50%; display: table-cell;"></div>
+                </div>
+            </div>
+            <div id="measurementLegend" style="width: 50%;">
                 <div id="legendTypes"></div>
             </div>
             <br>
-            <div style="width: 30%;">
+            <div style="width: 30%; display: none;">
                 <div class="form-group">
                     <label class="control-label">Select X Axis</label>
                     <select class="explore-dropdown" id="selectXAxis">
@@ -34,23 +46,13 @@
             <div style="width: 30%;">
                 <div class="form-group">
                     <label class="control-label">Select Y Axis</label>
-                    <select class="ui fluid search dropdown" multiple="" id="selectYAxis">
+                    <select class="chosen-select" multiple id="selectYAxis">
                         {% for name in measurement_names %}
                             {% if not name == 'time' %}<option value="{{ name }}">{{ name }}</option>{% endif %}
                         {% endfor %}
                     </select>
                 </div>
             </div>
-            <div style="width: 30%;">
-                <label class="control-label">Select System Status</label>
-                <select class="explore-dropdown" id="selectStatus">
-                    <option value="200" selected="selected">Established</option>
-                    <option value="100">Pre-Established</option>
-                    <option value="300">Suspended</option>
-                    <option value="400">Terminated</option>
-                </select>
-            </div>
-            <br>
             <div style="width: 30%;">
                 <div id="graphType" style="height: 100%; width: 100%;">
                     <label class="control-label">Select Graph Type</label>
@@ -60,11 +62,24 @@
                         <option value="spline">Spline</option>
                     </select>
                 </div>
+                <br>
+                <div>
+                    <label class="control-label">View data from</label>
+                    <select class="explore-dropdown" id="selectNumberOfEntries">
+                        <option value="">All the data</option>
+                        <option value="30">last 30 entries</option>
+                        <option value="60">last 60 entries</option>
+                        <option value="90">last 90 entries</option>
+                    </select>
+                </div>
                 <div id="buttons" style="padding-top: 3%">
                     <input class="btn btn-green" type="submit" id="submitbtn" name="newgraph" value="Submit"/>
                     <input class="btn btn-green" type="button" id="resetbtn" name="reset" value="Reset"/>
                 </div>
             </div>
+            <br>
+            <div style="width: 10%;" class="toggle toggle-soft"></div>
+            <br>
         </div>
     </div>
 {% endblock %}
@@ -74,9 +89,11 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
     <script src="http://code.highcharts.com/highcharts.js"></script>
     <script src="http://code.highcharts.com/modules/exporting.js"></script>
+        <script type="text/javascript" src="{{ url_for('dav.static', filename='js/jquery.blockUI.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('dav.static', filename='js/export-csv.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('dav.static', filename='js/underscore-min.js') }}"></script>
-    <script type="text/javascript" src="{{ url_for('dav.static', filename='js/semantic.min.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('dav.static', filename='js/toggles.min.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('dav.static', filename='js/chosen.jquery.min.js') }}"></script>
     <script src="{{ url_for('dav.static', filename='js/highChartsTheme.js') }}"></script>
     <script src="{{ url_for('dav.static', filename='js/aqxGraph.js') }}"></script>
     <script>
@@ -85,6 +102,7 @@
         var selectedSystemIDs = {{ selected_systemID_list|safe }};
         var measurement_types_and_info = {{ measurement_types_and_info | safe }};
         measurement_types_and_info = measurement_types_and_info.measurement_info;
+        var defaultStatus = {{ default_status|safe }};
         {#        _.each(systems_and_measurements, function(system){#}
         {#            var measurement = system.measurement;#}
         {#            _.each(measurement, function(measurementSet){#}
