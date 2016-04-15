@@ -100,51 +100,7 @@ def index():
     return render_template('home.html', posts=posts, comments=comments,
                            privacy_info=privacy, likes=likes,
                            totalLikes=total_likes, postOwners=post_owners,
-<<<<<<< HEAD
-                           admin_systems=admin_systems, participated_systems=participated_systems,
-                           subscribed_systems=subscribed_systems)
-
-
-@social.route('/login')
-#######################################################################################
-# function : login
-# purpose : renders login.html
-# parameters : None
-# returns: login.html page
-#######################################################################################
-def login():
-    return render_template('login.html')
-
-
-@social.route('/Home')
-#######################################################################################
-# function : home
-# purpose : renders userData.html
-# parameters : None
-# returns: userData.html page
-#######################################################################################
-def Home():
-    access_token = session.get('access_token')
-    if access_token is None:
-        return redirect(url_for('social.getToken'))
-
-    access_token = access_token[0]
-    from urllib2 import Request, urlopen, URLError
-
-    headers = {'Authorization': 'OAuth ' + access_token}
-    req = Request('https://www.googleapis.com/oauth2/v1/userinfo',
-                  None, headers)
-    try:
-        res = urlopen(req)
-    except URLError, e:
-        if e.code == 401:
-            # Unauthorized - bad token
-            session.pop('access_token', None)
-            return redirect(url_for('social.getToken'))
-    return redirect(url_for('social.signin'))
-=======
                            admin_systems=admin_systems)
->>>>>>> release_sprint3
 
 
 @social.route('/signin')
@@ -707,11 +663,7 @@ def view_system(system_uid):
                                        subscribers_pending_approval=subscribers_pending_approval,
                                        system_uid=system_uid, privacy_info=privacy,
                                        posts=posts, comments=comments, likes=likes,
-<<<<<<< HEAD
-                                       totalLikes=total_likes, postOwners=post_owners, id=system_uid)
-=======
                                        totalLikes=total_likes, postOwners=post_owners, measurements=measurements, id=system_uid)
->>>>>>> release_sprint3
     except Exception as e:
         logging.exception("Exception at view_system: " + str(e))
 

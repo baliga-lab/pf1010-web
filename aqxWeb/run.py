@@ -1,5 +1,4 @@
-from flask import Flask, render_template
-from flask_bootstrap import Bootstrap
+import os
 from mysql.connector.pooling import MySQLConnectionPool
 from flask import url_for
 from flask import Flask, render_template,redirect
@@ -7,10 +6,7 @@ from flask import session
 from flask_oauth import OAuth
 
 # UI imports
-<<<<<<< HEAD
-=======
 from flask_bootstrap import Bootstrap
->>>>>>> release_sprint3
 from frontend import frontend as ui
 from services import init_app as init_ui_app
 from servicesV2 import init_app as init_ui_app2
@@ -22,19 +18,9 @@ from dav.analytics_views import dav
 from dav.analytics_views import init_dav as init_dav_app
 
 # Social imports
-<<<<<<< HEAD
-=======
 from sc.models import init_sc_app
->>>>>>> release_sprint3
 from sc.views import social
-from sc.models import init_sc_app
 
-<<<<<<< HEAD
-import os
-
-
-=======
->>>>>>> release_sprint3
 os.environ['AQUAPONICS_SETTINGS'] = "system_db.cfg"
 # To hold db connection pool
 app = Flask(__name__)
@@ -65,13 +51,10 @@ def create_conn(app):
     }
     pool = MySQLConnectionPool(pool_name="mypool", pool_size=app.config['POOLSIZE'], **dbconfig)
 
-<<<<<<< HEAD
-=======
 @app.route('/')
 def index():
     return render_template('index.html')
 
->>>>>>> release_sprint3
 
 ######################################################################
 # render error page
