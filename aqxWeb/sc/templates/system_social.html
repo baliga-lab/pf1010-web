@@ -261,26 +261,10 @@
         <!-- This is the rightPaneDiv for system data -->
         <div class="col-md-3 rightPaneDiv">
             <h2>Summary</h2>
-            <a class="btn-blue" href="{{ url_for('frontend.sys_measurements', system_uid=id) }}"><i
-                    class="fa fa-plus"></i> Input Measurements</a>
+            <a class="btn-blue" href="{{ url_for('frontend.sys_measurements', system_uid=id) }}">
+                <i class="fa fa-plus"></i> Input Measurements
+            </a>
             <div class="row">
-<<<<<<< HEAD
-                <h2>Summary</h2>
-                <a class="btn-blue" href="{{ url_for('frontend.sys_measurements', system_uid=id) }}"><i class="fa fa-plus"></i> Input Measurements</a>
-                <div class="row">
-                    <table id="placar" class="table table-responsive">
-                        <thead>
-                        <tr>
-                            <th>Name</th>
-                            <th>Value</th>
-                            <th>Last Updated</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        </tbody>
-                    </table>
-                </div>
-=======
                 <table id="placar" class="table table-responsive">
                     <thead>
                     <tr>
@@ -301,7 +285,6 @@
                     {% endif %}
                     </tbody>
                 </table>
->>>>>>> release_sprint3
             </div>
         </div>
     </div>
