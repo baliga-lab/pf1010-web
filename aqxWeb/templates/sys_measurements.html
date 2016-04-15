@@ -33,8 +33,8 @@
 
             <div ng-controller="MeasurementController">
                 <div class="form-group">
-                    <label>Measurement Type:</label>
-                    <select class="form-control" ng-model="measure.measurement_id">
+                    <label for="measure-id">Measurement Type:</label>
+                    <select class="form-control" ng-model="measure.measurement_id" id="measure-id">
                         <option value="1">Alkalinity</option>
                         <option value="2">Ammonium</option>
                         <option value="3">Chlorine</option>
@@ -46,39 +46,33 @@
                         <option value="9">pH</option>
                         <option value="10">Temperature</option>
                     </select>
-                <hr>
+                    <hr>
                 </div>
                 <form>
-                    <input type="hidden" class="hidden" name="system-uid" value="{{ metadata.UID }}" ng-model="measure.system_uid">
+                    <span class="hidden" id="UID">{{ metadata.UID }}</span>
                     <div class="form-group">
-                        <label for="measure-date">Date</label>
-                        <input class="form-control" type="date" id="measure-date" name="measure-date"
-                               ng-model="measure.date" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="measure-time">Time</label>
-                        <input class="form-control" type="time" id="measure-time" name="measure-time"
-                               ng-model="measure.time">
+                        <label for="measure-datetime">Date & Time</label>
+                        <input class="form-control" type="datetime-local" id="measure-datetime" name="measure-date"
+                               ng-model="measure.time" required>
                     </div>
 
-                    <div id="dio-panel">
-                        <div class="form-group">
-                            <label for="o2-value">Value</label>
-                            <div class="input-group">
-                                <input id="o2-value" class="form-control" name="o2-value" type="number"
-                                       pattern="[0-9]+(.[0-9]+)?" style="text-align: right;" placeholder="0.0"
-                                       step="0.001"
-                                       aria-describedby="addon" ng-model="measure.value">
-                                <span id="addon" class="input-group-addon">mg/l</span>
-                            </div>
+                    <div class="form-group">
+                        <label for="measure-value">Value</label>
+                        <div class="input-group">
+                            <input id="measure-value" class="form-control" name="o2-value" type="number"
+                                   pattern="[0-9]+(.[0-9]+)?" style="text-align: right;" placeholder="0.0"
+                                   step="0.001"
+                                   aria-describedby="addon" ng-model="measure.value">
+                            <span id="addon" class="input-group-addon">mg/l</span>
                         </div>
                     </div>
+
                     <div ng-show="message" class="alert alert-warning alert-dismissable" role="alert">
-                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                    Measurement has been added!
-                </div>
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                        Measurement has been added!
+                    </div>
                     <!-- button panel -->
                     <div class="form-group">
                         <div class="col-sm-10">
