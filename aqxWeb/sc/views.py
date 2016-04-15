@@ -663,7 +663,7 @@ def view_system(system_uid):
                                        subscribers_pending_approval=subscribers_pending_approval,
                                        system_uid=system_uid, privacy_info=privacy,
                                        posts=posts, comments=comments, likes=likes,
-                                       totalLikes=total_likes, postOwners=post_owners, measurements=measurements)
+                                       totalLikes=total_likes, postOwners=post_owners, measurements=measurements, id=system_uid)
     except Exception as e:
         logging.exception("Exception at view_system: " + str(e))
 
