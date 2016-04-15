@@ -122,7 +122,7 @@ class ScAPI:
                 return error_msg
         except Exception as ex:
             error_msg = json.dumps(
-                {'error': "Exception Occurred While Creating User Node in Neo4J Database: " + str(ex)})
+                {'error': "Exception Occurred While Creating User Node in Neo4J Database: " + str(ex.message)})
             return error_msg
 
     ###############################################################################
@@ -161,7 +161,7 @@ class ScAPI:
                 return error_msg
         except Exception as ex:
             error_msg = json.dumps(
-                {'error': "Exception Occurred While Creating System Node in Neo4J Database: " + str(ex)})
+                {'error': "Exception Occurred While Creating System Node in Neo4J Database: " + str(ex.message)})
             return error_msg
 
     ###############################################################################
@@ -182,7 +182,7 @@ class ScAPI:
                 return error_msg
         except Exception as ex:
             error_msg = json.dumps(
-                {'error': "Exception Occurred While Updating System Node in Neo4J Database: " + str(ex)})
+                {'error': "Exception Occurred While Updating System Node in Neo4J Database: " + str(ex.message)})
             return error_msg
 
     ###############################################################################

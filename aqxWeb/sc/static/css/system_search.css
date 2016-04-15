@@ -22,15 +22,15 @@ hr {
     overflow-y: auto;
     overflow-x: hidden;
     height: 150px;
-    background-color: rgba(51, 75, 120, 0.08);
 }
 
 .allSystemResults {
     overflow-y: auto;
     overflow-x: hidden;
-    height: 150px;
+    height: 250px;
 }
 
-#allSystemsTab {
-    background-color: rgba(51, 75, 120, 0.08);
+.systemImage, .sadSmileyImage {
+    height: 32px;
+    width: 32px;
 }

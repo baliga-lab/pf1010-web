@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+
+{% block styles %}
+    {{ super() }}
+    <link rel="stylesheet" type="text/css" href="{{ url_for('frontend.static', filename='css/system.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('frontend.static', filename='css/annotations.css') }}">
+{% endblock %}
+
+{% block title %}{{ metadata.name }} Measurements{% endblock %}
+
+{% block content %}
+    <div class="row">
+        <div class="col-sm-3">
+            <ul class="nav nav-stacked">
+                <li id="social-li"><a
+                        href="{{ url_for("social.view_system", system_uid=metadata.UID) }}" title="Social">
+                    Social <span class="sr-only">(current)</span></a>
+                </li>
+                <li id="analytics-li">
+                    {# <a href="{{ url_for('dav.system_analyze', system_uid=metadata.UID) }}" title="Analytics">Analytics</a> #}
+                </li>
+                <li id="measurement-li" class="active">
+                    <a href="{{ url_for("frontend.sys_measurements", system_uid=metadata.UID) }}" title="Measurement">Measurements</a>
+                </li>
+                <li id="annotate-li">
+                    <a href="{{ url_for("frontend.sys_annotations", system_uid=metadata.UID) }}"
+                       title="Annotations">Annotations</a>
+                </li>
+            </ul>
+        </div>
+        <div class="col-sm-9">
+            <h3>Input Measurements</h3>
+
+            <div ng-controller="MeasurementController">
+                <div class="form-group">
+                    <label for="measure-id">Measurement Type:</label>
+                    <select class="form-control" ng-model="measure.measurement_id" id="measure-id">
+                        <option value="1">Alkalinity</option>
+                        <option value="2">Ammonium</option>
+                        <option value="3">Chlorine</option>
+                        <option value="4">Hardness</option>
+                        <option value="5">Light</option>
+                        <option value="6">Nitrate</option>
+                        <option value="7">Nitrite</option>
+                        <option value="8">Dis. Oxygen</option>
+                        <option value="9">pH</option>
+                        <option value="10">Temperature</option>
+                    </select>
+                    <hr>
+                </div>
+                <form>
+                    <span class="hidden" id="UID">{{ metadata.UID }}</span>
+                    <div class="form-group">
+                        <label for="measure-datetime">Date & Time</label>
+                        <input class="form-control" type="datetime-local" id="measure-datetime" name="measure-date"
+                               ng-model="measure.time" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="measure-value">Value</label>
+                        <div class="input-group">
+                            <input id="measure-value" class="form-control" name="o2-value" type="number"
+                                   pattern="[0-9]+(.[0-9]+)?" style="text-align: right;" placeholder="0.0"
+                                   step="0.001"
+                                   aria-describedby="addon" ng-model="measure.value">
+                            <span id="addon" class="input-group-addon">mg/l</span>
+                        </div>
+                    </div>
+
+                    <div ng-show="message" class="alert alert-warning alert-dismissable" role="alert">
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                        Measurement has been added!
+                    </div>
+                    <!-- button panel -->
+                    <div class="form-group">
+                        <div class="col-sm-10">
+                            <button type="submit" class="btn btn-green" ng-click="addMeasurement(measure)">Submit
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
+
+{% block scripts %}
+    {{ super() }}
+    <script src="{{ url_for('frontend.static', filename='js/jquery.slides.min.js') }}"></script>
+    <script src="{{ url_for('frontend.static', filename='js/sys_measurements.js') }}"></script>
+{% endblock scripts %}

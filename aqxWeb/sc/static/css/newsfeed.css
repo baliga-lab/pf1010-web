@@ -38,7 +38,7 @@ Newsfeed CSS
 }
 
 .taskDescription {
-    margin-top: 10px 0;
+    margin-top: 10px;
 }
 
 .comment-list {
@@ -96,4 +96,8 @@ i {
     width: 30px;
     height: 30px;
     border-radius: 15px;
+}
+
+.profile {
+    padding-top: 10px;
 }

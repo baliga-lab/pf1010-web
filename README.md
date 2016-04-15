@@ -17,4 +17,4 @@ For the first time :
 2. python setup.py install    
 
 To run the application :    
-python aqxWeb/run.py
+python aqxWeb/run.py    
