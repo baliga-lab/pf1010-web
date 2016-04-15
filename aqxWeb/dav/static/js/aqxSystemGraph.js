@@ -8,14 +8,6 @@ var XAXIS = "selectXAxis";
 var XAXIS_TITLE = 'Hours since creation';
 var CHART = "";
 var GRAPH_TYPE = "selectGraphType";
-/*
-Used to display data that was entered by user in the past
-    "" - Used to display all the data that user has recorded
-    30 - Displays all the data recorded in the past 30 days
-    60 - Displays all the data recorded in the past 60 days
-    90 - Displays all the data recorded in the past 90 days
- */
-var NUMBER_OF_ENTRIES = 'selectNumberOfEntries';
 var SELECTED = 'selected';
 var DEFAULT_Y_TEXT = "Nitrate";
 var DEFAULT_Y_VALUE = DEFAULT_Y_TEXT.toLowerCase();
@@ -34,8 +26,6 @@ var BACKGROUND = {
     ]
 };
 
-var OVERLAY = true;
-
 /* ##################################################################################################################
  MAIN CHART LOADING FUNCTIONS
  #################################################################################################################### */
@@ -45,14 +35,13 @@ var OVERLAY = true;
  */
 function drawChart(){
     var graphType = document.getElementById(GRAPH_TYPE).value;
-    var xType = document.getElementById(XAXIS).value;
+    var xType = "Time";
 
     // Get measurement types to display on the y-axis
     var yTypes = $("#selectYAxis").val();
-    var numberOfEntries = document.getElementById(NUMBER_OF_ENTRIES).value;
 
     // Generate a data Series for each y-value type, and assign them all to the CHART
-    updateChartDataPointsHC(CHART, xType, yTypes, graphType, numberOfEntries).redraw();
+    updateChartDataPointsHC(CHART, xType, yTypes, graphType).redraw();
 }
 
 
@@ -62,9 +51,8 @@ function drawChart(){
  * @param xType - X-axis value chosen from dropdown
  * @param yTypeList - List of y-axis values selected from the checklist
  * @param graphType - The graph type chosen from dropdown
- * @param numberOfEntries - used to display data entered by user in the past
  */
-function updateChartDataPointsHC(chart, xType, yTypeList, graphType, numberOfEntries){
+function updateChartDataPointsHC(chart, xType, yTypeList, graphType){
 
     // Clear the old chart's yAxis and dataPoints. Unfortunately this must be done manually.
     chart = clearOldGraphValues(chart);
@@ -77,10 +65,11 @@ function updateChartDataPointsHC(chart, xType, yTypeList, graphType, numberOfEnt
     // and add the new dataPoints to the systems_and_measurements object
     if (measurementsToFetch.length > 0) {
         var measurementIDList = [];
+        var statusID = document.getElementById("selectStatus").value;
         _.each(measurementsToFetch, function(measurement){
             measurementIDList.push(measurement_types_and_info[measurement].id);
         });
-        callAPIForNewData(measurementIDList, defaultStatus);
+        callAPIForNewData(measurementIDList, statusID);
     }
 
     // Handle the x axis, for now just using time
@@ -88,7 +77,7 @@ function updateChartDataPointsHC(chart, xType, yTypeList, graphType, numberOfEnt
     chart.xAxis[0].setTitle({ text: XAXIS_TITLE });
 
     // Get dataPoints and their configs for the chart, using systems_and_measurements and add them
-    var newDataSeries = getDataPointsForPlotHC(chart, xType, yTypeList, graphType, numberOfEntries);
+    var newDataSeries = getDataPointsForPlotHC(chart, xType, yTypeList, graphType);
     _.each(newDataSeries, function(series) {
         chart.addSeries(series);
     });
@@ -103,10 +92,9 @@ function updateChartDataPointsHC(chart, xType, yTypeList, graphType, numberOfEnt
  * @param xType - X-axis values. Ex: Time, pH, Hardness
  * @param yTypeList - Y-axis values. Ex: [pH, Nitrate]
  * @param graphType - Type of graph to display. Ex: line, scatter
- * @param numberOfEntries - used to display data entered by user in the past
  * @returns {Array} - An array of dataPoints of yType measurement data for all systems
  */
-function getDataPointsForPlotHC (chart, xType, yTypeList, graphType, numberOfEntries){
+function getDataPointsForPlotHC (chart, xType, yTypeList, graphType){
 
     // DataPoints to add to chart
     var dataPointsList = [];
@@ -151,14 +139,9 @@ function getDataPointsForPlotHC (chart, xType, yTypeList, graphType, numberOfEnt
                             axes[yType].axis = numAxes++;
                         }
                         var yAxis = axes[yType].axis;
-                        // IMPORTANT: MEASUREMENT VALUES should be sorted by date to display
-                        var dataValues = measurement.values;
-                        if(!_.isEmpty(numberOfEntries)) {
-                            dataValues = _.last(dataValues, numberOfEntries);
-                        }
                         // Push valid dataPoints and their configs to the list of dataPoints to plot
                         dataPointsList.push(
-                            getDataPoints(system.name, dataValues, graphType, systemId, linkedTo, COLORS[yAxis], yAxis, DASHSTYLES[j], MARKERTYPES[j], yType));
+                            getDataPoints(system.name, measurement.values, graphType, systemId, linkedTo, COLORS[yAxis], yAxis, DASHSTYLES[j], MARKERTYPES[j], yType));
                         linkedTo = true;
                     }
 
@@ -247,25 +230,6 @@ function ajaxError(jqXHR, textStatus, errorThrown){
     console.log(errorThrown);
 }
 
-//function callAPIForNewData(measurementIDList, statusID) {
-//    var dfd = new $.Deferred();
-//    $.ajax({
-//        type: 'POST',
-//        contentType: 'application/json;charset=UTF-8',
-//        dataType: 'json',
-//        async: true,
-//        url: '/dav/aqxapi/v1/measurements/plot',
-//        data: JSON.stringify({systems: selectedSystemIDs, measurements: measurementIDList, status: statusID}, null, '\t')
-//    }).then(processAJAXResponse,ajaxError)
-//        .fail(function (jqXHR, textStatus, errorThrown) {
-//            dfd.reject(jqXHR, textStatus, errorThrown);
-//        })
-//        .done(function (data, textStatus, jqXHR) {
-//            dfd.resolve(data);
-//        });
-//    return dfd.promise();
-//}
-
 
 /* ##################################################################################################################
  HELPER FUNCTIONS
@@ -310,14 +274,11 @@ function clearOldGraphValues(chart) {
  * Returns the Y Axis text selector to default
  */
 function setDefaultYAxis() {
-    $("#selectYAxis").chosen({
-        max_selected_options: MAXSELECTIONS,
-        no_results_text: "Oops, nothing found!",
-        width: "100%"
+    $("#selectYAxis").dropdown({
+        maxSelections: MAXSELECTIONS
     });
-    $('#selectYAxis').val('');
-    $('#selectYAxis option[value='+DEFAULT_Y_VALUE+']').prop('selected', true);
-    $('#selectYAxis').trigger("chosen:updated");
+    $("#selectYAxis").dropdown('clear');
+    $("#selectYAxis").dropdown('set selected', DEFAULT_Y_VALUE);
 }
 
 
@@ -399,110 +360,25 @@ function createYAxis(yType, color, opposite, units){
     };
 }
 
-function copyYAxes(yAxes){
-    var axesToAdd = [];
-    _.each(yAxes, function(axis){
-        var axisLabel = axis.userOptions.title.text;
-        axesToAdd.push(createYAxis(
-            axisLabel,
-            axis.userOptions.title.style.color,
-            axis.opposite));
-    });
-    return axesToAdd;
-}
-
-function copySeries(series, systemID){
-    var seriesToAdd = [];
-    _.each(series, function (seriesItem) {
-        if(_.isEqual(seriesItem.userOptions.id, systemID)){
-            var linkedTo = false;
-            if (seriesItem.userOptions.linkedTo) linkedTo = true;
-            seriesToAdd.push(getDataPoints(
-                seriesItem.name,
-                seriesItem.userOptions.data,
-                seriesItem.userOptions.type,
-                seriesItem.userOptions.id,
-                linkedTo,
-                seriesItem.color,
-                seriesItem.userOptions.yAxis,
-                seriesItem.userOptions.dashStyle,
-                seriesItem.userOptions.marker.symbol,
-                ""
-            ));
-        }
-    });
-    return seriesToAdd;
-}
-
-
-function toggleSplitMode(){
-    if (selectedSystemIDs.length > 1) {
-        var splitCharts = [];
-        var yAxes = CHART.yAxis;
-        var series = CHART.series;
-
-        _.each(selectedSystemIDs, function(systemID, k) {
-            var new_opts = HC_OPTIONS;
-            new_opts.title.text = "NO DATA FOR THIS SYSTEM";
-            new_opts.chart.renderTo = "chart-" + k;
-            new_opts.yAxis = copyYAxes(yAxes);
-            new_opts.series = copySeries(series, systemID);
-            for (var i=0; (i<series.length); i++){
-                if(_.isEqual(systemID, series[i].userOptions.id)){
-                    new_opts.title.text = series[i].name.split(",")[0].trim();
-                }
-            }
-            var chart = new Highcharts.Chart(new_opts);
-            splitCharts.push(chart);
-        });
-        _.each(splitCharts, function(chart){chart.redraw()});
-    }
-}
-
-
 /* ##################################################################################################################
  PAGE-DRIVING FUNCTIONS
  ################################################################################################################### */
 
 /**
- *  main - Sets behaviors for Submit and Reset buttons, populates y-axis dropdown, and checks nitrate as default y-axis
+ *  main - Sets behaviors for Submit and Reset buttons, populates x-axis dropdown, and checks nitrate as default y-axis
  */
 function main(){
 
     // Select the default y-axis value
     setDefaultYAxis();
 
-    // Setup overlay/split toggle
-    $('.toggle').toggles({text:{on:'OVERLAY',off:'SPLIT'}, on:true});
-
-    // Disable when graphing only one system
-    if(_.isEqual(selectedSystemIDs.length, 1)) {
-        $('.toggle').toggleClass('disabled', true);
-    }
-
-    // Hide split graphs and show overlay when active
-    // When deactivated, create split graphs an hide overlay graph
-    $('.toggle').on('toggle', function(e, active) {
-        if (active) {
-            $('.split-chart').hide();
-            $('#analyzeContainer').show();
-        } else {
-            $('.split-chart').show();
-            $('#analyzeContainer').hide();
-            toggleSplitMode();
-        }
-    });
 
     // When the submit button is clicked, redraw the graph based on user selections
     $('#submitbtn').on('click', function() {
         $('#alert_placeholder').empty();
+
         drawChart();
 
-        // Check if the toggle is active. (i.e, overlay mode enabled)
-        // If in split mode, make the split graphs
-        if(!$('.toggle').data('toggles').active){
-            toggleSplitMode();
-        }
     });
 
     // Reset button, returns dropdowns to default, clears checklist, and displays default nitrate vs time graph
@@ -513,29 +389,23 @@ function main(){
             return this.defaultSelected;
         });
 
-        // Reset Graph Type selection to default
-        $('#selectGraphType option').prop(SELECTED, function() {
+        $('#selectStatus option').prop(SELECTED, function() {
             return this.defaultSelected;
         });
 
-        $('#'+NUMBER_OF_ENTRIES+' option').prop(SELECTED, function() {
-            return this.defaultSelected;
+        // Reset Graph Type selection to default
+        $('#selectGraphType option').prop(SELECTED, function() {
         });
 
         $('#alert_placeholder').empty();
 
         $('.split-chart').hide();
         $('#analyzeContainer').show();
-        $('.toggle').data('toggles').toggle(true, false, true);
 
         // Select the default y-axis value
         setDefaultYAxis();
 
         drawChart();
-    });
-
-    $('#selectYAxis').bind("chosen:maxselected", function () {
-        $('#alert_placeholder').html(getAlertHTMLString("You can select up to " + MAXSELECTIONS + " systems", 'danger'));
     });
 }
 
@@ -619,10 +489,10 @@ function tooltipFormatter(){
     yVal = yVal.charAt(0).toUpperCase() + yVal.slice(1);
     var datetime = this.point.date.split(" ");
     var eventString = "";
-    if (this.point.annotations) {
+    if (this.point.event) {
         console.log('event found');
         eventString = "<br><p>Most recent event(s): </p>";
-        _.each(this.point.annotations, function (event) {
+        _.each(this.point.event, function (event) {
             console.log(event);
             eventString = eventString + '<br><p>' + event.id + " at " + event.date + '<p>'
         });
@@ -634,3 +504,4 @@ function tooltipFormatter(){
         '<br><p>At time: ' + datetime[1] +'</p>' +
         eventString;
 }
+

@@ -26,7 +26,58 @@
         <!-- groupInfoTab Div -->
         <div class="container" id="groupInfoTab">
 
+            <form action="{{ url_for('social.update_group_info') }}" method="post"> 
 
+                <input type="hidden" name="group_uid"
+                       value="{{ group_neo4j[0][0]["group_uid"] }}">
+
+                <div class="form-group">
+                      <label for="txtGroupName">Name:</label> 
+                    <input type="text"
+                           class="form-control"
+                           name="name"
+                           id="txtGroupName"  
+                           pattern=".{1,}"
+                           required 
+                           title="Group Name Cannot Be Empty"
+                           value="{{ group_neo4j[0][0]['name'] }}" > </input>
+                </div>
+                 
+                <div class="form-group">
+                      <label for="txtGroupDescription">Description:</label> 
+                    <input type="text"
+                           class="form-control"
+                           name="description"
+                           id="txtGroupDescription"  
+                           pattern=".{1,}"
+                           required 
+                           title="Group Description Cannot Be Empty"
+                           value="{{ group_neo4j[0][0]['description'] }}"> </input>
+                </div>
+                 
+                <div class="form-group"> 
+                    <b>Private Group: &nbsp;</b> 
+                    <label class="radio-inline"> 
+                        <input type="radio"
+                               name="is_private_group"
+                               id="rbYes"
+                               value=true
+                               {% if group_neo4j[0][0]['is_private_group'] is not none
+                                and group_neo4j[0][0]['is_private_group'] == "true" %} 
+                               checked
+                               {% endif %}/>
+                        Yes 
+                    </label> 
+                    <label class="radio-inline"> 
+                        <input type="radio" name="is_private_group" id="rbNo" value=false  
+                               {% if group_neo4j[0][0]['is_private_group'] is not none
+                                and group_neo4j[0][0]['is_private_group'] == "false" %} 
+                               checked {% endif %}/>
+                        No 
+                    </label> 
+                </div>
+                <button type="submit" class="btn btn-primary form-control" value="Save">Save</button>
+            </form>
         </div>
         <!-- End of groupInfoTab Div -->
 

@@ -2,7 +2,38 @@ import os
 import unittest
 from aqxWeb import run
 
+import os
+from flask import Flask
+import unittest
+import mock
+from mock import Mock
+from mock import patch
+from aqxWeb.sc.views import social
+from aqxWeb.sc import views
+from aqxWeb.sc import models
+from aqxWeb.sc.models import User
+from aqxWeb import run
 
+class FlaskTestCase(unittest.TestCase):
+
+    def setUp(self):
+        self.app = run.app.test_client()
+
+    # Testing /friends route
+    @patch('flask.templating._render', return_value='')
+    def test_friends_page_loads(self, mocked):
+        with self.app as client:
+            with client.session_transaction() as session:
+                session['uid'] = 30
+        print "mocked", repr(self.app.get('/social/friends').data)
+        print "was _render called?", mocked.called
+
+if __name__ == '__main__':
+    unittest.main()
+
+
+
+'''
 class FlaskTestCase(unittest.TestCase):
 
     def setUp(self):
@@ -13,15 +44,13 @@ class FlaskTestCase(unittest.TestCase):
     def test_home_page_loads(self):
         rv = self.app.get('/social/trial')
         print rv.data
-        '''
+
         tester = app.test_client(self)
         response = tester.get("/index", content_type="html/text")
         print "hi"
         print response.data
         #self.assertTrue('Recent Posts', response.data)
-        '''
 
-    '''
     # Ensure that flask was setup correctly
     def test_index(self):
         tester = app.test_client(self)
@@ -180,7 +209,9 @@ class FlaskTestCase(unittest.TestCase):
             )
             self.assert_(searchParam in response.data,
                          "There should be system in the Neo4J database with the name: " + searchParam)
-                         '''
+
 
     if __name__ == "__main__":
         unittest.main()
+
+        '''

@@ -2,6 +2,10 @@
 
 {% block title %}Edit Profile{% endblock %}
 
+{% block styles %}
+    {{ super() }}
+{% endblock %}
+
 {% block content %}
 
     {% if session.uid %}
@@ -22,7 +26,9 @@
                         <input type="text" class="form-control" name="givenName" id="txtFirstName"
                                pattern=".{1,}" required
                                title="First Name Cannot Be Empty"
-                               value= {% if user['givenName'] is not none %} {{ user['givenName'] }} {% endif %}
+                               value= {% if user['givenName'] is not none %}
+                                   "{{ user['givenName'] }}"
+                               {% endif %}
                         > </input>
                     </div>
                     <div class="form-group">
@@ -30,7 +36,9 @@
                         <input type="text" class="form-control" name="familyName" id="txtLastName"
                                pattern=".{1,}" required
                                title="Last Name Cannot Be Empty"
-                               value= {% if user['familyName'] is not none %}  {{ user['familyName'] }} {% endif %}
+                               value= {% if user['familyName'] is not none %}
+                                   "{{ user['familyName'] }}"
+                               {% endif %}
                         > </input>
                     </div>
                     <div class="form-group">
@@ -43,7 +51,9 @@
                         <input type="text" class="form-control" name="displayName" id="txtDisplayName"
                                pattern=".{1,}" required
                                title="Display Name Cannot Be Empty"
-                               value= {% if user['displayName'] is not none %}  {{ user['displayName'] }} {% endif %}> </input>
+                               value= {% if user['displayName'] is not none %}
+                                   "{{ user['displayName'] }}"
+                               {% endif %}> </input>
                     </div>
                     <div class="form-group">
                         <b>Gender: &nbsp;</b>
@@ -60,7 +70,7 @@
                         <label class="radio-inline">
                             <input type="radio" name="gender" id="rbUnknown" value={{ none }}
                                     {% if user['gender'] is none or user['gender'] == 'None' or user['gender'] =='none' %}
-                                        checked {% endif %}/>UnKnown
+                                        checked {% endif %}/>Other
                         </label>
                     </div>
                     <div class="form-group">
@@ -68,7 +78,8 @@
                         <input type="text" class="form-control" name="organization" id="txtOrganization"
                                pattern=".{1,}" required
                                title="Organization Cannot Be Empty"
-                               value= {% if user['organization'] is not none %}  {{ user['organization'] }}
+                               value= {% if user['organization'] is not none %}
+                                   "{{ user['organization'] }}"
                                {% endif %}> </input>
                     </div>
                     <div class="form-group">
@@ -89,11 +100,14 @@
                             </option>
                         </select>
                     </div>
-                    <div class="form-group">
-                        <!--retrieve dob and email from neo4j-->
-                        <label for="dtDOB">Date of Birth:</label>
-                        <input type="datetime" class="form-control" name="dob" id="dtDOB"
-                               value= {% if user['dob'] is not none %}  {{ user['dob'] }} {% endif %}> </input>
+                    <div class="form-group" id="datetimepicker">
+                        <!--retrieve dob and email from neo4j--> 
+                        <label for="dtDOB">Date of Birth:</label> 
+                        <input type="date" class="form-control" name="dob" id="dtDOB"
+                               value = {% if user['dob'] is not none %}
+                                   {{ user['dob'] }}
+                               {% endif %}>
+                        </input>
                     </div>
                     <button type="submit" class="btn btn-green form-control">Save</button>
                 </div>

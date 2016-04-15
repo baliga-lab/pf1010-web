@@ -1,8 +1,16 @@
 from flask import Flask, render_template
 from flask_bootstrap import Bootstrap
 from mysql.connector.pooling import MySQLConnectionPool
+from flask import url_for
+from flask import Flask, render_template,redirect
+from flask import session
+from flask_oauth import OAuth
 
 # UI imports
+<<<<<<< HEAD
+=======
+from flask_bootstrap import Bootstrap
+>>>>>>> release_sprint3
 from frontend import frontend as ui
 from services import init_app as init_ui_app
 from servicesV2 import init_app as init_ui_app2
@@ -14,12 +22,19 @@ from dav.analytics_views import dav
 from dav.analytics_views import init_dav as init_dav_app
 
 # Social imports
+<<<<<<< HEAD
+=======
+from sc.models import init_sc_app
+>>>>>>> release_sprint3
 from sc.views import social
 from sc.models import init_sc_app
 
+<<<<<<< HEAD
 import os
 
 
+=======
+>>>>>>> release_sprint3
 os.environ['AQUAPONICS_SETTINGS'] = "system_db.cfg"
 # To hold db connection pool
 app = Flask(__name__)
@@ -32,6 +47,7 @@ pool = None
 # Social Component DB Configuration Settings
 app.config.from_pyfile("sc/settings.cfg")
 app.config['BOOTSTRAP_SERVE_LOCAL'] = True
+
 Bootstrap(app)
 
 
@@ -49,6 +65,13 @@ def create_conn(app):
     }
     pool = MySQLConnectionPool(pool_name="mypool", pool_size=app.config['POOLSIZE'], **dbconfig)
 
+<<<<<<< HEAD
+=======
+@app.route('/')
+def index():
+    return render_template('index.html')
+
+>>>>>>> release_sprint3
 
 ######################################################################
 # render error page
@@ -56,6 +79,69 @@ def create_conn(app):
 @app.errorhandler(500)
 def page_not_found(e):
     return render_template('error.html'), 500
+
+
+oauth = OAuth()
+
+
+google = oauth.remote_app('google',
+                          base_url='https://www.google.com/accounts/',
+                          authorize_url='https://accounts.google.com/o/oauth2/auth',
+                          request_token_url=None,
+                          request_token_params={
+                              'scope': 'https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/plus.login',
+                              'response_type': 'code'},
+                          access_token_url='https://accounts.google.com/o/oauth2/token',
+                          access_token_method='POST',
+                          access_token_params={'grant_type': 'authorization_code'},
+                          consumer_key='942461862574-ghm0gs1j16m730tgd1pct5pd5kfv7akk.apps.googleusercontent.com',
+                          consumer_secret='pb7FUHfE7Dmrh8XMAjt6Gz1j')
+
+
+@app.route('/getToken')
+def getToken():
+    callback = url_for('authorized', _external=True)
+    return google.authorize(callback=callback)
+
+
+@app.route('/oauth2callback')
+@google.authorized_handler
+def authorized(resp):
+    access_token = resp['access_token']
+    # print(access_token)
+    session['access_token'] = access_token, ''
+    session['token'] = access_token
+    return redirect(url_for('Home'))
+
+
+@app.route('/dav/social/Home')
+@app.route('/social/Home')
+@app.route('/Home')
+#######################################################################################
+# function : home
+# purpose : renders userData.html
+# parameters : None
+# returns: userData.html page
+#######################################################################################
+def Home():
+    access_token = session.get('access_token')
+    if access_token is None:
+        return redirect(url_for('getToken'))
+
+    access_token = access_token[0]
+    from urllib2 import Request, urlopen, URLError
+
+    headers = {'Authorization': 'OAuth ' + access_token}
+    req = Request('https://www.googleapis.com/oauth2/v1/userinfo',
+                  None, headers)
+    try:
+        res = urlopen(req)
+    except URLError, e:
+        if e.code == 401:
+            # Unauthorized - bad token
+            session.pop('access_token', None)
+            return redirect(url_for('getToken'))
+    return redirect(url_for('social.signin'))
 
 
 # Common init method for application

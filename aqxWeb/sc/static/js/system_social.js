@@ -79,3 +79,16 @@ function renderGoogleMaps(latitude, longitude, systemName) {
         infowindow.open(gMap, this);
     });
 }
+
+
+/* function : disableSharePost
+ # purpose : The text area to share what you are doing should be
+  enabled only for SYS_ADMIN / SYS_PARTICIPANT and SYS_SUBSCRIBER.
+  This functions disables the text area and the share button.
+ # params : None
+ # returns : None
+ */
+function disableSharePost(){
+    $("#new_post").prop("disabled", true);
+    $("#btnSharePost").prop("disabled", true);
+}

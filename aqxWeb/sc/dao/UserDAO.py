@@ -25,7 +25,7 @@ class UserDAO:
                 error_msg = json.dumps({'error': 'User has to login the website to get his/her profile details'})
                 return error_msg
         except Exception as ex:
-            error_msg = json.dumps({'error': 'Exception Occurred At get_logged_in_user: ' + str(ex)})
+            error_msg = json.dumps({'error': 'Exception Occurred At get_logged_in_user: ' + str(ex.message)})
             return error_msg
 
     ###############################################################################
@@ -39,7 +39,7 @@ class UserDAO:
             user = self.graph.find_one("User", "google_id", google_id)
             return user
         except Exception as ex:
-            error_msg = json.dumps({'error': 'Exception Occurred At get_user_by_google_id: ' + str(ex)})
+            error_msg = json.dumps({'error': 'Exception Occurred At get_user_by_google_id: ' + str(ex.message)})
             return error_msg
 
     ###############################################################################
@@ -53,7 +53,7 @@ class UserDAO:
             user = self.graph.find_one("User", "sql_id", int(sql_id))
             return user
         except Exception as ex:
-            error_msg = json.dumps({'error': 'Exception Occurred At get_user_by_sql_id: ' + str(ex)})
+            error_msg = json.dumps({'error': 'Exception Occurred At get_user_by_sql_id: ' + str(ex.message)})
             return error_msg
 
     ###############################################################################
@@ -93,7 +93,7 @@ class UserDAO:
                 result = json.dumps({'error': "User Node Already Exists In Neo4J Database. " + jsonObject})
                 return result
         except Exception as ex:
-            error_msg = json.dumps({'error': 'Exception Occurred At create_user: ' + str(ex)})
+            error_msg = json.dumps({'error': 'Exception Occurred At create_user: ' + str(ex.message)})
             return error_msg
 
     ###############################################################################
@@ -113,7 +113,7 @@ class UserDAO:
             result = json.dumps({'success': "User Node Successfully Deleted in Neo4J Database"})
             return result
         except Exception as ex:
-            error_msg = json.dumps({'error': 'Exception Occurred At delete_user_by_sql_id: ' + str(ex)})
+            error_msg = json.dumps({'error': 'Exception Occurred At delete_user_by_sql_id: ' + str(ex.message)})
             return error_msg
 
     ###############################################################################
