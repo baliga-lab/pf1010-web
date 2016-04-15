@@ -99,7 +99,7 @@ def index():
     subscribed_systems = System().get_subscribed_systems(session['uid'])
     return render_template('home.html', posts=posts, comments=comments,
                            privacy_info=privacy, likes=likes,
-                           totalLikes=total_likes, postOwners=post_owners,
+                           total_likes=total_likes, post_owners=post_owners,
                            admin_systems=admin_systems)
 
 
