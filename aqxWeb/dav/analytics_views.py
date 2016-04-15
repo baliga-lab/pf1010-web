@@ -96,6 +96,7 @@ def analyze_graph():
             print("System ID list or Status is undefined.")
         raise AttributeError("Error processing selected systems form.")
 
+
     systems_and_measurements_json = get_readings_for_tsplot(selected_systemID_list, msr_id_list, default_status)
     if 'error' in systems_and_measurements_json:
         print systems_and_measurements_json['error']
@@ -134,6 +135,12 @@ def system_analyze(system_uid):
         if not selected_systemID_list:
             print("System ID list is undefined.")
         raise AttributeError("Error processing selected systems form.")
+
+    metadata_json = get_all_aqx_metadata()
+    if 'error' in metadata_json:
+        print metadata_json['error']
+        raise AttributeError("Error processing API call for system metadata.")
+    metadata_dict = json_loads_byteified(metadata_json)['filters']
 
     current_status = 100
     #current_status = get_metadata(system_uid)

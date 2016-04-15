@@ -4,7 +4,7 @@
     {{ super() }}
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap-theme.min.css" integrity="sha384-fLW2N01lMqjakBkx3l/M9EahuwpSfeNvV63J5ezn3uZzapT0u7EYsXMjQV+0En5r" crossorigin="anonymous">
     <link rel="stylesheet" href="{{ url_for('dav.static', filename='css/explore.css') }}">
-    <link rel="stylesheet" href="{{ url_for('dav.static', filename='css/semantic.min.css') }}">
+    <link rel="stylesheet" href="{{ url_for('dav.static', filename='css/chosen.min.css') }}">
 {% endblock %}
 
 {% block title %}Analyze Your System{% endblock %}
@@ -21,10 +21,10 @@
                 <div id="legendTypes"></div>
             </div>
             <br>
-                <div style="width: 30%;">
+             <div style="width: 30%;">
                 <div class="form-group">
                     <label class="control-label">Select Y Axis</label>
-                    <select class="ui fluid search dropdown" multiple="" id="selectYAxis">
+                    <select class="chosen-select" multiple id="selectYAxis">
                         {% for name in measurement_names %}
                             {% if not name == 'time' %}<option value="{{ name }}">{{ name }}</option>{% endif %}
                         {% endfor %}
@@ -34,11 +34,20 @@
             <div style="width: 30%;">
                 <label class="control-label">Select System Status</label>
                 <select class="explore-dropdown" id="selectStatus">
-                    <option value="100" selected="selected">Pre-Established</option>
-                    <option value="200">Established</option>
-                    <option value="300">Suspended</option>
-                    <option value="400">Terminated</option>
+                    {% for status in metadata_dict['status_types'] %}
+                        <option value="{{status.split(':')[0]}}">{{ status.split(':')[1] }}</option>
+                    {% endfor %}
                 </select>
+            <br>
+                <div>
+                    <label class="control-label">View data from</label>
+                    <select class="explore-dropdown" id="selectNumberOfEntries">
+                        <option value="">All the data</option>
+                        <option value="30">last 30 entries</option>
+                        <option value="60">last 60 entries</option>
+                        <option value="90">last 90 entries</option>
+                    </select>
+                </div>
             </div>
             <br>
             <div style="width: 30%;">
@@ -67,14 +76,13 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
     <script src="http://code.highcharts.com/highcharts.js"></script>
     <script src="http://code.highcharts.com/modules/exporting.js"></script>
-        <script type="text/javascript" src="{{ url_for('dav.static', filename='js/jquery.blockUI.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('dav.static', filename='js/jquery.blockUI.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('dav.static', filename='js/export-csv.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('dav.static', filename='js/underscore-min.js') }}"></script>
-    <script type="text/javascript" src="{{ url_for('dav.static', filename='js/semantic.min.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('dav.static', filename='js/chosen.jquery.min.js') }}"></script>
     <script src="{{ url_for('dav.static', filename='js/highChartsTheme.js') }}"></script>
     <script src="{{ url_for('dav.static', filename='js/aqxSystemGraph.js') }}"></script>
     <script>
-        console.log("Hello");
         var systems_and_measurements = {{ systems_and_measurements_json | safe }};
         console.log(systems_and_measurements);
         systems_and_measurements = systems_and_measurements.response;
