@@ -10,11 +10,15 @@
 {% block title %}Explore{% endblock %}
 
 {% block content %}
-    <div class="container" style="width: 100%; margin-top: 2%; margin-left: 2%">
-        <div id = "alert_placeholder" style="width: 93%"></div>
-        <div style="width: 70%; float: left; position: relative; overflow: hidden; background-color: rgb(229, 227, 223);" id="map"></div>
-        <div style="width: 30%; padding-left:2%; float:left;">
-            <div style="width: 75%;" class="form-group">
+    <h1 class="page-header">Explore</h1>
+    <div id="alert_placeholder" style="width: 93%"></div>
+    <div class="row">
+        <div class="col-sm-9">
+            <div style="background-color: rgb(229, 227, 223);"
+                 id="map" class="map-canvas"></div>
+        </div>
+        <div class="col-sm-3">
+            <div class="form-group">
                 <label class="control-label">Select Filtering Criteria</label>
                 <br>
                 <select class="explore-dropdown" id="selectTechnique">
@@ -23,44 +27,51 @@
                         <option value="{{ technique }}">{{ technique }}</option>
                     {% endfor %}
                 </select>
-                <br><br>
+            </div>
+            <div class="form-group">
                 <select class="explore-dropdown" id="selectOrganism">
                     <option value="" selected="selected">Choose an Aquatic Organism</option>
                     {% for organism in metadata_dict['aqx_organisms'] %}
-                        <option value="{{organism}}">{{ organism }}</option>
+                        <option value="{{ organism }}">{{ organism }}</option>
                     {% endfor %}
                 </select>
-                <br><br>
+            </div>
+            <div class="form-group">
                 <select class="explore-dropdown" id="selectCrop">
                     <option value="" selected="selected">Choose a Crop</option>
                     {% for crop in metadata_dict['crops'] %}
-                        <option value="{{crop}}">{{ crop }}</option>
+                        <option value="{{ crop }}">{{ crop }}</option>
                     {% endfor %}
                 </select>
-                <br><br>
+            </div>
+            <div class="form-group">
                 <select class="explore-dropdown" id="selectGrowbedMedium">
                     <option value="" selected="selected">Choose a Growbed Medium</option>
                     {% for medium in metadata_dict['growbed_media'] %}
-                        <option value="{{medium}}">{{ medium }}</option>
+                        <option value="{{ medium }}">{{ medium }}</option>
                     {% endfor %}
                 </select>
-                <br><br>
+            </div>
+            <div class="form-group">
                 <label class="control-label">Select System Status</label>
                 <select class="explore-dropdown" id="selectStatus">
                     {% for status in metadata_dict['status_types'] %}
-                        <option value="{{status.split(':')[0]}}">{{ status.split(':')[1] }}</option>
+                        <option value="{{ status.split(':')[0] }}">{{ status.split(':')[1] }}</option>
                     {% endfor %}
                 </select>
-                <br><br>
-                <input class="btn btn-green" type="submit" id="submitbtn" name="mysubmit" value="Submit" onclick="filterSystemsBasedOnDropdownValues()"/>
-                <input class="btn btn-blue" type="button" id="resetbtn" name="reset" value="Reset" onclick="reset()"/>
             </div>
-            <div class="form-group" style="width: 78%; padding-top:2%;">
+            <div class="form-group">
+                <input class="btn btn-green" type="submit" id="submitbtn" name="mysubmit" value="Submit"
+                       onclick="filterSystemsBasedOnDropdownValues()"/>
+                <input class="btn btn-grey" type="button" id="resetbtn" name="reset" value="Reset" onclick="reset()"/>
+            </div>
+            <div class="form-group">
                 <label class="control-label">Select Systems to Analyze</label>
-                <select class="chosen-select" data-placeholder="Select up to 4 Systems" multiple id="analyzeSystem"> </select>
+                <select class="chosen-select form-control" data-placeholder="Select up to 4 Systems" multiple
+                        id="analyzeSystem"> </select>
             </div>
             <form id="analyzeOptions" action="analyzeGraph" method="POST">
-                <input  name="selectedSystems" type="hidden" id="selectedSystems" value="abc"/>
+                <input name="selectedSystems" type="hidden" id="selectedSystems" value="abc" class="form-control"/>
                 <input name="systemStatus" type="hidden" id="systemStatus" value="200"/>
                 <input class="btn btn-green" type="submit" value="Analyze" id="analyzebtn"/>
             </form>

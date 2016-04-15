@@ -9,7 +9,6 @@
 }
 
 #map {
-    width: 80%;
     height: 550px;
 }
 
@@ -30,4 +29,9 @@
 
 .chosen-drop .chosen-results {
     max-height: 150px;
+}
+
+.map-canvas {
+	width:100%;
+ 	height: calc(100% - 0px);
 }
