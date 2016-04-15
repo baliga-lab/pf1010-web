@@ -216,7 +216,7 @@ def put_system_measurement():
         error_msg_time = json.dumps({'error': 'Time required'})
         return error_msg_time, 400
     value = data.get('value')
-    if value is None or len(value) <= 0:
+    if value is None:
         error_msg_value = json.dumps({'error': 'Value required'})
         return error_msg_value, 400
     else:
