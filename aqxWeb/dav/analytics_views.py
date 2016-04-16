@@ -4,6 +4,7 @@ from mysql.connector.errors import PoolError
 from flask import Blueprint, render_template, request, redirect, url_for, abort
 
 from app.dav_api import DavAPI
+from aqxWeb.app.APIv2 import API as UIAPI
 
 dav = Blueprint('dav', __name__, template_folder='templates', static_folder='static')
 
@@ -72,6 +73,10 @@ def index():
 @dav.route('/analyzeGraph', methods=['POST'])
 def analyze_graph():
     msr_id_list = [6, 7, 2, 1, 9, 8, 10]
+
+    ui_api = UIAPI(get_conn())
+    annotations_map = ui_api.getReadableAnnotations()
+    print annotations_map
 
     # Load JSON formatted String from API. This will be piped into Javascript as a JS Object accessible in that scope
     # TODO: There are currently no error pages, we're just stubbing abort for now

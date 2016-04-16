@@ -624,7 +624,7 @@ function tooltipFormatter(){
         eventString = "<br><p>Most recent event(s): </p>";
         _.each(this.point.annotations, function (event) {
             console.log(event);
-            eventString = eventString + '<br><p>' + event.id + " at " + event.date + '<p>'
+            eventString = eventString + '<br><p>' + annotationsMap[event.id]+ " at " + event.date + '<p>'
         });
     }
     return '<b>' + tooltipInfo[0] + '</b>' +

@@ -103,6 +103,7 @@
         var measurement_types_and_info = {{ measurement_types_and_info | safe }};
         measurement_types_and_info = measurement_types_and_info.measurement_info;
         var defaultStatus = {{ default_status|safe }};
+        var annotationsMap = {{ annotations_map | safe }};
         {#        _.each(systems_and_measurements, function(system){#}
         {#            var measurement = system.measurement;#}
         {#            _.each(measurement, function(measurementSet){#}
