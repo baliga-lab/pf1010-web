@@ -52,10 +52,7 @@ BEGIN
 
 			call check_pre_established(sysid, ret_num);
 			if ret_num = 1 then
-				update systems set status = 200 where system_uid = sysid;
-				select "change to 200";
-			else
-				select "no change";
+				call update_status(sysid, 200);
 			end if;
 		end if;
 
@@ -63,12 +60,10 @@ BEGIN
 		if curr_state = 200 then
 			call check_established(sysid, ret_num);
 			if ret_num = 1 then
-				select "change to 300";
-				update systems set status = 300 where system_uid = sysid;
+				call update_status(sysid, 300);
 			end if;
 			if ret_num = 2 then
-				select "change to 100";
-				update systems set status = 100 where system_uid = sysid;
+				call update_status(sysid, 100);
 			end if;
 		end if;
 
@@ -78,12 +73,10 @@ BEGIN
 			call check_suspended(sysid, ret_num);
 
 			if ret_num = 1 then
-				select "change to 100";
-				update systems set status = 100 where system_uid = sysid;
+				call update_status(sysid, 100);
 			end if;
 			if ret_num = 2 then
-				select "change to 400";
-				update systems set status = 400 where system_uid = sysid;
+				call update_status(sysid, 400);
 			end if;
 		end if;
 
@@ -104,7 +97,7 @@ BEGIN
 	declare nitrite_num int;
 	declare nitrate_num int;
 	declare below_nitrite int;
-	set date_14_days = (select DATE_SUB(CURDATE(), INTERVAL 14 DAY) as date from dual);
+	set date_14_days = (select DATE_SUB(CURDATE(), INTERVAL 15 DAY) as date from dual);
 	/*check ammonium values*/
 	call get_measurement_count(CONCAT('aqxs_ammonium_',sysid), date_14_days, ammonium_num);
 	/*check nitrate values*/
@@ -135,7 +128,7 @@ BEGIN
 	declare nitrite_num int;
 	declare nitrate_num int;
 	declare below_nitrite int;
-	set date_7_days = (select DATE_SUB(CURDATE(), INTERVAL 7 DAY) as date from dual);
+	set date_7_days = (select DATE_SUB(CURDATE(), INTERVAL 8 DAY) as date from dual);
 	/*check ammonium values*/
 	call get_measurement_count(CONCAT('aqxs_ammonium_',sysid), date_7_days, ammonium_num);
 	/*check nitrate values*/
@@ -145,13 +138,13 @@ BEGIN
 	call compare_readings(sysid,below_nitrite);
 
 	if (ammonium_num < 1 or nitrate_num < 1 or nitrite_num < 1)  then
-		select "change to suspended";
+		/*change to suspended*/
 		set ret = 1;
 	elseif (below_nitrite = 1)  then
-		select "change to pre-established";
+		/*change to pre-established*/
 		set ret = 2;
 	else
-		select "no change";
+		/*no change*/
 		set ret = 0;
 	end if;
 
@@ -170,8 +163,8 @@ BEGIN
 	declare nitrite_num90 int;
 	declare nitrate_num90 int;
 	declare annotation_check int;
-	set date_90_days = (select DATE_SUB(CURDATE(), INTERVAL 90 DAY) as date from dual);
-	set date_1_days = (select DATE_SUB(CURDATE(), INTERVAL 1 DAY) as date from dual);
+	set date_90_days = (select DATE_SUB(CURDATE(), INTERVAL 91 DAY) as date from dual);
+	set date_1_days = (select DATE_SUB(CURDATE(), INTERVAL 2 DAY) as date from dual);
 	/*check ammonium values*/
 	call get_measurement_count(CONCAT('aqxs_ammonium_',sysid), date_1_days, ammonium_num);
 	/*check nitrate values*/
@@ -186,13 +179,13 @@ BEGIN
 	/*check nitrite values*/
 	call get_measurement_count(CONCAT('aqxs_nitrite_',sysid), date_90_days, nitrite_num90);
 	if ammonium_num >= 1 and nitrate_num >= 1 and nitrite_num >= 1 then
-		select "change to pre-Established";
+		/*change to pre-Established*/
 		set ret = 1;
 	elseif ammonium_num90 < 1 and nitrate_num90 < 1 and nitrite_num90 < 1 then
-		select "change to terminated";
+		/*change to terminated*/
 		set ret = 2;
 	else
-		select "no change";
+		/*no change*/
 		set ret = 0;
 	end if;
 	/*logic to check for remove_plant or remove_fish, if yes set ret to 2*/
@@ -239,10 +232,12 @@ BEGIN
 	prepare stmt from @GetSystem;
 	execute stmt;
 	set num2 = @num2;
+    /*if the latest 7 readings of ammonium and nitrite are greater than nitrate*/
 	if num1 = 7 and num2 = 7 then
 		/*change to pre-established*/
 		set ret = 1;
 	end if;
+	/*if the latest 7 readings of ammonium and nitrite are not greater than nitrate*/
 	if num1 = 0 and num2 = 0 then
 		/*pre-est to est*/
 		set ret = 0;
@@ -254,7 +249,7 @@ $$
 
 CREATE PROCEDURE `check_annotations` (sysid varchar(40), OUT ret int)
 BEGIN
-
+	/*return number greater than 0 if either plant remove or fish remove annotations have occured*/
 	set @GetSystem = 'select count(*) from
 	system_annotations a,
 	systems b where
@@ -273,6 +268,7 @@ $$
 
 CREATE procedure `get_measurement_count` (tab varchar(100), pdate date, OUT num int)
 BEGIN
+	/*proc to get number of records based on given date*/
 	set @GetSystem = concat('select count(*) from ',tab
 			,' where time between ? and CURDATE() into @num');
 	set @pdate = pdate;
@@ -280,3 +276,28 @@ BEGIN
 	execute stmt using @pdate;
 	set num = @num;
 END;
+$$
+CREATE procedure `update_status` (sysid varchar(40), stat int)
+BEGIN
+
+	/*update systems table*/
+	update systems set status = stat where system_uid = sysid;
+    /*update system_status table*/
+    set @id := (select id from system_status where system_uid = sysid
+	order by start_time desc limit 1);
+    update system_status set end_time = CURRENT_TIMESTAMP where system_uid = sysid
+    and id = @id;
+    /*insert new status into system_status table*/
+    insert into system_status (system_uid,start_time,end_time,sys_status_id)
+    values(sysid, CURRENT_TIMESTAMP,'2030-12-31 23:59:59', stat);
+END;
+
+$$
+
+/*script for scheduling the stored proc*/
+create event system_status_update_event
+on schedule EVERY 24 hour
+DO CALL update_system_status();
+
+
+SET GLOBAL event_scheduler = ON;
