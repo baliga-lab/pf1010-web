@@ -72,6 +72,13 @@
                         <option value="90">last 90 entries</option>
                     </select>
                 </div>
+                <div>
+                    <label class="control-label">View Data in Status</label>
+                    <select class="explore-dropdown" id="selectStatus">
+                        <option value="100">Pre-Established</option>
+                        <option value="200" selected="selected">Established</option>
+                    </select>
+                </div>
                 <div id="buttons" style="padding-top: 3%">
                     <input class="btn btn-green" type="submit" id="submitbtn" name="newgraph" value="Submit"/>
                     <input class="btn btn-green" type="button" id="resetbtn" name="reset" value="Reset"/>
@@ -98,25 +105,12 @@
     <script src="{{ url_for('dav.static', filename='js/aqxGraph.js') }}"></script>
     <script>
         var systems_and_measurements = {{ systems_and_measurements_json | safe }};
-        systems_and_measurements = systems_and_measurements.response;
+{#        systems_and_measurements = systems_and_measurements.response;#}
         var selectedSystemIDs = {{ selected_systemID_list|safe }};
         var measurement_types_and_info = {{ measurement_types_and_info | safe }};
         measurement_types_and_info = measurement_types_and_info.measurement_info;
-        var defaultStatus = {{ default_status|safe }};
+{#        var defaultStatus = {{ default_status|safe }};#}
         var annotationsMap = {{ annotations_map | safe }};
-        {#        _.each(systems_and_measurements, function(system){#}
-        {#            var measurement = system.measurement;#}
-        {#            _.each(measurement, function(measurementSet){#}
-        {#                var values = measurementSet.values;#}
-        {#                var actions = [];#}
-        {#                _.each(values, function(point){#}
-        {#                    if (Math.floor(Math.random() * 2)){#}
-        {#                        point.event = actions.concat([{id: events[Math.floor(Math.random() * 4)], date:'12:12:12'},{id: events[Math.floor(Math.random() * 4)], date:'10:10:10'}]);#}
-        {#                        point.marker = {fillColor:'yellow', states:{hover:{fillColor:'yellow'}}}#}
-        {#                    }#}
-        {#                })#}
-        {#            })#}
-        {#        });#}
         $(document).ready(main());
     </script>
 {% endblock %}
