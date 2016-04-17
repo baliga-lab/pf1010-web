@@ -20,13 +20,14 @@ class FlaskTestCase(unittest.TestCase):
         self.app = run.app.test_client()
 
     # Testing /friends route
-    @patch('flask.templating._render', return_value='')
+    @patch('flask.templating._render', return_value='hello')
     def test_friends_page_loads(self, mocked):
         with self.app as client:
             with client.session_transaction() as session:
                 session['uid'] = 30
         print "mocked", repr(self.app.get('/social/friends').data)
         print "was _render called?", mocked.called
+
 
 if __name__ == '__main__':
     unittest.main()

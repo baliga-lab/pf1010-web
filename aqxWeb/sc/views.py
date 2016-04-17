@@ -490,7 +490,11 @@ def pendingRequest():
         if session.get('uid') is not None:
             u_sql_id = User(session['uid']).get_user_sql_id()
             pendingRequests = User(session['uid']).get_pending_friend_request(u_sql_id);
+            print(pendingRequests)
+            print("Hello")
+            print("Hello")
             return render_template("/pendingRequest.html", pendingRequests=pendingRequests)
+
     else:
         return render_template("/home.html")
 
@@ -542,7 +546,7 @@ def searchFriends():
 # returns: calls index function
 # Exception : None
 #######################################################################################
-@social.route('/send_friend_request/<u_sql_id>', methods=['GET', 'POST'])
+@social.route('/send_friend_request/<u_sql_id>', methods=['POST'])
 def send_friend_request(u_sql_id):
     receiver_sql_id = u_sql_id
     User(session['uid']).send_friend_request(receiver_sql_id)
