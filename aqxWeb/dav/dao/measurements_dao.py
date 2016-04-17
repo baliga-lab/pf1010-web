@@ -156,11 +156,15 @@ class MeasurementsDAO:
         cursor = self.conn.cursor()
         try:
             for system in systems:
-                time_ranges = self.get_time_ranges_for_status(system,status_id);
+                time_range_response = self.get_time_ranges_for_status(system,status_id);
 
-                query = self.create_measurement_query(system, measurements,time_ranges)
-                cursor.execute(query)
-                payload[system] = cursor.fetchall()
+                if 'error' in time_range_response:
+                    return { 'error' : time_range_response["error"]  + "system: :" + str(systems) + "  measurements: " +
+                                     str(measurements) + "  status: " + str(status_id) }
+                else:
+                    query = self.create_measurement_query(system, measurements,time_range_response)
+                    cursor.execute(query)
+                    payload[system] = cursor.fetchall()
 
         except Error as e:
             return {'error': e.msg + "system: :" + str(systems) + "  measurements: " + str(measurements)}
@@ -240,6 +244,9 @@ class MeasurementsDAO:
         try:
             cursor.execute(query_time_ranges,(system_id,status_id,))
             time_ranges = cursor.fetchall()
+
+            if not time_ranges:
+                return {"error" : 'No time ranges found given parameters. '}
 
         except Error as e:
             return {'error': e.msg}
@@ -335,4 +342,5 @@ class MeasurementsDAO:
 
     # Destructor to close the self connection
     def __del__(self):
-        self.conn.close()
+        if self.conn.open:
+           self.conn.close()
