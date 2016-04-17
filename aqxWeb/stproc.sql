@@ -294,9 +294,11 @@ END;
 
 $$
 
-/*script for scheduling the stored proc*/
+/*script for scheduling the stored proc - date to be update to next day*/
 create event system_status_update_event
-on schedule EVERY 24 hour
+ON SCHEDULE
+    EVERY 1 DAY
+    STARTS '2014-04-18 00:00:00' ON COMPLETION PRESERVE ENABLE
 DO CALL update_system_status();
 
 
