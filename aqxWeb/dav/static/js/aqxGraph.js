@@ -81,7 +81,8 @@ function updateChartDataPointsHC(chart, xType, yTypeList, graphType, numberOfEnt
         _.each(measurementsToFetch, function(measurement){
             measurementIDList.push(measurement_types_and_info[measurement].id);
         });
-        callAPIForNewData(measurementIDList, defaultStatus);
+        callAPIForNewData(measurementIDList, 100);
+        callAPIForNewData(measurementIDList, 200);
     }
 
     // Handle the x axis, for now just using time
@@ -189,14 +190,18 @@ function getDataPointsForPlotHC (chart, xType, yTypeList, graphType, numberOfEnt
 /**
  * Take measurement data object from AJAX response, and add to the global systems_and_measurements data
  * @param data
+ * @param statusID
  */
-function addNewMeasurementData(data){
+function addNewMeasurementData(data, statusID){
     console.log('success',data);
     var systems = data.response;
 
     // Loop through existing systems in the systems_and_measurements object
     _.each(systems, function(system){
         var systemMeasurements = system.measurement;
+        _.each(systemMeasurements, function(measurement){
+            measurement.status = statusID.toString()
+        });
         _.each(systems_and_measurements, function(existingSystem){
             // Match systems in the new data by id, and then add the new measurements
             // to the list of existing measurements
@@ -207,14 +212,14 @@ function addNewMeasurementData(data){
     });
 }
 
-function processAJAXResponse(data){
+function processAJAXResponse(data, statusID){
     if("error" in data){
         console.log("Server returned an error...");
         console.log(data);
         throw "AJAX request reached the server but returned an error!";
     }else{
         console.log("here");
-        addNewMeasurementData(data);
+        addNewMeasurementData(data, statusID);
     }
 }
 
@@ -233,7 +238,9 @@ function callAPIForNewData(measurementIDList, statusID){
         url: '/dav/aqxapi/v1/measurements/plot',
         data: JSON.stringify({systems: selectedSystemIDs, measurements: measurementIDList, status: statusID}, null, '\t'),
         // Process API response
-        success: processAJAXResponse,
+        success: function(data){
+            processAJAXResponse(data, statusID)
+        },
         // Report any AJAX errors
         error: ajaxError
     });

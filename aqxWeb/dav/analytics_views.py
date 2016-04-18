@@ -96,40 +96,32 @@ def analyze_graph():
     selected_systemID_list = []
     try:
         selected_systemID_list = json.dumps(request.form.get('selectedSystems')).translate(None, '\"\\').split(",")
-        # TODO: Use request.form.get('systemStatus') to get statusId
-        # default_status = request.form.get('systemStatus')
     except:
         traceback.print_exc()
         if not selected_systemID_list:
             print("System ID list or Status is undefined.")
         raise AttributeError("Error processing selected systems form.")
 
-
     systems_and_measurements_json_pre_est = json_loads_byteified(get_readings_for_tsplot(selected_systemID_list, msr_id_list, PRE_ESTABLISHED))['response']
     for system in systems_and_measurements_json_pre_est:
         for measurement in system['measurement']:
             measurement['status'] = '100'
+
+    if 'error' in systems_and_measurements_json_pre_est:
+        print systems_and_measurements_json_pre_est['error']
+        raise AttributeError("Error processing API call for measurement readings.")
 
     systems_and_measurements_json = json_loads_byteified(get_readings_for_tsplot(selected_systemID_list, msr_id_list, ESTABLISHED))['response']
     for system in systems_and_measurements_json:
         for measurement in system['measurement']:
             measurement['status'] = '200'
 
+    if 'error' in systems_and_measurements_json:
+        print systems_and_measurements_json['error']
+        raise AttributeError("Error processing API call for measurement readings.")
+
     for i in range(len(systems_and_measurements_json)):
         systems_and_measurements_json[i]['measurement'] += systems_and_measurements_json_pre_est[i]['measurement']
-
-      # systems_and_measurements_json = get_readings_for_tsplot(selected_systemID_list, msr_id_list, 100)
-    # print systems_and_measurements_json
-    # systems_and_measurements_json = get_readings_for_tsplot(selected_systemID_list, msr_id_list, 200)
-    # print systems_and_measurements_json
-    # systems_and_measurements_json = get_readings_for_tsplot(selected_systemID_list, msr_id_list, 300)
-    # print systems_and_measurements_json
-    # systems_and_measurements_json = get_readings_for_tsplot(selected_systemID_list, msr_id_list, 400)
-    # print systems_and_measurements_json
-    # if 'error' in systems_and_measurements_json_pre_est:
-    #     print systems_and_measurements_json_pre_est['error']
-    #     raise AttributeError("Error processing API call for measurement readings.")
-
 
     return render_template("analyze.html", **locals())
 
