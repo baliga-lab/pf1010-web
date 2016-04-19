@@ -12,19 +12,23 @@
     <div class="row">
         <div class="col-sm-3">
             <ul class="nav nav-stacked">
-                <li id="social-li"><a
-                        href="{{ url_for("social.view_system", system_uid=metadata.UID) }}" title="Social">
-                    Social <span class="sr-only">(current)</span></a>
+                <li id="overview-li"><a
+                        href="{{ url_for("frontend.sys_overview", system_uid=metadata.UID) }}" title="Social">
+                    Overview</a>
                 </li>
                 <li id="analytics-li">
                     {# <a href="{{ url_for('dav.system_analyze', system_uid=metadata.UID) }}" title="Analytics">Analytics</a> #}
                 </li>
                 <li id="measurement-li" class="active">
-                    <a href="{{ url_for("frontend.sys_measurements", system_uid=metadata.UID) }}" title="Measurement">Measurements</a>
+                    <a href="{{ url_for("frontend.sys_measurements", system_uid=metadata.UID) }}" title="Measurement">Measurements <span class="sr-only">(current)</span></a>
                 </li>
                 <li id="annotate-li">
                     <a href="{{ url_for("frontend.sys_annotations", system_uid=metadata.UID) }}"
                        title="Annotations">Annotations</a>
+                </li>
+                <li id="social-li"><a
+                        href="{{ url_for("social.view_system", system_uid=metadata.UID) }}" title="Social">
+                    Social</a>
                 </li>
             </ul>
         </div>
@@ -48,7 +52,7 @@
                     </select>
                     <hr>
                 </div>
-                <form>
+                <form ng-show="measure.measurement_id" ng-switch on="measure.measurement_id">
                     <span class="hidden" id="UID">{{ metadata.UID }}</span>
                     <div class="form-group">
                         <label for="measure-datetime">Date & Time</label>
@@ -56,14 +60,107 @@
                                ng-model="measure.time" required>
                     </div>
 
+                    <div ng-switch-when="1">
+                        <div class="form-group">
+                            <label for="alk-strip">Strip Color</label>
+                            <div id="alk-strip" class="form-control alk-strip">
+                                <div id="alk-picker" class="strip-picker" style="left: 100px;"></div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="alk-preview">Preview</label>
+                            <div id="alk-preview" class="form-control alk-preview"></div>
+                        </div>
+                    </div>
+
+                    <div ng-switch-when="2">
+                        <div class="form-group">
+                            <label for="nh4-strip">Strip Color</label>
+                            <div id="nh4-strip" class="form-control nh4-strip">
+                                <div id="nh4-picker" class="strip-picker" style="left: 100px;"></div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="nh4-preview">Preview</label>
+                            <div id="nh4-preview" class="form-control nh4-preview"></div>
+                        </div>
+                    </div>
+
+                    <div ng-switch-when="3">
+                        <div class="form-group">
+                            <label for="cl-strip">Strip Color</label>
+                            <div id="cl-strip" class="form-control cl-strip">
+                                <div id="cl-picker" class="strip-picker" style="left: 100px;"></div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="cl-preview">Preview</label>
+                            <div id="cl-preview" class="form-control cl-preview"></div>
+                        </div>
+                    </div>
+
+                    <div ng-switch-when="4">
+                        <div class="form-group">
+                            <label for="hard-strip">Strip Color</label>
+                            <div id="hard-strip" class="form-control hard-strip">
+                                <div id="hard-picker" class="strip-picker" style="left: 100px;"></div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="hard-preview">Preview</label>
+                            <div id="hard-preview" class="form-control hard-preview"></div>
+                        </div>
+                    </div>
+
+                    <div ng-switch-when="6">
+                        <div class="form-group">
+                            <label for="no3">Strip Color</label>
+                            <div id="no3-strip" class="form-control no3-strip">
+                                <div id="no3-picker" class="strip-picker" style="left: 100px;"></div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="no3-preview">Preview</label>
+                            <div id="no3-preview" class="form-control no3-preview"></div>
+                        </div>
+                    </div>
+
+                    <div ng-switch-when="7">
+                        <div class="form-group">
+                            <label for="no2-strip">Strip Color</label>
+                            <div id="no2-strip" class="form-control no2-strip">
+                                <div id="no2-picker" class="strip-picker" style="left: 100px;"></div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="no2-preview">Preview</label>
+                            <div id="no2-preview" class="form-control no2-preview"></div>
+                        </div>
+                    </div>
+
+                    <div ng-switch-when="9">
+                        <div class="form-group">
+                            <label for="ph-strip">Strip Color</label>
+                            <div id="ph-strip" class="form-control ph-strip">
+                                <div id="ph-picker" class="strip-picker" style="left: 100px;"></div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="ph-preview">Preview</label>
+                            <div id="ph-preview" class="form-control ph-preview"></div>
+                        </div>
+                    </div>
+
                     <div class="form-group">
                         <label for="measure-value">Value</label>
                         <div class="input-group">
-                            <input id="measure-value" class="form-control" name="o2-value" type="number"
+                            <input id="measure-value" class="form-control" name="measure-value" type="number"
                                    pattern="[0-9]+(.[0-9]+)?" style="text-align: right;" placeholder="0.0"
                                    step="0.001"
                                    aria-describedby="addon" ng-model="measure.value">
-                            <span id="addon" class="input-group-addon">mg/l</span>
+                            <span ng-switch-when="5" id="addon" class="input-group-addon">lux</span>
+                            <span ng-switch-when="10" id="addon" class="input-group-addon">&deg;C</span>
+                            <span ng-switch-default id="addon" class="input-group-addon">mg/L</span>
                         </div>
                     </div>
 
@@ -91,4 +188,41 @@
     {{ super() }}
     <script src="{{ url_for('frontend.static', filename='js/jquery.slides.min.js') }}"></script>
     <script src="{{ url_for('frontend.static', filename='js/sys_measurements.js') }}"></script>
+    <script src="{{ url_for('frontend.static', filename='js/strip_colors.js') }}"></script>
+    <script>
+        var isDragging = false;
+
+        function updateNH4Values(posx) {
+            aqx.updateStripValues(posx, 'nh4', 0.0, 6.0, aqx.nh4GradientColor);
+        }
+        aqx.connectStrip('nh4', updateNH4Values);
+        function updateNO3Values(posx) {
+            aqx.updateStripValues(posx, 'no3', 0.0, 200.0, aqx.no3GradientColor);
+        }
+        aqx.connectStrip('no3', updateNO3Values);
+        function updateNO2Values(posx) {
+            aqx.updateStripValues(posx, 'no2', 0.0, 10.0, aqx.no2GradientColor);
+        }
+        aqx.connectStrip('no2', updateNO2Values);
+        // PH
+        function updatePHValues(posx) {
+            aqx.updateStripValues(posx, 'ph', 6.2, 8.4, aqx.phGradientColor);
+        }
+        aqx.connectStrip('ph', updatePHValues);
+        // Chlorine
+        function updateChlorineValues(posx) {
+            aqx.updateStripValues(posx, 'cl', 0.0, 6.0, aqx.clGradientColor);
+        }
+        aqx.connectStrip('cl', updateChlorineValues);
+        // Hardness
+        function updateHardnessValues(posx) {
+            aqx.updateStripValues(posx, 'hard', 0.0, 300.0, aqx.hardGradientColor);
+        }
+        aqx.connectStrip('hard', updateHardnessValues);
+        // Alkalinity
+        function updateAlkalinityValues(posx) {
+            aqx.updateStripValues(posx, 'alk', 0.0, 300.0, aqx.alkGradientColor);
+        }
+        aqx.connectStrip('alk', updateAlkalinityValues);
+    </script>
 {% endblock scripts %}

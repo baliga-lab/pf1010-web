@@ -15,7 +15,7 @@
     <div class="container groupDiv">
 
         <!-- Div for Left Pane (Group Description, Participant, Manage Requests) - Groups Page -->
-        <div class="col-md-3 leftPaneDiv">
+        <div class="col-sm-4 sidebar">
             <div class="row groupDescription">
                 <h4 class="groupName">  {{ group_neo4j[0][0]['name'] }} </h4>
                 <h5 class="groupCreated" id="groupCreatedTime"><b>Created On: </b>
@@ -137,7 +137,7 @@
 
 
         <!-- This centerPaneDiv for Group posts - Group Page -->
-        <div class="main col-sm-9">
+        <div class="main col-sm-8 col-sm-offset-4">
             {# NEWSFEED #}
             {% include "post_group_form.html" %}
 

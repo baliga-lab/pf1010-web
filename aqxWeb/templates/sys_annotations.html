@@ -13,9 +13,10 @@
     <div class="row">
         <div class="col-sm-3">
             <ul class="nav nav-stacked">
-                <li id="social-li"><a
-                        href="{{ url_for("social.view_system", system_uid=metadata.UID) }}" title="Social">
-                    Social <span class="sr-only">(current)</span></a>
+                <ul class="nav nav-stacked">
+                <li id="overview-li"><a
+                        href="{{ url_for("frontend.sys_overview", system_uid=metadata.UID) }}" title="Social">
+                    Overview</a>
                 </li>
                 <li id="analytics-li">
                     {# <a href="{{ url_for('dav.system_analyze', system_uid=metadata.UID) }}" title="Analytics">Analytics</a> #}
@@ -25,8 +26,13 @@
                 </li>
                 <li id="annotate-li">
                     <a href="{{ url_for("frontend.sys_annotations", system_uid=metadata.UID) }}"
-                       title="Annotations">Annotations</a>
+                       title="Annotations">Annotations <span class="sr-only">(current)</span></a>
                 </li>
+                <li id="social-li"><a
+                        href="{{ url_for("social.view_system", system_uid=metadata.UID) }}" title="Social">
+                    Social</a>
+                </li>
+            </ul>
             </ul>
         </div>
         <div class="col-sm-9">
@@ -77,7 +83,7 @@
                         <div id="otherType4" style="display:none;">
                     <span class="segmented">
                         <label style="display: inline;font-size: 100%;font-weight: 200;"><input type="radio" name="seg4" value="harvestPlant" data-toggle="collapse" data-target="#harvestPlantInfo"><span
-                                class="label">Plant</span></label>
+                                class="label">Crop</span></label>
                         <label style="display: inline;font-size: 100%;font-weight: 200;"><input type="radio" name="seg4" value="harvestFish" data-toggle="collapse" data-target="#harvestFishInfo"><span
                                 class="label">Fish</span></label>
                     </span>
@@ -98,11 +104,11 @@
                         <input type="text" name="number" id="number">
                     </li>
                 </ul>
-                <div id="harvestPlantInfo" class="collapse">By selecting this you are cutting some
-                    of the plant off to harvest, to remove the entire plant to Harvest select Plant
-                    from the dropdown and hit Remove</div>
-                <div id="harvestFishInfo" class="collapse">By selecting this you are removing all the fishes off to harvest,
-                    if the fish died and you want have to take it out select Fish from the dropdown and hit Remove</div>
+                <div id="harvestPlantInfo" class="collapse">By selecting this, you are cutting some
+                    of the plant off to harvest. To remove the entire plant for harvest, select 'Crop'
+                    from the dropdown and hit 'Remove'.</div>
+                <div id="harvestFishInfo" class="collapse">By selecting this, you are removing all the fishes for harvest.
+                    If the fish died and you want have to take it out, select 'Fish' from the dropdown and hit 'Remove'.</div>
 
             </form>
             <button class="btn btn-green" type="button" onclick="dataSubmit()">Submit</button>
@@ -114,6 +120,6 @@
 {% block scripts %}
     {{ super() }}
     <script src="{{ url_for('frontend.static', filename='js/jquery.slides.min.js') }}"></script>
-    <script src="{{ url_for('frontend.static', filename='js/systems.js') }}"></script>
     <script src="{{ url_for('frontend.static', filename='js/annotation.js') }}"></script>
+    <script src="{{ url_for('frontend.static', filename='js/strip_colors.js') }}"></script>
 {% endblock scripts %}

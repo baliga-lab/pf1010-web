@@ -32,9 +32,9 @@
                             <ul class="list-inline">
                                 {# LIKES COUNT #}
                                 <li>
-                                    <span style="color: gold"><i class="fa fa-star" aria-hidden="true"></i></span>
                                     {% for i in total_likes %}
                                         {% if i.postid == row.post.id %}
+                                            <span style="color: gold"><i class="fa fa-star" aria-hidden="true"></i></span>
                                             {{ i.likecount }}
                                         {% endif %}
                                     {% endfor %}
@@ -64,7 +64,7 @@
                             {# image/gif content #}
                             {% if row.post.link.endswith(".jpg") or row.post.link.endswith(".png") or row.post.link.endswith(".gif") %}
                                 <img class="attachedImg" src="{{ row.post.link }}"
-                                     onclick="window.open('{{ row.post.link }}', '_blank');" />
+                                     onclick="window.open('{{ row.post.link }}', '_blank');"/>
 
                                 {# video content #}
                             {% else %}
@@ -141,43 +141,6 @@
                                 {% for cmt in row.comments|sort(attribute='creation_time') %}
                                     {% if cmt.post_id == row.post.id and cmt.comment and cmt.comment.content %}
                                         <li>
-                                            <div class="pull-right">
-                                                {% if cmt.user_sql_id == session['uid'] %}
-                                                    <button type="submit" class="btn btn-blue btn-xs" name="submit"
-                                                            value="edit"
-                                                            aria-label="Left Align"
-                                                            onclick="showEditCommentDiv('{{ cmt.comment.id }}')">
-                                                        Edit
-                                                    </button>
-
-                                                    <div id="{{ cmt.comment.id }}" class="form-controls"
-                                                         style="display:none; width: 100% ; text-align:left">
-                                                        <form action="{{ url_for('social.edit_or_delete_comment') }}"
-                                                              method="post">
-                                                            <div class="input-group">
-                                                                <input type="hidden" name="commentid"
-                                                                   value="{{ cmt.comment.id }}">
-                                                            <input id="editedcomment" name="editedcomment"
-                                                                   style="width: 100%"
-                                                                   value="{{ cmt.comment.content }}"
-                                                                   placeholder="Edit comment">
-                                                                <span class="input-group-btn">
-                                                                    <button type="submit" class="btn btn-green"
-                                                                    name="submit"
-                                                                    value="editComment" aria-label="right Align">
-                                                                Update
-                                                            </button>
-                                                                </span>
-                                                            <button type="submit" class="btn btn-danger"
-                                                                    name="submit"
-                                                                    value="deleteComment" aria-label="right Align">
-                                                                Delete
-                                                            </button>
-                                                            </div>
-                                                        </form>
-                                                    </div>
-                                                {% endif %}
-                                            </div>
                                             <div class="media-left">
                                                 <a href="{% if cmt.google_id %}/social/profile/{{ cmt.google_id }}
                                                 {% else %}#{% endif %}">
@@ -200,6 +163,45 @@
                                                 </h5>
                                                 <div class="input-group col-md-12">
                                                     <p>{{ cmt.comment.content }}</p>
+                                                    {% if cmt.user_sql_id == session['uid'] %}
+                                                        <button type="submit" class="btn btn-blue btn-xs" name="submit"
+                                                                value="edit"
+                                                                aria-label="Left Align"
+                                                                onclick="showEditCommentDiv('{{ cmt.comment.id }}')">
+                                                            Edit
+                                                        </button>
+
+                                                        <div id="{{ cmt.comment.id }}" class="form-controls"
+                                                             style="display:none; width: 100% ; text-align:left">
+                                                            <form action="{{ url_for('social.edit_or_delete_comment') }}"
+                                                                  method="post">
+                                                                <div class="input-group">
+                                                                    <input type="hidden" name="commentid"
+                                                                           value="{{ cmt.comment.id }}">
+                                                                    <div class="input-group input-group-sm">
+                                                                <span class="input-group-btn">
+                                                                <button type="submit" class="btn btn-danger"
+                                                                        name="submit"
+                                                                        value="deleteComment">
+                                                                    Delete
+                                                                </button>
+                                                                    </span>
+                                                                        <input id="editedcomment" name="editedcomment"
+                                                                               class="form-control"
+                                                                               value="{{ cmt.comment.content }}"
+                                                                               placeholder="Edit comment">
+                                                                <span class="input-group-btn">
+                                                                <button type="submit" class="btn btn-green"
+                                                                        name="submit"
+                                                                        value="editComment">
+                                                                    Update
+                                                                </button>
+                                                                    </span>
+                                                                    </div>
+                                                                </div>
+                                                            </form>
+                                                        </div>
+                                                    {% endif %}
                                                 </div>
                                             </div>
                                         </li>

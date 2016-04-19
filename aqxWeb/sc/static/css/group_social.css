@@ -12,11 +12,6 @@
     background-color: #f0f0f5;
 }
 
-.cogWheelIcon {
-    height: 45px;
-    width: 45px;
-}
-
 .pendingRequests {
     overflow-x: hidden;
     overflow-y: auto;

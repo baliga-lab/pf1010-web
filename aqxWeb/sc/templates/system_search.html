@@ -17,7 +17,7 @@
                 <a href="#searchSystemsTab">
                 <span class="glyphicon glyphicon-search" aria-hidden="true">
                 </span>
-                &nbsp;Search Systems
+                    &nbsp;Search Systems
                 </a>
             </li>
             <li>
@@ -68,7 +68,8 @@
                         {% for row in system_search_results %}
                             <div class="row">
                                 <ul class="pull-left">
-                                    <img class="systemImage" src="{{ url_for('social.static', filename='images/default_system_thumbnail.png') }}"
+                                    <img class="systemImage"
+                                         src="{{ url_for('social.static', filename='images/default_system_thumbnail.png') }}"
                                          alt="System">
                                 </ul>
                                 <br/>
@@ -80,7 +81,10 @@
                     {% else %}
                         <div class="container">
                             <ul class="pull-left">
-                                <img class="sadSmileyImage" src="{{ url_for('social.static', filename='images/sad_smiley.png') }}" alt="System">
+                                <span class="fa-stack fa-2x">
+                                    <i class="fa fa-circle fa-stack-2x"></i>
+                                    <i class="fa fa-meh-o fa-stack-1x fa-inverse"></i>
+                                </span>
                             </ul>
                             <br/>
                             <ul>
@@ -108,8 +112,10 @@
                         {% for row in admin_systems %}
                             <div class="row">
                                 <ul class="pull-left">
-                                    <img class="systemImage" src="{{ url_for('social.static', filename='images/default_system_thumbnail.png') }}"
-                                         alt="System">
+                                    <span class="fa-stack fa-2x">
+                                        <i class="fa fa-circle fa-stack-2x"></i>
+                                        <i class="fa fa-leaf fa-stack-1x fa-inverse"></i>
+                                    </span>
                                 </ul>
                                 <br/>
                                 <ul>
@@ -120,7 +126,10 @@
                     {% else %}
                         <div class="row">
                             <ul class="pull-left">
-                                <img class="sadSmileyImage" src="{{ url_for('social.static', filename='images/sad_smiley.png') }}" alt="System">
+                                <span class="fa-stack fa-2x">
+                                    <i class="fa fa-circle fa-stack-2x"></i>
+                                    <i class="fa fa-meh-o fa-stack-1x fa-inverse"></i>
+                                </span>
                             </ul>
                             <br/>
                             <ul>
@@ -140,8 +149,10 @@
                         {% for row in participated_systems %}
                             <div class="row">
                                 <ul class="pull-left">
-                                    <img class="systemImage" src="{{ url_for('social.static', filename='images/default_system_thumbnail.png') }}"
-                                         alt="System">
+                                    <span class="fa-stack fa-2x">
+                                        <i class="fa fa-circle fa-stack-2x"></i>
+                                        <i class="fa fa-leaf fa-stack-1x fa-inverse"></i>
+                                    </span>
                                 </ul>
                                 <br/>
                                 <ul>
@@ -152,7 +163,10 @@
                     {% else %}
                         <div class="row">
                             <ul class="pull-left">
-                                <img class="sadSmileyImage" src="{{ url_for('social.static', filename='images/sad_smiley.png') }}" alt="System">
+                                <span class="fa-stack fa-2x">
+                                    <i class="fa fa-circle fa-stack-2x"></i>
+                                    <i class="fa fa-meh-o fa-stack-1x fa-inverse"></i>
+                                </span>
                             </ul>
                             <br/>
                             <ul>
@@ -182,8 +196,10 @@
                         {% for row in subscribed_systems %}
                             <div class="row">
                                 <ul class="pull-left">
-                                    <img class="systemImage" src="{{ url_for('social.static', filename='images/default_system_thumbnail.png') }}"
-                                         alt="System">
+                                    <span class="fa-stack fa-2x">
+                                        <i class="fa fa-circle fa-stack-2x"></i>
+                                        <i class="fa fa-leaf fa-stack-1x fa-inverse"></i>
+                                    </span>
                                 </ul>
                                 <br/>
                                 <ul>
@@ -194,7 +210,10 @@
                     {% else %}
                         <div class="row">
                             <ul class="pull-left">
-                                <img class="sadSmileyImage" src="{{ url_for('social.static', filename='images/sad_smiley.png') }}" alt="System">
+                                <span class="fa-stack fa-2x">
+                                    <i class="fa fa-circle fa-stack-2x"></i>
+                                    <i class="fa fa-meh-o fa-stack-1x fa-inverse"></i>
+                                </span>
                             </ul>
                             <br/>
                             <ul>
@@ -216,8 +235,10 @@
                         {% for row in recommended_systems %}
                             <div class="row">
                                 <ul class="pull-left">
-                                    <img class="systemImage" src="{{ url_for('social.static', filename='images/default_system_thumbnail.png') }}"
-                                         alt="System">
+                                    <span class="fa-stack fa-2x">
+                                        <i class="fa fa-circle fa-stack-2x"></i>
+                                        <i class="fa fa-leaf fa-stack-1x fa-inverse"></i>
+                                    </span>
                                 </ul>
                                 <br/>
                                 <ul>
@@ -228,7 +249,10 @@
                     {% else %}
                         <div class="row">
                             <ul class="pull-left">
-                                <img class="sadSmileyImage" src="{{ url_for('social.static', filename='images/sad_smiley.png') }}" alt="System">
+                                <span class="fa-stack fa-2x">
+                                    <i class="fa fa-circle fa-stack-2x"></i>
+                                    <i class="fa fa-meh-o fa-stack-1x fa-inverse"></i>
+                                </span>
                             </ul>
                             <br/>
                             <ul>
@@ -258,8 +282,10 @@
                     {% for row in all_systems %}
                         <div class="row">
                             <ul class="pull-left">
-                                <img class="systemImage" src="{{ url_for('social.static', filename='images/default_system_thumbnail.png') }}"
-                                     alt="System">
+                                <span class="fa-stack fa-2x">
+                                    <i class="fa fa-circle fa-stack-2x"></i>
+                                    <i class="fa fa-leaf fa-stack-1x fa-inverse"></i>
+                                </span>
                             </ul>
                             <br/>
                             <ul>
@@ -270,7 +296,10 @@
                 {% else %}
                     <div class="row">
                         <ul class="pull-left">
-                            <img class="sadSmileyImage" src="{{ url_for('social.static', filename='images/sad_smiley.png') }}" alt="System">
+                            <span class="fa-stack fa-2x">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa fa-meh-o fa-stack-1x fa-inverse"></i>
+                            </span>
                         </ul>
                         <br/>
                         <ul>

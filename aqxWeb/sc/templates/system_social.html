@@ -17,11 +17,16 @@
         <!-- ---------------------------------------------------------  -->
 
         <!-- Div for Left Pane - Systems Page -->
-        <div class="col-md-3 leftPaneDiv">
+        <div class="col-sm-3 sidebar">
 
             <!-- Div for System Description (Name, Creation Time, Location and Description -->
             <div class="row systemDescription">
-                <h4 class="systemName">  {{ system_neo4j[0][0]['name'] }} </h4>
+                <h2 class="systemName">
+                    {{ system_neo4j[0][0]['name'] }}
+                    <a href="{{ url_for('social.manage_system', system_uid= system_neo4j[0][0]["system_uid"]) }}">
+                        <i class="fa fa-cog" aria-hidden="true"></i>
+                    </a>
+                </h2>
                 <h5 class="systemCreated" id="systemCreatedTime"><b>Created On: </b>
                     {{ created_date }}
                 </h5>
@@ -40,7 +45,7 @@
 
             <!-- Div for Participants (List of Participants) -->
             <div class="row">
-                <h4 class="participantTitle"> Participants ({{ system_participants | length }}) </h4>
+                <h4 class="participantTitle"> Participants <span class="badge">{{ system_participants | length }}</span> </h4>
             </div>
             <div class="row participantDiv">
                 {% if system_participants %}
@@ -76,7 +81,7 @@
             <!-- See All Participants Button -->
             {% if system_participants | length > 0 %}
                 <div class="row">
-                    <button type="button" class="btn btn-info btn-sm" data-toggle="modal"
+                    <button type="button" class="btn btn-grey btn-sm" data-toggle="modal"
                             data-target="#participantModal">See All Participants
                     </button>
                 </div>
@@ -87,7 +92,7 @@
 
             <!-- Div for Subscribers (List of Subscribers) -->
             <div class="row">
-                <h4 class="subscriberTitle"> Subscribers ({{ system_subscribers | length }}) </h4>
+                <h4 class="subscriberTitle"> Subscribers <span class="badge">{{ system_subscribers | length }}</span> </h4>
             </div>
             <div class="row subscriberDiv">
                 {% if system_subscribers %}
@@ -134,7 +139,7 @@
             <!-- See All Subscribers Button -->
             {% if system_subscribers | length > 0 %}
                 <div class="row">
-                    <button type="button" class="btn btn-info btn-sm" data-toggle="modal"
+                    <button type="button" class="btn btn-grey btn-sm" data-toggle="modal"
                             data-target="#subscriberModal">See All Subscribers
                     </button>
                 </div>
@@ -147,7 +152,7 @@
             {% if user_privilege == "SYS_ADMIN" %}
 
                 <div class="row pendingRequestsTitleDiv">
-                    <h4>Participants Request ({{ participants_pending_approval | length }})</h4>
+                    <h4>Participants Request <span class="badge">{{ participants_pending_approval | length }}</span></h4>
                 </div>
 
                 <div class="row pendingRequests">
@@ -185,20 +190,6 @@
                             </span>
                     {% endif %}
                 </div>
-
-                <hr/>
-
-                <!-- Div for Manage Settings/Adding Admin(s) To The Systems -->
-                <div class="row">
-                    <span>
-                        <a href="{{ url_for('social.manage_system', system_uid= system_neo4j[0][0]["system_uid"]) }}">
-                            <img class="cogWheelIcon"
-                                 src="{{ url_for('social.static', filename='images/system_settings.png') }}">
-                            Manage System
-                        </a>
-                    </span>
-                </div>
-                <!-- End Of Div for Manage Settings/Adding Admin(s) To The Systems -->
 
             {% endif %}
             <!-- End of Div for Managing Pending Requests (Approve/Reject) Button. Manage System Settings Too -->
@@ -243,7 +234,7 @@
 
 
         <!-- This centerPaneDiv for system posts -->
-        <div class="col-md-6 centerPaneDiv">
+        <div class="col-sm-6 col-sm-offset-3">
             <div class="row">
                 {# NEWSFEED #}
                 {% include "post_system_form.html" %}
@@ -259,7 +250,7 @@
 
 
         <!-- This is the rightPaneDiv for system data -->
-        <div class="col-md-3 rightPaneDiv">
+        <div class="col-sm-3 rightPaneDiv">
             <h2>Summary</h2>
             <a class="btn-blue" href="{{ url_for('frontend.sys_measurements', system_uid=id) }}">
                 <i class="fa fa-plus"></i> Input Measurements
