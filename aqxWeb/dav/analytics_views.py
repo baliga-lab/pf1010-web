@@ -14,6 +14,11 @@ PRE_ESTABLISHED = 100
 ESTABLISHED = 200
 
 
+@dav.route('/error')
+def error():
+    return render_template("error.html")
+
+
 @dav.route('/home')
 def home():
     return "Data Analytics and Viz Homepage"
@@ -41,22 +46,27 @@ def get_conn():
 ######################################################################
 @dav.route('/explore')
 def explore():
-    systems_and_info_json = get_all_systems_info()
-    if 'error' in systems_and_info_json:
-        print systems_and_info_json['error']
-        raise AttributeError("Error processing API call for aquaponic systems data.")
+    try:
+        systems_and_info_json = get_all_systems_info()
+        if 'error' in systems_and_info_json:
+            print systems_and_info_json['error']
+            print("Error processing API call for aquaponic systems data.")
+            return render_template("error.html"), 400
 
-    systems = json_loads_byteified(systems_and_info_json)['systems']
+        systems = json_loads_byteified(systems_and_info_json)['systems']
 
-    metadata_json = get_all_aqx_metadata()
-    if 'error' in metadata_json:
-        print metadata_json['error']
-        raise AttributeError("Error processing API call for system metadata.")
+        metadata_json = get_all_aqx_metadata()
+        if 'error' in metadata_json:
+            print metadata_json['error']
+            print("Error processing API call for system metadata.")
+            return render_template("error.html"), 400
 
-    metadata_dict = json_loads_byteified(metadata_json)['filters']
+        metadata_dict = json_loads_byteified(metadata_json)['filters']
 
-    return render_template("explore.html", **locals())
+        return render_template("explore.html", **locals())
 
+    except:
+        return render_template("error.html"), 400
 
 #######################################################################################
 # function : index
@@ -75,56 +85,62 @@ def index():
 
 @dav.route('/analyzeGraph', methods=['POST'])
 def analyze_graph():
-    msr_id_list = [6, 7, 2, 1, 9, 8, 10]
-
-    ui_api = UIAPI(get_conn())
-    annotations_map = ui_api.getReadableAnnotations()
-    print annotations_map
-
-    # Load JSON formatted String from API. This will be piped into Javascript as a JS Object accessible in that scope
-    # TODO: There are currently no error pages, we're just stubbing abort for now
-    measurement_types_and_info = get_all_measurement_info()
-    if 'error' in measurement_types_and_info:
-        print measurement_types_and_info['error']
-        raise AttributeError("Error processing API call for measurement types.")
-
-    # Load JSON into Python dict with only Byte values, for use in populating dropdowns
-    measurement_types = json_loads_byteified(measurement_types_and_info)['measurement_info']
-    measurement_names = measurement_types.keys()
-    measurement_names.sort()
-
-    selected_systemID_list = []
     try:
+        msr_id_list = [6, 7, 2, 1, 9, 8, 10]
+
+        ui_api = UIAPI(get_conn())
+        annotations_map = ui_api.getReadableAnnotations()
+        print annotations_map
+
+        # Load JSON formatted String from API. This will be piped into Javascript as a JS Object accessible in that scope
+        # TODO: There are currently no error pages, we're just stubbing abort for now
+        measurement_types_and_info = get_all_measurement_info()
+        if 'error' in measurement_types_and_info:
+            print measurement_types_and_info['error']
+            print("Error processing API call for measurement types.")
+            return render_template("error.html"), 400
+
+        # Load JSON into Python dict with only Byte values, for use in populating dropdowns
+        measurement_types = json_loads_byteified(measurement_types_and_info)['measurement_info']
+        measurement_names = measurement_types.keys()
+        measurement_names.sort()
+
+        selected_systemID_list = []
         selected_systemID_list = json.dumps(request.form.get('selectedSystems')).translate(None, '\"\\').split(",")
-    except:
         traceback.print_exc()
         if not selected_systemID_list:
             print("System ID list or Status is undefined.")
-        raise AttributeError("Error processing selected systems form.")
+            print("Error processing selected systems form.")
+            return render_template("error.html"), 400
 
-    systems_and_measurements_json_pre_est = json_loads_byteified(get_readings_for_tsplot(selected_systemID_list, msr_id_list, PRE_ESTABLISHED))['response']
-    for system in systems_and_measurements_json_pre_est:
-        for measurement in system['measurement']:
-            measurement['status'] = '100'
+        systems_and_measurements_json_pre_est = json_loads_byteified(get_readings_for_tsplot
+                                                                         (selected_systemID_list, msr_id_list, PRE_ESTABLISHED))['response']
+        for system in systems_and_measurements_json_pre_est:
+            for measurement in system['measurement']:
+                measurement['status'] = '100'
 
-    if 'error' in systems_and_measurements_json_pre_est:
-        print systems_and_measurements_json_pre_est['error']
-        raise AttributeError("Error processing API call for measurement readings.")
+        if 'error' in systems_and_measurements_json_pre_est:
+            print systems_and_measurements_json_pre_est['error']
+            print("Error processing API call for measurement readings.")
+            return render_template("error.html"), 400
 
-    systems_and_measurements_json = json_loads_byteified(get_readings_for_tsplot(selected_systemID_list, msr_id_list, ESTABLISHED))['response']
-    for system in systems_and_measurements_json:
-        for measurement in system['measurement']:
-            measurement['status'] = '200'
+        systems_and_measurements_json = json_loads_byteified(get_readings_for_tsplot
+                                                             (selected_systemID_list, msr_id_list, ESTABLISHED))['response']
+        for system in systems_and_measurements_json:
+            for measurement in system['measurement']:
+                measurement['status'] = '200'
 
-    if 'error' in systems_and_measurements_json:
-        print systems_and_measurements_json['error']
-        raise AttributeError("Error processing API call for measurement readings.")
+        if 'error' in systems_and_measurements_json:
+            print systems_and_measurements_json['error']
+            print("Error processing API call for measurement readings.")
+            return render_template("error.html"), 400
 
-    for i in range(len(systems_and_measurements_json)):
-        systems_and_measurements_json[i]['measurement'] += systems_and_measurements_json_pre_est[i]['measurement']
+        for i in range(len(systems_and_measurements_json)):
+            systems_and_measurements_json[i]['measurement'] += systems_and_measurements_json_pre_est[i]['measurement']
 
-    return render_template("analyze.html", **locals())
-
+        return render_template("analyze.html", **locals())
+    except:
+        return render_template("error.html"), 400
 
 ######################################################################
 # Interactive graph analysis of a given system measurements
@@ -132,63 +148,64 @@ def analyze_graph():
 
 @dav.route('/analyzeGraph/system/<system_uid>', methods=['GET'])
 def system_analyze(system_uid):
-    msr_id_list = [6, 7, 2, 1, 9, 8, 10]
-
-    ui_api = UIAPI(get_conn())
-    annotations_map = ui_api.getReadableAnnotations()
-
-    # Load JSON formatted String from API.
-    # This will be piped into Javascript as a JS Object accessible in that scope
-    # TODO: There are currently no error pages, we're just stubbing abort for now
-    measurement_types_and_info = get_all_measurement_info()
-    if 'error' in measurement_types_and_info:
-        print measurement_types_and_info['error']
-        raise AttributeError("Error processing API call for measurement types.")
-
-    # Load JSON into Python dict with only Byte values, for use in populating dropdowns
-    measurement_types = json_loads_byteified(measurement_types_and_info)['measurement_info']
-    measurement_names = measurement_types.keys()
-    measurement_names.sort()
-
-    selected_systemID_list = []
     try:
-        selected_systemID_list = json.dumps(system_uid).translate(None, '\"\\').split(",")
+        msr_id_list = [6, 7, 2, 1, 9, 8, 10]
+
+        ui_api = UIAPI(get_conn())
+        annotations_map = ui_api.getReadableAnnotations()
+
+        # Load JSON formatted String from API.
+        # This will be piped into Javascript as a JS Object accessible in that scope
+        # TODO: There are currently no error pages, we're just stubbing abort for now
+        measurement_types_and_info = get_all_measurement_info()
+        if 'error' in measurement_types_and_info:
+            print measurement_types_and_info['error']
+            print ("Error processing API call for measurement types.")
+            return render_template("error.html"), 400
+
+        # Load JSON into Python dict with only Byte values, for use in populating dropdowns
+        measurement_types = json_loads_byteified(measurement_types_and_info)['measurement_info']
+        measurement_names = measurement_types.keys()
+        measurement_names.sort()
+
+        selected_systemID_list = []
+        try:
+            selected_systemID_list = json.dumps(system_uid).translate(None, '\"\\').split(",")
+        except:
+            traceback.print_exc()
+            if not selected_systemID_list:
+                print("System ID list is undefined.")
+                print("Incorrect system ID sent.")
+                return render_template("error.html"), 400
+
+        systems_and_measurements_json_pre_est = json_loads_byteified(get_readings_for_tsplot(selected_systemID_list, msr_id_list, PRE_ESTABLISHED))['response']
+        print ("Incorrect system ID sent.")
+
+        for system in systems_and_measurements_json_pre_est:
+            for measurement in system['measurement']:
+                measurement['status'] = '100'
+        if 'error' in systems_and_measurements_json_pre_est:
+            print systems_and_measurements_json_pre_est['error']
+            return render_template("error.html"), 400
+
+        systems_and_measurements_json = json_loads_byteified(get_readings_for_tsplot
+                                                                 (selected_systemID_list, msr_id_list, ESTABLISHED))['response']
+
+        for system in systems_and_measurements_json:
+            for measurement in system['measurement']:
+                measurement['status'] = '200'
+
+        if 'error' in systems_and_measurements_json:
+            print systems_and_measurements_json['error']
+            return render_template("error.html"), 400
+
+        for i in range(len(systems_and_measurements_json)):
+            systems_and_measurements_json[i]['measurement'] += systems_and_measurements_json_pre_est[i]['measurement']
+
+        return render_template("systemAnalyze.html", **locals())
+
     except:
-        traceback.print_exc()
-        if not selected_systemID_list:
-            print("System ID list is undefined.")
-        raise AttributeError("Incorrect system ID sent.")
-
-    # metadata_json = get_all_aqx_metadata()
-    # if 'error' in metadata_json:
-    #     print metadata_json['error']
-    #     raise AttributeError("Error processing API call for system metadata.")
-    # metadata_dict = json_loads_byteified(metadata_json)['filters']
-
-    systems_and_measurements_json_pre_est = json_loads_byteified(get_readings_for_tsplot(selected_systemID_list, msr_id_list, PRE_ESTABLISHED))['response']
-    for system in systems_and_measurements_json_pre_est:
-        for measurement in system['measurement']:
-            measurement['status'] = '100'
-    if 'error' in systems_and_measurements_json_pre_est:
-        print systems_and_measurements_json_pre_est['error']
-        raise AttributeError("Error processing API call for measurement readings.")
-
-    systems_and_measurements_json = json_loads_byteified(get_readings_for_tsplot(selected_systemID_list, msr_id_list, ESTABLISHED))['response']
-    for system in systems_and_measurements_json:
-        for measurement in system['measurement']:
-            measurement['status'] = '200'
-
-    if 'error' in systems_and_measurements_json:
-        print systems_and_measurements_json['error']
-        raise AttributeError("Error processing API call for measurement readings.")
-
-
-    for i in range(len(systems_and_measurements_json)):
-        systems_and_measurements_json[i]['measurement'] += systems_and_measurements_json_pre_est[i]['measurement']
-
-
-    return render_template("systemAnalyze.html", **locals())
-
+        return render_template("error.html"), 400
 
 ######################################################################
 # API call to get metadata of all the systems

@@ -248,6 +248,7 @@ function callAPIForNewData(measurementIDList, statusID){
 }
 
 function ajaxError(jqXHR, textStatus, errorThrown){
+    var redirectLink = 'error';
     alert('Unable to access the server... Look at the console (F12) for more information!');
     console.log('jqXHR:');
     console.log(jqXHR);
@@ -255,6 +256,7 @@ function ajaxError(jqXHR, textStatus, errorThrown){
     console.log(textStatus);
     console.log('errorThrown:');
     console.log(errorThrown);
+    window.location.href = redirectLink;
 }
 
 
