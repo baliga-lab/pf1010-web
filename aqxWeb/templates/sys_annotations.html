@@ -9,14 +9,13 @@
 {% block title %}{{ metadata.name }} Annotations{% endblock %}
 
 {% block content %}
-
+<div ng-controller="AnnotationController">
     <div class="row">
         <div class="col-sm-3">
             <ul class="nav nav-stacked">
-                <ul class="nav nav-stacked">
-                <li id="overview-li"><a
-                        href="{{ url_for("frontend.sys_overview", system_uid=metadata.UID) }}" title="Social">
-                    Overview</a>
+                <li id="social-li"><a
+                        href="{{ url_for("social.view_system", system_uid=metadata.UID) }}" title="Social">
+                    Social <span class="sr-only">(current)</span></a>
                 </li>
                 <li id="analytics-li">
                     {# <a href="{{ url_for('dav.system_analyze', system_uid=metadata.UID) }}" title="Analytics">Analytics</a> #}
@@ -26,13 +25,8 @@
                 </li>
                 <li id="annotate-li">
                     <a href="{{ url_for("frontend.sys_annotations", system_uid=metadata.UID) }}"
-                       title="Annotations">Annotations <span class="sr-only">(current)</span></a>
+                       title="Annotations">Annotations</a>
                 </li>
-                <li id="social-li"><a
-                        href="{{ url_for("social.view_system", system_uid=metadata.UID) }}" title="Social">
-                    Social</a>
-                </li>
-            </ul>
             </ul>
         </div>
         <div class="col-sm-9">
@@ -52,7 +46,7 @@
                                 <option value="bacteria">Bacteria</option>
                                 <option value="cleartank">Clean Tank</option>
                                 <option value="reproduction">Reproduction</option>
-                                <option value="others">Others</option>
+
                             </select>
                         </div>
                     </li>
@@ -83,9 +77,9 @@
                         <div id="otherType4" style="display:none;">
                     <span class="segmented">
                         <label style="display: inline;font-size: 100%;font-weight: 200;"><input type="radio" name="seg4" value="harvestPlant" data-toggle="collapse" data-target="#harvestPlantInfo"><span
-                                class="label">Crop</span></label>
+                                class="label">Plant Harvested</span></label>
                         <label style="display: inline;font-size: 100%;font-weight: 200;"><input type="radio" name="seg4" value="harvestFish" data-toggle="collapse" data-target="#harvestFishInfo"><span
-                                class="label">Fish</span></label>
+                                class="label">Fish Harvested</span></label>
                     </span>
                         </div>
                         <div id="otherType5" style="display:none;">
@@ -94,32 +88,41 @@
                                 class="label" style="border-radius: 10px 10px 10px 10px !important;">Add</span></label>
                     </span>
                         </div>
-                        <div id="otherType6" style="display:none;">
-                    <label for="comment">Annotation Description:</label>
-      <textarea class="form-control" rows="4" id="comment"></textarea>
-                        </div>
+
                     </li>
+                    <br>
+                    <li>
+                        <div>
+                                        <label for="recordedDateAndTime"><b>Start Date and
+												Time*</b> </label>
+                                        <div class='input-group date'  style="margin-right: 10%; width: 100%;">
+                                            <input type='text' name="recordedDateAndTime"  id='recordedDateAndTime' />
+                                        </div>
+                                    </div>
+
+                    </li>
+                    <br>
                     <br>
                     <li>
                         <input type="text" name="number" id="number">
                     </li>
                 </ul>
-                <div id="harvestPlantInfo" class="collapse">By selecting this, you are cutting some
-                    of the plant off to harvest. To remove the entire plant for harvest, select 'Crop'
-                    from the dropdown and hit 'Remove'.</div>
-                <div id="harvestFishInfo" class="collapse">By selecting this, you are removing all the fishes for harvest.
-                    If the fish died and you want have to take it out, select 'Fish' from the dropdown and hit 'Remove'.</div>
+                <div id="harvestPlantInfo" class="collapse">By selecting this you are cutting some
+                    of the plant off to harvest, to remove the entire plant to Harvest select Plant
+                    from the dropdown and hit Remove</div>
+                <div id="harvestFishInfo" class="collapse">By selecting this you are removing all the fishes off to harvest,
+                    if the fish died and you want have to take it out select Fish from the dropdown and hit Remove</div>
 
             </form>
-            <button class="btn btn-green" type="button" onclick="dataSubmit()">Submit</button>
+            <button class="btn btn-green" type="button" ng-click="dataSubmit()">Submit</button>
         </div>
     </div>
-
+</div>
 {% endblock %}
 
 {% block scripts %}
     {{ super() }}
-    <script src="{{ url_for('frontend.static', filename='js/jquery.slides.min.js') }}"></script>
+
     <script src="{{ url_for('frontend.static', filename='js/annotation.js') }}"></script>
-    <script src="{{ url_for('frontend.static', filename='js/strip_colors.js') }}"></script>
+    <script src="{{ url_for('frontend.static', filename='js/jquery.slides.min.js') }}"></script>
 {% endblock scripts %}
