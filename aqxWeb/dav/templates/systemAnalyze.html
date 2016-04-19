@@ -32,13 +32,11 @@
                 </div>
             </div>
             <div style="width: 30%;">
-                <label class="control-label">Select System Status</label>
+                <label class="control-label">View Data in Status</label>
                 <select class="explore-dropdown" id="selectStatus">
-                    {% for status in metadata_dict['status_types'] %}
-                        <option value="{{status.split(':')[0]}}">{{ status.split(':')[1] }}</option>
-                    {% endfor %}
+                    <option value="100">Pre-Established</option>
+                    <option value="200" selected="selected">Established</option>
                 </select>
-            <br>
                 <div>
                     <label class="control-label">View data from</label>
                     <select class="explore-dropdown" id="selectNumberOfEntries">
@@ -84,12 +82,12 @@
     <script src="{{ url_for('dav.static', filename='js/aqxSystemGraph.js') }}"></script>
     <script>
         var systems_and_measurements = {{ systems_and_measurements_json | safe }};
-        console.log(systems_and_measurements);
-        systems_and_measurements = systems_and_measurements.response;
-        console.log(systems_and_measurements);
+{#        systems_and_measurements = systems_and_measurements.response;#}
         var selectedSystemIDs = {{ selected_systemID_list|safe }};
         var measurement_types_and_info = {{ measurement_types_and_info | safe }};
         measurement_types_and_info = measurement_types_and_info.measurement_info;
+{#        var defaultStatus = {{ default_status|safe }};#}
+        var annotationsMap = {{ annotations_map | safe }};
         $(document).ready(main());
     </script>
 {% endblock %}

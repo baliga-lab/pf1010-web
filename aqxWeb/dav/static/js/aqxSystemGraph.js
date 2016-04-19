@@ -1,3 +1,4 @@
+
 "use strict";
 
 /* ##################################################################################################################
@@ -45,13 +46,14 @@ var BACKGROUND = {
 function drawChart(){
     var graphType = document.getElementById(GRAPH_TYPE).value;
     var xType = "Time";
+    var status = document.getElementById("selectStatus").value;
 
     // Get measurement types to display on the y-axis
     var yTypes = $("#selectYAxis").val();
     var numberOfEntries = document.getElementById(NUMBER_OF_ENTRIES).value;
 
     // Generate a data Series for each y-value type, and assign them all to the CHART
-    updateChartDataPointsHC(CHART, xType, yTypes, graphType, numberOfEntries).redraw();
+    updateChartDataPointsHC(CHART, xType, yTypes, graphType, numberOfEntries, status).redraw();
 }
 
 
@@ -63,7 +65,7 @@ function drawChart(){
  * @param graphType - The graph type chosen from dropdown
  * @param numberOfEntries - used to display data entered by user in the past
  */
-function updateChartDataPointsHC(chart, xType, yTypeList, graphType, numberOfEntries){
+function updateChartDataPointsHC(chart, xType, yTypeList, graphType, numberOfEntries, status){
 
     // Clear the old chart's yAxis and dataPoints. Unfortunately this must be done manually.
     chart = clearOldGraphValues(chart);
@@ -79,7 +81,9 @@ function updateChartDataPointsHC(chart, xType, yTypeList, graphType, numberOfEnt
         _.each(measurementsToFetch, function(measurement){
             measurementIDList.push(measurement_types_and_info[measurement].id);
         });
-        callAPIForNewData(measurementIDList, defaultStatus);
+        callAPIForNewData(measurementIDList, 100);
+		callAPIForNewData(measurementIDList, 200);
+
     }
 
     // Handle the x axis, for now just using time
@@ -87,7 +91,7 @@ function updateChartDataPointsHC(chart, xType, yTypeList, graphType, numberOfEnt
     chart.xAxis[0].setTitle({ text: XAXIS_TITLE });
 
     // Get dataPoints and their configs for the chart, using systems_and_measurements and add them
-    var newDataSeries = getDataPointsForPlotHC(chart, xType, yTypeList, graphType, numberOfEntries);
+    var newDataSeries = getDataPointsForPlotHC(chart, xType, yTypeList, graphType, numberOfEntries, status);
     _.each(newDataSeries, function(series) {
         chart.addSeries(series);
     });
@@ -105,7 +109,7 @@ function updateChartDataPointsHC(chart, xType, yTypeList, graphType, numberOfEnt
  * @param numberOfEntries - used to display data entered by user in the past
  * @returns {Array} - An array of dataPoints of yType measurement data for all systems
  */
-function getDataPointsForPlotHC (chart, xType, yTypeList, graphType, numberOfEntries){
+function getDataPointsForPlotHC (chart, xType, yTypeList, graphType, numberOfEntries, status){
 
     // DataPoints to add to chart
     var dataPointsList = [];
@@ -135,7 +139,8 @@ function getDataPointsForPlotHC (chart, xType, yTypeList, graphType, numberOfEnt
 
             // Then find matching types in the systems_and_measurements object
             _.each(measurements, function(measurement){
-                if (_.isEqual(measurement.type.toLowerCase(), yType.toLowerCase())) {
+                if (_.isEqual(measurement.type.toLowerCase(), yType.toLowerCase()) &&
+                    _.isEqual(measurement.status, status)) {
                     var systemId = system.system_uid;
 
                     // Check if there is data for this system and measurement type
@@ -186,14 +191,18 @@ function getDataPointsForPlotHC (chart, xType, yTypeList, graphType, numberOfEnt
 /**
  * Take measurement data object from AJAX response, and add to the global systems_and_measurements data
  * @param data
+ * @param statusID
  */
-function addNewMeasurementData(data){
+function addNewMeasurementData(data, statusID){
     console.log('success',data);
     var systems = data.response;
 
     // Loop through existing systems in the systems_and_measurements object
     _.each(systems, function(system){
         var systemMeasurements = system.measurement;
+        _.each(systemMeasurements, function(measurement){
+            measurement.status = statusID.toString()
+        });
         _.each(systems_and_measurements, function(existingSystem){
             // Match systems in the new data by id, and then add the new measurements
             // to the list of existing measurements
@@ -204,14 +213,14 @@ function addNewMeasurementData(data){
     });
 }
 
-function processAJAXResponse(data){
+function processAJAXResponse(data, status){
     if("error" in data){
         console.log("Server returned an error...");
         console.log(data);
         throw "AJAX request reached the server but returned an error!";
     }else{
         console.log("here");
-        addNewMeasurementData(data);
+        addNewMeasurementData(data, status);
     }
 }
 
@@ -230,7 +239,9 @@ function callAPIForNewData(measurementIDList, statusID){
         url: '/dav/aqxapi/v1/measurements/plot',
         data: JSON.stringify({systems: selectedSystemIDs, measurements: measurementIDList, status: statusID}, null, '\t'),
         // Process API response
-        success: processAJAXResponse,
+        success: function(data){
+            processAJAXResponse(data, statusID)
+        },
         // Report any AJAX errors
         error: ajaxError
     });
@@ -245,25 +256,6 @@ function ajaxError(jqXHR, textStatus, errorThrown){
     console.log('errorThrown:');
     console.log(errorThrown);
 }
-
-//function callAPIForNewData(measurementIDList, statusID) {
-//    var dfd = new $.Deferred();
-//    $.ajax({
-//        type: 'POST',
-//        contentType: 'application/json;charset=UTF-8',
-//        dataType: 'json',
-//        async: true,
-//        url: '/dav/aqxapi/v1/measurements/plot',
-//        data: JSON.stringify({systems: selectedSystemIDs, measurements: measurementIDList, status: statusID}, null, '\t')
-//    }).then(processAJAXResponse,ajaxError)
-//        .fail(function (jqXHR, textStatus, errorThrown) {
-//            dfd.reject(jqXHR, textStatus, errorThrown);
-//        })
-//        .done(function (data, textStatus, jqXHR) {
-//            dfd.resolve(data);
-//        });
-//    return dfd.promise();
-//}
 
 
 /* ##################################################################################################################
@@ -413,6 +405,7 @@ function main(){
 
     $("#selectStatus option[text='pre-established']").attr("selected","selected");
 
+
     // When the submit button is clicked, redraw the graph based on user selections
     $('#submitbtn').on('click', function() {
         $('#alert_placeholder').empty();
@@ -439,7 +432,9 @@ function main(){
 
         $('#alert_placeholder').empty();
 
+
         $('#analyzeContainer').show();
+
 
         // Select the default y-axis value
         setDefaultYAxis();
@@ -537,7 +532,7 @@ function tooltipFormatter(){
         eventString = "<br><p>Most recent event(s): </p>";
         _.each(this.point.annotations, function (event) {
             console.log(event);
-            eventString = eventString + '<br><p>' + event.id + " at " + event.date + '<p>'
+            eventString = eventString + '<br><p>' + annotationsMap[event.id]+ " at " + event.date + '<p>'
         });
     }
     return '<b>' + tooltipInfo[0] + '</b>' +
