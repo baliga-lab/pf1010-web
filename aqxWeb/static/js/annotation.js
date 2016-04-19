@@ -2,8 +2,13 @@ $(window).load(function () {
     $('#otherType3').hide();
     $('#otherType1').hide();
     $('#otherType2').hide();
+    $('#otherType4').hide();
+    $('#otherType5').hide();
     $('#number').hide();
+});
 
+$('#recordedDateAndTime').datetimepicker({
+    minDate: moment()
 });
 
 
@@ -23,9 +28,11 @@ $('#mySelect').change(function () {
 
             $('#otherType2').hide();
             $('#otherType3').hide();
+            $('#otherType4').hide();
+            $('#otherType5').hide();
             break;
         case 'bacteria':
-            $('#otherType1').show();
+            $('#otherType5').show();
 
             var allRadios = document.getElementsByName('seg1');
             var x = 0;
@@ -38,6 +45,8 @@ $('#mySelect').change(function () {
 
             $('#otherType2').hide();
             $('#otherType3').hide();
+            $('#otherType1').hide();
+            $('#otherType4').hide();
             break;
 
         case 'plant':
@@ -54,9 +63,11 @@ $('#mySelect').change(function () {
 
             $('#otherType2').hide();
             $('#otherType3').hide();
+            $('#otherType4').hide();
+            $('#otherType5').hide();
             break;
         case 'harvest':
-            $('#otherType3').show();
+            $('#otherType4').show();
 
             var allRadios = document.getElementsByName('seg3');
             var x = 0;
@@ -69,6 +80,8 @@ $('#mySelect').change(function () {
 
             $('#otherType1').hide();
             $('#otherType2').hide();
+            $('#otherType3').hide();
+            $('#otherType5').hide();
             break;
         case 'cleartank':
             $('#otherType3').show();
@@ -84,6 +97,8 @@ $('#mySelect').change(function () {
 
             $('#otherType1').hide();
             $('#otherType2').hide();
+            $('#otherType4').hide();
+            $('#otherType5').hide();
             break;
         case 'reproduction':
             $('#otherType3').show();
@@ -99,29 +114,26 @@ $('#mySelect').change(function () {
 
             $('#otherType1').hide();
             $('#otherType2').hide();
+            $('#otherType4').hide();
+            $('#otherType5').hide();
             break;
-        case 'Choose':
-            $('#otherType3').hide();
-
-            $('#number').val('');
-
-            $('#otherType1').hide();
-            $('#otherType2').hide();
-            break;
-        default:
+        case 'ph':
             $('#otherType2').show();
 
-            var allRadios = document.getElementsByName('seg2');
-            var x = 0;
-            for (x = 0; x < allRadios.length; x++) {
-                if (allRadios[x].checked) {
-                    allRadios[x].checked = false;
-                }
-            }
             $('#number').val('');
 
             $('#otherType1').hide();
             $('#otherType3').hide();
+            $('#otherType4').hide();
+            $('#otherType5').hide();
+            break;
+        default:
+            $('#otherType1').hide();
+            $('#otherType2').hide();
+            $('#otherType3').hide();
+            $('#otherType4').hide();
+            $('#otherType5').hide();
+            $('#number').val('');
             break;
     }
     var selection1 = $(this).val();
@@ -133,18 +145,16 @@ $('#mySelect').change(function () {
             $('#number').val('8');
         }
     } else if (selection1 === "harvest") {
-        if (selection2 === "Yes") {
+        if (selection2 === "harvestPlant") {
             $('#number').val('4');
-        } else if (selection2 === "No") {
+        } else if (selection2 === "harvestFish") {
             $('#number').val('5');
         }
     } else if (selection1 === "ph") {
-        if (selection2 === "Constant") {
-            $('#number').val('1');
-        } else if (selection2 === "High") {
-            $('#number').val('2');
-        } else if (selection2 === "Low") {
+        if (selection2 === "High") {
             $('#number').val('3');
+        } else if (selection2 === "Low") {
+            $('#number').val('2');
         }
     } else if (selection1 === "plant") {
         if (selection2 === "Add") {
@@ -155,20 +165,14 @@ $('#mySelect').change(function () {
     } else if (selection1 === "bacteria") {
         if (selection2 === "Add") {
             $('#number').val('10');
-        } else if (selection2 === "Remove") {
-            $('#number').val('11');
-        }
+        } 
     } else if (selection1 === "cleartank") {
         if (selection2 === "Yes") {
             $('#number').val('12');
-        } else if (selection2 === "No") {
-            $('#number').val('13');
         }
     } else if (selection1 === "reproduction") {
         if (selection2 === "Yes") {
             $('#number').val('14');
-        } else if (selection2 === "No") {
-            $('#number').val('15');
         }
     } else {
         $('#number').val('');
@@ -185,18 +189,16 @@ $('#myForm input').on('change', function () {
             $('#number').val('8');
         }
     } else if (selection1 === "harvest") {
-        if (selection2 === "Yes") {
+        if (selection2 === "harvestPlant") {
             $('#number').val('4');
-        } else if (selection2 === "No") {
+        } else if (selection2 === "harvestFish") {
             $('#number').val('5');
         }
     } else if (selection1 === "ph") {
-        if (selection2 === "Constant") {
-            $('#number').val('1');
-        } else if (selection2 === "High") {
-            $('#number').val('2');
-        } else if (selection2 === "Low") {
+        if (selection2 === "High") {
             $('#number').val('3');
+        } else if (selection2 === "Low") {
+            $('#number').val('2');
         }
     } else if (selection1 === "plant") {
         if (selection2 === "Add") {
@@ -205,22 +207,16 @@ $('#myForm input').on('change', function () {
             $('#number').val('7');
         }
     } else if (selection1 === "bacteria") {
-        if (selection2 === "Add") {
+        if (selection2 === "justAdd") {
             $('#number').val('10');
-        } else if (selection2 === "Remove") {
-            $('#number').val('11');
         }
     } else if (selection1 === "cleartank") {
         if (selection2 === "Yes") {
             $('#number').val('12');
-        } else if (selection2 === "No") {
-            $('#number').val('13');
         }
     } else if (selection1 === "reproduction") {
         if (selection2 === "Yes") {
             $('#number').val('14');
-        } else if (selection2 === "No") {
-            $('#number').val('15');
         }
     } else {
         $('#number').val('');
@@ -228,7 +224,23 @@ $('#myForm input').on('change', function () {
 
 });
 
+var app = angular.module('aqx');
 
-function dataSubmit() {
-    alert("Id submitted:  " + $('#number').val());
-}
+app.controller('AnnotationController', function ($scope, $http) {
+
+    $scope.dataSubmit = function () {
+        var systemID = $('#systemID').html();
+        var annotation = { annotationID: $('#number').val(), timestamp: $('#recordedDateAndTime').val() };
+        $http.post('/aqxapi/v2/system/' + systemID + '/annotation', annotation).then(onSuccess, onFailure);
+        function onSuccess(response) {
+            console.log(response);
+            alert("Recordings submitted sucessfully");
+        }
+        function onFailure(error) {
+            console.log(error);
+            alert("Invalid data");
+        }
+    }
+
+
+});

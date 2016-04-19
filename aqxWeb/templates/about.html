@@ -6,41 +6,38 @@
 
     <h1 class="page-header">About</h1>
     <div class="container">
-        <div class="media comment">
-            <div class="media-left">
-                <img class="media-object img-circle" src="{{ url_for('frontend.static', filename='images/about/plants.jpg') }}" alt="" height="64px">
-            </div>
-            <div class="media-body">
-                <h3 class="media-heading">Overview</h3>
-                <p>Project Feed 1010 aims to educate citizens in sustainable food production and research these systems for optimization. Each of these components will be accomplished through utilizing the combined knowledge of the crowd - a network of scientists, farmers, educators, and students. Create your own profile to be part of the community and have access to the worldwide network of sustainable food thinkers!</p>
-            </div>
-        </div>
-        <div class="media comment">
-            <div class="pull-right">
-                <img class="media-object img-circle" src="{{ url_for('frontend.static', filename='images/about/labquest.jpg') }}" alt="" height="64px">
-            </div>
-            <div class="media-body">
-                <h3 class="media-heading">Become Part of the Community</h3>
-                <p>Once you’ve created a profile, you can communicate with other members of the community to learn more about sustainable food production and get feedback about your own food system. You can also be part of a community group with members like you to share resources such as curriculum and advice.</p>
-            </div>
-        </div>
-        <div class="media comment">
-            <div class="media-left">
-                <img class="media-object img-circle" src="{{ url_for('frontend.static', filename='images/about/webapp.png') }}" alt="" height="64px">
-            </div>
-            <div class="media-body">
-                <h3 class="media-heading">Monitoring & Analytics</h3>
-                <p>Monitor and analyze data from aquaponic systems around the world to observe and compare patterns and trends in these complex systems. Have your own aquaponic system? Input, monitor, and analyze data from your own sustainable food production system. Manually collect and input water quality and food production data to track your system’s progress. If you’re interested automated, constant data collection using sensors, contact our software engineer at <a class="mailto:Wei-Ju.Wu@systemsbiology.org">Wei-Ju.Wu@systemsbiology.org</a>.</p>
-            </div>
-        </div>
-        <div class="media comment">
-            <div class="media-left">
-                <img class="media-object img-circle" src="{{ url_for('frontend.static', filename='images/about/phone.png') }}" alt="" height="64px">
-            </div>
-            <div class="media-body">
-                <h3 class="media-heading">Education</h3>
-                <p>Whether you teach in a public school or informal setting, we have curriculum for you to educate your students using hands-on, project-based, standards-aligned lessons. Visit our education tab to access this curriculum and learn to build your own aquaponic system using other resources.</p>
-            </div>
+        <div class="row">
+            <h3>Overview</h3>
+            <p>Project Feed 1010 aims to educate citizens in sustainable food production and research these systems
+                for optimization. Each of these components will be accomplished through utilizing the combined
+                knowledge of the crowd - a network of scientists, farmers, educators, and students. Create your own
+                profile to be part of the community and have access to the worldwide network of sustainable food
+                thinkers!</p>
+
+            <h3>Become Part of the Community</h3>
+            <p>Once you’ve created a profile (requires a Google account), you can communicate with other members of the
+                community to learn more
+                about sustainable food production and get feedback about your own food system. You can also be part of a
+                community group with members like you to share resources such as curriculum and advice.</p>
+
+            <h3>Monitoring & Analytics</h3>
+            <p>Monitor and analyze data from aquaponic systems around the world to observe and compare patterns and
+                trends
+                in these complex systems. Have your own aquaponic system? Input, monitor, and analyze data from your own
+                sustainable food production system. Manually collect and input water quality and food production data to
+                track your system’s progress. If you’re interested in automated, constant data collection using sensors,
+                contact our software engineer at <a
+                        href="mailto:wei-ju.wu@systemsbiology.org">wei-ju.wu@systemsbiology.org</a>.</p>
+
+            <h3>Education</h3>
+            <p>Whether you teach in a public school or an informal setting, we have curriculum for you to educate your
+                students
+                using hands-on, project-based, and standards-aligned lessons. Visit our education tab to access this
+                curriculum
+                and learn to build your own aquaponic system using other resources.</p>
+
+            <h3>Questions?</h3>
+            <p>Do you have any questions? Feel free to <a href="{{ url_for('frontend.contact') }}">contact us</a>!</p>
         </div>
     </div>
 

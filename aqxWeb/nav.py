@@ -39,11 +39,6 @@ class SidedLink(Link):
         self.dest = dest
         self.left = left
 
-class SidedSearchBox(RawTag):
-    def __init__(self, left):
-        self.content = 'searchBox'
-        self.left = left
-
 
 @nav.navigation('guest')
 def guest():
@@ -78,7 +73,6 @@ def member():
             View('Resources', 'frontend.resources')
         ),
         View('Questions?', 'frontend.contact'),
-        SidedSearchBox(False),
         SidedSubgroup(session['displayName'], False,
             View('Edit Profile', 'social.editprofile'),
             Separator(),
@@ -148,12 +142,3 @@ class NavRenderer(BootstrapRenderer):
                 bar_left.add(self.visit(item))
 
         return root
-
-    def visit_RawTag(self, node):
-        if node.content == 'searchBox':
-            item = tags.li(_class='navbar-form')
-            inputGroup = item.add(tags.div(_class='input-group'))
-            searchBox = inputGroup.add(tags.input(id='searchBox', _type='text', placeholder='Search', _class='form-control'))
-            searchButton = inputGroup.add(tags.a(_class='input-group-addon', style='padding: 4px 12px;'))
-            searchButton.add(tags.i(_class='fa fa-search'))
-            return item
