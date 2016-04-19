@@ -39,12 +39,14 @@
                         <div>
                             <select name="mySelect" id="mySelect" class="form-control">
                                 <option value="Choose">Choose Annotation</option>
-                                <option value="ph">ph</option>
-                                <option value="harvest">harvest</option>
-                                <option value="fish">fish</option>
-                                <option value="bacteria">bacteria</option>
-                                <option value="cleartank">cleartank</option>
-                                <option value="reproduction">reproduction</option>
+                                <option value="ph">pH</option>
+                                <option value="harvest">Harvest</option>
+                                <option value="fish">Fish</option>
+                                <option value="plant">Plant</option>
+                                <option value="bacteria">Bacteria</option>
+                                <option value="cleartank">Clean Tank</option>
+                                <option value="reproduction">Reproduction</option>
+                                <option value="others">Others</option>
                             </select>
                         </div>
                     </li>
@@ -52,39 +54,43 @@
                     <li>
                         <div id="otherType1" style="display:none;">
                     <span class="segmented">
-                        <label style="display: inline; font-size: 100%;font-weight: 200;"><input type="radio"
-                                                                                                 name="seg1"
-                                                                                                 value="Add"><span
+                        <label style="display: inline; font-size: 100%;font-weight: 200;"><input type="radio" name="seg1" value="Add"><span
                                 class="label">Add</span></label>
-                        <label style="display: inline;font-size: 100%;font-weight: 200;"><input type="radio" name="seg1"
-                                                                                                value="Remove"><span
+                        <label style="display: inline;font-size: 100%;font-weight: 200;"><input type="radio" name="seg1" value="Remove"><span
                                 class="label">Remove</span></label>
                     </span>
                         </div>
-
                         <div id="otherType2" style="display:none;">
-                    <span class="segmented">
-                        <label style="display: inline;font-size: 100%;font-weight: 200;"><input type="radio" name="seg2"
-                                                                                                value="High"><span
-                                class="label">High</span></label>
-                        <label style="display: inline;font-size: 100%;font-weight: 200;"><input type="radio" name="seg2"
-                                                                                                value="Constant"><span
-                                class="label">Constant</span></label>
-                        <label style="display: inline;font-size: 100%;font-weight: 200;"><input type="radio" name="seg2"
-                                                                                                value="Low"><span
-                                class="label">Low</span></label>
+                    <span class="segmented" style="font-size:90%;">
+                        <label style="display: inline;font-size: 100%;font-weight: 200;"><input type="radio" name="seg2" value="High"><span
+                                class="label">Added Base</span></label>
+                        <label style="display: inline;font-size: 100%;font-weight: 200;"><input type="radio" name="seg2" value="Low"><span
+                                class="label">Added Acid</span></label>
                     </span>
                         </div>
-
                         <div id="otherType3" style="display:none;">
                     <span class="segmented">
-                        <label style="display: inline;font-size: 100%;font-weight: 200;"><input type="radio" name="seg3"
-                                                                                                value="Yes"><span
-                                class="label">Yes</span></label>
-                        <label style="display: inline;font-size: 100%;font-weight: 200;"><input type="radio" name="seg3"
-                                                                                                value="No"><span
-                                class="label">No</span></label>
+                        <label style="display: inline;font-size: 100%;font-weight: 200;"><input type="radio" name="seg3" value="Yes"><span
+                                class="label" style="border-radius: 10px 10px 10px 10px !important;">Yes</span></label>
                     </span>
+                        </div>
+                        <div id="otherType4" style="display:none;">
+                    <span class="segmented">
+                        <label style="display: inline;font-size: 100%;font-weight: 200;"><input type="radio" name="seg4" value="harvestPlant" data-toggle="collapse" data-target="#harvestPlantInfo"><span
+                                class="label">Plant</span></label>
+                        <label style="display: inline;font-size: 100%;font-weight: 200;"><input type="radio" name="seg4" value="harvestFish" data-toggle="collapse" data-target="#harvestFishInfo"><span
+                                class="label">Fish</span></label>
+                    </span>
+                        </div>
+                        <div id="otherType5" style="display:none;">
+                    <span class="segmented">
+                        <label style="display: inline;font-size: 100%;font-weight: 200;"><input type="radio" name="seg5" value="justAdd"><span
+                                class="label" style="border-radius: 10px 10px 10px 10px !important;">Add</span></label>
+                    </span>
+                        </div>
+                        <div id="otherType6" style="display:none;">
+                    <label for="comment">Annotation Description:</label>
+      <textarea class="form-control" rows="4" id="comment"></textarea>
                         </div>
                     </li>
                     <br>
@@ -92,6 +98,11 @@
                         <input type="text" name="number" id="number">
                     </li>
                 </ul>
+                <div id="harvestPlantInfo" class="collapse">By selecting this you are cutting some
+                    of the plant off to harvest, to remove the entire plant to Harvest select Plant
+                    from the dropdown and hit Remove</div>
+                <div id="harvestFishInfo" class="collapse">By selecting this you are removing all the fishes off to harvest,
+                    if the fish died and you want have to take it out select Fish from the dropdown and hit Remove</div>
 
             </form>
             <button class="btn btn-green" type="button" onclick="dataSubmit()">Submit</button>
