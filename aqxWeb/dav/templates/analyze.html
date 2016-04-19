@@ -46,7 +46,7 @@
             </div>
         </div>
         <div class="row">
-            <div class="col-sm-3">
+            <div class="col-sm-4">
                 <div class="form-group">
                     <label class="control-label">Select X Axis</label>
                     <select class="explore-dropdown" id="selectXAxis">
@@ -57,7 +57,7 @@
                     </select>
                 </div>
             </div>
-            <div class="col-sm-3">
+            <div class="col-sm-4">
                 <div class="form-group">
                     <label class="control-label">Select Y Axis</label>
                     <select class="chosen-select" multiple id="selectYAxis">
@@ -68,7 +68,7 @@
                     </select>
                 </div>
             </div>
-            <div class="col-sm-3">
+            <div class="col-sm-4">
                 <div id="graphType" class="form-group">
                     <label class="control-label">Select Graph Type</label>
                     <select class="explore-dropdown" id="selectGraphType">
@@ -78,7 +78,9 @@
                     </select>
                 </div>
             </div>
-            <div class="col-sm-3">
+        </div>
+        <div class="row">
+            <div class="col-sm-6">
                 <div class="form-group">
                     <label class="control-label">View data from</label>
                     <select class="explore-dropdown" id="selectNumberOfEntries">
@@ -86,6 +88,15 @@
                         <option value="30">last 30 entries</option>
                         <option value="60">last 60 entries</option>
                         <option value="90">last 90 entries</option>
+                    </select>
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <label class="control-label">View Data in Status</label>
+                    <select class="explore-dropdown" id="selectStatus">
+                        <option value="100">Pre-Established</option>
+                        <option value="200" selected="selected">Established</option>
                     </select>
                 </div>
             </div>
@@ -114,24 +125,12 @@
     <script src="{{ url_for('dav.static', filename='js/aqxGraph.js') }}"></script>
     <script>
         var systems_and_measurements = {{ systems_and_measurements_json | safe }};
-        systems_and_measurements = systems_and_measurements.response;
+{#        systems_and_measurements = systems_and_measurements.response;#}
         var selectedSystemIDs = {{ selected_systemID_list|safe }};
         var measurement_types_and_info = {{ measurement_types_and_info | safe }};
         measurement_types_and_info = measurement_types_and_info.measurement_info;
-        var defaultStatus = {{ default_status|safe }};
-        {#        _.each(systems_and_measurements, function(system){#}
-        {#            var measurement = system.measurement;#}
-        {#            _.each(measurement, function(measurementSet){#}
-        {#                var values = measurementSet.values;#}
-        {#                var actions = [];#}
-        {#                _.each(values, function(point){#}
-        {#                    if (Math.floor(Math.random() * 2)){#}
-        {#                        point.event = actions.concat([{id: events[Math.floor(Math.random() * 4)], date:'12:12:12'},{id: events[Math.floor(Math.random() * 4)], date:'10:10:10'}]);#}
-        {#                        point.marker = {fillColor:'yellow', states:{hover:{fillColor:'yellow'}}}#}
-        {#                    }#}
-        {#                })#}
-        {#            })#}
-        {#        });#}
+{#        var defaultStatus = {{ default_status|safe }};#}
+        var annotationsMap = {{ annotations_map | safe }};
         $(document).ready(main());
     </script>
 {% endblock %}

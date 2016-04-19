@@ -55,7 +55,7 @@
                 <label class="control-label">Select System Status</label>
                 <select class="explore-dropdown" id="selectStatus">
                     {% for status in metadata_dict['status_types'] %}
-                        <option value="{{ status.split(':')[0] }}">{{ status.split(':')[1] }}</option>
+                        <option value="{{status.split(':')[0]}}">{{ status.split(':')[1] |title}}</option>
                     {% endfor %}
                 </select>
             </div>

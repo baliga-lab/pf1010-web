@@ -491,6 +491,7 @@ def pendingRequest():
             u_sql_id = User(session['uid']).get_user_sql_id()
             pendingRequests = User(session['uid']).get_pending_friend_request(u_sql_id);
             return render_template("/pendingRequest.html", pendingRequests=pendingRequests)
+
     else:
         return render_template("/home.html")
 
@@ -542,7 +543,7 @@ def searchFriends():
 # returns: calls index function
 # Exception : None
 #######################################################################################
-@social.route('/send_friend_request/<u_sql_id>', methods=['GET', 'POST'])
+@social.route('/send_friend_request/<u_sql_id>', methods=['POST'])
 def send_friend_request(u_sql_id):
     receiver_sql_id = u_sql_id
     User(session['uid']).send_friend_request(receiver_sql_id)
@@ -663,7 +664,7 @@ def view_system(system_uid):
                                        subscribers_pending_approval=subscribers_pending_approval,
                                        system_uid=system_uid, privacy_info=privacy,
                                        posts=posts, comments=comments, likes=likes,
-                                       totalLikes=total_likes, postOwners=post_owners, measurements=measurements, id=system_uid)
+                                       totalLikes=total_likes, postOwners=post_owners, measurements=measurements)
     except Exception as e:
         logging.exception("Exception at view_system: " + str(e))
 
@@ -850,7 +851,6 @@ def delete_system_subscriber_or_make_admin():
 def groups():
     sql_id = session.get('uid')
     if sql_id is None:
-
         return redirect(url_for('social.index'))
     else:
         if request.method == 'GET':
