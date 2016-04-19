@@ -23,9 +23,11 @@
             <div class="row systemDescription">
                 <h2 class="systemName">
                     {{ system_neo4j[0][0]['name'] }}
+                    {% if user_privilege == "SYS_ADMIN" %}
                     <a href="{{ url_for('social.manage_system', system_uid= system_neo4j[0][0]["system_uid"]) }}">
                         <i class="fa fa-cog" aria-hidden="true"></i>
                     </a>
+                    {% endif %}
                 </h2>
                 <h5 class="systemCreated" id="systemCreatedTime"><b>Created On: </b>
                     {{ created_date }}
@@ -373,7 +375,6 @@
                                     {% endif %}
                                 {% endif %}
                             </li>
-                            </br>
                         {% endfor %}  
                     </ul>
                 </div>
