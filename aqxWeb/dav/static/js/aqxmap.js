@@ -62,13 +62,14 @@ function buildContentString(system) {
     var organism = _.isNull(system.organism_name) ? NOT_AVAILABLE : system.organism_name;
     var growbed = _.isNull(system.growbed_media) ? NOT_AVAILABLE : system.growbed_media;
     var crop = _.isNull(system.crop_name) ? NOT_AVAILABLE : system.crop_name;
+    var redirectLink = "/system/" + system.system_uid + "/overview";
 
     return "<h2>" + name + "</h2>" +
         "<ul><li>Aquaponics Technique: " + technique + "</li>" +
         "<li>Aquatic organism: " + organism+ "</li>" +
         "<li>Growbed Medium: " + growbed + "</li>" +
         "<li>Crop: " + crop + "</li>" +
-        "<li><a href='/about'>System Overview</a></li></ul>";
+        "<li><a href="+redirectLink+">System Overview</a></li></ul>";
 }
 
 
