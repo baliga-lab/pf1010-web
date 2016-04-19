@@ -117,11 +117,16 @@ class systemDAO:
         query4 = ('INSERT INTO system_crops '
                   'VALUES (%s, %s, %s)')
 
+        query5 = ('INSERT INTO system_status (system_uid, start_time) '
+                  'VALUES (%s, %s)')
+
+        values5 = (systemUID, startDate)
+
         # The following create measurement tables
 
         measurements = ['ammonium', 'o2', 'ph', 'nitrate', 'light', 'temp', 'nitrite', 'chlorine', 'hardness', 'alkalinity']
         names = list(map(lambda x: 'aqxs_' + x + '_' + systemUID, measurements))
-        query5 = 'CREATE TABLE %s (time TIMESTAMP PRIMARY KEY NOT NULL, value DECIMAL(13,10) NOT NULL)'
+        query6 = 'CREATE TABLE %s (time TIMESTAMP PRIMARY KEY NOT NULL, value DECIMAL(13,10) NOT NULL)'
 
         # Execute the queries
 
@@ -137,8 +142,9 @@ class systemDAO:
             for crop in crops:
                 values4 = (systemID, crop['ID'], crop['count'])
                 cursor.execute(query4, values4)
+            cursor.execute(query5, values5)
             for name in names:
-                cursor.execute(query5 % name)
+                cursor.execute(query6 % name)
             self.conn.commit()
         except:
             self.conn.rollback()
