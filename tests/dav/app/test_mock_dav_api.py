@@ -42,7 +42,7 @@ class DavTests(unittest.TestCase):
         latest_value = [(dt.datetime(2016, 1, 14, 20, 0), Decimal('0E-10'))]
         d.mea.get_latest_value.return_value = tuple(latest_value)
         result = d.get_system_measurements('555d0cfe9ebc11e58153000c29b92d09')
-        self.assertEquals('{"system_uid": "555d0cfe9ebc11e58153000c29b92d09", "measurements": [{"name": "o2", "value": "0E-10", "time": "2016-01-14 20:00:00"}, {"name": "ph", "value": "0E-10", "time": "2016-01-14 20:00:00"}, {"name": "temp", "value": "0E-10", "time": "2016-01-14 20:00:00"}, {"name": "alkalinity", "value": "0E-10", "time": "2016-01-14 20:00:00"}, {"name": "ammonium", "value": "0E-10", "time": "2016-01-14 20:00:00"}, {"name": "chlorine", "value": "0E-10", "time": "2016-01-14 20:00:00"}, {"name": "hardness", "value": "0E-10", "time": "2016-01-14 20:00:00"}, {"name": "light", "value": "0E-10", "time": "2016-01-14 20:00:00"}, {"name": "nitrate", "value": "0E-10", "time": "2016-01-14 20:00:00"}]}', result)
+        self.assertEquals('{"system_uid": "555d0cfe9ebc11e58153000c29b92d09", "measurements": [{"name": "o2", "value": "0", "time": "2016-01-14 20:00:00"}, {"name": "ph", "value": "0", "time": "2016-01-14 20:00:00"}, {"name": "temp", "value": "0", "time": "2016-01-14 20:00:00"}, {"name": "alkalinity", "value": "0", "time": "2016-01-14 20:00:00"}, {"name": "ammonium", "value": "0", "time": "2016-01-14 20:00:00"}, {"name": "chlorine", "value": "0", "time": "2016-01-14 20:00:00"}, {"name": "hardness", "value": "0", "time": "2016-01-14 20:00:00"}, {"name": "light", "value": "0", "time": "2016-01-14 20:00:00"}, {"name": "nitrate", "value": "0", "time": "2016-01-14 20:00:00"}]}', result)
 
     # mock method for get_system_measurements with error in the measurement names
 
@@ -119,11 +119,9 @@ class DavTests(unittest.TestCase):
     def test_put_system_measurement_already_recorded_time(self):
         d = DavAPI(Mock())
         d.mea = Mock()
-        data = {'system_uid': '555d0cfe9ebc11e58153000c29b92d09', 'measurement_id': '5', 'time': '2018-03-19 23:28:57',
-                'value': '111'}
         d.mea.get_measurement_name.return_value = (u'light',)
         d.mea.put_system_measurement.return_value = 'Value at the given time already recorded'
-        result = d.put_system_measurement(data)
+        result = d.put_system_measurement('555d0cfe9ebc11e58153000c29b92d09', 5, '2018-03-19 23:28:57', 111)
         self.assertEquals('{"status": {"message": "Value at the given time already recorded"}}', result)
 
     # mock method for put_system_measurement (when the value at the given time is current time)
@@ -131,11 +129,9 @@ class DavTests(unittest.TestCase):
         d = DavAPI(Mock())
         d.mea = Mock()
         time_now = datetime.now()
-        data = {'system_uid': '555d0cfe9ebc11e58153000c29b92d09', 'measurement_id': '5', 'time': str(time_now),
-                'value': '111'}
         d.mea.get_measurement_name.return_value = (u'light',)
         d.mea.put_system_measurement.return_value = 'Record successfully inserted'
-        result = d.put_system_measurement(data)
+        result = d.put_system_measurement('555d0cfe9ebc11e58153000c29b92d09', 5, time_now,  111)
         self.assertEquals('{"status": {"message": "Record successfully inserted"}}', result)
 
     # mock method for get_all_measurement_info
