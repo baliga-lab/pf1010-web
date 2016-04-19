@@ -490,9 +490,6 @@ def pendingRequest():
         if session.get('uid') is not None:
             u_sql_id = User(session['uid']).get_user_sql_id()
             pendingRequests = User(session['uid']).get_pending_friend_request(u_sql_id);
-            print(pendingRequests)
-            print("Hello")
-            print("Hello")
             return render_template("/pendingRequest.html", pendingRequests=pendingRequests)
 
     else:
@@ -854,7 +851,6 @@ def delete_system_subscriber_or_make_admin():
 def groups():
     sql_id = session.get('uid')
     if sql_id is None:
-
         return redirect(url_for('social.index'))
     else:
         if request.method == 'GET':

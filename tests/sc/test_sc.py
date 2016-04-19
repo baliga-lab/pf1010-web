@@ -1,218 +1,133 @@
-import os
 import unittest
 from aqxWeb import run
-
-import os
-from flask import Flask
-import unittest
-import mock
-from mock import Mock
 from mock import patch
-from aqxWeb.sc.views import social
-from aqxWeb.sc import views
-from aqxWeb.sc import models
-from aqxWeb.sc.models import User
-from aqxWeb import run
 
 class FlaskTestCase(unittest.TestCase):
+    # Global Test Data For Unit Test Run
+    global sql_id
+    sql_id = 29
+    global google_id
+    google_id = "108605381067579043278"
+    global system_uid
+    system_uid = "2e79ea8a411011e5aac7000c29b92d09"
+    global friend_request_sql_id
+    friend_request_sql_id = 30
+    global block_unblock_friend_sql_id
+    block_unblock_friend_sql_id = 25
+    global dummy_google_id
+    dummy_google_id = "234sdfdsf3w"
+    global search_system_name
+    search_system_name = "isb"
 
     def setUp(self):
+        run.app.config['TESTING'] = True
+        run.app.config['DEBUG'] = True
+        # run.app.register_blueprint(views.social, url_prefix='/social')
+        run.app.config['BOOTSTRAP_SERVE_LOCAL'] = True
         self.app = run.app.test_client()
+        run.init_sc_app(run.app)
 
     # Testing /friends route
-    @patch('flask.templating._render', return_value='hello')
+    @patch('flask.templating._render', return_value='Route To Friends Page Works As Expected')
     def test_friends_page_loads(self, mocked):
         with self.app as client:
             with client.session_transaction() as session:
-                session['uid'] = 30
-        print "mocked", repr(self.app.get('/social/friends').data)
-        print "was _render called?", mocked.called
+                session['uid'] = sql_id
+        res = client.get('/social/friends')
+        print(res.data)
+        self.assertTrue(mocked.called, "Route To Friends Page Failed: " + res.data)
+
+    @patch('flask.templating._render', return_value='View pending friend request works as expected')
+    def test_view_pending_friend_request(self, mocked):
+        with self.app as client:
+            with client.session_transaction() as session:
+                session['uid'] = sql_id
+            res = client.get('/social/pendingRequest')
+            print(res.data)
+            self.assertTrue(mocked.called, "View_pending_friend_request failed: " + res.data)
+
+    @patch('flask.templating._render', return_value='Send friend request works as expected')
+    def test_send_friend_request(self, mocked):
+        with self.app as client:
+            with client.session_transaction() as session:
+                session['uid'] = sql_id
+            res = client.post('/social/send_friend_request/' + str(friend_request_sql_id))
+            self.assertFalse(mocked.called, "Send_friend_request_works_fine failed: " + res.data)
+
+    @patch('flask.templating._render', return_value='Block a friend works fine')
+    def test_block_friend(self, mocked):
+        with self.app as client:
+            with client.session_transaction() as session:
+                session['uid'] = sql_id
+            res = client.post('/social/block_friend/' + str(block_unblock_friend_sql_id))
+            self.assertFalse(mocked.called, "Block a friend failed: " + res.data)
+
+    @patch('flask.templating._render', return_value='UnBlock a friend works as expected')
+    def test_un_block_friend(self, mocked):
+        with self.app as client:
+            with client.session_transaction() as session:
+                session['uid'] = sql_id
+            res = client.post('/social/unblock_friend/' + str(block_unblock_friend_sql_id))
+            print res.data
+            self.assertFalse(mocked.called, "UnBlock a friend failed: " + res.data)
+
+    @patch('flask.templating._render', return_value='Search Friends work as expected')
+    def test_search_friend(self, mocked):
+        with self.app as client:
+            with client.session_transaction() as session:
+                session['uid'] = sql_id
+            res = client.get('/social/searchFriends')
+            print(res.data)
+            self.assertTrue(mocked.called, "Search Friends failed: " + res.data)
+
+    @patch('flask.templating._render', return_value='Get Groups works as expected')
+    def test_get_groups(self, mocked):
+        with self.app as client:
+            with client.session_transaction() as session:
+                session['uid'] = sql_id
+            res = client.get('/social/groups/')
+            print(res.data)
+            self.assertTrue(mocked.called, "Get Groups failed: " + res.data)
+
+    @patch('flask.templating._render', return_value='Route To Search Systems Page Works As Expected')
+    def test_search_systems_page_render(self, mocked):
+        with self.app as client:
+            with client.session_transaction() as session:
+                session['uid'] = sql_id
+            res = client.get('/social/systems/')
+            print(res.data)
+            self.assertTrue(mocked.called, "Route To Search Systems Page Failed: " + res.data)
+
+    @patch('flask.templating._render', return_value='Search Systems Post Method Works As Expected')
+    def test_search_systems(self, mocked):
+        with self.app as client:
+            with client.session_transaction() as session:
+                session['uid'] = sql_id
+            res = client.post('/social/systems/', data=dict(txtSystemName=search_system_name))
+            print(res.data)
+            self.assertTrue(mocked.called, "Search Systems Post Method Failed: " + res.data)
+
+    @patch('flask.templating._render', return_value='Route To Manage Systems Page Works As Expected')
+    def test_manage_systems_page_render(self, mocked):
+        with self.app as client:
+            with client.session_transaction() as session:
+                session['uid'] = sql_id
+            res = client.get('/social/manage/systems/' + system_uid)
+            print(res.data)
+            self.assertTrue(mocked.called, "Route To Manage Systems Page Failed: " + res.data)
+
+    @patch('flask.templating._render', return_value='Approve/Reject Systems Participant Works As Expected')
+    def test_manage_systems_approve_reject_participant(self, mocked):
+        with self.app as client:
+            with client.session_transaction() as session:
+                session['uid'] = sql_id
+            res = client.post('/social/systems/approve_reject_participant',
+                              data=dict(system_uid=system_uid, google_id=dummy_google_id, submit="Approve"))
+            self.assertFalse(mocked.called, "Approve Systems Participant Failed: " + res.data)
+            res = client.post('/social/systems/approve_reject_participant',
+                              data=dict(system_uid=system_uid, google_id=dummy_google_id, submit="Reject"))
+            self.assertFalse(mocked.called, "Reject Systems Participant Failed: " + res.data)
 
 
 if __name__ == '__main__':
     unittest.main()
-
-
-
-'''
-class FlaskTestCase(unittest.TestCase):
-
-    def setUp(self):
-        run
-        self.app = run.app.test_client()
-
-    # Ensure that the homepage loads correctly
-    def test_home_page_loads(self):
-        rv = self.app.get('/social/trial')
-        print rv.data
-
-        tester = app.test_client(self)
-        response = tester.get("/index", content_type="html/text")
-        print "hi"
-        print response.data
-        #self.assertTrue('Recent Posts', response.data)
-
-    # Ensure that flask was setup correctly
-    def test_index(self):
-        tester = app.test_client(self)
-        response = tester.get("/", content_type="html/text")
-        self.assertTrue(response.status_code, response.data)
-
-    # Ensure that add_post works correctly
-    def test_add_post(self):
-        with app.test_client() as client:
-            with client.session_transaction() as sess:
-                sess['username'] = "nisha"
-            res = client.post(
-                "/test_add_post",
-                data=dict(privacy="public", text="unittest", link="")
-            )
-            self.assertTrue(res is not None)
-
-    # Ensure that add_comment works correctly
-    def test_add_comment(self):
-        with app.test_client() as client:
-            with client.session_transaction() as sess:
-                sess['username'] = "nisha"
-            res = client.post(
-                "/add_comment",
-                data=dict(newcomment="This is a comment", postid="1")
-            )
-            self.assertTrue(res is not None)
-
-    # Ensure that edit_comment works correctly
-    def test_edit_comment(self):
-        with app.test_client() as client:
-            with client.session_transaction() as sess:
-                sess['username'] = "nisha"
-            res = client.post(
-                "/edit_comment",
-                data=dict(editedcomment="This is a comment", commentid="1")
-            )
-            self.assertTrue(res is not None)
-
-    # Ensure that delete_comment works correctly
-    def test_delete_comment(self):
-        with app.test_client() as client:
-            with client.session_transaction() as sess:
-                sess['username'] = "nisha"
-            res = client.post(
-                "/delete_comment",
-                data=dict(commentid="1")
-            )
-            self.assertTrue(res is not None)
-
-    # Ensure that like_post works correctly
-    def test_like_post(self):
-        with app.test_client() as client:
-            with client.session_transaction() as sess:
-                sess['username'] = "nisha"
-            res = client.post(
-                "/like_post",
-                data=dict(postid="1")
-            )
-            self.assertTrue(res is not None)
-
-    # Ensure that unlike_post works correctly
-    def test_unlike_post(self):
-        with app.test_client() as client:
-            with client.session_transaction() as sess:
-                sess['username'] = "nisha"
-            res = client.post(
-                "/unlike_post",
-                data=dict(postid="1")
-            )
-            self.assertTrue(res is not None)
-
-    # Ensure that delete_post works correctly
-    def test_edit_post(self):
-        with app.test_client() as client:
-            with client.session_transaction() as sess:
-                sess['username'] = "nisha"
-            res = client.post(
-                "/edit_post",
-                data=dict(postid="1",editedpost="This is edited post")
-            )
-            self.assertTrue(res is not None)
-
-    # Ensure that delete_post works correctly
-    def test_delete_post(self):
-        with app.test_client() as client:
-            with client.session_transaction() as sess:
-                sess['username'] = "nisha"
-            res = client.post(
-                "/delete_post",
-                data=dict(postid="1")
-            )
-            self.assertTrue(res is not None)
-
-    # Ensure that add_post works correctly
-    def test_display_today_post(self):
-        with app.test_client() as client:
-            with client.session_transaction() as sess:
-                sess['username'] = "nisha"
-            res = client.get(
-                "/",
-
-            )
-            self.assertTrue(res is not None)
-
-    # Ensure that test_add_user works correctly
-    def test_add_user(self):
-        with app.test_client() as client:
-            res = client.post(
-                "/testSignin",
-                data=dict(givenName="test", familyName="123", email="test123@gmail.com", id="test123")
-            )
-            self.assertTrue(res.status_code, 200)
-
-            # tests edit profile page
-
-    def test_edit_profile_page_loads(self):
-        with app.test_client() as client:
-            response = client.get('/social/editprofile')
-            # Negative Testing
-            self.assert_("Gender" not in response.data, "Guest user should not be able to access the edit profile page")
-            with client.session_transaction() as session:
-                session['uid'] = 999
-            response = client.get('/social/editprofile')
-            # Positive Testing
-            self.assertEquals(response.status_code, 200,
-                              "Logged In User should be able to access the edit profile page")
-            self.assert_("gender" in response.data, "Logged In User should be able to view his/her gender information")
-
-    def test_search_systems(self):
-        with app.test_client() as client:
-            response = client.get('/social/systems')
-            # Page Load Negative Testing
-            self.assert_("Gender" not in response.data, "Guest user will not be able to access the search systems page")
-            with client.session_transaction() as session:
-                session['uid'] = 999
-            response = client.get('/social/systems')
-            # Page Load Positive Testing
-            self.assertEquals(response.status_code, 200,
-                              "Logged In User should be able to access the search systems page")
-            self.assert_("Participated" in response.data,
-                         "Logged In User should be able to view the systems he/she participated on")
-            # Search For System With System Name As Parameter
-            searchParam = "&^$%"
-            response = client.post(
-                "/social/systems",
-                data=dict(txtSystemName=searchParam)
-            )
-            self.assert_("Sorry, we are unable to find any system with name" in response.data,
-                         "There should be no system in the Neo4J database with the name: " + searchParam)
-            # Search For System With System Name As Parameter - Valid System Name &
-            searchParam = "system"
-            response = client.post(
-                "/social/systems",
-                data=dict(txtSystemName=searchParam)
-            )
-            self.assert_(searchParam in response.data,
-                         "There should be system in the Neo4J database with the name: " + searchParam)
-
-
-    if __name__ == "__main__":
-        unittest.main()
-
-        '''
