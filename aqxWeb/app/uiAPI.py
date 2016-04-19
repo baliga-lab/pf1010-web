@@ -75,10 +75,7 @@ class UiAPI:
                    'crop_name': system[8],
                    'crop_count': system[9],
                    'organism_name': system[10],
-                   'organism_count': system[11],
-                   'creation_time': str(system[12]),
-                   'status': system[13],
-                   'id': system[14]}
+                   'organism_count': system[11]}
 
             systems_list.append(obj)
 
@@ -97,9 +94,9 @@ class UiAPI:
             return json.dumps(results)
         vals = defaultdict(list)
         for result in results:
-            type = result[0]
-            value = result[1]
-            vals[type].append(value)
+            measurement_type = result[0]
+            val = result[1]
+            vals[measurement_type].append(val)
         return json.dumps({'filters': vals})
 
     ###############################################################################
