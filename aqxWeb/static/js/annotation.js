@@ -16,6 +16,8 @@ $('#mySelect').change(function () {
     var selection1 = $(this).val();
     switch (selection1) {
         case 'fish':
+            $("#changeAdd").text("Fish Added");
+            $("#changeRemove").text("Fish Removed");
             $('#otherType1').show();
             var allRadios = document.getElementsByName('seg1');
             var x = 0;
@@ -32,6 +34,7 @@ $('#mySelect').change(function () {
             $('#otherType5').hide();
             break;
         case 'bacteria':
+            $("#changeJustAdd").text("Bacteria Added");
             $('#otherType5').show();
 
             var allRadios = document.getElementsByName('seg1');
@@ -50,6 +53,8 @@ $('#mySelect').change(function () {
             break;
 
         case 'plant':
+            $("#changeAdd").text("Plant Added");
+            $("#changeRemove").text("Plant Removed");
             $('#otherType1').show();
 
             var allRadios = document.getElementsByName('seg1');
@@ -84,6 +89,7 @@ $('#mySelect').change(function () {
             $('#otherType5').hide();
             break;
         case 'cleartank':
+            $("#changeYes").text("Clean Tank");
             $('#otherType3').show();
 
             var allRadios = document.getElementsByName('seg3');
@@ -101,6 +107,7 @@ $('#mySelect').change(function () {
             $('#otherType5').hide();
             break;
         case 'reproduction':
+            $("#changeYes").text("Yes");
             $('#otherType3').show();
 
             var allRadios = document.getElementsByName('seg3');
