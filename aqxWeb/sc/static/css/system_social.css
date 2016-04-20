@@ -4,10 +4,17 @@
     text-align: justify;
 }
 
-.rightPaneDiv {
+.leftPaneDiv, .rightPaneDiv {
     border-radius: 25px;
     border: 1px solid #23434d;
+    padding-left: 30px;
+    padding-right: 30px;
     background-color: #f0f0f5;
+}
+
+.centerPaneDiv {
+    padding-left: 30px;
+    padding-right: 30px;
 }
 
 .participantImage, .subscriberImage, .pendingParticipantImage {
@@ -27,6 +34,10 @@
     height: 100px;
 }
 
+h4 {
+    color: #449d44;
+}
+
 
 /* Horizontal Rule Styling */
 hr {
@@ -35,9 +46,13 @@ hr {
     border-top: 1px solid #001a00;
 }
 
+.cogWheelIcon {
+    height: 45px;
+    width: 45px;
+}
+
 #map {
     width: 250px;
     height: 250px;
     border: 1px solid #23434d;
 }
-
