@@ -495,10 +495,10 @@ function main(){
     // When deactivated, create split graphs an hide overlay graph
     $('.toggle').on('toggle', function(e, active) {
         if (active) {
-            $('.split-chart').hide();
+             $('[id^=chart-]').hide();
             $('#analyzeContainer').show();
         } else {
-            $('.split-chart').show();
+             $('[id^=chart-]').show();
             $('#analyzeContainer').hide();
             toggleSplitMode();
         }
@@ -539,7 +539,7 @@ function main(){
 
         $('#alert_placeholder').empty();
 
-        $('.split-chart').hide();
+         $('[id^=chart-]').hide();
         $('#analyzeContainer').show();
         $('.toggle').data('toggles').toggle(true, false, true);
 
