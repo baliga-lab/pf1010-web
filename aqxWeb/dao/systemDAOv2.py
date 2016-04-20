@@ -130,8 +130,8 @@ class systemDAO:
         query4 = ('INSERT INTO system_crops '
                   'VALUES (%s, %s, %s)')
 
-        query5 = ('INSERT INTO system_status (system_uid, start_time) '
-                  'VALUES (%s, %s)')
+        query5 = ('INSERT INTO system_status (system_uid, start_time, end_time) '
+                  'VALUES (%s, %s, "2030-12-31 23:59:59")')
 
         values5 = (systemUID, startDate)
 
