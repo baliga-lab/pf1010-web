@@ -37,20 +37,6 @@ app.config['BOOTSTRAP_SERVE_LOCAL'] = True
 Bootstrap(app)
 
 
-######################################################################
-# method to create connection pool to mySQL DB when application starts
-######################################################################
-def create_conn(app):
-    global pool
-    print("PID %d: initializing pool..." % os.getpid())
-    dbconfig = {
-        "host": app.config['HOST'],
-        "user": app.config['USER'],
-        "passwd": app.config['PASS'],
-        "db": app.config['DB']
-    }
-    pool = MySQLConnectionPool(pool_name="mypool", pool_size=app.config['POOLSIZE'], **dbconfig)
-
 @app.route('/')
 def index():
     return render_template('index.html')
@@ -77,8 +63,8 @@ google = oauth.remote_app('google',
                           access_token_url='https://accounts.google.com/o/oauth2/token',
                           access_token_method='POST',
                           access_token_params={'grant_type': 'authorization_code'},
-                          consumer_key='942461862574-ghm0gs1j16m730tgd1pct5pd5kfv7akk.apps.googleusercontent.com',
-                          consumer_secret='pb7FUHfE7Dmrh8XMAjt6Gz1j')
+                          consumer_key='757190606234-pnqru7tabom1p1hhvpm0d3c3lnjk2vv4.apps.googleusercontent.com',
+                          consumer_secret='wklqAsOoVtn44AP-EIePEGmQ')
 
 
 @app.route('/getToken')
@@ -131,10 +117,9 @@ def Home():
 if __name__ == "__main__":
     app.debug = True
     app.config.from_envvar('AQUAPONICS_SETTINGS')
-    create_conn(app)
-    init_ui_app(pool) # includes api v1
-    init_ui_app2(pool) # includes api v2
-    init_dav_app(pool)
+    init_ui_app(app) # includes api v1
+    init_ui_app2(app) # includes api v2
+    init_dav_app(app)
     init_sc_app(app)
     nav.init_app(app)
     app.run(debug=True)

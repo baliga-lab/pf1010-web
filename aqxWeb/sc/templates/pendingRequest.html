@@ -5,9 +5,7 @@
 {% block content %}
 
     <div class="container">
-        <span><img style="height: 40px;width: 40px;float: left;" class="friendsIcon"
-                   src="{{ url_for('social.static', filename='images/friends.png') }}">
-            <h3 class="page-header">&nbsp; Friends</h3></span>
+        <h3 class="page-header"><i class="fa fa-users" aria-hidden="true"></i>&nbsp; Friends</h3>
         <ul class="nav nav-tabs">
             <li><a href="{{ url_for('social.friends') }}"><span class="glyphicon glyphicon-user" aria-hidden="true"></span>&nbsp;MyFriends</a></li>
             <li><a href="{{ url_for('social.searchFriends') }}"><span class="glyphicon glyphicon-search" aria-hidden="true"></span>&nbsp;Search Friends</a></li>
@@ -36,10 +34,10 @@
                             <td>
                                 <a type="button"
                                    href="{{ url_for('social.accept_friend_request', u_sql_id=row.n.sql_id) }}"  class="btn
-                                   btn-primary">Confirm</a>
+                                   btn-grey">Confirm</a>
                                 <a type="button"
                                    href="{{ url_for('social.decline_friend_request', u_sql_id=row.n.sql_id) }}" class="btn
-                                   btn-primary">Delete</a>
+                                   btn-grey">Delete</a>
                             </td>
                         </tr>
 
@@ -49,10 +47,10 @@
                 {% else %}
                     <div class="row">
                         <ul class="pull-left">
-                            <img src="{{ url_for('social.static', filename='images/sad_smiley.png') }}"
-                                 alt="FriendRequest"
-                                 height="32"
-                                 width="32">
+                            <span class="fa-stack fa-2x">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa fa-meh-o fa-stack-1x fa-inverse"></i>
+                            </span>
                         </ul>
                         <br/>
                         <ul>

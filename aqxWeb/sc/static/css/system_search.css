@@ -9,28 +9,3 @@ hr {
     border-width: 1px;
     border-top: 1px solid #001a00;
 }
-
-/* Border the divs */
-.adminSystem, .particpatedSystem, .subscribedSystem, .recommendedSystem {
-    border: 1px solid #23434d;
-    overflow-y: auto;
-    overflow-x: hidden;
-    height: 150px;
-}
-
-.systemSearchResults {
-    overflow-y: auto;
-    overflow-x: hidden;
-    height: 150px;
-}
-
-.allSystemResults {
-    overflow-y: auto;
-    overflow-x: hidden;
-    height: 250px;
-}
-
-.systemImage, .sadSmileyImage {
-    height: 32px;
-    width: 32px;
-}

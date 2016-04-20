@@ -31,8 +31,8 @@ google = oauth.remote_app('google',
                           access_token_url='https://accounts.google.com/o/oauth2/token',
                           access_token_method='POST',
                           access_token_params={'grant_type': 'authorization_code'},
-                          consumer_key='942461862574-ghm0gs1j16m730tgd1pct5pd5kfv7akk.apps.googleusercontent.com',
-                          consumer_secret='pb7FUHfE7Dmrh8XMAjt6Gz1j')
+                          consumer_key='757190606234-pnqru7tabom1p1hhvpm0d3c3lnjk2vv4.apps.googleusercontent.com',
+                          consumer_secret='wklqAsOoVtn44AP-EIePEGmQ')
 
 social = Blueprint('social', __name__, template_folder='templates', static_folder="static")
 
@@ -99,7 +99,7 @@ def index():
     subscribed_systems = System().get_subscribed_systems(session['uid'])
     return render_template('home.html', posts=posts, comments=comments,
                            privacy_info=privacy, likes=likes,
-                           totalLikes=total_likes, postOwners=post_owners,
+                           total_likes=total_likes, post_owners=post_owners,
                            admin_systems=admin_systems)
 
 
@@ -491,6 +491,7 @@ def pendingRequest():
             u_sql_id = User(session['uid']).get_user_sql_id()
             pendingRequests = User(session['uid']).get_pending_friend_request(u_sql_id);
             return render_template("/pendingRequest.html", pendingRequests=pendingRequests)
+
     else:
         return render_template("/home.html")
 
@@ -542,7 +543,7 @@ def searchFriends():
 # returns: calls index function
 # Exception : None
 #######################################################################################
-@social.route('/send_friend_request/<u_sql_id>', methods=['GET', 'POST'])
+@social.route('/send_friend_request/<u_sql_id>', methods=['POST'])
 def send_friend_request(u_sql_id):
     receiver_sql_id = u_sql_id
     User(session['uid']).send_friend_request(receiver_sql_id)
@@ -663,7 +664,7 @@ def view_system(system_uid):
                                        subscribers_pending_approval=subscribers_pending_approval,
                                        system_uid=system_uid, privacy_info=privacy,
                                        posts=posts, comments=comments, likes=likes,
-                                       totalLikes=total_likes, postOwners=post_owners, measurements=measurements, id=system_uid)
+                                       totalLikes=total_likes, postOwners=post_owners, measurements=measurements)
     except Exception as e:
         logging.exception("Exception at view_system: " + str(e))
 
@@ -850,7 +851,6 @@ def delete_system_subscriber_or_make_admin():
 def groups():
     sql_id = session.get('uid')
     if sql_id is None:
-
         return redirect(url_for('social.index'))
     else:
         if request.method == 'GET':

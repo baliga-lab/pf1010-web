@@ -150,7 +150,7 @@
                     <h4>Participants Request ({{ participants_pending_approval | length }})</h4>
                 </div>
 
-                <div class="row pendingRequests">
+                <div class="container pendingRequests">
                     <!-- Iterate Over Pending Approval Participants -->
                     {% if participants_pending_approval %}
                         {% for pending_participants in participants_pending_approval %}
@@ -261,8 +261,13 @@
         <!-- This is the rightPaneDiv for system data -->
         <div class="col-md-3 rightPaneDiv">
             <h2>Summary</h2>
-            <a class="btn-blue" href="{{ url_for('frontend.sys_measurements', system_uid=id) }}"><i
-                    class="fa fa-plus"></i> Input Measurements</a>
+            {% if user_privilege == "SYS_ADMIN" or user_privilege == "SYS_PARTICIPANT" %}
+                <a class="btn-blue"
+                   href="{{ url_for('frontend.sys_measurements', system_uid=system_neo4j[0][0]["system_uid"]) }}">
+                    <i class="fa fa-plus"></i>
+                    Input Measurements
+                </a>
+            {% endif %}
             <div class="row">
                 <table id="placar" class="table table-responsive">
                     <thead>
@@ -415,6 +420,5 @@
                 "{{ system_neo4j[0][0]['location_lng'] }}", "{{ system_neo4j[0][0]['name'] }}");
     </script>
     <script>
-
     </script>
 {% endblock %}

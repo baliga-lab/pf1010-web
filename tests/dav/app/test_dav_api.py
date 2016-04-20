@@ -13,10 +13,10 @@ import MySQLdb
 class DavApiTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.app = run.app.test_client()
         run.app.config.from_pyfile("system_db.cfg")
-        run.create_conn(run.app)
-        run.init_dav_app(run.pool)
+        run.init_dav_app(run.app)
+        cls.rapp = run.app
+        cls.app = run.app.test_client()
         cls.conn = MySQLdb.connect(host=run.app.config['HOST'], user=run.app.config['USER'],
                                    passwd=run.app.config['PASS'], db=run.app.config['DB'])
 
@@ -155,7 +155,7 @@ class DavApiTest(unittest.TestCase):
     # 1  data present for O2 for "5cc8402478ee11e59d5c000c29b92d09"
 
     def test_get_readings_for_plot1(self):
-        davAPI = DavAPI(self.conn)
+        davAPI = DavAPI(self.rapp)
         system_uid_list = ["5cc8402478ee11e59d5c000c29b92d09"]
         msr_id_list = ["8"]
         actual_result = davAPI.get_readings_for_plot(system_uid_list, msr_id_list, 200)
@@ -166,7 +166,7 @@ class DavApiTest(unittest.TestCase):
     # 2  data present for nitrate,O2,pH for "5cc8402478ee11e59d5c000c29b92d09"
 
     def test_get_readings_for_plot2(self):
-        davAPI = DavAPI(self.conn)
+        davAPI = DavAPI(self.rapp)
         system_uid_list = ["5cc8402478ee11e59d5c000c29b92d09"]
 
         msr_id_list = ["6", "8", "9"]
@@ -299,7 +299,7 @@ class DavApiTest(unittest.TestCase):
     # negative test case, querying non existent table
 
     def test_get_readings_for_plot2_neg1(self):
-        davAPI = DavAPI(self.conn)
+        davAPI = DavAPI(self.rapp)
         system_uid_list = ["5cc840478ee11e59d5c000c29b92d09"]
         msr_id_list = ["6"]
         actual_result = davAPI.get_readings_for_plot(system_uid_list, msr_id_list,200)
@@ -308,7 +308,7 @@ class DavApiTest(unittest.TestCase):
 
     # negative test case, querying for non existent status
     def test_get_readings_for_plot2_neg2(self):
-        davAPI = DavAPI(self.conn)
+        davAPI = DavAPI(self.rapp)
         system_uid_list = ["5cc840478ee11e59d5c000c29b92d09"]
         msr_id_list = ["6"]
         actual_result = davAPI.get_readings_for_plot(system_uid_list, msr_id_list,400)

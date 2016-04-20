@@ -26,11 +26,10 @@ class DavAPI:
     #                                   given system. Currently, it returns only
     #                                   the name of the system.
 
-    def __init__(self, conn):
-        self.conn = conn
-        self.sys = SystemsDAO(self.conn)
-        self.met = MetadataDAO(self.conn)
-        self.mea = MeasurementsDAO(self.conn)
+    def __init__(self, app):
+        self.sys = SystemsDAO(app)
+        self.met = MetadataDAO(app)
+        self.mea = MeasurementsDAO(app)
 
     ###############################################################################
     # get_all_systems_info
@@ -101,7 +100,7 @@ class DavAPI:
         # For each measurement
         for name in names:
             # Fetch the name of the measurement using regular expression
-            measurement_name = self.get_measurement_name(name)
+            measurement_name = name[0]
             if measurement_name != 'time':
                 # As each measurement of a system has a table on it's own,
                 # we need to create the name of each table.
@@ -148,7 +147,7 @@ class DavAPI:
     # param: 'name' retrieved from the measurement_types table
     @staticmethod
     def get_measurement_name(name):
-        return re.findall(r"\(u'(.*?)',\)", str(name))[0]
+            return re.findall(r"\(u'(.*?)',\)", str(name))[0]
 
     ###############################################################################
     # Get name of the measurement table for a given system
@@ -243,7 +242,7 @@ class DavAPI:
         measurement = self.mea.get_measurement_name(measurement_id)
         if 'error' in measurement:
             return json.dumps(measurement)
-        measurement_name = self.get_measurement_name(measurement)
+        measurement_name = measurement[0]
         # Create the name of the table
         table_name = self.get_measurement_table_name(measurement_name, system_uid)
         result = self.mea.put_system_measurement(table_name, time, value)
