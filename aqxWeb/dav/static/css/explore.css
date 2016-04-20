@@ -9,7 +9,6 @@
 }
 
 #map {
-    width: 80%;
     height: 550px;
 }
 
@@ -30,4 +29,14 @@
 
 .chosen-drop .chosen-results {
     max-height: 150px;
+}
+
+.map-canvas {
+    background-color: rgb(229, 227, 223);
+	width:100%;
+ 	height: calc(100% - 0px);
+}
+
+.no-padding {
+    padding: 0;
 }

@@ -9,11 +9,11 @@ var XAXIS_TITLE = 'Hours since creation';
 var CHART = "";
 var GRAPH_TYPE = "selectGraphType";
 /*
-Used to display data that was entered by user in the past
-    "" - Used to display all the data that user has recorded
-    30 - Displays all the data recorded in the past 30 days
-    60 - Displays all the data recorded in the past 60 days
-    90 - Displays all the data recorded in the past 90 days
+ Used to display data that was entered by user in the past
+ "" - Used to display all the data that user has recorded
+ 30 - Displays all the data recorded in the past 30 days
+ 60 - Displays all the data recorded in the past 60 days
+ 90 - Displays all the data recorded in the past 90 days
  */
 var NUMBER_OF_ENTRIES = 'selectNumberOfEntries';
 var SELECTED = 'selected';
@@ -46,13 +46,14 @@ var OVERLAY = true;
 function drawChart(){
     var graphType = document.getElementById(GRAPH_TYPE).value;
     var xType = document.getElementById(XAXIS).value;
+    var status = document.getElementById("selectStatus").value;
 
     // Get measurement types to display on the y-axis
     var yTypes = $("#selectYAxis").val();
     var numberOfEntries = document.getElementById(NUMBER_OF_ENTRIES).value;
 
     // Generate a data Series for each y-value type, and assign them all to the CHART
-    updateChartDataPointsHC(CHART, xType, yTypes, graphType, numberOfEntries).redraw();
+    updateChartDataPointsHC(CHART, xType, yTypes, graphType, numberOfEntries, status).redraw();
 }
 
 
@@ -64,7 +65,7 @@ function drawChart(){
  * @param graphType - The graph type chosen from dropdown
  * @param numberOfEntries - used to display data entered by user in the past
  */
-function updateChartDataPointsHC(chart, xType, yTypeList, graphType, numberOfEntries){
+function updateChartDataPointsHC(chart, xType, yTypeList, graphType, numberOfEntries, status){
 
     // Clear the old chart's yAxis and dataPoints. Unfortunately this must be done manually.
     chart = clearOldGraphValues(chart);
@@ -80,7 +81,8 @@ function updateChartDataPointsHC(chart, xType, yTypeList, graphType, numberOfEnt
         _.each(measurementsToFetch, function(measurement){
             measurementIDList.push(measurement_types_and_info[measurement].id);
         });
-        callAPIForNewData(measurementIDList, defaultStatus);
+        callAPIForNewData(measurementIDList, 100);
+        callAPIForNewData(measurementIDList, 200);
     }
 
     // Handle the x axis, for now just using time
@@ -88,7 +90,7 @@ function updateChartDataPointsHC(chart, xType, yTypeList, graphType, numberOfEnt
     chart.xAxis[0].setTitle({ text: XAXIS_TITLE });
 
     // Get dataPoints and their configs for the chart, using systems_and_measurements and add them
-    var newDataSeries = getDataPointsForPlotHC(chart, xType, yTypeList, graphType, numberOfEntries);
+    var newDataSeries = getDataPointsForPlotHC(chart, xType, yTypeList, graphType, numberOfEntries, status);
     _.each(newDataSeries, function(series) {
         chart.addSeries(series);
     });
@@ -106,7 +108,7 @@ function updateChartDataPointsHC(chart, xType, yTypeList, graphType, numberOfEnt
  * @param numberOfEntries - used to display data entered by user in the past
  * @returns {Array} - An array of dataPoints of yType measurement data for all systems
  */
-function getDataPointsForPlotHC (chart, xType, yTypeList, graphType, numberOfEntries){
+function getDataPointsForPlotHC (chart, xType, yTypeList, graphType, numberOfEntries, status){
 
     // DataPoints to add to chart
     var dataPointsList = [];
@@ -136,7 +138,8 @@ function getDataPointsForPlotHC (chart, xType, yTypeList, graphType, numberOfEnt
 
             // Then find matching types in the systems_and_measurements object
             _.each(measurements, function(measurement){
-                if (_.isEqual(measurement.type.toLowerCase(), yType.toLowerCase())) {
+                if (_.isEqual(measurement.type.toLowerCase(), yType.toLowerCase()) &&
+                    _.isEqual(measurement.status, status)) {
                     var systemId = system.system_uid;
 
                     // Check if there is data for this system and measurement type
@@ -187,14 +190,18 @@ function getDataPointsForPlotHC (chart, xType, yTypeList, graphType, numberOfEnt
 /**
  * Take measurement data object from AJAX response, and add to the global systems_and_measurements data
  * @param data
+ * @param statusID
  */
-function addNewMeasurementData(data){
+function addNewMeasurementData(data, statusID){
     console.log('success',data);
     var systems = data.response;
 
     // Loop through existing systems in the systems_and_measurements object
     _.each(systems, function(system){
         var systemMeasurements = system.measurement;
+        _.each(systemMeasurements, function(measurement){
+            measurement.status = statusID.toString()
+        });
         _.each(systems_and_measurements, function(existingSystem){
             // Match systems in the new data by id, and then add the new measurements
             // to the list of existing measurements
@@ -205,14 +212,14 @@ function addNewMeasurementData(data){
     });
 }
 
-function processAJAXResponse(data){
+function processAJAXResponse(data, statusID){
     if("error" in data){
         console.log("Server returned an error...");
         console.log(data);
         throw "AJAX request reached the server but returned an error!";
     }else{
         console.log("here");
-        addNewMeasurementData(data);
+        addNewMeasurementData(data, statusID);
     }
 }
 
@@ -231,13 +238,16 @@ function callAPIForNewData(measurementIDList, statusID){
         url: '/dav/aqxapi/v1/measurements/plot',
         data: JSON.stringify({systems: selectedSystemIDs, measurements: measurementIDList, status: statusID}, null, '\t'),
         // Process API response
-        success: processAJAXResponse,
+        success: function(data){
+            processAJAXResponse(data, statusID)
+        },
         // Report any AJAX errors
         error: ajaxError
     });
 }
 
 function ajaxError(jqXHR, textStatus, errorThrown){
+    var redirectLink = 'error';
     alert('Unable to access the server... Look at the console (F12) for more information!');
     console.log('jqXHR:');
     console.log(jqXHR);
@@ -245,6 +255,7 @@ function ajaxError(jqXHR, textStatus, errorThrown){
     console.log(textStatus);
     console.log('errorThrown:');
     console.log(errorThrown);
+    window.location.href = redirectLink;
 }
 
 //function callAPIForNewData(measurementIDList, statusID) {
@@ -484,10 +495,10 @@ function main(){
     // When deactivated, create split graphs an hide overlay graph
     $('.toggle').on('toggle', function(e, active) {
         if (active) {
-            $('.split-chart').hide();
+             $('[id^=chart-]').hide();
             $('#analyzeContainer').show();
         } else {
-            $('.split-chart').show();
+             $('[id^=chart-]').show();
             $('#analyzeContainer').hide();
             toggleSplitMode();
         }
@@ -518,13 +529,17 @@ function main(){
             return this.defaultSelected;
         });
 
+        $('#selectStatus option').prop(SELECTED, function() {
+            return this.defaultSelected;
+        });
+
         $('#'+NUMBER_OF_ENTRIES+' option').prop(SELECTED, function() {
             return this.defaultSelected;
         });
 
         $('#alert_placeholder').empty();
 
-        $('.split-chart').hide();
+         $('[id^=chart-]').hide();
         $('#analyzeContainer').show();
         $('.toggle').data('toggles').toggle(true, false, true);
 
@@ -624,7 +639,7 @@ function tooltipFormatter(){
         eventString = "<br><p>Most recent event(s): </p>";
         _.each(this.point.annotations, function (event) {
             console.log(event);
-            eventString = eventString + '<br><p>' + event.id + " at " + event.date + '<p>'
+            eventString = eventString + '<br><p>' + annotationsMap[event.id]+ " at " + event.date + '<p>'
         });
     }
     return '<b>' + tooltipInfo[0] + '</b>' +

@@ -17,36 +17,34 @@
             <li data-target="#myCarousel" data-slide-to="2"></li>
         </ol>
         <div class="carousel-inner" role="listbox">
-            <div class="item active">
-                <img class="first-slide" src="{{ url_for('frontend.static', filename='images/index/aqx_1.png') }}"
-                     alt="First slide">
+            <div class="item active image1">
                 <div class="container">
                     <div class="carousel-caption">
                         <h1 class="main-title">Project Feed 1010</h1>
-                        <p>Store, measure, monitor, and share your Aquaponics data.</p>
-                        <p><a class="btn btn-lg btn-green" href="{{ url_for('frontend.about') }}" role="button">Learn more</a></p>
+                        <p>Store, measure, monitor, and share your aquaponic data.</p>
+                        <p><a class="btn btn-lg btn-green" href="{{ url_for('frontend.about') }}" role="button">Learn
+                            more</a></p>
                     </div>
                 </div>
             </div>
-            <div class="item">
-                <img class="second-slide" src="{{ url_for('frontend.static', filename='images/index/aqx_2.png') }}"
-                     alt="Second slide">
+            <div class="item image2">
                 <div class="container">
                     <div class="carousel-caption">
                         <h1>System Spotlight</h1>
                         <p>Check out what this system grew and how much resources they saved!</p>
-                        <p><a class="btn btn-lg btn-green" href="http://www.projectfeed1010.com/blog/2016/03/06/spotlight-natallie-windsor/" role="button">See more</a></p>
+                        <p><a class="btn btn-lg btn-green"
+                              href="http://www.projectfeed1010.com/blog/2016/03/06/spotlight-natallie-windsor/"
+                              role="button">See more</a></p>
                     </div>
                 </div>
             </div>
-            <div class="item">
-                <img class="third-slide" src="{{ url_for('frontend.static', filename='images/index/aqx_3.png') }}"
-                     alt="Third slide">
+            <div class="item image3">
                 <div class="container">
                     <div class="carousel-caption">
                         <h1>Need curriculum?</h1>
                         <p>Take a look at our lessons and get started with your classroom!</p>
-                        <p><a class="btn btn-lg btn-green" href="{{ url_for('frontend.curriculum') }}" role="button">See curriculum</a></p>
+                        <p><a class="btn btn-lg btn-green" href="{{ url_for('frontend.curriculum') }}" role="button">See
+                            curriculum</a></p>
                     </div>
                 </div>
             </div>
@@ -69,32 +67,42 @@
 
         <!-- Three columns of text below the carousel -->
         <div class="row text-center">
-            <div class="col-md-4">
+            <div class="col-sm-4">
             <span class="fa-stack fa-4x">
                 <i class="fa fa-circle fa-stack-2x"></i>
-                <i class="fa fa-tree fa-stack-1x fa-inverse"></i>
+                <i class="fa fa-leaf fa-stack-1x fa-inverse"></i>
             </span>
                 <h2>Goals</h2>
-                <p>We are in a food crisis; diminishing arable land, water shortage, and expected population growth to 10 billion portend a catastrophic food security crisis by 2030. With Project Feed 1010, we are launching a sustainable food production solution that combines aquaculture (fish farming) and hydroponics to support year-round crop production with up to 90% less water usage than conventional agriculture!</p>
-                <p><a class="btn btn-blue" href="{{ url_for('frontend.about') }}" role="button">View details &raquo;</a></p>
+                <p>We are in a food crisis; diminishing arable land, water shortage, and expected population growth to
+                    10 billion portend a catastrophic food security crisis by 2030. With Project Feed 1010, we are
+                    launching a sustainable food production solution that combines aquaculture and
+                    hydroponics to support year-round crop production with up to 90% less water usage than conventional
+                    agriculture!</p>
+                <p><a class="btn btn-blue" href="{{ url_for('frontend.about') }}" role="button">View details &raquo;</a>
+                </p>
             </div>
-            <div class="col-md-4">
+            <div class="col-sm-4">
             <span class="fa-stack fa-4x">
                 <i class="fa fa-circle fa-stack-2x"></i>
                 <i class="fa fa-compass fa-stack-1x fa-inverse"></i>
             </span>
                 <h2>Explore</h2>
-                <p>Curious to see what the other systems are growing and harvesting? Want to know what type of crops and fish you should grow in your area?</p>
+                <p>Curious to see what other systems are growing and harvesting? Want to know what type of crops and
+                    fish are popular in your area? Take a look at our map to explore other systems, analyze their data,
+                    and observe the trends based on temperature, pH, and more! </p>
                 <p><a class="btn btn-blue" href="{{ url_for('dav.explore') }}" role="button">Take a look &raquo;</a></p>
             </div>
-            <div class="col-md-4">
+            <div class="col-sm-4">
             <span class="fa-stack fa-4x">
                 <i class="fa fa-circle fa-stack-2x"></i>
                 <i class="fa fa-tint fa-stack-1x fa-inverse"></i>
             </span>
                 <h2>Curriculum</h2>
-                <p>Not only are our goals to help the environment and provide a more sustainable food production, we are also excited to announce that we have partnered with high school educators around the nation to better serve our students!</p>
-                <p><a class="btn btn-blue" href="{{ url_for('frontend.curriculum') }}" role="button">Learn more &raquo;</a></p>
+                <p>Not only are our goals to help the environment and provide a more sustainable food production, we are
+                    also excited to announce that we have partnered with educators around the nation to
+                    better serve our students!</p>
+                <p><a class="btn btn-blue" href="{{ url_for('frontend.curriculum') }}" role="button">Learn
+                    more &raquo;</a></p>
             </div>
         </div>
 
@@ -104,7 +112,7 @@
         <hr class="featurette-divider">
 
         <div class="row featurette">
-            <div ng-controller="AddEmailController" class="col-md-6">
+            <div ng-controller="AddEmailController" class="col-sm-6">
                 <h2 class="featurette-heading">Get notified of any updates.</h2>
                 <p class="lead">Join our mailing list by entering your email!</p>
                 <div class="input-group">
@@ -121,8 +129,8 @@
                     Thank you! You have been added to the mailing list.
                 </div>
             </div>
-            <div class="col-md-1"></div>
-            <div class="col-md-5">
+            <div class="col-sm-1"></div>
+            <div class="col-sm-5">
                 <h2 class="featurette-heading">Say hi and keep in touch.</h2>
                 <p class="lead">Connect with us today!</p>
                 <ul class="list-inline">
@@ -173,6 +181,23 @@
 
         <hr class="featurette-divider">
 
+        <div class="row featurette">
+            <div class="col-sm-6">
+                <div class="embed-responsive embed-responsive-16by9">
+                    <iframe class="embed-responsive-item" src="https://www.youtube.com/embed/RvKKL2MY2Ig"></iframe>
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <h2 class="featurette-heading">Give now!</h2>
+                <p>It takes $667 to help a teacher or just $24 per student to become a citizen scientist in this environmental community science project. Your support will not only help us refine the curriculum module and app, but also provide the necessary materials, probes, and support to the teachers and students!</p>
+
+                <div class="text-center">
+                    <a href="https://www.crowdrise.com/ProjectFeed101024forScience/fundraiser/ISBUSA" class="btn btn-lg btn-green">Donate</a>
+                </div>
+            </div>
+        </div>
+
+        <hr class="featurette-divider">
     </div>
 
 {% endblock %}

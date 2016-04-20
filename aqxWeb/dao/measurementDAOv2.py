@@ -1,14 +1,17 @@
 from systemDAOv2 import getTableName
-
+import MySQLdb
 
 class measurementDAO:
+    def __init__(self, app):
+        self.app = app
 
-    def __init__(self, conn):
-        self.conn = conn
-
+    def getDBConn(self):
+        return MySQLdb.connect(host=self.app.config['HOST'], user=self.app.config['USER'],
+                               passwd=self.app.config['PASS'], db=self.app.config['DB'])
 
     def getLatestReadingsForSystem(self, systemUID):
-        cursor = self.conn.cursor()
+        conn = self.getDBConn()
+        cursor = conn.cursor()
 
         measurements = ['ammonium', 'o2', 'ph', 'nitrate', 'light', 'temp', 'nitrite', 'chlorine', 'hardness', 'alkalinity']
 
@@ -29,12 +32,14 @@ class measurementDAO:
             raise
         finally:
             cursor.close()
+            conn.close()
 
         return readings
 
 
     def submitReading(self, measurementType, systemUID, reading):
-        cursor = self.conn.cursor()
+        conn = self.getDBConn()
+        cursor = conn.cursor()
 
         value = reading['value']
         timestamp = reading['timestamp']
@@ -48,12 +53,13 @@ class measurementDAO:
 
         try:
             cursor.execute(query, values)
-            self.conn.commit()
+            conn.commit()
         except:
-            self.conn.rollback()
+            conn.rollback()
             raise
         finally:
             cursor.close()
+            conn.close()
 
         return cursor.lastrowid
 

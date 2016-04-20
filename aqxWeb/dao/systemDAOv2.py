@@ -1,12 +1,17 @@
 import uuid
-
+import MySQLdb
 
 class systemDAO:
-    def __init__(self, conn):
-        self.conn = conn
+    def __init__(self, app):
+        self.app = app
+
+    def getDBConn(self):
+        return MySQLdb.connect(host=self.app.config['HOST'], user=self.app.config['USER'],
+                               passwd=self.app.config['PASS'], db=self.app.config['DB'])
 
     def getSystem(self, system_uid):
-        cursor = self.conn.cursor()
+        conn = self.getDBConn()
+        cursor = conn.cursor()
 
         query = (
         "SELECT s.id, s.system_uid, s.user_id, s.name, s.creation_time, s.start_date, s.location_lat, s.location_lng, "
@@ -24,11 +29,13 @@ class systemDAO:
             raise
         finally:
             cursor.close()
+            conn.close()
 
         return result
 
     def getOrganismsForSystem(self, system_id):
-        cursor = self.conn.cursor()
+        conn = self.getDBConn()
+        cursor = conn.cursor()
 
         query = ("SELECT ao.name, sao.num as 'count' "
                  "FROM system_aquatic_organisms sao "
@@ -42,11 +49,13 @@ class systemDAO:
             raise
         finally:
             cursor.close()
+            conn.close()
 
         return results
 
     def getCropsForSystem(self, system_id):
-        cursor = self.conn.cursor()
+        conn = self.getDBConn()
+        cursor = conn.cursor()
 
         query = ("SELECT c.name, sc.num as 'count' "
                  "FROM system_crops sc "
@@ -60,11 +69,13 @@ class systemDAO:
             raise
         finally:
             cursor.close()
+            conn.close()
 
         return results
 
     def getGrowBedMediaForSystem(self, system_id):
-        cursor = self.conn.cursor()
+        conn = self.getDBConn()
+        cursor = conn.cursor()
 
         query = ("SELECT gm.name, sgm.num as 'count' "
                  "FROM system_gb_media sgm "
@@ -78,11 +89,13 @@ class systemDAO:
             raise
         finally:
             cursor.close()
+            conn.close()
 
         return results
 
     def createSystem(self, system):
-        cursor = self.conn.cursor()
+        conn = self.getDBConn()
+        cursor = conn.cursor()
 
         userID = system['userID']
         name = system['name']
@@ -117,11 +130,16 @@ class systemDAO:
         query4 = ('INSERT INTO system_crops '
                   'VALUES (%s, %s, %s)')
 
+        query5 = ('INSERT INTO system_status (system_uid, start_time) '
+                  'VALUES (%s, %s)')
+
+        values5 = (systemUID, startDate)
+
         # The following create measurement tables
 
         measurements = ['ammonium', 'o2', 'ph', 'nitrate', 'light', 'temp', 'nitrite', 'chlorine', 'hardness', 'alkalinity']
         names = list(map(lambda x: 'aqxs_' + x + '_' + systemUID, measurements))
-        query5 = 'CREATE TABLE %s (time TIMESTAMP PRIMARY KEY NOT NULL, value DECIMAL(13,10) NOT NULL)'
+        query6 = 'CREATE TABLE %s (time TIMESTAMP PRIMARY KEY NOT NULL, value DECIMAL(13,10) NOT NULL)'
 
         # Execute the queries
 
@@ -137,19 +155,22 @@ class systemDAO:
             for crop in crops:
                 values4 = (systemID, crop['ID'], crop['count'])
                 cursor.execute(query4, values4)
+            cursor.execute(query5, values5)
             for name in names:
-                cursor.execute(query5 % name)
-            self.conn.commit()
+                cursor.execute(query6 % name)
+            conn.commit()
         except:
-            self.conn.rollback()
+            conn.rollback()
             raise
         finally:
             cursor.close()
+            conn.close()
 
         return {'userID': userID, 'systemID': systemID, 'systemUID': systemUID}
 
     def getSystemsForUser(self, userID):
-        cursor = self.conn.cursor()
+        conn = self.getDBConn()
+        cursor = conn.cursor()
 
         query = ('SELECT s.id, s.system_uid, s.name '
                  'FROM systems s '
@@ -162,12 +183,14 @@ class systemDAO:
             raise
         finally:
             cursor.close()
+            conn.close()
 
         return results
 
 
     def getSystemID(self, systemUID):
-        cursor = self.conn.cursor()
+        conn = self.getDBConn()
+        cursor = conn.cursor()
 
         query = ('SELECT s.id '
                  'FROM systems s '
@@ -180,12 +203,14 @@ class systemDAO:
             raise
         finally:
             cursor.close()
+            conn.close()
 
         return result
 
 
     def deleteSystem(self, systemUID):
-        cursor = self.conn.cursor()
+        conn = self.getDBConn()
+        cursor = conn.cursor()
 
         systemID = self.getSystemID(systemUID)
 
@@ -219,12 +244,13 @@ class systemDAO:
             cursor.execute(query4, (systemID,))
             for name in names:
                 cursor.execute(query5 % name)
-            self.conn.commit()
+            conn.commit()
         except:
-            self.conn.rollback()
+            conn.rollback()
             raise
         finally:
             cursor.close()
+            conn.close()
 
         return True
 

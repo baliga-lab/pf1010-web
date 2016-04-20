@@ -1,27 +1,31 @@
 # DAO for fetching all the data related to the measurements of the systems
-from mysql.connector import Error
-
+import MySQLdb
 
 class MeasurementsDAO:
-    ###############################################################################
-    # constructor to get connection
-    def __init__(self, conn):
-        self.conn = conn
 
+
+    def __init__(self, app):
+        self.app = app
+
+    def getDBConn(self):
+        return MySQLdb.connect(host=self.app.config['HOST'], user=self.app.config['USER'],
+                               passwd=self.app.config['PASS'], db=self.app.config['DB'])
     ###############################################################################
     # get_all_measurement_names: method to fetch the names of all the measurements
     # return: names of all the measurements
     def get_all_measurement_names(self):
-        cursor = self.conn.cursor()
+        conn = self.getDBConn()
+        cursor = conn.cursor()
         query_names = ("SELECT name "
                        "FROM measurement_types;")
         try:
             cursor.execute(query_names)
             measurement_names = cursor.fetchall()
-        except Error as e:
-            return {'error': e.msg}
+        except Exception as e:
+            return {'error': e.args[1]}
         finally:
             cursor.close()
+            conn.close()
         return measurement_names
 
     ###############################################################################
@@ -30,17 +34,19 @@ class MeasurementsDAO:
     # param - num_of_records: number of last records to be retrieved
     # returns: last (num_of_records) from the given table_name
     def get_latest_value(self, table_name, num_of_records):
-        cursor = self.conn.cursor()
+        conn = self.getDBConn()
+        cursor = conn.cursor()
         query_get = "SELECT * FROM %s " \
                     "ORDER BY time DESC " \
                     "LIMIT %%s" % table_name
         try:
             cursor.execute(query_get, (num_of_records,))
             value = cursor.fetchall()
-        except Error as e:
-            return {'error': e.msg}
+        except Exception as e:
+            return {'error': e.args[1]}
         finally:
             cursor.close()
+            conn.close()
         return value
 
     ###############################################################################
@@ -54,22 +60,24 @@ class MeasurementsDAO:
     #       already recorded
     #   (c) If encountered an insertion error: error message
     def put_system_measurement(self, table_name, time, value):
+        conn = self.getDBConn()
         time_already_recorded = self.get_recorded_time(table_name, time)
         if len(time_already_recorded) != 0:
             return {'error': 'Value at the given time already recorded'}
-        cursor = self.conn.cursor()
+        cursor = conn.cursor()
         query_put = "INSERT INTO %s " \
                     "(time, value) " \
                     "VALUES (%%s, %%s)" % table_name
         record = (time, value)
         try:
             cursor.execute(query_put, record)
-            self.conn.commit()
-        except Error as e:
-            self.conn.rollback()
-            return {'error': e.msg}
+            conn.commit()
+        except Exception as e:
+            conn.rollback()
+            return {'error': e.args[1]}
         finally:
             cursor.close()
+            conn.close()
         return "Record successfully inserted"
 
     ###############################################################################
@@ -80,17 +88,19 @@ class MeasurementsDAO:
     #   (a) If given time already present in the given table: Error
     #   (b) Else: returns the time
     def get_recorded_time(self, table_name, time):
-        cursor = self.conn.cursor()
+        conn = self.getDBConn()
+        cursor = conn.cursor()
         query_time = "SELECT time " \
                      "FROM %s " \
                      "WHERE time = %%s" % table_name
         try:
             cursor.execute(query_time, (time,))
             recorded_time = cursor.fetchall()
-        except Error as e:
-            return {'error': e.msg}
+        except Exception as e:
+            return {'error': e.args[1]}
         finally:
             cursor.close()
+            conn.close()
         return recorded_time
 
     ###############################################################################
@@ -98,7 +108,8 @@ class MeasurementsDAO:
     # param - id_list: list of the measurement ids
     # returns: list of measurement names for the given ids.
     def get_measurement_name_list(self, id_list):
-        cursor = self.conn.cursor()
+        conn = self.getDBConn()
+        cursor = conn.cursor()
 
         id_list_str = "("
         for i in range(0, len(id_list)):
@@ -117,11 +128,11 @@ class MeasurementsDAO:
         try:
             cursor.execute(query_names)
             measurement_names = cursor.fetchall()
-        except Error as e:
-            return {'error': e.msg}
+        except Exception as e:
+            return {'error': e.args[1]}
         finally:
             cursor.close()
-
+            conn.close()
         return measurement_names
 
     ###############################################################################
@@ -130,17 +141,19 @@ class MeasurementsDAO:
     # param - given measurement_id: id of a measurement
     # returns: name of the measurement for the given id
     def get_measurement_name(self, measurement_id):
-        cursor = self.conn.cursor()
+        conn = self.getDBConn()
+        cursor = conn.cursor()
         query_name = ("SELECT name "
                       "FROM measurement_types "
                       "WHERE id = %s;")
         try:
             cursor.execute(query_name, (measurement_id,))
             measurement_name, = cursor.fetchall()
-        except Error as e:
-            return {'error': e.msg}
+        except Exception as e:
+            return {'error': e.args[1]}
         finally:
             cursor.close()
+            conn.close()
         return measurement_name
 
     ###############################################################################
@@ -151,21 +164,27 @@ class MeasurementsDAO:
     # return dictionary with system_id as key and list of measurements[timestamp,m1,m2,...]
     # with key as the measurement
     def get_measurements(self, systems, measurements,status_id):
+        conn = self.getDBConn()
         payload = {}
         values = {}
-        cursor = self.conn.cursor()
+        cursor = conn.cursor()
         try:
             for system in systems:
-                time_ranges = self.get_time_ranges_for_status(system,status_id);
+                time_range_response = self.get_time_ranges_for_status(system,status_id);
 
-                query = self.create_measurement_query(system, measurements,time_ranges)
-                cursor.execute(query)
-                payload[system] = cursor.fetchall()
+                if 'error' in time_range_response:
+                    return { 'error' : time_range_response["error"]  + "system: :" + str(systems) + "  measurements: " +
+                                     str(measurements) + "  status: " + str(status_id) }
+                else:
+                    query = self.create_measurement_query(system, measurements,time_range_response)
+                    cursor.execute(query)
+                    payload[system] = cursor.fetchall()
 
-        except Error as e:
-            return {'error': e.msg + "system: :" + str(systems) + "  measurements: " + str(measurements)}
+        except Exception as e:
+            return {'error': e.args[1] + "system: :" + str(systems) + "  measurements: " + str(measurements)}
         finally:
             cursor.close()
+            conn.close()
 
         # create new list for each measurement
         for s in systems:
@@ -233,7 +252,8 @@ class MeasurementsDAO:
     # returns the start time and end time for measurements for a given system_uid
     #  and status
     def get_time_ranges_for_status(self,system_id,status_id):
-        cursor = self.conn.cursor()
+        conn = self.getDBConn()
+        cursor = conn.cursor()
         query_time_ranges = ("select start_time, end_time from system_status"  \
                              + " where system_uid = %s"
                              + " and sys_status_id = %s" )
@@ -241,17 +261,22 @@ class MeasurementsDAO:
             cursor.execute(query_time_ranges,(system_id,status_id,))
             time_ranges = cursor.fetchall()
 
-        except Error as e:
-            return {'error': e.msg}
+            if not time_ranges:
+                return {"error" : 'No time ranges found given parameters. '}
+
+        except Exception as e:
+            return {'error': e.args[1]}
         finally:
             cursor.close()
+            conn.close()
         return time_ranges
 
     ###############################################################################
 
 
     def get_status_type(self, status_id):
-        cursor = self.conn.cursor()
+        conn = self.getDBConn()
+        cursor = conn.cursor()
         query_name = ("SELECT status_type "
                       "FROM status_types "
                       "WHERE id = %s")
@@ -259,10 +284,11 @@ class MeasurementsDAO:
             cursor.execute(query_name, (status_id,))
             status_type = cursor.fetchall()
             status_type = str(status_type[0][0])
-        except Error as e:
-            return {'error': e.msg}
+        except Exception as e:
+            return {'error': e.args[1]}
         finally:
             cursor.close()
+            conn.close()
         return status_type
 
     ###############################################################################
@@ -271,16 +297,18 @@ class MeasurementsDAO:
     # returns the id, name, units, min, max of all the measurements
     ###############################################################################
     def get_all_measurement_info(self):
-        cursor = self.conn.cursor()
+        conn = self.getDBConn()
+        cursor = conn.cursor()
         query_mea_info = ("SELECT * "
                           "FROM measurement_types;")
         try:
             cursor.execute(query_mea_info)
             measurement_info = cursor.fetchall()
-        except Error as e:
-            return {'error': e.msg}
+        except Exception as e:
+            return {'error': e.args[1]}
         finally:
             cursor.close()
+            conn.close()
         return measurement_info
 
     ###############################################################################
@@ -289,8 +317,9 @@ class MeasurementsDAO:
     # returns dictionary with system_id as key and list of annotations[annotation_id,timestamp]
 
     def get_annotations(self, systems):
+        conn = self.getDBConn()
         annotations = {}
-        cursor = self.conn.cursor()
+        cursor = conn.cursor()
         try:
              system_id_list_str = self.form_in_list(systems)
 
@@ -312,10 +341,11 @@ class MeasurementsDAO:
 
              return annotations
 
-        except Error as e:
-            return {'error': e.msg + "system: :" + str(systems)}
+        except Exception as e:
+            return {'error': e.args[1] + "system: :" + str(systems)}
         finally:
             cursor.close()
+            conn.close()
 
     ###############################################################################
     # form_in_list: method to form the the "in" string from given list
@@ -333,6 +363,3 @@ class MeasurementsDAO:
         id_list_str = ''.join(id_list_str)
         return id_list_str
 
-    # Destructor to close the self connection
-    def __del__(self):
-        self.conn.close()

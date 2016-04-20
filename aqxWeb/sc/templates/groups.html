@@ -6,17 +6,13 @@
     {{ super() }}
     <link rel="stylesheet" href="{{ url_for('social.static', filename='css/groups.css') }}">
     <link href="//cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.6.3/css/bootstrap-select.css" rel="stylesheet"/>
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
 {% endblock %}
 
 {% block content %}
 
     <!-- Entire Page Div Container -->
     <div class="container" id="searchGroupsTab">
-        <span>
-            <img class="groupIcon" src="{{ url_for('social.static', filename='images/groups.png') }}">
-            <h3 class="page-header">&nbsp; Groups</h3>
-        </span>
+        <h3 class="page-header"><i class="fa fa-tree" aria-hidden="true"></i>&nbsp; Groups</h3>
         <ul class="nav nav-pills">
             <li><a href="#createGroupTab"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span>&nbsp;Create
                 Group</a></li>
@@ -78,7 +74,7 @@
                         No 
                     </label> 
                 </div>
-                <button type="submit" class="btn btn-primary form-control" value="Save">Create</button>
+                <button type="submit" class="btn btn-green form-control" value="Save">Create</button>
             </form>
         </div>
         <!-- End of Create Groups Div -->
@@ -117,7 +113,11 @@
                     {% else %}
                         <div class="row">
                             <ul>
-                                <i class="fa fa-frown-o fa-3x"></i>&nbsp;You are yet to become admin for any group.
+                                <span class="fa-stack fa-2x">
+                                    <i class="fa fa-circle fa-stack-2x"></i>
+                                    <i class="fa fa-meh-o fa-stack-1x fa-inverse"></i>
+                                </span>
+                                &nbsp;You are yet to become admin for any group.
                             </ul>
                         </div>
                     {% endif %}
@@ -140,7 +140,11 @@
                     {% else %}
                         <div class="row">
                             <ul>
-                                <i class="fa fa-frown-o fa-3x"></i>&nbsp;You are yet to become member for any group
+                                <span class="fa-stack fa-2x">
+                                    <i class="fa fa-circle fa-stack-2x"></i>
+                                    <i class="fa fa-meh-o fa-stack-1x fa-inverse"></i>
+                                </span>
+                                &nbsp;You are yet to become member for any group
                             </ul>
                         </div>
                     {% endif %}
@@ -174,9 +178,10 @@
                     {% for row in recommended_groups %}
                         <div class="row">
                             <ul class="pull-left">
-                                <img class="groupImage"
-                                     src="{{ url_for('social.static', filename='images/groups.png') }}"
-                                     alt="Groups">
+                                <span class="fa-stack fa-2x">
+                                    <i class="fa fa-circle fa-stack-2x"></i>
+                                    <i class="fa fa-users fa-stack-1x fa-inverse"></i>
+                                </span>
                             </ul>
                             <br/>
                             <ul>
@@ -187,8 +192,10 @@
                 {% else %}
                     <div class="row">
                         <ul class="pull-left">
-                            <img class="sadSmileyImage"
-                                 src="{{ url_for('social.static', filename='images/sad_smiley.png') }}" alt="Groups">
+                            <span class="fa-stack fa-2x">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa fa-meh-o fa-stack-1x fa-inverse"></i>
+                            </span>
                         </ul>
                         <br/>
                         <ul>

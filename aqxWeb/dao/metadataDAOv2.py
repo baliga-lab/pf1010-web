@@ -1,10 +1,16 @@
-class metadataDAO:
+import MySQLdb
 
-    def __init__(self, conn):
-        self.conn = conn
+class metadataDAO:
+    def __init__(self, app):
+        self.app = app
+
+    def getDBConn(self):
+        return MySQLdb.connect(host=self.app.config['HOST'], user=self.app.config['USER'],
+                               passwd=self.app.config['PASS'], db=self.app.config['DB'])
 
     def getEnums(self):
-        cursor = self.conn.cursor()
+        conn = self.getDBConn()
+        cursor = conn.cursor()
 
         query = ("SELECT \'crops\', c.id, c.name FROM crops c UNION "
                  "SELECT \'techniques\' , t.id, t.name  FROM aqx_techniques t UNION "
@@ -19,5 +25,5 @@ class metadataDAO:
             raise
         finally:
             cursor.close()
-
+            conn.close()
         return results
