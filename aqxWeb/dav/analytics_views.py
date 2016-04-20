@@ -66,6 +66,7 @@ def explore():
         return render_template("explore.html", **locals())
 
     except:
+        traceback.print_exc()
         return render_template("error.html"), 400
 
 #######################################################################################
@@ -140,6 +141,7 @@ def analyze_graph():
 
         return render_template("analyze.html", **locals())
     except:
+        traceback.print_exc()
         return render_template("error.html"), 400
 
 ######################################################################
@@ -205,6 +207,7 @@ def system_analyze(system_uid):
         return render_template("systemAnalyze.html", **locals())
 
     except:
+        traceback.print_exc()
         return render_template("error.html"), 400
 
 ######################################################################
