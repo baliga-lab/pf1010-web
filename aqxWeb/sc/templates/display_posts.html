@@ -71,7 +71,8 @@
                             {% else %}
                                 <div class="embed-responsive embed-responsive-16by9">
                                     <iframe class="embed-responsive-item"
-                                            src="{{ row.post.link.replace("/watch?v=", "/embed/") }}" allowfullscreen>
+                                            src="{{ row.post.link.replace("//vimeo.com", "//player.vimeo.com/video") }}"
+                                            allowfullscreen>
                                         [Your browser does not support frames or is currently configured not to display
                                         frames.
                                         Please use an up-to-date browser that is capable of displaying frames.]
