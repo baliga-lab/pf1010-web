@@ -19,35 +19,26 @@
     <div class="container">
         <div class="row">
             <a href="{{ url_for('dav.explore') }}"><i class="fa fa-chevron-left" aria-hidden="true"></i> Back to Explore</a>
-            <div class="pull-right">
-                <div style="width: 150px" class="toggle toggle-soft"></div>
-            </div>
         </div>
         <br>
         <div class="row">
             <div id="alert_placeholder"></div>
-            <div class="col-sm-12">
+            <div class="col-sm-9">
                 <div id="analyzeContainer" style="height: 500px; width: 100%;"></div>
-            </div>
-        </div>
-        <div class="row">
-            <div style="width: 100%; display: table;">
-                <div style="display: table-row">
-                    <div id="chart-0" class="split-chart" style="width: 50%; display: table-cell;"></div>
-                    <div id="chart-1" class="split-chart" style="width: 50%; display: table-cell;"></div>
+                <div class="row">
+                    <div id="chart-0" class="col-sm-6 no-padding"></div>
+                    <div id="chart-1" class="col-sm-6 no-padding"></div>
                 </div>
-                <div style="display: table-row">
-                    <div id="chart-2" class="split-chart" style="width: 50%; display: table-cell;"></div>
-                    <div id="chart-3" class="split-chart" style="width: 50%; display: table-cell;"></div>
+                <div class="row">
+                    <div id="chart-2" class="col-sm-6 no-padding"></div>
+                    <div id="chart-3" class="col-sm-6 no-padding"></div>
                 </div>
             </div>
             <div id="measurementLegend" style="width: 50%;">
                 <div id="legendTypes"></div>
             </div>
-        </div>
-        <div class="row">
-            <div class="col-sm-4">
-                <div class="form-group">
+            <div class="col-sm-3">
+                <div class="form-group hidden">
                     <label class="control-label">Select X Axis</label>
                     <select class="explore-dropdown" id="selectXAxis">
                         <option name="xAxisTypes" value="time" selected="selected">Time</option>
@@ -56,8 +47,6 @@
                         {% endfor %}
                     </select>
                 </div>
-            </div>
-            <div class="col-sm-4">
                 <div class="form-group">
                     <label class="control-label">Select Y Axis</label>
                     <select class="chosen-select" multiple id="selectYAxis">
@@ -67,8 +56,6 @@
                         {% endfor %}
                     </select>
                 </div>
-            </div>
-            <div class="col-sm-4">
                 <div id="graphType" class="form-group">
                     <label class="control-label">Select Graph Type</label>
                     <select class="explore-dropdown" id="selectGraphType">
@@ -77,10 +64,6 @@
                         <option value="spline">Spline</option>
                     </select>
                 </div>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-sm-6">
                 <div class="form-group">
                     <label class="control-label">View data from</label>
                     <select class="explore-dropdown" id="selectNumberOfEntries">
@@ -90,8 +73,6 @@
                         <option value="90">last 90 entries</option>
                     </select>
                 </div>
-            </div>
-            <div class="col-sm-6">
                 <div class="form-group">
                     <label class="control-label">View Data in Status</label>
                     <select class="explore-dropdown" id="selectStatus">
@@ -99,12 +80,16 @@
                         <option value="200" selected="selected">Established</option>
                     </select>
                 </div>
-            </div>
-        </div>
-        <div class="row">
-            <div class="form-group text-center">
-                <input class="btn btn-green col-xs-10" type="submit" id="submitbtn" name="newgraph" value="Submit"/>
-                <input class="btn btn-grey col-xs-2" type="button" id="resetbtn" name="reset" value="Reset"/>
+                <div class="form-group">
+                    <div style="width: 100%" class="toggle toggle-soft"></div>
+                </div>
+                <div class="form-group">
+                    <div class="form-group text-center">
+                        <input class="btn btn-green" type="submit" id="submitbtn" name="newgraph"
+                               value="Submit"/>
+                        <input class="btn btn-grey" type="button" id="resetbtn" name="reset" value="Reset"/>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -125,11 +110,11 @@
     <script src="{{ url_for('dav.static', filename='js/aqxGraph.js') }}"></script>
     <script>
         var systems_and_measurements = {{ systems_and_measurements_json | safe }};
-{#        systems_and_measurements = systems_and_measurements.response;#}
+        {#        systems_and_measurements = systems_and_measurements.response;#}
         var selectedSystemIDs = {{ selected_systemID_list|safe }};
         var measurement_types_and_info = {{ measurement_types_and_info | safe }};
         measurement_types_and_info = measurement_types_and_info.measurement_info;
-{#        var defaultStatus = {{ default_status|safe }};#}
+        {#        var defaultStatus = {{ default_status|safe }};#}
         var annotationsMap = {{ annotations_map | safe }};
         $(document).ready(main());
     </script>

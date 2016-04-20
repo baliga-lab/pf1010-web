@@ -34,9 +34,9 @@
                             <td><a href="profile/{{ row.n.google_id }}">{{ row.n.displayName }}</a></td>
                             <td>
                                 <a type="button" href="{{ url_for('social.block_friend', u_sql_id=row.n.sql_id) }}"
-                                   class="btn btn-grey">Block</a>
+                                   class="btn btn-danger">Block</a>
                                 <a type="button" href="{{ url_for('social.delete_friend', u_sql_id=row.n.sql_id) }}"
-                                   class="btn btn-grey">Delete</a>
+                                   class="btn btn-danger">Delete</a>
                             </td>
                         </tr>
 
@@ -48,9 +48,9 @@
                             <td><a href="profile/{{ row.n.google_id }}">{{ row.n.displayName }}</a></td>
                             <td>
                                 <a type="button" href="{{ url_for('social.unblock_friend', u_sql_id=row.n.sql_id) }}"
-                                   class="btn btn-grey">Unblock</a>
+                                   class="btn btn-info">Unblock</a>
                                 <a type="button" href="{{ url_for('social.delete_friend', u_sql_id=row.n.sql_id) }}"
-                                   class="btn btn-grey">Delete</a>
+                                   class="btn btn-danger">Delete</a>
                             </td>
                         </tr>
 

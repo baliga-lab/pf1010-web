@@ -36,3 +36,7 @@
 	width:100%;
  	height: calc(100% - 0px);
 }
+
+.no-padding {
+    padding: 0;
+}
