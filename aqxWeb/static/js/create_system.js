@@ -31,6 +31,7 @@ app.controller('CreateSystemController', function ($scope, $http, $window) {
         }
         function onSuccess2(response) {
             console.log(response);
+            $window.location.href = '/system/' + response.data.system_uid + '/measurements';
         }
         function onFailure(error) {
             console.error(error);
