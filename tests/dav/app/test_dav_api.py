@@ -13,10 +13,10 @@ import MySQLdb
 class DavApiTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.app = run.app.test_client()
         run.app.config.from_pyfile("system_db.cfg")
-        run.create_conn(run.app)
-        run.init_dav_app(run.pool)
+        run.init_dav_app(run.app)
+        cls.rapp = run.app
+        cls.app = run.app.test_client()
         cls.conn = MySQLdb.connect(host=run.app.config['HOST'], user=run.app.config['USER'],
                                    passwd=run.app.config['PASS'], db=run.app.config['DB'])
 
@@ -155,7 +155,7 @@ class DavApiTest(unittest.TestCase):
     # 1  data present for O2 for "5cc8402478ee11e59d5c000c29b92d09"
 
     def test_get_readings_for_plot1(self):
-        davAPI = DavAPI(self.conn)
+        davAPI = DavAPI(self.rapp)
         system_uid_list = ["5cc8402478ee11e59d5c000c29b92d09"]
         msr_id_list = ["8"]
         actual_result = davAPI.get_readings_for_plot(system_uid_list, msr_id_list, 200)
@@ -166,7 +166,7 @@ class DavApiTest(unittest.TestCase):
     # 2  data present for nitrate,O2,pH for "5cc8402478ee11e59d5c000c29b92d09"
 
     def test_get_readings_for_plot2(self):
-        davAPI = DavAPI(self.conn)
+        davAPI = DavAPI(self.rapp)
         system_uid_list = ["5cc8402478ee11e59d5c000c29b92d09"]
 
         msr_id_list = ["6", "8", "9"]
@@ -232,10 +232,10 @@ class DavApiTest(unittest.TestCase):
         self.assertEqual(expected_result, actual_result)
 
     def test_get_readings_for_plot7(self):
-        system_uid_list = ["cb08e32e41f111e5b93f000c29b92d09", "8fb1f712bf1d11e5adcc000c29b92d09",200]
+        system_uid_list = ["cb08e32e41f111e5b93f000c29b92d09", "8fb1f712bf1d11e5adcc000c29b92d09"]
         msr_id_list = [6, 8, 9]
 
-        actual_result = analytics_views.get_readings_for_tsplot(system_uid_list, msr_id_list)
+        actual_result = analytics_views.get_readings_for_tsplot(system_uid_list, msr_id_list,200)
         with open('data/test_get_readings_for_plot7_er.txt') as f:
             expected_result = f.readlines()[0]
 
@@ -299,16 +299,16 @@ class DavApiTest(unittest.TestCase):
     # negative test case, querying non existent table
 
     def test_get_readings_for_plot2_neg1(self):
-        davAPI = DavAPI(self.conn)
+        davAPI = DavAPI(self.rapp)
         system_uid_list = ["5cc840478ee11e59d5c000c29b92d09"]
         msr_id_list = ["6"]
-        actual_result = davAPI.get_readings_for_plot(system_uid_list, msr_id_list)
+        actual_result = davAPI.get_readings_for_plot(system_uid_list, msr_id_list,200)
         print actual_result
         self.assertTrue("error" in actual_result)
 
     # negative test case, querying for non existent status
     def test_get_readings_for_plot2_neg2(self):
-        davAPI = DavAPI(self.conn)
+        davAPI = DavAPI(self.rapp)
         system_uid_list = ["5cc840478ee11e59d5c000c29b92d09"]
         msr_id_list = ["6"]
         actual_result = davAPI.get_readings_for_plot(system_uid_list, msr_id_list,400)
@@ -447,6 +447,7 @@ class DavApiTest(unittest.TestCase):
         actual_result = json.dumps(actual_result_temp)
         with open('data/test_get_system_measurement_6.txt') as f:
             expected_result = f.readlines()[0]
+
         self.assertEquals(expected_result, actual_result)
         self.assertEquals(expected_status_code, actual_status_code)
 

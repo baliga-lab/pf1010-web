@@ -1,10 +1,16 @@
-class annotationDAO:
+import MySQLdb
 
-    def __init__(self, conn):
-        self.conn = conn
+class annotationDAO:
+    def __init__(self, app):
+        self.app = app
+
+    def getDBConn(self):
+        return MySQLdb.connect(host=self.app.config['HOST'], user=self.app.config['USER'],
+                               passwd=self.app.config['PASS'], db=self.app.config['DB'])
 
     def getReadableAnnotation(self, annotationID):
-        cursor = self.conn.cursor()
+        conn = self.getDBConn()
+        cursor = conn.cursor()
 
         query = ('SELECT a.annotation_key, a.annotation_desc '
                  'FROM annotations a '
@@ -17,12 +23,13 @@ class annotationDAO:
             raise
         finally:
             cursor.close()
-
+            conn.close()
         return result
 
 
     def getReadableAnnotations(self):
-        cursor = self.conn.cursor()
+        conn = self.getDBConn()
+        cursor = conn.cursor()
 
         query = ('SELECT a.id, a.annotation_key, a.annotation_desc '
                  'FROM annotations a ')
@@ -34,12 +41,13 @@ class annotationDAO:
             raise
         finally:
             cursor.close()
-
+            conn.close()
         return results
 
 
     def addAnnotation(self, annotation):
-        cursor = self.conn.cursor()
+        conn = self.getDBConn()
+        cursor = conn.cursor()
 
         systemID = annotation['systemID']
         annotationID = annotation['annotationID']
@@ -52,18 +60,19 @@ class annotationDAO:
 
         try:
             cursor.execute(query, values)
-            self.conn.commit()
+            conn.commit()
         except:
-            self.conn.rollback()
+            conn.rollback()
             raise
         finally:
             cursor.close()
-
+            conn.close()
         return cursor.lastrowid
 
 
     def getAnnotationsForSystem(self, systemID):
-        cursor = self.conn.cursor()
+        conn = self.getDBConn()
+        cursor = conn.cursor()
 
         query = ('SELECT a.annotation_key, a.annotation_value, a.annotation_desc, sa.timestamp '
                  'FROM system_annotations sa '
@@ -77,5 +86,6 @@ class annotationDAO:
             raise
         finally:
             cursor.close()
+            conn.close()
 
         return result

@@ -37,20 +37,6 @@ app.config['BOOTSTRAP_SERVE_LOCAL'] = True
 Bootstrap(app)
 
 
-######################################################################
-# method to create connection pool to mySQL DB when application starts
-######################################################################
-def create_conn(app):
-    global pool
-    print("PID %d: initializing pool..." % os.getpid())
-    dbconfig = {
-        "host": app.config['HOST'],
-        "user": app.config['USER'],
-        "passwd": app.config['PASS'],
-        "db": app.config['DB']
-    }
-    pool = MySQLConnectionPool(pool_name="mypool", pool_size=app.config['POOLSIZE'], **dbconfig)
-
 @app.route('/')
 def index():
     return render_template('index.html')
@@ -131,10 +117,9 @@ def Home():
 if __name__ == "__main__":
     app.debug = True
     app.config.from_envvar('AQUAPONICS_SETTINGS')
-    create_conn(app)
-    init_ui_app(pool) # includes api v1
-    init_ui_app2(pool) # includes api v2
-    init_dav_app(pool)
+    init_ui_app(app) # includes api v1
+    init_ui_app2(app) # includes api v2
+    init_dav_app(app)
     init_sc_app(app)
     nav.init_app(app)
     app.run(debug=True)

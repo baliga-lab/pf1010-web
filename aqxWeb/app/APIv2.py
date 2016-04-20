@@ -12,14 +12,13 @@ import json
 
 class API:
 
-    def __init__(self, conn):
-        self.conn = conn
-        self.systemDAO = systemDAO(self.conn)
-        self.userDAO = userDAO(self.conn)
-        self.metadataDAO = metadataDAO(self.conn)
-        self.subscriptionDAO = subscriptionDAO(self.conn)
-        self.annotationDAO = annotationDAO(self.conn)
-        self.measurementDAO = measurementDAO(self.conn)
+    def __init__(self, app):
+        self.systemDAO = systemDAO(app)
+        self.userDAO = userDAO(app)
+        self.metadataDAO = metadataDAO(app)
+        self.subscriptionDAO = subscriptionDAO(app)
+        self.annotationDAO = annotationDAO(app)
+        self.measurementDAO = measurementDAO(app)
 
     ###########################################################################
     # SystemAPI

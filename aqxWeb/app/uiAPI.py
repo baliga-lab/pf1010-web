@@ -8,11 +8,10 @@ import json
 
 
 class UiAPI:
-    def __init__(self, conn):
-        self.conn = conn
-        self.sys = SystemsDAO(self.conn)
-        self.user = UserDAO(self.conn)
-        self.metaData = MetadataDAO(self.conn)
+    def __init__(self, app):
+        self.sys = SystemsDAO(app)
+        self.user = UserDAO(app)
+        self.metaData = MetadataDAO(app)
 
     ###############################################################################
     #         get_system_with_system_id

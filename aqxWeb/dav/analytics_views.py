@@ -1,6 +1,5 @@
 import json
 import traceback
-from mysql.connector.errors import PoolError
 from flask import Blueprint, render_template, request, redirect, url_for, abort
 
 from app.dav_api import DavAPI
@@ -8,7 +7,7 @@ from aqxWeb.app.APIv2 import API as UIAPI
 
 dav = Blueprint('dav', __name__, template_folder='templates', static_folder='static')
 
-pool = None
+app = None
 
 PRE_ESTABLISHED = 100
 ESTABLISHED = 200
@@ -24,21 +23,9 @@ def home():
     return "Data Analytics and Viz Homepage"
 
 
-def init_dav(conn_pool):
-    global pool
-    pool = conn_pool
-
-
-######################################################################
-# method to get db connection from pool
-######################################################################
-
-def get_conn():
-    try:
-        return pool.get_connection()
-    except PoolError as e:
-        return render_template('error.html'), 500
-
+def init_dav(flask_app):
+    global app
+    app = flask_app
 
 
 ######################################################################
@@ -89,7 +76,7 @@ def analyze_graph():
     try:
         msr_id_list = [6, 7, 2, 1, 9, 8, 10]
 
-        ui_api = UIAPI(get_conn())
+        ui_api = UIAPI(app)
         annotations_map = ui_api.getReadableAnnotations()
         print annotations_map
 
@@ -153,7 +140,7 @@ def system_analyze(system_uid):
     try:
         msr_id_list = [6, 7, 2, 1, 9, 8, 10]
 
-        ui_api = UIAPI(get_conn())
+        ui_api = UIAPI(app)
         annotations_map = ui_api.getReadableAnnotations()
 
         # Load JSON formatted String from API.
@@ -217,7 +204,7 @@ def system_analyze(system_uid):
 # get_all_systems_info() - It returns the system information as a JSON
 #                          object.
 def get_all_systems_info():
-    dav_api = DavAPI(get_conn())
+    dav_api = DavAPI(app)
     return dav_api.get_all_systems_info()
 
 
@@ -228,7 +215,7 @@ def get_all_systems_info():
 # get_all_aqx_metadata - It returns all the metadata that are needed
 #                        to filter the displayed systems.
 def get_all_aqx_metadata():
-    dav_api = DavAPI(get_conn())
+    dav_api = DavAPI(app)
     return dav_api.get_all_filters_metadata()
 
 
@@ -247,13 +234,13 @@ def get_system_measurement():
         return error_msg_system, 400
     measurement_id = request.args.get('measurement_id')
     if measurement_id is None:
-        dav_api = DavAPI(get_conn())
+        dav_api = DavAPI(app)
         result = dav_api.get_system_measurements(system_uid)
     elif len(measurement_id) <= 0:
         error_msg_measurement = json.dumps({'error': 'Invalid measurement id'})
         return error_msg_measurement, 400
     else:
-        dav_api = DavAPI(get_conn())
+        dav_api = DavAPI(app)
         result = dav_api.get_system_measurement(system_uid, measurement_id)
     if 'error' in result:
         return result, 400
@@ -267,7 +254,7 @@ def get_system_measurement():
 
 @dav.route('/aqxapi/v1/measurements', methods=['PUT'])
 def put_system_measurement():
-    dav_api = DavAPI(get_conn())
+    dav_api = DavAPI(app)
     data = request.get_json()
     system_uid = data.get('system_uid')
     if system_uid is None or len(system_uid) <= 0:
@@ -299,7 +286,7 @@ def put_system_measurement():
 ######################################################################
 
 def get_readings_for_tsplot(system_uid_list, msr_id_list,status_id):
-    dav_api = DavAPI(get_conn())
+    dav_api = DavAPI(app)
     return dav_api.get_readings_for_plot(system_uid_list, msr_id_list,status_id)
 
 
@@ -309,7 +296,7 @@ def get_readings_for_tsplot(system_uid_list, msr_id_list,status_id):
 ######################################################################
 @dav.route('/aqxapi/v1/measurements/plot', methods=['POST'])
 def get_readings_for_plot():
-    dav_api = DavAPI(get_conn())
+    dav_api = DavAPI(app)
     measurements = request.json['measurements']
     systems_uid = request.json['systems']
     status_id = request.json['status']
@@ -321,7 +308,7 @@ def get_readings_for_plot():
 ######################################################################
 
 def get_all_measurement_names():
-    dav_api = DavAPI(get_conn())
+    dav_api = DavAPI(app)
     return dav_api.get_all_measurement_names()
 
 
@@ -331,7 +318,7 @@ def get_all_measurement_names():
 ######################################################################
 
 def get_all_measurement_info():
-    dav_api = DavAPI(get_conn())
+    dav_api = DavAPI(app)
     return dav_api.get_all_measurement_info()
 
 
