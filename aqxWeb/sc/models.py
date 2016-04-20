@@ -1,4 +1,4 @@
-from py2neo import Graph, Node, Relationship, cypher
+from py2neo import authenticate, Graph, Node, Relationship, cypher
 from flask import request
 from urlparse import urlparse
 import time
@@ -18,10 +18,17 @@ from flask import url_for
 # Exceptions : None
 ############################################################################
 def init_sc_app(app):
-    global app_instance
-    global graph_instance
-    app_instance = app
-    graph_instance = Graph(get_app_instance().config['CONNECTIONSETTING'])
+    try:
+        global app_instance
+        app_instance = app
+        global graph_instance
+        authenticate(get_app_instance().config['NEO4J_HOST'],
+                     get_app_instance().config['NEO4J_USER'],
+                     get_app_instance().config['NEO4J_PASS'])
+        graph_instance = Graph(get_app_instance().config['NEO4J_CONNECTION_URI'])
+    except Exception as ex:
+        print "Exception At init_sc_app: " + str(ex.message)
+        raise
 
 
 ############################################################################

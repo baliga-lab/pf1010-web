@@ -156,7 +156,7 @@
                         {% for pending_participants in participants_pending_approval %}
                             <form action="{{ url_for('social.approve_reject_system_participant') }}" method="post">
                                 <div class="row pendingRequestElements">
-                                    &nbsp;&nbsp;&nbsp;
+                                    &nbsp;&nbsp;&nbsp;&nbsp;
                                     <input type="hidden" name="google_id"
                                            value="{{ pending_participants[0]["google_id"] }}">
                                     <input type="hidden" name="system_uid"
