@@ -41,11 +41,11 @@ class annotationDAO:
     def addAnnotation(self, annotation):
         cursor = self.conn.cursor()
 
-        systemID = annotation['systemID'],
+        systemID = annotation['systemID']
         annotationID = annotation['annotationID']
         timestamp = annotation['timestamp']
 
-        query = ('INSERT INTO system_annotations sa (system_id, annotation_id, timestamp)'
+        query = ('INSERT INTO system_annotations (system_id, annotation_id, timestamp) '
                  'VALUES (%s, %s, %s)')
 
         values = (systemID, annotationID, timestamp)
