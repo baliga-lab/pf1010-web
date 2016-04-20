@@ -68,7 +68,6 @@ class FlaskTestCase(unittest.TestCase):
             with client.session_transaction() as session:
                 session['uid'] = sql_id
             res = client.post('/social/unblock_friend/' + str(block_unblock_friend_sql_id))
-            print res.data
             self.assertFalse(mocked.called, "UnBlock a friend failed: " + res.data)
 
     @patch('flask.templating._render', return_value='Search Friends work as expected')
@@ -127,6 +126,46 @@ class FlaskTestCase(unittest.TestCase):
             res = client.post('/social/systems/approve_reject_participant',
                               data=dict(system_uid=system_uid, google_id=dummy_google_id, submit="Reject"))
             self.assertFalse(mocked.called, "Reject Systems Participant Failed: " + res.data)
+
+    @patch('flask.templating._render', return_value='Participate/Subscribe/Leave Systems Works As Expected')
+    def test_participate_subscribe_leave_system(self, mocked):
+        with self.app as client:
+            with client.session_transaction() as session:
+                session['uid'] = sql_id
+            res = client.post('/social/systems/participate_subscribe_leave',
+                              data=dict(system_uid=system_uid, google_id=dummy_google_id, submit="Subscribe"))
+            self.assertFalse(mocked.called, "Subscribe Systems Failed: " + res.data)
+            res = client.post('/social/systems/participate_subscribe_leave',
+                              data=dict(system_uid=system_uid, google_id=dummy_google_id, submit="Participate"))
+            self.assertFalse(mocked.called, "Participate Systems Failed: " + res.data)
+            res = client.post('/social/systems/participate_subscribe_leave',
+                              data=dict(system_uid=system_uid, google_id=dummy_google_id, submit="Leave"))
+            self.assertFalse(mocked.called, "Leave Systems Failed: " + res.data)
+
+    @patch('flask.templating._render', return_value='Delete/Make Admin System Participants Works As Expected')
+    def test_delete_system_participant_or_make_admin(self, mocked):
+        with self.app as client:
+            with client.session_transaction() as session:
+                session['uid'] = sql_id
+            res = client.post('/social/manage/systems/delete_system_participant_or_make_admin',
+                              data=dict(system_uid=system_uid, google_id=dummy_google_id, submit="DeleteParticipant"))
+            self.assertFalse(mocked.called, "Delete System Participant Failed: " + res.data)
+            res = client.post('/social/manage/systems/delete_system_participant_or_make_admin',
+                              data=dict(system_uid=system_uid, google_id=dummy_google_id, submit="MakeSubscriber"))
+            self.assertFalse(mocked.called, "Make System Participate as Subscriber Failed: " + res.data)
+            res = client.post('/social/manage/systems/delete_system_participant_or_make_admin',
+                              data=dict(system_uid=system_uid, google_id=dummy_google_id, submit="MakeAdmin"))
+            self.assertFalse(mocked.called, "Make System Participate as Admin Failed: " + res.data)
+
+    @patch('flask.templating._render', return_value='Delete Admin Of A System Works As Expected')
+    def test_delete_system_admin(self, mocked):
+        with self.app as client:
+            with client.session_transaction() as session:
+                session['uid'] = sql_id
+            res = client.post('/social/manage/systems/delete_admin',
+                              data=dict(system_uid=system_uid, google_id=dummy_google_id, submit="DeleteAdmin"))
+            self.assertFalse(mocked.called, "Delete Admin Of A System Failed: " + res.data)
+
 
 
 if __name__ == '__main__':

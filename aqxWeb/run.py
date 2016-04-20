@@ -63,9 +63,8 @@ google = oauth.remote_app('google',
                           access_token_url='https://accounts.google.com/o/oauth2/token',
                           access_token_method='POST',
                           access_token_params={'grant_type': 'authorization_code'},
-                          consumer_key='757190606234-pnqru7tabom1p1hhvpm0d3c3lnjk2vv4.apps.googleusercontent.com',
-                          consumer_secret='wklqAsOoVtn44AP-EIePEGmQ')
-
+                          consumer_key='942461862574-ghm0gs1j16m730tgd1pct5pd5kfv7akk.apps.googleusercontent.com',
+                          consumer_secret='pb7FUHfE7Dmrh8XMAjt6Gz1j')
 
 @app.route('/getToken')
 def getToken():
