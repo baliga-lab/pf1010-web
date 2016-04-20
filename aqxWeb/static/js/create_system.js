@@ -27,7 +27,6 @@ app.controller('CreateSystemController', function ($scope, $http, $window) {
                 }
             };
             $http.post('/social/aqxapi/v1/system', socSystem).then(onSuccess2, onFailure);
-            $window.location.href = "/system/" + response.data.systemUID + "/measurements";
         }
         function onSuccess2(response) {
             console.log(response);
