@@ -294,12 +294,13 @@ END;
 
 $$
 
-/*script for scheduling the stored proc - date to be update to next day*/
+/*script for scheduling the stored proc - date should be when you need the proc to start running*/
 create event system_status_update_event
 ON SCHEDULE
     EVERY 1 DAY
-    STARTS '2014-04-18 00:00:00' ON COMPLETION PRESERVE ENABLE
+    STARTS '2016-04-26 00:00:00' ON COMPLETION PRESERVE ENABLE
 DO CALL update_system_status();
 
 
+/*you need SUPER privilege to run enable this*/
 SET GLOBAL event_scheduler = ON;
