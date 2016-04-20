@@ -232,10 +232,10 @@ class DavApiTest(unittest.TestCase):
         self.assertEqual(expected_result, actual_result)
 
     def test_get_readings_for_plot7(self):
-        system_uid_list = ["cb08e32e41f111e5b93f000c29b92d09", "8fb1f712bf1d11e5adcc000c29b92d09",200]
+        system_uid_list = ["cb08e32e41f111e5b93f000c29b92d09", "8fb1f712bf1d11e5adcc000c29b92d09"]
         msr_id_list = [6, 8, 9]
 
-        actual_result = analytics_views.get_readings_for_tsplot(system_uid_list, msr_id_list)
+        actual_result = analytics_views.get_readings_for_tsplot(system_uid_list, msr_id_list,200)
         with open('data/test_get_readings_for_plot7_er.txt') as f:
             expected_result = f.readlines()[0]
 
@@ -302,7 +302,7 @@ class DavApiTest(unittest.TestCase):
         davAPI = DavAPI(self.conn)
         system_uid_list = ["5cc840478ee11e59d5c000c29b92d09"]
         msr_id_list = ["6"]
-        actual_result = davAPI.get_readings_for_plot(system_uid_list, msr_id_list)
+        actual_result = davAPI.get_readings_for_plot(system_uid_list, msr_id_list,200)
         print actual_result
         self.assertTrue("error" in actual_result)
 
@@ -447,6 +447,7 @@ class DavApiTest(unittest.TestCase):
         actual_result = json.dumps(actual_result_temp)
         with open('data/test_get_system_measurement_6.txt') as f:
             expected_result = f.readlines()[0]
+
         self.assertEquals(expected_result, actual_result)
         self.assertEquals(expected_status_code, actual_status_code)
 

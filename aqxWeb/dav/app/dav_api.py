@@ -289,7 +289,6 @@ class DavAPI:
         status = self.mea.get_status_type(status_id)
 
         if 'error' in data_retrieved:
-            print "got error"
             return json.dumps(data_retrieved)
 
         system_measurement_list = []

@@ -22,7 +22,7 @@ class MeasurementsDAOTest(unittest.TestCase):
     # get_all_measurements
     def test_get_measurements(self):
         m = MeasurementsDAO(self.conn)
-        response = m.get_measurements(["555d0cfe9ebc11e58153000c29b92d09"],["o2","ph","light"])
+        response = m.get_measurements(["555d0cfe9ebc11e58153000c29b92d09"],["o2","ph","light"],200)
         print response
         print response['555d0cfe9ebc11e58153000c29b92d09']['o2']
         test = response['555d0cfe9ebc11e58153000c29b92d09']
