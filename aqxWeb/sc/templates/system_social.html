@@ -315,7 +315,7 @@
                         {% for participant in system_participants %}
                             <li>
                                 <!-- Only Admin and Participants Has The Privilege To View The Picture & Name Of All Participants-->
-                                {% if user_privilege == "SYS_ADMIN" or user_privilege == "SYS_PARTICIPANT" %}
+                                {% if user_privilege == "SYS_ADMIN" %}
                                     <a href="{{ url_for('social.profile', google_id=participant[0]["google_id"]) }}">
                                         <img class="participantImage img-circle"
                                              src="{{ participant[0]["image_url"] }}">
