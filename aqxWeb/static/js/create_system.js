@@ -3,6 +3,7 @@
 var app = angular.module('aqx');
 
 app.controller('CreateSystemController', function ($scope, $http, $window) {
+    $scope.error = false;
 
     $scope.system = {
         location: {},
@@ -12,6 +13,8 @@ app.controller('CreateSystemController', function ($scope, $http, $window) {
     };
 
     $scope.create = function(system) {
+        system.gbMedia[0].count = 1;
+
         function onSuccess(response) {
             console.log(response);
             var socSystem = {
@@ -27,13 +30,14 @@ app.controller('CreateSystemController', function ($scope, $http, $window) {
                 }
             };
             $http.post('/social/aqxapi/v1/system', socSystem).then(onSuccess2, onFailure);
+            $window.location.href = '/system/' + response.data.systemUID + '/measurements';
         }
         function onSuccess2(response) {
             console.log(response);
-            $window.location.href = '/system/' + response.config.data.system_uid + '/measurements';
         }
         function onFailure(error) {
             console.error(error);
+            $scope.error = true;
         }
         $http.post('/aqxapi/v2/system', system).then(onSuccess, onFailure);
     };

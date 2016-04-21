@@ -35,36 +35,26 @@
                     </div>
                 </div>
             </div>
-            <div class="form-group">
-                <div class="row">
-                    <div class="col-xs-4">
-                        <label>Date Started</label>
-                    <input type="date" class="form-control" ng-model="system.startDate" required>
-                    </div>
-                    <div class="col-xs-8">
-                        <label>Aquaponics Technique</label>
-                        <select class="form-control" ng-model="system.techniqueID" required>
-                            {% for technique in enums['techniques'] %}
-                                <option value="{{ technique.ID }}">{{ technique.name }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
+            <div class="row">
+                <div class="form-group col-sm-4">
+                    <label>Date Started</label>
+                <input type="date" class="form-control" ng-model="system.startDate" required>
                 </div>
-            </div>
-            <div class="form-group">
-                <div class="row">
-                    <div class="col-xs-8">
-                        <label>Growbed Media</label>
-                        <select class="form-control" ng-model="system.gbMedia[0].ID" required>
-                            {% for medium in enums['growbedMedia'] %}
-                                <option value="{{ medium.ID }}">{{ medium.name }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                    <div class="col-xs-4">
-                        <label>&nbsp;</label>
-                        <input type="number" min="0" class="form-control" ng-model="system.gbMedia[0].count" placeholder="Number of Media" required>
-                    </div>
+                <div class="form-group col-sm-4">
+                    <label>Aquaponics Technique</label>
+                    <select class="form-control" ng-model="system.techniqueID" required>
+                        {% for technique in enums['techniques'] %}
+                            <option value="{{ technique.ID }}">{{ technique.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group col-sm-4">
+                    <label>Growbed Media</label>
+                    <select class="form-control" ng-model="system.gbMedia[0].ID" required>
+                        {% for medium in enums['growbedMedia'] %}
+                            <option value="{{ medium.ID }}">{{ medium.name }}</option>
+                        {% endfor %}
+                    </select>
                 </div>
             </div>
             <div class="form-group">
