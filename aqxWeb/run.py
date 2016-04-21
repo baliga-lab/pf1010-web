@@ -34,8 +34,10 @@ pool = None
 app.config.from_pyfile("sc/settings.cfg")
 app.config['BOOTSTRAP_SERVE_LOCAL'] = True
 
-Bootstrap(app)
+#OAuth Configuration Settings
+app.config.from_pyfile("OAuth_Settings.cfg")
 
+Bootstrap(app)
 
 @app.route('/')
 def index():
@@ -63,8 +65,8 @@ google = oauth.remote_app('google',
                           access_token_url='https://accounts.google.com/o/oauth2/token',
                           access_token_method='POST',
                           access_token_params={'grant_type': 'authorization_code'},
-                          consumer_key='942461862574-ghm0gs1j16m730tgd1pct5pd5kfv7akk.apps.googleusercontent.com',
-                          consumer_secret='pb7FUHfE7Dmrh8XMAjt6Gz1j')
+                          consumer_key=app.config['CONSUMER_KEY'],
+                          consumer_secret=app.config['CONSUMER_SECRET'])
 
 @app.route('/getToken')
 def getToken():

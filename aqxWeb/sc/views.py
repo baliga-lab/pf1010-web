@@ -17,22 +17,7 @@ import logging
 from flask_oauth import OAuth
 import json
 
-oauth = OAuth()
-# GOOGLE_CLIENT_ID='757190606234-pnqru7tabom1p1hhvpm0d3c3lnjk2vv4.apps.googleusercontent.com',
-# GOOGLE_CLIENT_SECRET='wklqAsOoVtn44AP-EIePEGmQ',
 
-google = oauth.remote_app('google',
-                          base_url='https://www.google.com/accounts/',
-                          authorize_url='https://accounts.google.com/o/oauth2/auth',
-                          request_token_url=None,
-                          request_token_params={
-                              'scope': 'https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/plus.login',
-                              'response_type': 'code'},
-                          access_token_url='https://accounts.google.com/o/oauth2/token',
-                          access_token_method='POST',
-                          access_token_params={'grant_type': 'authorization_code'},
-                          consumer_key='757190606234-pnqru7tabom1p1hhvpm0d3c3lnjk2vv4.apps.googleusercontent.com',
-                          consumer_secret='wklqAsOoVtn44AP-EIePEGmQ')
 
 social = Blueprint('social', __name__, template_folder='templates', static_folder="static")
 
@@ -49,26 +34,6 @@ def dbconn():
                                    host=get_app_instance().config['HOST'],
                                    database=get_app_instance().config['DB'])
 
-
-@social.route('/getToken')
-def getToken():
-    callback = url_for('social.authorized', _external=True)
-    return google.authorize(callback=callback)
-
-
-@social.route('/oauth2callback')
-@google.authorized_handler
-def authorized(resp):
-    access_token = resp['access_token']
-    # print(access_token)
-    session['access_token'] = access_token, ''
-    session['token'] = access_token
-    return redirect(url_for('social.Home'))
-
-
-@google.tokengetter
-def get_access_token():
-    return session.get('access_token')
 
 
 @social.route('/trial')
