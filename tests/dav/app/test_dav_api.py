@@ -44,7 +44,6 @@ class DavApiTest(unittest.TestCase):
     # get all measurement types
     def test_get_all_measurement_names(self):
         actual_result = analytics_views.get_all_measurement_names()
-        print actual_result
         expected_result = '{"types": [["alkalinity"], ["ammonium"], ["chlorine"], ["hardness"], ["light"], ["nitrate"], ["nitrite"], ["o2"], ["ph"], ["temp"], ["time"], "time"]}'
         self.assertEquals(expected_result, actual_result)
 
@@ -303,7 +302,6 @@ class DavApiTest(unittest.TestCase):
         system_uid_list = ["5cc840478ee11e59d5c000c29b92d09"]
         msr_id_list = ["6"]
         actual_result = davAPI.get_readings_for_plot(system_uid_list, msr_id_list,200)
-        print actual_result
         self.assertTrue("error" in actual_result)
 
     # negative test case, querying for non existent status
@@ -312,7 +310,6 @@ class DavApiTest(unittest.TestCase):
         system_uid_list = ["5cc840478ee11e59d5c000c29b92d09"]
         msr_id_list = ["6"]
         actual_result = davAPI.get_readings_for_plot(system_uid_list, msr_id_list,400)
-        print actual_result
         self.assertTrue("error" in actual_result)
 
     # test for get_readings_for_plot
