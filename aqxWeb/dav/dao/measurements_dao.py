@@ -172,13 +172,12 @@ class MeasurementsDAO:
             for system in systems:
                 time_range_response = self.get_time_ranges_for_status(system,status_id);
 
-                if 'error' in time_range_response:
-                    return { 'error' : time_range_response["error"]  + "system: :" + str(systems) + "  measurements: " +
-                                     str(measurements) + "  status: " + str(status_id) }
-                else:
+                if time_range_response:
                     query = self.create_measurement_query(system, measurements,time_range_response)
                     cursor.execute(query)
                     payload[system] = cursor.fetchall()
+                else:
+                    payload[system] = ()
 
         except Exception as e:
             return {'error': e.args[1] + "system: :" + str(systems) + "  measurements: " + str(measurements)}
@@ -260,10 +259,6 @@ class MeasurementsDAO:
         try:
             cursor.execute(query_time_ranges,(system_id,status_id,))
             time_ranges = cursor.fetchall()
-
-            if not time_ranges:
-                return {"error" : 'No time ranges found given parameters. '}
-
         except Exception as e:
             return {'error': e.args[1]}
         finally:
