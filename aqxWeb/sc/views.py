@@ -34,13 +34,6 @@ def dbconn():
                                    host=get_app_instance().config['HOST'],
                                    database=get_app_instance().config['DB'])
 
-
-
-@social.route('/trial')
-def trial():
-    return render_template('dummy.html')
-
-
 @social.route('/index')
 #######################################################################################
 # function : index
@@ -335,9 +328,9 @@ def get_user_privacy(sql_id):
 
 #######################################################################################
 # function : accept_friend_request
-# purpose : renders friends.html to let the user perform activities related to friends
-# parameters : None
-# returns: friends.html
+# purpose : renders pendingRequest.html to let the user accept other users friend request
+# parameters : u_sql_id
+# returns: pendingRequest.html
 # Exception : None
 ###############################################################################
 @social.route('/accept_friend_request/<u_sql_id>', methods=['GET', 'POST'])
