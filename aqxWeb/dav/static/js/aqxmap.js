@@ -329,7 +329,6 @@ function filterSystemsBasedOnDropdownValues() {
             MAP.panTo(system.marker.position);
             system.marker.setVisible(true);
             filteredSystemsCount++;
-            //TODO: used to test the login feature. This should be replaced with actual userId from session
             if(_.isEqual(system.user_id, session_userId)) {
                 mySystems.push(system);
             } else {
@@ -351,22 +350,22 @@ function filterSystemsBasedOnDropdownValues() {
 
 /**
  * Adds the given system to analyze dropdown and sets the selected systems in dropdown
- * @param mySystems - LoggedIn users systems
+ * @param mySystems - LoggedIn user's systems
  * @param otherUserSystems - Other users systems
- * @param selectedSystemIds - Selected System's Id from dropdown
+ * @param selectedSystemIds - Selected System Ids from dropdown
  */
 function populateAnalyzeDropdown(mySystems, otherUserSystems, selectedSystemIds) {
     selectedSystemIds = _.uniq(selectedSystemIds);
     if(mySystems.length > 0) {
-        var opTag1 = $("<optgroup label='My systems'></optgroup>");
+        var mySystemOpt = $("<optgroup label='My systems'></optgroup>");
         _.each(mySystems, function(system) {
-            opTag1.append($("<option>").attr('value',system.system_uid).text(system.system_name));
+            mySystemOpt.append($("<option>").attr('value',system.system_uid).text(system.system_name));
         });
-        var opTag2 = $("<optgroup label='Other systems'></optgroup>");
+        var userSystemOpt = $("<optgroup label='Other systems'></optgroup>");
         _.each(otherUserSystems, function(system) {
-            opTag2.append($("<option>").attr('value',system.system_uid).text(system.system_name));
+            userSystemOpt.append($("<option>").attr('value',system.system_uid).text(system.system_name));
         });
-        $('#analyzeSystem').append(opTag1, opTag2);
+        $('#analyzeSystem').append(mySystemOpt, userSystemOpt);
     } else {
         _.each(otherUserSystems, function(system) {
             $('#analyzeSystem').append($("<option>").attr('value',system.system_uid).text(system.system_name));
@@ -448,6 +447,5 @@ $('#analyzeOptions').on('submit',function() {
     }
     var selectedSystems = systemsSelectedToAnalyze.join(",");
     document.getElementById("selectedSystems").value = JSON.stringify(selectedSystems);
-    //TODO: Make sure that the value is an integer
     document.getElementById("systemStatus").value = document.getElementById(SELECT_SYSTEM_STATUS).value;
 });
