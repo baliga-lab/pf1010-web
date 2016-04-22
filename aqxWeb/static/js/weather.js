@@ -5,14 +5,16 @@ if ("geolocation" in navigator) {
 }
 
 // Clickable geolocation button that loads weather based on HTML5 geo-locating
-$('.js-geolocation').click(function () {
+/*$('.js-geolocation').click(function () {
     navigator.geolocation.getCurrentPosition(function (position) {
         loadWeather(position.coords.latitude + ',' + position.coords.longitude); //load weather using your lat/lng coordinates
     });
-});
+});*/
 
 $(document).ready(function () {
-    loadWeather('Seattle', '');
+    navigator.geolocation.getCurrentPosition(function (position) {
+        loadWeather(position.coords.latitude + ',' + position.coords.longitude); //load weather using your lat/lng coordinates
+    });
 });
 
 function loadWeather(location, woeid) {
@@ -35,4 +37,4 @@ function loadWeather(location, woeid) {
             $("#weather").html('<p>' + error + '</p>');
         }
     });
-};
+}
