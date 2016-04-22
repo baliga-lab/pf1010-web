@@ -5,7 +5,7 @@
  * @type {{url: string, scaledSize: google.maps.Size}}
  */
 var SELECTED_ICON = {
-    url: "http://maps.google.com/mapfiles/kml/paddle/orange-stars.png",
+    url: "https://maps.google.com/mapfiles/kml/paddle/orange-stars.png",
     scaledSize: new google.maps.Size(40, 40)
 };
 /**
@@ -13,7 +13,7 @@ var SELECTED_ICON = {
  * @type {{url: string, scaledSize: google.maps.Size}}
  */
 var DEFAULT_ICON = {
-    url: "http://maps.google.com/mapfiles/kml/paddle/red-circle.png",
+    url: "https://maps.google.com/mapfiles/kml/paddle/red-circle.png",
     scaledSize: new google.maps.Size(33, 33)
 };
 
