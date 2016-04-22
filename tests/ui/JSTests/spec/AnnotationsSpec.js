@@ -37,7 +37,30 @@ describe("Annotations", function () {
             $("input[name=seg2][value=High][type=radio]").click();
             expect($('#number').val()).toBe("3");
         });
+
+        it("should display accurate information associated to the selection", function () {
+            loadFixtures("annotations.html");
+            Annotations.bindDOMEvents();
+
+            // select ph from dropdown
+            $("#mySelect").val("ph");
+            $("#mySelect").trigger("change");
+            // check if radio buttons are visible
+            expect($("#otherType2").is(":visible")).toBe(true);
+            // Click Added Base and check for annotation ID
+
+           $("input[name=seg2][value=Low][type=radio]").click();
+            expect($('#phLowInfo').is(":visible")).toBe(true);
+            expect($('#phHighInfo').is(":visible")).toBe(false);
+
+           $("input[name=seg2][value=High][type=radio]").click();
+            expect($('#phHighInfo').is(":visible")).toBe(true);
+            expect($('#phLowInfo').is(":visible")).toBe(false);
+
+        });
     });
+
+
 
     describe("when Harvest is selected from dropdown", function () {
         it("should display Plant Harvested & Fish Harvested options", function () {
@@ -77,9 +100,29 @@ describe("Annotations", function () {
             $("input[name=seg4][value=harvestFish][type=radio]").click()
             expect($('#number').val()).toBe("5");
         });
+
+        it("should display accurate information associated to the selection", function () {
+            loadFixtures("annotations.html");
+            Annotations.bindDOMEvents();
+
+            // select harvest from dropdown
+            $("#mySelect").val("harvest");
+            $("#mySelect").trigger("change");
+            //check if radio buttons are visible
+            expect($("#otherType4").is(":visible")).toBe(true);
+
+            // Click harvest and check for annotation ID
+            $("input[name=seg4][value=harvestPlant][type=radio]").click();
+            expect($('#harvestPlantInfo').is(":visible")).toBe(true);
+            expect($('#harvestFishInfo').is(":visible")).toBe(false);
+
+            $("input[name=seg4][value=harvestFish][type=radio]").click();
+            expect($('#harvestFishInfo').is(":visible")).toBe(true);
+            expect($('#harvestPlantInfo').is(":visible")).toBe(false);
+        });
     });
 
-    /*******************/
+
     describe("when Fish is selected from dropdown", function () {
         it("should display Fish Added & Fish Remove options", function () {
             loadFixtures("annotations.html");
@@ -113,6 +156,26 @@ describe("Annotations", function () {
             $("input[name=seg1][value=Remove][type=radio]").click();
             expect($('#number').val()).toBe("9");
         });
+
+
+         it("should display accurate information associated to the selection", function () {
+             loadFixtures("annotations.html");
+            Annotations.bindDOMEvents();
+            // select harvest from dropdown
+            $("#mySelect").val("fish");
+            $("#mySelect").trigger("change");
+            // check if radio buttons are visible
+            expect($("#otherType1").is(":visible")).toBe(true);
+
+            $("input[name=seg1][value=Add][type=radio]").click();
+            expect($('#fishAddInfo').is(":visible")).toBe(true);
+            expect($('#fishRemoveInfo').is(":visible")).toBe(false);
+
+           $("input[name=seg1][value=Remove][type=radio]").click();
+            expect($('#fishAddInfo').is(":visible")).toBe(false);
+            expect($('#fishRemoveInfo').is(":visible")).toBe(true);
+
+          });
     });
 
     describe("when Plant is selected from dropdown", function () {
@@ -186,7 +249,7 @@ describe("Annotations", function () {
             loadFixtures("annotations.html");
             Annotations.bindDOMEvents();
             // select harvest from dropdown
-            $("#mySelect").val("cleartank");
+            $("#mySelect").val("cleantank");
             $("#mySelect").trigger("change");
             // check if radio buttons are visible
             expect($("#otherType3").is(":visible")).toBe(true);
@@ -201,7 +264,7 @@ describe("Annotations", function () {
             loadFixtures("annotations.html");
             Annotations.bindDOMEvents();
             // select harvest from dropdown
-            $("#mySelect").val("cleartank");
+            $("#mySelect").val("cleantank");
             $("#mySelect").trigger("change");
             // check if radio buttons are visible
             expect($("#otherType3").is(":visible")).toBe(true);
@@ -225,6 +288,21 @@ describe("Annotations", function () {
             expect($("#otherType3 span label span").length).toBe(1);
             expect($("#otherType3 span label span")[0].innerHTML).toBe("Yes");
         });
+
+        it("should display accurate information associated to the selection", function () {
+            loadFixtures("annotations.html");
+            Annotations.bindDOMEvents();
+            // select harvest from dropdown
+            $("#mySelect").val("cleantank");
+            $("#mySelect").trigger("change");
+            // check if radio buttons are visible
+            expect($("#otherType3").is(":visible")).toBe(true);
+
+            $("input[name=seg3][value=Yes][type=radio]").click();
+
+            expect($('#cleanTankYesInfo').is(":visible")).toBe(true);
+
+        });
     });
 
 
@@ -243,7 +321,6 @@ describe("Annotations", function () {
         });
     });
 
-    /*******************/
     describe("On clicking submit annotations", function () {
 
         beforeEach(module('aqx'));
@@ -255,12 +332,13 @@ describe("Annotations", function () {
             $controller = _$controller_;
         }));
 
-        it('sets the right value', function () {
+        it('should submit valid inputs', function () {
             loadFixtures("annotations.html");
             var $scope = {};
             var controller = $controller('AnnotationController', {$scope: $scope});
             $scope.dataSubmit();
-            //expect($("#systemID").html()).toBeDefined();
+            expect($("#systemID").html()).toBeDefined();
+            expect($("#recordedDateAndTime").html()).toBeDefined();
             //expect($scope.strength).toEqual('strong');
         });
 
