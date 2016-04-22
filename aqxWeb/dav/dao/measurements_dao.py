@@ -177,6 +177,8 @@ class MeasurementsDAO:
                     cursor.execute(query)
                     payload[system] = cursor.fetchall()
                 else:
+                    print "No status found in the system_status table for system: :" + system + \
+                          "  status: " + str(status_id)
                     payload[system] = ()
 
         except Exception as e:
