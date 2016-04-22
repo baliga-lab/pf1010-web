@@ -42,6 +42,7 @@
                     <label class="control-label">Select X Axis</label>
                     <select class="explore-dropdown" id="selectXAxis">
                         <option name="xAxisTypes" value="time" selected="selected">Time</option>
+                        {# Loop through the list of measurement_types to populate X Axis Type dropdown #}
                         {% for name in measurement_names %}
                             <option name="xAxisTypes" value="{{ name }}">{{ name }}</option>
                         {% endfor %}
@@ -50,6 +51,8 @@
                 <div class="form-group">
                     <label class="control-label">Select Y Axis</label>
                     <select class="chosen-select" multiple id="selectYAxis">
+                        {# Loop through the list of measurement_types to populate Y Axis Type dropdown #}
+                        {# Time is excluded from this dropdown #}
                         {% for name in measurement_names %}
                             {% if not name == 'time' %}
                                 <option value="{{ name }}">{{ name }}</option>{% endif %}
@@ -109,13 +112,23 @@
     <script src="{{ url_for('dav.static', filename='js/highChartsTheme.js') }}"></script>
     <script src="{{ url_for('dav.static', filename='js/aqxGraph.js') }}"></script>
     <script>
+{#      systems_and_measurements - list(Object):  #}
+{#      List of JS Objects, each containing systems, metadata, and measurement data for selected measurement types #}
         var systems_and_measurements = {{ systems_and_measurements_json | safe }};
-        {#        systems_and_measurements = systems_and_measurements.response;#}
+
+{#      selectedSystemIDs - list(String):  #}
+{#      List of System UIDs for each system that was selected on the Explore page #}
         var selectedSystemIDs = {{ selected_systemID_list|safe }};
+
+{#      measurement_types_and_info- Object:  #}
+{#      JSON response containing measurement type data. IDs, measurement names, units, and ranges. #}
         var measurement_types_and_info = {{ measurement_types_and_info | safe }};
         measurement_types_and_info = measurement_types_and_info.measurement_info;
-        {#        var defaultStatus = {{ default_status|safe }};#}
+
+{#      measurement_types_and_info- Object:  #}
+{#      JSON response containing annotation type data. IDs, annotation types, and descriptions #}
         var annotationsMap = {{ annotations_map | safe }};
+
         $(document).ready(main());
     </script>
 {% endblock %}
