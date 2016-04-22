@@ -21,6 +21,8 @@
                 <label class="control-label">Select Filtering Criteria</label>
                 <br>
                 <select class="explore-dropdown" id="selectTechnique">
+                    <!-- populates the technique dropdown. metadata_dict contains a key 'aqx_techniques' -->
+                    <!-- whose value is the name of the technique -->
                     <option value="" selected="selected">Choose an Aquaponics Technique</option>
                     {% for technique in metadata_dict['aqx_techniques'] %}
                         <option value="{{ technique }}">{{ technique }}</option>
@@ -29,6 +31,8 @@
             </div>
             <div class="form-group">
                 <select class="explore-dropdown" id="selectOrganism">
+                    <!-- populates the organisms dropdown. metadata_dict contains a key 'aqx_organisms' -->
+                    <!-- whose value is the name of the organism -->
                     <option value="" selected="selected">Choose an Aquatic Organism</option>
                     {% for organism in metadata_dict['aqx_organisms'] %}
                         <option value="{{ organism }}">{{ organism }}</option>
@@ -37,6 +41,8 @@
             </div>
             <div class="form-group">
                 <select class="explore-dropdown" id="selectCrop">
+                    <!-- populates the crops dropdown. metadata_dict contains a key 'crops' -->
+                    <!-- whose value is the name of the crop -->
                     <option value="" selected="selected">Choose a Crop</option>
                     {% for crop in metadata_dict['crops'] %}
                         <option value="{{ crop }}">{{ crop }}</option>
@@ -45,6 +51,8 @@
             </div>
             <div class="form-group">
                 <select class="explore-dropdown" id="selectGrowbedMedium">
+                    <!-- populates the Growbed Medium dropdown. metadata_dict contains a key 'growbed_media' -->
+                    <!-- whose value is the name of the growbed media -->
                     <option value="" selected="selected">Choose a Growbed Medium</option>
                     {% for medium in metadata_dict['growbed_media'] %}
                         <option value="{{ medium }}">{{ medium }}</option>
@@ -53,9 +61,16 @@
             </div>
             <div class="form-group">
                 <label class="control-label">Select System Status</label>
+                <!-- fills the Select Status dropdown. metadata_dict contains a key 'status_types' -->
+                <!-- whose value is a list of strings. These strings are of the form -->
+                <!-- 'status_id:status_name' -->
                 <select class="explore-dropdown" id="selectStatus">
                     {% for status in metadata_dict['status_types'] %}
-                        <option value="{{status.split(':')[0]}}">{{ status.split(':')[1] |title}}</option>
+                        {%  if status.split(':')[0] == '200' %}
+                            <option value="{{status.split(':')[0]}}" selected="selected">{{ status.split(':')[1] |title}}</option>
+                        {% else %}
+                            <option value="{{status.split(':')[0]}}">{{ status.split(':')[1] |title}}</option>
+                        {% endif %}
                     {% endfor %}
                 </select>
             </div>
@@ -81,7 +96,7 @@
 
 {% block scripts %}
     {{ super() }}
-    <script type="text/javascript" src="http://maps.googleapis.com/maps/api/js"></script>
+    <script src="https://maps.googleapis.com/maps/api/js?v=3.exp    "></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
     <script type="text/javascript" src="{{ url_for('dav.static', filename='js/underscore-min.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('dav.static', filename='js/markerclusterer-min.js') }}"></script>
@@ -89,7 +104,10 @@
     <script type="text/javascript" src="{{ url_for('dav.static', filename='js/chosen.jquery.min.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('dav.static', filename='js/aqxmap.js') }}"></script>
     <script>
+        // system_and_info_objects json contains information about all the systems
+        // eg. system_uid, lat, lng, metadata, start date, status, etc.
         var system_and_info_object = {{ systems_and_info_json|safe }};
+        // user id of the currently logged in user
         var session_userId = '';
         {% if session.uid %}
             session_userId = {{ session.uid }}
