@@ -52,7 +52,7 @@ hr {
 }
 
 #map {
-    width: 250px;
+    width: auto;
     height: 250px;
     border: 1px solid #23434d;
 }
