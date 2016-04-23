@@ -5,15 +5,10 @@ from mock import patch
 from py2neo import Node
 from aqxWeb.sc import models
 from aqxWeb.sc.models import System
+from aqxWeb.sc.models import Group
 
 
 class FlaskTestCase(unittest.TestCase):
-    # Global Test Data For Unit Test Run
-    global friend_request_sql_id
-    friend_request_sql_id = 51
-    global block_unblock_friend_sql_id
-    block_unblock_friend_sql_id = 25
-
     def setUp(self):
         run.app.config['TESTING'] = True
         run.app.config['DEBUG'] = True
@@ -21,7 +16,10 @@ class FlaskTestCase(unittest.TestCase):
         self.app = run.app.test_client()
         run.init_sc_app(run.app)
         run.init_dav_app(run.app)
-        # Global Test Data For Unit Test Run
+
+        # Do not change the test_user as it's the primary user to set session. If your test require
+        # additional user, create separate node. Scroll down below for more examples on System & Groups
+        # --------------------------------------------------------------------------------------
         global sql_id
         sql_id = 19136
         global google_id
@@ -34,6 +32,7 @@ class FlaskTestCase(unittest.TestCase):
                          image_url="https://www.gstatic.com/webp/gallery3/1.png",
                          user_type="subscriber", organization="Northeastern University", creation_time=1461345863010,
                          modified_time=1461345863010, status=0)
+        # --------------------------------------------------------------------------------------
 
         # Dummy User For System Participant/Subscriber
         # --------------------------------------------------------------------------------------
@@ -81,12 +80,38 @@ class FlaskTestCase(unittest.TestCase):
         group_description = "Unit Test Social Team Group Description"
         global is_private_group
         is_private_group = "true"
-
+        global test_group_node
+        test_group_node = Node("Group", group_uid=group_uid, group_name=group_name,
+                               group_description=group_description, is_private_group=is_private_group,
+                               status=0, creation_time=1461345863010,
+                               modified_time=1461345863010)
         # --------------------------------------------------------------------------------------
 
+        # Dummy User For Group Member/Pending_Member
+        # --------------------------------------------------------------------------------------
+        global sql_id_user_group
+        sql_id_user_group = 58301
+        global google_id_user_group
+        google_id_user_group = "427395386123596043278"
+        global test_user_group
+        test_user_group = Node("User",
+                               sql_id=sql_id_user_group, google_id=google_id_user_group,
+                               givenName="Test User For Group",
+                               familyName="Test User For Group",
+                               displayName="Test User For Group",
+                               email="ISBTestUser@gmail.com", gender="male", dob="1989-03-19",
+                               image_url="https://www.gstatic.com/webp/gallery3/1.png",
+                               user_type="subscriber", organization="Northeastern University",
+                               creation_time=1461345863010,
+                               modified_time=1461345863010, status=0)
+        # --------------------------------------------------------------------------------------
 
         global graph
         graph = models.get_graph_connection_uri()
+
+    # --------------------------------------------------------------------------------------
+    # Friends Page Tests
+    # --------------------------------------------------------------------------------------
 
     # Testing /friends route
     @patch('flask.templating._render', return_value='Route To Friends Page Works As Expected')
@@ -125,6 +150,12 @@ class FlaskTestCase(unittest.TestCase):
         self.helper_delete_user_node(test_user)
 
     '''
+
+    # Create Separate nodes for testing send friend request something as follows:
+    # self.helper_create_user_node(test_user)
+    # self.helper_create_user_node(test_friend_request_user)
+    # self.helper_delete_user_node(test_user)
+    # self.helper_delete_user_node(test_friend_request_user)
     @patch('flask.templating._render', return_value='Send friend request works as expected')
     def test_send_friend_request(self, mocked):
         self.helper_create_user_node(test_user)
@@ -168,7 +199,10 @@ class FlaskTestCase(unittest.TestCase):
             self.assertTrue(mocked.called, "Search Friends failed: " + res.data)
         self.helper_delete_user_node(test_user)
 
-    '''
+    # --------------------------------------------------------------------------------------
+    # Groups Page Tests
+    # --------------------------------------------------------------------------------------
+
     @patch('flask.templating._render', return_value='Get Groups works as expected')
     def test_get_groups(self, mocked):
         self.helper_create_user_node(test_user)
@@ -183,78 +217,128 @@ class FlaskTestCase(unittest.TestCase):
     @patch('flask.templating._render', return_value='View Group Page Render Works As Expected')
     def test_view_group_page_render(self, mocked):
         self.helper_create_user_node(test_user)
+        self.helper_create_group_node(test_group_node)
         with self.app as client:
             with client.session_transaction() as session:
                 session['uid'] = test_user['sql_id']
-            res = client.get('/social/groups/' + group_uid)
+            res = client.get('/social/groups/' + str(test_group_node['group_uid']))
             print(res.data)
             self.assertTrue(mocked.called, "View Group Page Render Failed: " + res.data)
+        self.helper_delete_group_node(test_group_node)
         self.helper_delete_user_node(test_user)
 
     @patch('flask.templating._render', return_value='Route To Manage Group Page Works As Expected')
     def test_manage_group_page_render(self, mocked):
         self.helper_create_user_node(test_user)
+        self.helper_create_group_node(test_group_node)
+        self.helper_make_admin_for_group(test_user['google_id'], test_group_node['group_uid'])
         with self.app as client:
             with client.session_transaction() as session:
                 session['uid'] = test_user['sql_id']
-            res = client.get('/social/manage/groups/' + group_uid)
+            res = client.get('/social/manage/groups/' + str(test_group_node['group_uid']))
             print(res.data)
             self.assertTrue(mocked.called, "Route To Manage Group Page Failed: " + res.data)
+        self.helper_leave_group(test_user['google_id'], test_group_node['group_uid'])
+        self.helper_delete_group_node(test_group_node)
         self.helper_delete_user_node(test_user)
 
     @patch('flask.templating._render', return_value='Update Group Information Works As Expected')
     def test_update_group_info(self, mocked):
         self.helper_create_user_node(test_user)
+        self.helper_create_group_node(test_group_node)
+        self.helper_make_admin_for_group(test_user['google_id'], test_group_node['group_uid'])
         with self.app as client:
             with client.session_transaction() as session:
                 session['uid'] = test_user['sql_id']
+            updated_group_name = str(test_group_node['name']) + " Updated"
+            updated_group_description = str(test_group_node['description']) + " Updated"
             res = client.post('/manage/groups/update_group_info',
-                              data=dict(group_uid=group_uid, name=group_name, description=group_description,
-                                        is_private_group=is_private_group))
+                              data=dict(group_uid=test_group_node['group_uid'],
+                                        name=updated_group_name,
+                                        description=updated_group_description,
+                                        is_private_group=test_group_node['is_private_group']))
             self.assertFalse(mocked.called, "Update Group Information Failed: " + res.data)
+        self.helper_leave_group(test_user['google_id'], test_group_node['group_uid'])
+        self.helper_delete_group_node(test_group_node)
         self.helper_delete_user_node(test_user)
 
     @patch('flask.templating._render', return_value='Approve/Reject Group Member Works As Expected')
     def test_group_approve_reject_member(self, mocked):
         self.helper_create_user_node(test_user)
+        self.helper_create_user_node(test_user_group)
+        self.helper_create_group_node(test_group_node)
+        self.helper_make_admin_for_group(test_user['google_id'], test_group_node['group_uid'])
+        self.helper_make_pending_member_to_group(test_user_group['google_id'], test_group_node['group_uid'])
         with self.app as client:
             with client.session_transaction() as session:
                 session['uid'] = test_user['sql_id']
             res = client.post('/social/manage/groups/approve_reject_member',
-                              data=dict(group_uid=group_uid, google_id=dummy_google_id, submit="Approve"))
+                              data=dict(group_uid=test_group_node['group_uid'],
+                                        google_id=test_user_group['google_id'], submit="Approve"))
             self.assertFalse(mocked.called, "Approve Group Member Failed: " + res.data)
+
+            self.helper_leave_group(test_user_group['google_id'], test_group_node['group_uid'])
+            self.helper_make_pending_member_to_group(test_user_group['google_id'], test_group_node['group_uid'])
             res = client.post('/social/manage/groups/approve_reject_member',
-                              data=dict(group_uid=group_uid, google_id=dummy_google_id, submit="Reject"))
+                              data=dict(group_uid=test_group_node['group_uid'],
+                                        google_id=test_user_group['google_id'], submit="Reject"))
             self.assertFalse(mocked.called, "Reject Group Member Failed: " + res.data)
+
+        self.helper_leave_group(test_user['google_id'], test_group_node['group_uid'])
+        self.helper_delete_group_node(test_group_node)
+        self.helper_delete_user_node(test_user_group)
         self.helper_delete_user_node(test_user)
 
     @patch('flask.templating._render', return_value='Delete Admin Of A Group Works As Expected')
     def test_delete_group_admin(self, mocked):
         self.helper_create_user_node(test_user)
+        self.helper_create_user_node(test_user_group)
+        self.helper_create_group_node(test_group_node)
+        self.helper_make_admin_for_group(test_user['google_id'], test_group_node['group_uid'])
+        self.helper_make_admin_for_group(test_user_group['google_id'], test_group_node['group_uid'])
         with self.app as client:
             with client.session_transaction() as session:
                 session['uid'] = test_user['sql_id']
             res = client.post('/social/manage/groups/delete_admin',
-                              data=dict(group_uid=group_uid, google_id=dummy_google_id, submit="DeleteAdmin"))
+                              data=dict(group_uid=test_group_node['group_uid'],
+                                        google_id=test_user_group['google_id'], submit="DeleteAdmin"))
             self.assertFalse(mocked.called, "Delete Admin Of A Group Failed: " + res.data)
+        self.helper_leave_group(test_user['google_id'], test_group_node['group_uid'])
+        self.helper_delete_group_node(test_group_node)
+        self.helper_delete_user_node(test_user_group)
         self.helper_delete_user_node(test_user)
 
     @patch('flask.templating._render',
            return_value='Delete Group Member & Make Group Member As Admin Works As Expected')
     def test_delete_group_member_or_make_admin(self, mocked):
         self.helper_create_user_node(test_user)
+        self.helper_create_user_node(test_user_group)
+        self.helper_create_group_node(test_group_node)
+        self.helper_make_admin_for_group(test_user['google_id'], test_group_node['group_uid'])
+        self.helper_make_member_to_group(test_user_group['google_id'], test_group_node['group_uid'])
         with self.app as client:
             with client.session_transaction() as session:
                 session['uid'] = test_user['sql_id']
             res = client.post('/social/manage/groups/delete_member_or_make_admin',
-                              data=dict(group_uid=group_uid, google_id=dummy_google_id, submit="DeleteMember"))
+                              data=dict(group_uid=test_group_node['group_uid'],
+                                        google_id=test_user_group['google_id'], submit="DeleteMember"))
             self.assertFalse(mocked.called, "Delete Group Member Failed: " + res.data)
+
+            self.helper_make_member_to_group(test_user_group['google_id'], test_group_node['group_uid'])
             res = client.post('/social/manage/groups/delete_member_or_make_admin',
-                              data=dict(group_uid=group_uid, google_id=dummy_google_id, submit="MakeAdmin"))
+                              data=dict(group_uid=test_group_node['group_uid'],
+                                        google_id=test_user_group['google_id'], submit="MakeAdmin"))
             self.assertFalse(mocked.called, "Make Group Member as Admin Failed: " + res.data)
+
+        self.helper_leave_group(test_user_group['google_id'], test_group_node['group_uid'])
+        self.helper_leave_group(test_user['google_id'], test_group_node['group_uid'])
+        self.helper_delete_group_node(test_group_node)
+        self.helper_delete_user_node(test_user_group)
         self.helper_delete_user_node(test_user)
 
-        '''
+    # --------------------------------------------------------------------------------------
+    # System Page Tests
+    # --------------------------------------------------------------------------------------
 
     @patch('flask.templating._render', return_value='Route To Search Systems Page Works As Expected')
     def test_search_systems_page_render(self, mocked):
@@ -287,7 +371,7 @@ class FlaskTestCase(unittest.TestCase):
         with self.app as client:
             with client.session_transaction() as session:
                 session['uid'] = test_user['sql_id']
-            res = client.get('/social/systems/' + system_uid)
+            res = client.get('/social/systems/' + str(system_uid))
             print(res.data)
             self.assertTrue(mocked.called, "Route To System Page Failed: " + res.data)
         self.helper_delete_system_node(test_system_node)
@@ -301,7 +385,7 @@ class FlaskTestCase(unittest.TestCase):
         with self.app as client:
             with client.session_transaction() as session:
                 session['uid'] = test_user['sql_id']
-            res = client.get('/social/manage/systems/' + system_uid)
+            res = client.get('/social/manage/systems/' + str(system_uid))
             print(res.data)
             self.assertTrue(mocked.called, "Route To Manage System Page Failed: " + res.data)
         self.helper_leave_system(test_user['google_id'], test_system_node['system_uid'])
@@ -458,7 +542,7 @@ class FlaskTestCase(unittest.TestCase):
     # Helper Function To Create User Node In Neo4J Database
     def helper_create_user_node(self, user_node_to_create):
         try:
-            # Pre Existing User Test Nodes Are Removed
+            # Same User Node If Exists Is Removed
             self.helper_delete_user_node(user_node_to_create)
             graph.create(user_node_to_create)
         except Exception as ex:
@@ -476,10 +560,59 @@ class FlaskTestCase(unittest.TestCase):
         except Exception as ex:
             print "Exception At helper_delete_user_node: " + str(ex.message)
 
+    # Helper Function To Create Group Node In Neo4J Database
+    def helper_create_group_node(self, group_node_to_create):
+        try:
+            # Same Group Node If Exists Is Removed
+            self.helper_delete_group_node(group_node_to_create)
+            graph.create(group_node_to_create)
+        except Exception as ex:
+            print "Exception At helper_create_group_node: " + str(ex.message)
+
+    # Helper Function To Delete User Node In Neo4J Database
+    def helper_delete_group_node(self, group_node_to_delete):
+        try:
+            delete_group_query = """
+                MATCH (g:Group)
+                WHERE g.group_uid = {group_uid}
+                DETACH DELETE g
+            """
+            delete_group_status = graph.cypher.execute(delete_group_query, group_uid=group_node_to_delete["group_uid"])
+        except Exception as ex:
+            print "Exception At helper_delete_group_node: " + str(ex.message)
+
+    # Helper Function To Make An User Admin For A Group Node In Neo4J Database
+    def helper_make_admin_for_group(self, google_id, group_uid):
+        try:
+            Group().make_admin_for_group(google_id, group_uid)
+        except Exception as ex:
+            print "Exception At helper_make_admin_for_group: " + str(ex.message)
+
+    # Helper Function To Make An User Pending Member For A Group Node In Neo4J Database
+    def helper_make_pending_member_to_group(self, google_id, group_uid):
+        try:
+            Group().join_group_pending(google_id, group_uid)
+        except Exception as ex:
+            print "Exception At helper_make_pending_member_to_group: " + str(ex.message)
+
+    # Helper Function To Make An User Member For A Group Node In Neo4J Database
+    def helper_make_member_to_group(self, google_id, group_uid):
+        try:
+            Group().join_group(google_id, group_uid)
+        except Exception as ex:
+            print "Exception At helper_make_member_to_group: " + str(ex.message)
+
+    # Helper Function To Delete The User Relationship With The Group Node In Neo4J Database
+    def helper_leave_group(self, google_id, group_uid):
+        try:
+            Group().leave_group(google_id, group_uid)
+        except Exception as ex:
+            print "Exception At helper_leave_group: " + str(ex.message)
+
     # Helper Function To Create System Node In Neo4J Database
     def helper_create_system_node(self, system_node_to_create):
         try:
-            # Pre Existing System Test Nodes Are Removed
+            # Same System Node If Exists Is Removed
             self.helper_delete_system_node(system_node_to_create)
             graph.create(system_node_to_create)
         except Exception as ex:
