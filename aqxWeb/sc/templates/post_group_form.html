@@ -1,13 +1,25 @@
 {% block content %}
     <form action="{{ url_for('social.add_group_post') }}" method="post">
-        <textarea id="new_post" name="text" rows="3" class="form-control"
+        <textarea id="new_post" name="text" rows="3"
+                {% if not user_privilege or user_privilege == "GROUP_PENDING_MEMBER" %}
+                  disabled
+                {% endif %}
+                  class="form-control"
                   placeholder="Share what you are doing.."></textarea>
         <div class="share">
             <div class="links">
                 <input type="hidden" name="link" value=""/>
             </div>
             <div class="controls form-inline">
-                <button type="button" class="btn btn-blue btn-sm" data-toggle="modal" data-target="#linkModal"><i class="fa fa-link"></i><span class="hidden-xs">Add link</span></button>
+
+                <button type="button" id="btnAddLink"
+                        {% if not user_privilege or user_privilege == "GROUP_PENDING_MEMBER" %}
+                        disabled
+                        {% endif %}
+                        class="btn btn-blue btn-sm" data-toggle="modal" data-target="#linkModal">
+                    <i class="fa fa-link"></i>
+                    <span class="hidden-xs">Add link</span>
+                </button>
 
                 <div class="form-group pull-right">
                     <select name="privacy" class="form-control">
@@ -22,7 +34,11 @@
                         {% endif %}
                     </select>
                     <input type="hidden" name="group_uid" value="{{ group_uid }}">
-                    <input type="submit" class="btn btn-green" id="btnSharePost" value="Share">
+                    <input type="submit" class="btn btn-green"
+                            {% if not user_privilege or user_privilege == "GROUP_PENDING_MEMBER" %}
+                           disabled
+                            {% endif %}
+                           id="btnSharePost" value="Share">
                 </div>
             </div>
         </div>

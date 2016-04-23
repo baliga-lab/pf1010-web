@@ -1,13 +1,21 @@
 {% block content %}
     <form action="{{ url_for('social.add_system_post') }}" method="post">
-                <textarea id="new_post" name="text" rows="3" class="form-control"
+                <textarea id="new_post" name="text" rows="3"
+                        {% if not user_privilege or user_privilege == "SYS_PENDING_PARTICIPANT" %}
+                          disabled
+                        {% endif %}
+                          class="form-control"
                           placeholder="Share what you are doing.."></textarea>
         <div class="share">
             <div class="links">
                 <input type="hidden" name="link" value=""/>
             </div>
             <div class="controls form-inline">
-                <button type="button" class="btn btn-blue btn-sm" data-toggle="modal" data-target="#linkModal">
+                <button type="button" class="btn btn-blue btn-sm"
+                        {% if not user_privilege or user_privilege == "SYS_PENDING_PARTICIPANT" %}
+                        disabled
+                        {% endif %}
+                        data-toggle="modal" data-target="#linkModal">
                     <i class="fa fa-link"></i><span class="hidden-xs">Add link</span>
                 </button>
 
@@ -24,7 +32,11 @@
                         {% endif %}
                     </select>
                     <input type="hidden" name="system_uid" value="{{ system_uid }}">
-                    <input type="submit" class="btn btn-green" id="btnSharePost" value="Share">
+                    <input type="submit" class="btn btn-green"
+                            {% if not user_privilege or user_privilege == "SYS_PENDING_PARTICIPANT" %}
+                           disabled
+                            {% endif %}
+                           id="btnSharePost" value="Share">
                 </div>
             </div>
         </div>
