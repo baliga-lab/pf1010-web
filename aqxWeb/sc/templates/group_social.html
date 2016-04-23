@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="{{ url_for('social.static', filename='css/group_social.css') }}">
     <link rel="stylesheet" type="text/css" href="{{ url_for('social.static', filename='css/layout.css') }}">
     <link rel="stylesheet" type="text/css" href="{{ url_for('social.static', filename='css/newsfeed.css') }}">
+    <link href="//cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.6.3/css/bootstrap-select.css" rel="stylesheet"/>
 {% endblock %}
 
 {% block content %}
@@ -163,15 +164,25 @@
                 </div>
                 <div class="modal-body">
                     {% if group_members %}
-                        {% for member in group_members %}
-                            <li>
-                                <img class="memberImage" src="{{ member[0]['image_url'] }}">
-                                <a href="{{ url_for('social.profile',google_id=member[0]['google_id']) }}">
-                                    {{ member[0]['displayName'] }}
-                                </a>
-                            </li>
-                            <br/>
-                        {% endfor %}
+                        <ul>
+                            {% for member in group_members %}
+                                <li>
+                                    <img class="memberImage" src="{{ member[0]['image_url'] }}">
+                                    <a href="{{ url_for('social.profile',google_id=member[0]['google_id']) }}">
+                                        {{ member[0]['displayName'] }}
+                                    </a>
+                                </li>
+                                <br/>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <ul>
+                                <span class="fa-stack fa-2x">
+                                    <i class="fa fa-circle fa-stack-2x"></i>
+                                    <i class="fa fa-meh-o fa-stack-1x fa-inverse"></i>
+                                </span>
+                            &nbsp; Be the first one to join the group!
+                        </ul>
                     {% endif %}
                 </div>
                 <div class="modal-footer">

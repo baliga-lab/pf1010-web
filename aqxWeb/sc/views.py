@@ -1063,7 +1063,7 @@ def create_group():
 
     else:
         group_uid = group.create_group(sql_id, name, description, is_private)
-        flash('Your Group has been Successfully Ccreated!')
+        flash('Your Group has been Successfully Created!')
         return redirect(url_for('social.view_group', group_uid=group_uid))
     return redirect(url_for('social.groups'))
 
