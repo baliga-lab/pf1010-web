@@ -1848,7 +1848,6 @@ def logout():
     session.pop('img', None)
     session.pop('email', None)
     session.pop('displayName', None)
-    flash('Logged out.')
     return redirect(url_for('index'))
 
 
