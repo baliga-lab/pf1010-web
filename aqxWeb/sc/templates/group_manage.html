@@ -12,8 +12,7 @@
     <!-- Entire Page Div Container -->
     <div class="container" id="manageGroupsTab">
         <span>
-            <img class="cogWheelIcon" src="{{ url_for('social.static', filename='images/system_settings.png') }}">
-            <h3 class="page-header">Manage Group</h3>
+            <h3 class="page-header"><i class="fa fa-cog" aria-hidden="true"></i> Manage Group</h3>
         </span>
         <ul class="nav nav-tabs" id="tab-headers">
             <li><a href="#groupInfoTab">Group Info</a></li>
@@ -305,8 +304,7 @@
         <!-- Span For Go Back To Group Page Button -->
         <span>
             <a href="{{ url_for('social.view_group', group_uid= group_neo4j[0][0]["group_uid"]) }}">
-                <img class="goBackIcon" src="{{ url_for('social.static', filename='images/system_go_back.png') }}">
-                <h4 class="page-header">Back To Group</h4>
+                <h4 class="page-header"><i class="fa fa-chevron-left" aria-hidden="true"></i> Back To Group</h4>
             </a>
         </span>
         <!-- End Of Span For Go Back To Group Page Button -->

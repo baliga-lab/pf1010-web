@@ -1,0 +1,121 @@
+{% extends "base.html" %}
+
+{% block title %}My Groups{% endblock %}
+
+{% block styles %}
+    {{ super() }}
+    <link rel="stylesheet" href="{{ url_for('social.static', filename='css/groups.css') }}">
+    <link href="//cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.6.3/css/bootstrap-select.css" rel="stylesheet"/>
+{% endblock %}
+
+{% block content %}
+
+    <!-- Entire Page Div Container -->
+    <div class="container" id="searchGroupsTab">
+
+        <h3 class="page-header"><i class="fa fa-users" aria-hidden="true"></i>&nbsp; Groups</h3>
+        <ul class="nav nav-tabs">
+            <li>
+                <a href="{{ url_for('social.groups') }}">
+                    <span class="glyphicon glyphicon-plus"
+                          aria-hidden="true"></span>&nbsp;Create Group
+                </a>
+            </li>
+            <li class="active">
+                <a href="">
+                    <span class="glyphicon glyphicon-user"
+                          aria-hidden="true"></span>&nbsp;My Groups
+                </a>
+            </li>
+            <li>
+                <a href="{{ url_for('social.search_groups') }}">
+                    <span class="glyphicon glyphicon-search"
+                          aria-hidden="true"></span>&nbsp;Search Groups
+                </a>
+            </li>
+            <li><a href="{{ url_for('social.recommended_groups') }}">
+                <span class="glyphicon glyphicon-star"
+                      aria-hidden="true"></span>&nbsp;Recommended Groups</a>
+            </li>
+        </ul>
+
+        <br/>
+
+        <!-- My Groups Div -->
+        <div class="row" id="myGroupsTab">
+
+            <!-- Container Div For Admin/MyGroups Div -->
+            <div class="container">
+
+                <!-- Admin Groups Div -->
+                <div class="col-md-6 adminGroups">
+                    <h4>Administrator</h4>
+                    <br>
+                    {% if admin_groups %}
+                        {% for row in admin_groups %}
+                            <div class="row">
+                                <ul>
+                                    <a href="{{ url_for('social.view_group', group_uid=row.group.group_uid) }}"><i
+                                            class="fa fa-users fa-2x"></i>&nbsp;{{ row.group.name }}</a>
+                                </ul>
+                                <br>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="row">
+                            <ul>
+                                <span class="fa-stack fa-2x">
+                                    <i class="fa fa-circle fa-stack-2x"></i>
+                                    <i class="fa fa-meh-o fa-stack-1x fa-inverse"></i>
+                                </span>
+                                &nbsp;You are yet to become admin for any group.
+                            </ul>
+                        </div>
+                    {% endif %}
+                </div>
+                <!-- End Of Admin Groups Div -->
+
+
+                <!-- Member Groups Div -->
+                <div class="col-md-6 memberGroups">
+                    <h4>Member</h4>
+                    <br>
+                    {% if member_groups %}
+                        {% for row in member_groups %}
+                            <div class="row">
+                                <ul>
+                                    <a href="{{ url_for('social.view_group', group_uid=row.group.group_uid) }}"><i
+                                            class="fa fa-university fa-2x"></i>&nbsp;{{ row.group.name }}</a>
+                                </ul>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="row">
+                            <ul>
+                                <span class="fa-stack fa-2x">
+                                    <i class="fa fa-circle fa-stack-2x"></i>
+                                    <i class="fa fa-meh-o fa-stack-1x fa-inverse"></i>
+                                </span>
+                                &nbsp;You are yet to become member for any group
+                            </ul>
+                        </div>
+                    {% endif %}
+
+                </div>
+                <!-- End Of Member Groups Div -->
+
+            </div>
+            <!-- End Of Container Div For Admin/MyGroups Div -->
+
+        </div>
+        <!-- End of My Groups Div -->
+
+    </div>
+    <!-- End of Entire Page Div Container -->
+
+    <br/><br/>
+{% endblock %}
+
+{% block scripts %}
+    {{ super() }}
+{% endblock %}

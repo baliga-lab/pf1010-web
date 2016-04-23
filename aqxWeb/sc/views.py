@@ -539,24 +539,51 @@ def search_systems():
         if request.method == 'POST':
             systemName = request.form['txtSystemName']
             system_search_results = System().get_system_by_name(systemName)
-            admin_systems = System().get_admin_systems(sql_id)
-            participated_systems = System().get_participated_systems(sql_id)
-            subscribed_systems = System().get_subscribed_systems(sql_id)
-            recommended_systems = System().get_recommended_systems(sql_id)
-            all_systems = System().get_all_systems()
             return render_template("system_search.html", post_method="true", search_param=systemName,
-                                   system_search_results=system_search_results, admin_systems=admin_systems,
-                                   participated_systems=participated_systems, subscribed_systems=subscribed_systems,
-                                   recommended_systems=recommended_systems, all_systems=all_systems)
+                                   system_search_results=system_search_results)
         elif request.method == 'GET':
+            return render_template("system_search.html")
+
+
+#######################################################################################
+# function : system_self
+# purpose : renders system_self.html
+# parameters : None
+# returns: system_self.html
+# Exception : None
+#######################################################################################
+@social.route('/systems/self', methods=['GET'])
+def self_systems():
+    sql_id = session.get('uid')
+    if sql_id is None:
+        return redirect(url_for('social.index'))
+    else:
+        if request.method == 'GET':
             admin_systems = System().get_admin_systems(sql_id)
             participated_systems = System().get_participated_systems(sql_id)
             subscribed_systems = System().get_subscribed_systems(sql_id)
             recommended_systems = System().get_recommended_systems(sql_id)
-            all_systems = System().get_all_systems()
-            return render_template("system_search.html", admin_systems=admin_systems,
+            return render_template("system_self.html", admin_systems=admin_systems,
                                    participated_systems=participated_systems, subscribed_systems=subscribed_systems,
-                                   recommended_systems=recommended_systems, all_systems=all_systems)
+                                   recommended_systems=recommended_systems)
+
+
+#######################################################################################
+# function : system_all
+# purpose : renders system_all.html
+# parameters : None
+# returns: system_all.html
+# Exception : None
+#######################################################################################
+@social.route('/systems/all', methods=['GET'])
+def all_systems_neo4j():
+    sql_id = session.get('uid')
+    if sql_id is None:
+        return redirect(url_for('social.index'))
+    else:
+        if request.method == 'GET':
+            all_systems = System().get_all_systems()
+            return render_template("system_all.html", all_systems=all_systems)
 
 
 #######################################################################################
@@ -813,12 +840,63 @@ def groups():
     else:
         if request.method == 'GET':
             group = Group()
-            recommended_groups = group.get_recommended_groups(sql_id)
+            return render_template("groups.html")
+
+#######################################################################################
+# function : self_groups
+# purpose : renders group_self.html
+# parameters : None
+# returns: group_self.html
+# Exception : None
+#######################################################################################
+@social.route('/groups/self', methods=['GET'])
+def self_groups():
+    sql_id = session.get('uid')
+    if sql_id is None:
+        return redirect(url_for('social.index'))
+    else:
+        if request.method == 'GET':
+            group = Group()
             admin_groups = group.get_admin_groups(sql_id)
             member_groups = group.get_member_groups(sql_id)
-            return render_template("groups.html", recommended_groups=recommended_groups, admin_groups=admin_groups,
-                                   member_groups=member_groups)
+            return render_template("group_self.html", admin_groups=admin_groups, member_groups=member_groups)
 
+
+#######################################################################################
+# function : search_groups
+# purpose : renders group_search.html
+# parameters : None
+# returns: group_search.html
+# Exception : None
+#######################################################################################
+@social.route('/groups/search', methods=['GET'])
+def search_groups():
+    sql_id = session.get('uid')
+    if sql_id is None:
+        return redirect(url_for('social.index'))
+    else:
+        if request.method == 'GET':
+            group = Group()
+            return render_template("group_search.html")
+
+
+#######################################################################################
+# function : recommended_groups
+# purpose : renders group_recommended.html
+# parameters : None
+# returns: group_recommended.html
+# Exception : None
+#######################################################################################
+@social.route('/groups/recommended', methods=['GET'])
+def recommended_groups():
+    sql_id = session.get('uid')
+    if sql_id is None:
+        return redirect(url_for('social.index'))
+    else:
+        if request.method == 'GET':
+            group = Group()
+            recommended_groups = group.get_recommended_groups(sql_id)
+            return render_template("group_recommended.html", recommended_groups=recommended_groups)
 
 #######################################################################################
 # function : search_groups
