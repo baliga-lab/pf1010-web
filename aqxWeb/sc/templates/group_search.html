@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+
+{% block title %}Search Groups{% endblock %}
+
+{% block styles %}
+    {{ super() }}
+    <link rel="stylesheet" href="{{ url_for('social.static', filename='css/groups.css') }}">
+    <link href="//cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.6.3/css/bootstrap-select.css" rel="stylesheet"/>
+{% endblock %}
+
+{% block content %}
+
+    <!-- Entire Page Div Container -->
+    <div class="container" id="searchGroupsTab">
+
+        <h3 class="page-header"><i class="fa fa-users" aria-hidden="true"></i>&nbsp; Groups</h3>
+        <ul class="nav nav-tabs">
+            <li>
+                <a href="{{ url_for('social.groups') }}">
+                    <span class="glyphicon glyphicon-plus"
+                          aria-hidden="true"></span>&nbsp;Create Group
+                </a>
+            </li>
+            <li>
+                <a href="{{ url_for('social.self_groups') }}">
+                    <span class="glyphicon glyphicon-user"
+                          aria-hidden="true"></span>&nbsp;My Groups
+                </a>
+            </li>
+            <li class="active">
+                <a href="">
+                    <span class="glyphicon glyphicon-search"
+                          aria-hidden="true"></span>&nbsp;Search Groups
+                </a>
+            </li>
+            <li><a href="{{ url_for('social.recommended_groups') }}">
+                <span class="glyphicon glyphicon-star"
+                      aria-hidden="true"></span>&nbsp;Recommended Groups</a>
+            </li>
+        </ul>
+
+        <br/>
+
+        <!-- Search Groups Div -->
+        <div class="container" id="searchGroupsTab">
+            <div class="input-group col-md-12">
+                <input type="text" id="autocomplete" class="form-control input-lg" placeholder="Search Groups"/>
+            </div>
+        </div>
+        <!-- End of Search Groups Div -->
+
+
+    </div>
+    <!-- End of Entire Page Div Container -->
+
+    <br/><br/>
+{% endblock %}
+
+{% block scripts %}
+    {{ super() }}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.11.4/jquery-ui.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.6.3/js/bootstrap-select.js"></script>
+
+    <script>
+        //Script to search for groups while typing a group's name, using autocompletion feature
+        $(function () {
+            $.ajax({
+                url: '{{ url_for("social.get_groups") }}'
+            }).done(function (data) {
+                $("#autocomplete").autocomplete({
+                            minLength: 1,
+                            source: data.json_list,
+                            focus: function (event, ui) {
+                                $("#autocomplete").val(ui.item.label);
+                                return false;
+                            },
+                            select: function (event, ui) {
+                                $("#autocomplete").val(ui.item.label);
+                                return false;
+                            }
+                        })
+                        .autocomplete("instance")._renderItem = function (ul, item) {
+                    var grp_uid = item.uid;
+                    var $a = $("<div></div>").click(function () {
+                        window.location = "/social/groups/" + grp_uid;
+                    });
+                    ;
+                    $("<b></b>").text(item.label).appendTo($a);
+                    $("<br>").appendTo($a);
+                    $("<span class='m-desc'></span>").text(item.desc).appendTo($a);
+
+                    return $("<li></li>").append($a).appendTo(ul);
+
+                };
+            });
+        });
+    </script>
+{% endblock %}

@@ -1,0 +1,217 @@
+{% extends "base.html" %}
+
+{% block title %}My Systems{% endblock %}
+
+{% block styles %}
+    {{ super() }}
+    <link rel="stylesheet" href="{{ url_for('social.static', filename='css/system_search.css') }}">
+{% endblock %}
+
+{% block content %}
+
+    <div class="container">
+
+        <h3 class="page-header"><i class="fa fa-users" aria-hidden="true"></i>&nbsp; Systems</h3>
+        <ul class="nav nav-tabs">
+            <li>
+                <a href="{{ url_for('social.search_systems') }}">
+                    <span class="glyphicon glyphicon-search"
+                          aria-hidden="true"></span>&nbsp;Search Systems
+                </a>
+            </li>
+            <li class="active">
+                <a href="">
+                    <span class="glyphicon glyphicon-user"
+                          aria-hidden="true"></span>&nbsp;My Systems
+                </a>
+            </li>
+            <li><a href="{{ url_for('social.all_systems_neo4j') }}">
+                <span class="glyphicon glyphicon-star"
+                      aria-hidden="true"></span>&nbsp;All Systems</a>
+            </li>
+        </ul>
+
+        <br/>
+
+        <!-- My Systems Div -->
+        <div class="row" id="mySystemsTab">
+
+            <!-- Div To Display System Where The Logged In User Is Administrator/Participant For That System -->
+            <div class="container">
+
+                <!-- Div To Display System Where The Logged In User Is Administrator For That System -->
+                <div class="col-md-6 adminSystem">
+                    <h4>Administrator</h4>
+                    <hr>
+                    {% if admin_systems %}
+                        {% for row in admin_systems %}
+                            <div class="row">
+                                <ul class="pull-left">
+                                    <span class="fa-stack fa-2x">
+                                        <i class="fa fa-circle fa-stack-2x"></i>
+                                        <i class="fa fa-leaf fa-stack-1x fa-inverse"></i>
+                                    </span>
+                                </ul>
+                                <br/>
+                                <ul>
+                                    <a href="{{ url_for('social.view_system', system_uid=row.system.system_uid) }}">{{ row.system.name }}</a>
+                                </ul>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="row">
+                            <ul class="pull-left">
+                                <span class="fa-stack fa-2x">
+                                    <i class="fa fa-circle fa-stack-2x"></i>
+                                    <i class="fa fa-meh-o fa-stack-1x fa-inverse"></i>
+                                </span>
+                            </ul>
+                            <br/>
+                            <ul>
+                                You are yet to become admin for any system.
+                            </ul>
+                        </div>
+                    {% endif %}
+                </div>
+                <!-- End of Div To Display System Where The Logged In User Is Administrator For That System -->
+
+                <!-- Div To Display System Where The Logged In User Is Participant For That System -->
+                <div class="col-md-6 particpatedSystem">
+
+                    <h4>Participated Systems</h4>
+                    <hr>
+                    {% if participated_systems %}
+                        {% for row in participated_systems %}
+                            <div class="row">
+                                <ul class="pull-left">
+                                    <span class="fa-stack fa-2x">
+                                        <i class="fa fa-circle fa-stack-2x"></i>
+                                        <i class="fa fa-leaf fa-stack-1x fa-inverse"></i>
+                                    </span>
+                                </ul>
+                                <br/>
+                                <ul>
+                                    <a href="{{ url_for('social.view_system', system_uid=row.system.system_uid) }}"> {{ row.system.name }} </a>
+                                </ul>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="row">
+                            <ul class="pull-left">
+                                <span class="fa-stack fa-2x">
+                                    <i class="fa fa-circle fa-stack-2x"></i>
+                                    <i class="fa fa-meh-o fa-stack-1x fa-inverse"></i>
+                                </span>
+                            </ul>
+                            <br/>
+                            <ul>
+                                You are yet to become participant for any system.
+                            </ul>
+                        </div>
+                    {% endif %}
+
+                </div>
+                <!-- End of Div To Display System Where The Logged In User Is Participant For That System -->
+
+            </div>
+            <!-- End of Div To Display System Where The Logged In User Is Administrator/Participant For That System -->
+
+
+            <br/>
+
+            <!-- Div To Display System Where The Logged In User Is Subscriber/Recommended System For That System -->
+            <div class="container">
+
+                <!-- Div To Display System Where The Logged In User Is Subscriber For That System -->
+                <div class="col-md-6 subscribedSystem">
+                    <h4>Subscribed Systems</h4>
+                    <hr>
+
+                    {% if subscribed_systems %}
+                        {% for row in subscribed_systems %}
+                            <div class="row">
+                                <ul class="pull-left">
+                                    <span class="fa-stack fa-2x">
+                                        <i class="fa fa-circle fa-stack-2x"></i>
+                                        <i class="fa fa-leaf fa-stack-1x fa-inverse"></i>
+                                    </span>
+                                </ul>
+                                <br/>
+                                <ul>
+                                    <a href="{{ url_for('social.view_system', system_uid=row.system.system_uid) }}">{{ row.system.name }}</a>
+                                </ul>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="row">
+                            <ul class="pull-left">
+                                <span class="fa-stack fa-2x">
+                                    <i class="fa fa-circle fa-stack-2x"></i>
+                                    <i class="fa fa-meh-o fa-stack-1x fa-inverse"></i>
+                                </span>
+                            </ul>
+                            <br/>
+                            <ul>
+                                You are yet to become subscriber for any system.
+                            </ul>
+                        </div>
+                    {% endif %}
+
+                </div>
+                <!-- End of Div To Display System Where The Logged In User Is Subscriber For That System -->
+
+                <!-- Div To Display Recommended System -->
+                <div class="col-md-6 recommendedSystem">
+
+                    <h4>Recommended Systems</h4>
+                    <hr>
+
+                    {% if recommended_systems %}
+                        {% for row in recommended_systems %}
+                            <div class="row">
+                                <ul class="pull-left">
+                                    <span class="fa-stack fa-2x">
+                                        <i class="fa fa-circle fa-stack-2x"></i>
+                                        <i class="fa fa-leaf fa-stack-1x fa-inverse"></i>
+                                    </span>
+                                </ul>
+                                <br/>
+                                <ul>
+                                    <a href="{{ url_for('social.view_system', system_uid=row.system.system_uid) }}">{{ row.system.name }}</a>
+                                </ul>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="row">
+                            <ul class="pull-left">
+                                <span class="fa-stack fa-2x">
+                                    <i class="fa fa-circle fa-stack-2x"></i>
+                                    <i class="fa fa-meh-o fa-stack-1x fa-inverse"></i>
+                                </span>
+                            </ul>
+                            <br/>
+                            <ul>
+                                Sorry, We did not find any recommended system.
+                            </ul>
+                        </div>
+                    {% endif %}
+
+                </div>
+                <!-- End of Div To Display Recommended System -->
+
+                <br/>
+                <br/>
+
+            </div>
+            <!-- End of Div To Display System Where The Logged In User Is Subscriber/Recommended For That System -->
+
+        </div>
+        <!-- End of My Systems Div -->
+
+    </div>
+
+{% endblock %}
+
+{% block scripts %}
+    {{ super() }}
+{% endblock %}

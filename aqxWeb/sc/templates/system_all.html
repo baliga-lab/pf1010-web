@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+
+{% block title %}All Systems{% endblock %}
+
+{% block styles %}
+    {{ super() }}
+    <link rel="stylesheet" href="{{ url_for('social.static', filename='css/system_search.css') }}">
+{% endblock %}
+
+{% block content %}
+
+    <div class="container">
+
+        <h3 class="page-header"><i class="fa fa-users" aria-hidden="true"></i>&nbsp; Systems</h3>
+        <ul class="nav nav-tabs">
+            <li>
+                <a href="{{ url_for('social.search_systems') }}">
+                    <span class="glyphicon glyphicon-search"
+                          aria-hidden="true"></span>&nbsp;Search Systems
+                </a>
+            </li>
+            <li>
+                <a href="{{ url_for('social.self_systems') }}">
+                    <span class="glyphicon glyphicon-user"
+                          aria-hidden="true"></span>&nbsp;My Systems</a>
+            </li>
+            <li class="active">
+                <a href="">
+                    <span class="glyphicon glyphicon-star"
+                          aria-hidden="true"></span>&nbsp;All Systems
+                </a>
+            </li>
+        </ul>
+
+        <br/>
+
+        <!-- All Systems Div -->
+        <div class="container" id="allSystemsTab">
+            <!-- Search Results Div -->
+            <div class="row allSystemResults">
+                {% if all_systems %}
+                    {% for row in all_systems %}
+                        <div class="row">
+                            <ul class="pull-left">
+                                <span class="fa-stack fa-2x">
+                                    <i class="fa fa-circle fa-stack-2x"></i>
+                                    <i class="fa fa-leaf fa-stack-1x fa-inverse"></i>
+                                </span>
+                            </ul>
+                            <br/>
+                            <ul>
+                                <a href="{{ url_for('social.view_system', system_uid=row.system.system_uid) }}">{{ row.system.name }}</a>
+                            </ul>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="row">
+                        <ul class="pull-left">
+                            <span class="fa-stack fa-2x">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa fa-meh-o fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </ul>
+                        <br/>
+                        <ul>
+                            Sorry, there are no system in the database.
+                        </ul>
+                    </div>
+                {% endif %}
+            </div>
+            <!-- End of Search Results Div -->
+        </div>
+        <!-- End of All Systems Div -->
+
+
+    </div>
+
+{% endblock %}
+
+{% block scripts %}
+    {{ super() }}
+{% endblock %}
