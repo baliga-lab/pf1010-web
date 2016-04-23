@@ -13,6 +13,8 @@ app.controller('MeasurementController', function ($scope, $http, $timeout) {
 
     $scope.addMeasurement = function (measure) {
         measure.system_uid = angular.element('#UID').html();
+        measure.min = Number(angular.element('#measure-value').attr('min'));
+        measure.max = Number(angular.element('#measure-value').attr('max'));
 
         console.log(measure);
 
@@ -23,15 +25,20 @@ app.controller('MeasurementController', function ($scope, $http, $timeout) {
             $scope.measure.time = "";
             $scope.measure.value = "";
             $timeout(function() {
-                $scope.error = false;
+                $scope.message = false;
             }, 3500);
         }
         function onFailure(error) {
-            console.log(error);
-            $scope.error = true;
-            $timeout(function() {
+            console.log(error.data.error);
+            if (error.data.error == "Time required" || error.data.error == "Value required"
+                    || error.data.error == "Value too high or too low") {
                 $scope.error = false;
-            }, 7500);
+            } else {
+                $scope.error = true;
+                $timeout(function() {
+                    $scope.error = false;
+                }, 3500);
+            }
         }
 
         $http.put('/dav/aqxapi/v1/measurements', measure).then(onSuccess, onFailure);

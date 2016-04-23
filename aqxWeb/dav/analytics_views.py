@@ -279,6 +279,11 @@ def put_system_measurement():
     if value is None:
         error_msg_value = json.dumps({'error': 'Value required'})
         return error_msg_value, 400
+    min = data.get('min')
+    max = data.get('max')
+    if value < min or value > max:
+        error_msg_flow = json.dumps({'error': 'Value too high or too low'})
+        return error_msg_flow, 400
     else:
         result = dav_api.put_system_measurement(system_uid, measurement_id, time, value)
     if 'error' in result:

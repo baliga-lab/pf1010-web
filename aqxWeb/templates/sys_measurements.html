@@ -41,7 +41,7 @@
                     <div ng-controller="MeasurementController">
                         <div class="form-group">
                             <label for="measure-id">Measurement Type:</label>
-                            <select class="form-control" ng-model="measure.measurement_id" id="measure-id" ng-click="clearMessage()">
+                            <select class="form-control id" ng-model="measure.measurement_id" id="measure-id" ng-click="clearMessage()" required>
                                 <option value="1">Alkalinity</option>
                                 <option value="2">Ammonium</option>
                                 <option value="3">Chlorine</option>
@@ -159,11 +159,12 @@
                             <div class="form-group">
                                 <label for="measure-value">Value</label>
                                 <div class="input-group">
-                                    <input id="measure-value" class="form-control" name="measure-value" type="number"
-                                           pattern="[0-9]+(.[0-9]+)?" style="text-align: right;" placeholder="0.0"
-                                           step="0.001"
-                                           aria-describedby="addon" ng-model="measure.value">
+                                    <input id="measure-value" class="form-control numeric" name="measure-value" type="number"
+                                           pattern="[0-9]+(.[0-9]+)?" style="text-align: right;" placeholder="0.00"
+                                           step="0.01" min="0" max=""
+                                           aria-describedby="addon" ng-model="measure.value" required>
                                     <span ng-switch-when="5" id="addon" class="input-group-addon">lux</span>
+                                    <span ng-switch-when="9" id="addon" class="input-group-addon">&nbsp;</span>
                                     <span ng-switch-when="10" id="addon" class="input-group-addon">&deg;C</span>
                                     <span ng-switch-default id="addon" class="input-group-addon">mg/L</span>
                                 </div>
@@ -202,11 +203,45 @@
 {% block scripts %}
     {{ super() }}
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui-touch-punch/0.2.3/jquery.ui.touch-punch.min.js"></script>
-    <script src="{{ url_for('frontend.static', filename='js/jquery.slides.min.js') }}"></script>
+    <script src="{{ url_for('frontend.static', filename='js/jquery.numeric.min.js') }}"></script>
     <script src="{{ url_for('frontend.static', filename='js/sys_measurements.js') }}"></script>
     <script src="{{ url_for('frontend.static', filename='js/strip_colors.js') }}"></script>
     <script>
         var isDragging = false;
+
+        $("input.numeric").numeric();
+        $("select.id").change(function() {
+            if ($(this).val() == "1") {
+                $("input.numeric").attr('min', 60.00);
+                $("input.numeric").attr('max', 140.00);
+            } else if ($(this).val() == "2") {
+                $("input.numeric").attr('min', 0.00);
+                $("input.numeric").attr('max', 1.00);
+            } else if ($(this).val() == "3") {
+                $("input.numeric").attr('min', 0.00);
+                $("input.numeric").attr('max', 1000000);
+            } else if ($(this).val() == "4") {
+                $("input.numeric").attr('min', 60.00);
+                $("input.numeric").attr('max', 140.00);
+            } else if ($(this).val() == "5") {
+                $("input.numeric").attr('min', 0.00);
+                $("input.numeric").attr('max', 1000000);
+            } else if ($(this).val() == "6") {
+                $("input.numeric").attr('min', 5.00);
+                $("input.numeric").attr('max', 150.00);
+            } else if ($(this).val() == "7") {
+                $("input.numeric").attr('max', 0.25);
+            } else if ($(this).val() == "8") {
+                $("input.numeric").attr('min', 0.00);
+                $("input.numeric").attr('max', 1000000);
+            } else if ($(this).val() == "9") {
+                $("input.numeric").attr('min', 6.00);
+                $("input.numeric").attr('max', 7.00);
+            } else if ($(this).val() == "10") {
+                $("input.numeric").attr('min', 22.00);
+                $("input.numeric").attr('max', 30.00);
+            }
+        });
 
         function updateNH4Values(posx) {
             aqx.updateStripValues(posx, 'nh4', 0.0, 6.0, aqx.nh4GradientColor);
