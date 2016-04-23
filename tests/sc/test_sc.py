@@ -254,67 +254,6 @@ class FlaskTestCase(unittest.TestCase):
             self.assertFalse(mocked.called, "Make Group Member as Admin Failed: " + res.data)
         self.helper_delete_user_node(test_user)
 
-    @patch('flask.templating._render', return_value='Participate/Subscribe/Leave System Works As Expected')
-    def test_participate_subscribe_leave_system(self, mocked):
-        self.helper_create_user_node(test_user)
-        with self.app as client:
-            with client.session_transaction() as session:
-                session['uid'] = test_user['sql_id']
-            res = client.post('/social/systems/participate_subscribe_leave',
-                              data=dict(system_uid=system_uid, google_id=dummy_google_id, submit="Subscribe"))
-            self.assertFalse(mocked.called, "Subscribe For System Failed: " + res.data)
-            res = client.post('/social/systems/participate_subscribe_leave',
-                              data=dict(system_uid=system_uid, google_id=dummy_google_id, submit="Participate"))
-            self.assertFalse(mocked.called, "Participate For System Failed: " + res.data)
-            res = client.post('/social/systems/participate_subscribe_leave',
-                              data=dict(system_uid=system_uid, google_id=dummy_google_id, submit="Leave"))
-            self.assertFalse(mocked.called, "Leave System Failed: " + res.data)
-        self.helper_delete_user_node(test_user)
-
-    @patch('flask.templating._render', return_value='Delete or Make Admin / System Participant Works As Expected')
-    def test_delete_system_participant_or_make_admin(self, mocked):
-        self.helper_create_user_node(test_user)
-        with self.app as client:
-            with client.session_transaction() as session:
-                session['uid'] = test_user['sql_id']
-            res = client.post('/social/manage/systems/delete_system_participant_or_make_admin',
-                              data=dict(system_uid=system_uid, google_id=dummy_google_id, submit="DeleteParticipant"))
-            self.assertFalse(mocked.called, "Delete System Participant Failed: " + res.data)
-            res = client.post('/social/manage/systems/delete_system_participant_or_make_admin',
-                              data=dict(system_uid=system_uid, google_id=dummy_google_id, submit="MakeSubscriber"))
-            self.assertFalse(mocked.called, "Make System Participant as Subscriber Failed: " + res.data)
-            res = client.post('/social/manage/systems/delete_system_participant_or_make_admin',
-                              data=dict(system_uid=system_uid, google_id=dummy_google_id, submit="MakeAdmin"))
-            self.assertFalse(mocked.called, "Make System Participant as Admin Failed: " + res.data)
-        self.helper_delete_user_node(test_user)
-
-    @patch('flask.templating._render', return_value='Delete Admin Of A System Works As Expected')
-    def test_delete_system_admin(self, mocked):
-        self.helper_create_user_node(test_user)
-        with self.app as client:
-            with client.session_transaction() as session:
-                session['uid'] = test_user['sql_id']
-            res = client.post('/social/manage/systems/delete_admin',
-                              data=dict(system_uid=system_uid, google_id=dummy_google_id, submit="DeleteAdmin"))
-            self.assertFalse(mocked.called, "Delete Admin Of A System Failed: " + res.data)
-        self.helper_delete_user_node(test_user)
-
-    @patch('flask.templating._render', return_value='Delete or Make Admin / System Subscriber Works As Expected')
-    def test_delete_system_subscriber_or_make_admin(self, mocked):
-        self.helper_create_user_node(test_user)
-        with self.app as client:
-            with client.session_transaction() as session:
-                session['uid'] = test_user['sql_id']
-            res = client.post('/social/manage/systems/delete_system_subscriber_or_make_admin',
-                              data=dict(system_uid=system_uid, google_id=dummy_google_id, submit="DeleteSubscriber"))
-            self.assertFalse(mocked.called, "Delete System Subscriber Failed: " + res.data)
-            res = client.post('/social/manage/systems/delete_system_subscriber_or_make_admin',
-                              data=dict(system_uid=system_uid, google_id=dummy_google_id, submit="MakeParticipant"))
-            self.assertFalse(mocked.called, "Make System Subscriber as Participant Failed: " + res.data)
-            res = client.post('/social/manage/systems/delete_system_subscriber_or_make_admin',
-                              data=dict(system_uid=system_uid, google_id=dummy_google_id, submit="MakeAdmin"))
-            self.assertFalse(mocked.called, "Make System Subscriber as Admin Failed: " + res.data)
-        self.helper_delete_user_node(test_user)
         '''
 
     @patch('flask.templating._render', return_value='Route To Search Systems Page Works As Expected')
@@ -395,6 +334,123 @@ class FlaskTestCase(unittest.TestCase):
         self.helper_delete_user_node(test_user_system)
         self.helper_delete_user_node(test_user)
 
+    @patch('flask.templating._render', return_value='Participate/Subscribe/Leave System Works As Expected')
+    def test_participate_subscribe_leave_system(self, mocked):
+        self.helper_create_user_node(test_user)
+        self.helper_create_system_node(test_system_node)
+        with self.app as client:
+            with client.session_transaction() as session:
+                session['uid'] = test_user['sql_id']
+
+            res = client.post('/social/systems/participate_subscribe_leave',
+                              data=dict(system_uid=test_system_node['system_uid'],
+                                        google_id=test_user['google_id'], submit="Subscribe"))
+            self.assertFalse(mocked.called, "Subscribe For System Failed: " + res.data)
+            self.helper_leave_system(test_user['google_id'], test_system_node['system_uid'])
+
+            res = client.post('/social/systems/participate_subscribe_leave',
+                              data=dict(system_uid=test_system_node['system_uid'],
+                                        google_id=test_user['google_id'], submit="Participate"))
+            self.assertFalse(mocked.called, "Participate For System Failed: " + res.data)
+            self.helper_leave_system(test_user['google_id'], test_system_node['system_uid'])
+
+            res = client.post('/social/systems/participate_subscribe_leave',
+                              data=dict(system_uid=test_system_node['system_uid'],
+                                        google_id=test_user['google_id'], submit="Leave"))
+            self.assertFalse(mocked.called, "Leave System Failed: " + res.data)
+
+        self.helper_delete_system_node(test_system_node)
+        self.helper_delete_user_node(test_user)
+
+    @patch('flask.templating._render', return_value='Delete or Make Admin / System Participant Works As Expected')
+    def test_delete_system_participant_or_make_admin(self, mocked):
+        self.helper_create_user_node(test_user)
+        self.helper_create_user_node(test_user_system)
+        self.helper_create_system_node(test_system_node)
+        self.helper_make_admin_for_system(test_user['google_id'], test_system_node['system_uid'])
+        self.helper_make_participate_to_system(test_user_system['google_id'], test_system_node['system_uid'])
+        with self.app as client:
+            with client.session_transaction() as session:
+                session['uid'] = test_user['sql_id']
+
+            res = client.post('/social/manage/systems/delete_system_participant_or_make_admin',
+                              data=dict(system_uid=test_system_node['system_uid'],
+                                        google_id=test_user_system['google_id'], submit="DeleteParticipant"))
+            self.assertFalse(mocked.called, "Delete System Participant Failed: " + res.data)
+
+            self.helper_make_participate_to_system(test_user_system['google_id'], test_system_node['system_uid'])
+            res = client.post('/social/manage/systems/delete_system_participant_or_make_admin',
+                              data=dict(system_uid=test_system_node['system_uid'],
+                                        google_id=test_user_system['google_id'], submit="MakeSubscriber"))
+            self.assertFalse(mocked.called, "Make System Participant as Subscriber Failed: " + res.data)
+
+            self.helper_leave_system(test_user_system['google_id'], test_system_node['system_uid'])
+            self.helper_make_participate_to_system(test_user_system['google_id'], test_system_node['system_uid'])
+            res = client.post('/social/manage/systems/delete_system_participant_or_make_admin',
+                              data=dict(system_uid=test_system_node['system_uid'],
+                                        google_id=test_user_system['google_id'], submit="MakeAdmin"))
+            self.assertFalse(mocked.called, "Make System Participant as Admin Failed: " + res.data)
+
+        self.helper_leave_system(test_user_system['google_id'], test_system_node['system_uid'])
+        self.helper_leave_system(test_user['google_id'], test_system_node['system_uid'])
+        self.helper_delete_system_node(test_system_node)
+        self.helper_delete_user_node(test_user_system)
+        self.helper_delete_user_node(test_user)
+
+    @patch('flask.templating._render', return_value='Delete Admin Of A System Works As Expected')
+    def test_delete_system_admin(self, mocked):
+        self.helper_create_user_node(test_user)
+        self.helper_create_user_node(test_user_system)
+        self.helper_create_system_node(test_system_node)
+        self.helper_make_admin_for_system(test_user['google_id'], test_system_node['system_uid'])
+        self.helper_make_admin_for_system(test_user_system['google_id'], test_system_node['system_uid'])
+        with self.app as client:
+            with client.session_transaction() as session:
+                session['uid'] = test_user['sql_id']
+            res = client.post('/social/manage/systems/delete_admin',
+                              data=dict(system_uid=test_system_node['system_uid'],
+                                        google_id=test_user_system['google_id'], submit="DeleteAdmin"))
+            self.assertFalse(mocked.called, "Delete Admin Of A System Failed: " + res.data)
+        self.helper_leave_system(test_user['google_id'], test_system_node['system_uid'])
+        self.helper_delete_system_node(test_system_node)
+        self.helper_delete_user_node(test_user_system)
+        self.helper_delete_user_node(test_user)
+
+    @patch('flask.templating._render', return_value='Delete or Make Admin / System Subscriber Works As Expected')
+    def test_delete_system_subscriber_or_make_admin(self, mocked):
+        self.helper_create_user_node(test_user)
+        self.helper_create_user_node(test_user_system)
+        self.helper_create_system_node(test_system_node)
+        self.helper_make_admin_for_system(test_user['google_id'], test_system_node['system_uid'])
+        self.helper_make_subscriber_to_system(test_user_system['google_id'], test_system_node['system_uid'])
+        with self.app as client:
+            with client.session_transaction() as session:
+                session['uid'] = test_user['sql_id']
+
+            res = client.post('/social/manage/systems/delete_system_subscriber_or_make_admin',
+                              data=dict(system_uid=test_system_node['system_uid'],
+                                        google_id=test_user_system['google_id'], submit="DeleteSubscriber"))
+            self.assertFalse(mocked.called, "Delete System Subscriber Failed: " + res.data)
+
+            self.helper_make_subscriber_to_system(test_user_system['google_id'], test_system_node['system_uid'])
+            res = client.post('/social/manage/systems/delete_system_subscriber_or_make_admin',
+                              data=dict(system_uid=test_system_node['system_uid'],
+                                        google_id=test_user_system['google_id'], submit="MakeParticipant"))
+            self.assertFalse(mocked.called, "Make System Subscriber as Participant Failed: " + res.data)
+
+            self.helper_leave_system(test_user_system['google_id'], test_system_node['system_uid'])
+            self.helper_make_subscriber_to_system(test_user_system['google_id'], test_system_node['system_uid'])
+            res = client.post('/social/manage/systems/delete_system_subscriber_or_make_admin',
+                              data=dict(system_uid=test_system_node['system_uid'],
+                                        google_id=test_user_system['google_id'], submit="MakeAdmin"))
+            self.assertFalse(mocked.called, "Make System Subscriber as Admin Failed: " + res.data)
+
+        self.helper_leave_system(test_user_system['google_id'], test_system_node['system_uid'])
+        self.helper_leave_system(test_user['google_id'], test_system_node['system_uid'])
+        self.helper_delete_system_node(test_system_node)
+        self.helper_delete_user_node(test_user_system)
+        self.helper_delete_user_node(test_user)
+
     # --------------------------------------------------------------------------------------
     # Helper Functions For Unit Test
     # --------------------------------------------------------------------------------------
@@ -442,6 +498,20 @@ class FlaskTestCase(unittest.TestCase):
             System().pending_participate_to_system(google_id, system_uid)
         except Exception as ex:
             print "Exception At helper_make_pending_participate_to_system: " + str(ex.message)
+
+    # Helper Function To Make An User Participant For A System Node In Neo4J Database
+    def helper_make_participate_to_system(self, google_id, system_uid):
+        try:
+            System().approve_system_participant(google_id, system_uid)
+        except Exception as ex:
+            print "Exception At helper_make_participate_to_system: " + str(ex.message)
+
+    # Helper Function To Make An User Subscriber For A System Node In Neo4J Database
+    def helper_make_subscriber_to_system(self, google_id, system_uid):
+        try:
+            System().subscribe_to_system(google_id, system_uid)
+        except Exception as ex:
+            print "Exception At helper_make_subscriber_to_system: " + str(ex.message)
 
     # Helper Function To Delete The User Relationship With The System Node In Neo4J Database
     def helper_leave_system(self, google_id, system_uid):
