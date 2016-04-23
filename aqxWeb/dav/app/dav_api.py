@@ -120,10 +120,11 @@ class DavAPI:
                         normalized_measurement_value = measurement_value
                     else:
                         normalized_measurement_value = measurement_value.normalize()
+                    normalized_measurement_value_reduced_decimal = "%.2f" % normalized_measurement_value
                     temp = {
                         'name': measurement_name,
                         'time': str(value_temp[0]),
-                        'value': str(normalized_measurement_value)
+                        'value': str(normalized_measurement_value_reduced_decimal)
                     }
                 else:
                     temp = {
@@ -219,9 +220,10 @@ class DavAPI:
                 normalized_measurement_value = measurement_value
             else:
                 normalized_measurement_value = measurement_value.normalize()
+            normalized_measurement_value_reduced_decimal = "%.2f" % normalized_measurement_value
             values_temp = {
                 'time': str(result_temp[0]),
-                'value': str(normalized_measurement_value)
+                'value': str(normalized_measurement_value_reduced_decimal)
             }
             values.append(values_temp)
         obj = {

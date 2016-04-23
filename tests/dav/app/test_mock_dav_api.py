@@ -20,7 +20,7 @@ class DavTests(unittest.TestCase):
         d.mea.get_latest_value.return_value = tuple(result)
         d.mea.get_measurement_name.return_value = tuple(("light",))
         result = d.get_system_measurement('555d0cfe9ebc11e58153000c29b92d09','9')
-        self.assertEquals('{"records": [{"value": "10", "time": "321321"}, {"value": "10", "time": "321321"}], "system_uid": "555d0cfe9ebc11e58153000c29b92d09"}', result)
+        self.assertEquals('{"records": [{"value": "10.00", "time": "321321"}, {"value": "10.00", "time": "321321"}], "system_uid": "555d0cfe9ebc11e58153000c29b92d09"}', result)
 
     # mock method for get_system_measurement_names
 
@@ -42,7 +42,7 @@ class DavTests(unittest.TestCase):
         latest_value = [(dt.datetime(2016, 1, 14, 20, 0), Decimal('0E-10'))]
         d.mea.get_latest_value.return_value = tuple(latest_value)
         result = d.get_system_measurements('555d0cfe9ebc11e58153000c29b92d09')
-        self.assertEquals('{"system_uid": "555d0cfe9ebc11e58153000c29b92d09", "measurements": [{"name": "o2", "value": "0", "time": "2016-01-14 20:00:00"}, {"name": "ph", "value": "0", "time": "2016-01-14 20:00:00"}, {"name": "temp", "value": "0", "time": "2016-01-14 20:00:00"}, {"name": "alkalinity", "value": "0", "time": "2016-01-14 20:00:00"}, {"name": "ammonium", "value": "0", "time": "2016-01-14 20:00:00"}, {"name": "chlorine", "value": "0", "time": "2016-01-14 20:00:00"}, {"name": "hardness", "value": "0", "time": "2016-01-14 20:00:00"}, {"name": "light", "value": "0", "time": "2016-01-14 20:00:00"}, {"name": "nitrate", "value": "0", "time": "2016-01-14 20:00:00"}]}', result)
+        self.assertEquals('{"system_uid": "555d0cfe9ebc11e58153000c29b92d09", "measurements": [{"name": "o2", "value": "0.00", "time": "2016-01-14 20:00:00"}, {"name": "ph", "value": "0.00", "time": "2016-01-14 20:00:00"}, {"name": "temp", "value": "0.00", "time": "2016-01-14 20:00:00"}, {"name": "alkalinity", "value": "0.00", "time": "2016-01-14 20:00:00"}, {"name": "ammonium", "value": "0.00", "time": "2016-01-14 20:00:00"}, {"name": "chlorine", "value": "0.00", "time": "2016-01-14 20:00:00"}, {"name": "hardness", "value": "0.00", "time": "2016-01-14 20:00:00"}, {"name": "light", "value": "0.00", "time": "2016-01-14 20:00:00"}, {"name": "nitrate", "value": "0.00", "time": "2016-01-14 20:00:00"}]}', result)
 
     # mock method for get_system_measurements with error in the measurement names
 

@@ -99,6 +99,6 @@
 
 {% block scripts %}
     {{ super() }}
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBPogpDVVvhpYRxq1uqfiJcbeWBCV_I_-A"></script>
+    <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?signed_in=true&v=3.exp"></script>
     <script type="text/javascript" src="{{ url_for('frontend.static', filename='js/create_system.js') }}"></script>
 {% endblock %}
