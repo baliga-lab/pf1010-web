@@ -138,7 +138,5 @@
 
 {% block scripts %}
     {{ super() }}
-
     <script src="{{ url_for('frontend.static', filename='js/annotation.js') }}"></script>
-    <script src="{{ url_for('frontend.static', filename='js/jquery.slides.min.js') }}"></script>
 {% endblock scripts %}

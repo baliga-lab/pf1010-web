@@ -37,7 +37,6 @@
     {{ super() }}
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.simpleWeather/3.1.0/jquery.simpleWeather.min.js"></script>
     <script src="{{ url_for('frontend.static', filename='js/weather.js') }}"></script>
-    <script src="{{ url_for('frontend.static', filename='js/newsfeed.js') }}"></script>
     <!-- jQuery Script To Display Logged In User Profile Details -->
     <script type="text/javascript" src="{{ url_for('social.static', filename='js/home.js') }}"></script>
 {% endblock %}
