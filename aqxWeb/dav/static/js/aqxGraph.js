@@ -1,5 +1,4 @@
 "use strict";
-
 /* ##################################################################################################################
  CONSTANTS
  ################################################################################################################### */
@@ -8,14 +7,7 @@ var XAXIS = "selectXAxis";
 var XAXIS_TITLE = 'Hours since creation';
 var CHART = "";
 var GRAPH_TYPE = "selectGraphType";
-/*
- Used to display data that was entered by user in the past
- "" - Used to display all the data that user has recorded
- 30 - Displays all the data recorded in the past 30 days
- 60 - Displays all the data recorded in the past 60 days
- 90 - Displays all the data recorded in the past 90 days
- */
-var NUMBER_OF_ENTRIES = 'selectNumberOfEntries';
+var NUM_ENTRIES_ELEMENT_ID = 'selectNumberOfEntries';
 var SELECTED = 'selected';
 var DEFAULT_Y_TEXT = "Nitrate";
 var DEFAULT_Y_VALUE = DEFAULT_Y_TEXT.toLowerCase();
@@ -33,15 +25,17 @@ var BACKGROUND = {
         [1, '#3e3e40']
     ]
 };
-
 var OVERLAY = true;
+var PRE_ESTABLISHED = 100;
+var ESTABLISHED = 200;
 
 /* ##################################################################################################################
  MAIN CHART LOADING FUNCTIONS
  #################################################################################################################### */
 
 /**
- * Draws a graph, given a graph type, x-axis values, and y-axis values
+ * Draws a graph given a graph type, x-axis values, y-axis values, system status, and desired number of data points
+ * These values are all obtained from the dropdowns.
  */
 function drawChart(){
     var graphType = document.getElementById(GRAPH_TYPE).value;
@@ -50,9 +44,9 @@ function drawChart(){
 
     // Get measurement types to display on the y-axis
     var yTypes = $("#selectYAxis").val();
-    var numberOfEntries = document.getElementById(NUMBER_OF_ENTRIES).value;
+    var numberOfEntries = document.getElementById(NUM_ENTRIES_ELEMENT_ID).value;
 
-    // Generate a data Series for each y-value type, and assign them all to the CHART
+    // Generate a data Series for each system and y-value type, and assign them all to the CHART
     updateChartDataPointsHC(CHART, xType, yTypes, graphType, numberOfEntries, status).redraw();
 }
 
@@ -64,36 +58,43 @@ function drawChart(){
  * @param yTypeList - List of y-axis values selected from the checklist
  * @param graphType - The graph type chosen from dropdown
  * @param numberOfEntries - used to display data entered by user in the past
+ * @oaram status - The selected system status, PRE_ESTABLISHED or ESTABLISHED
+ *
+ * Given a Chart, desired X and Y values, System Status, and Number of Data Points, determine
+ * if this data is stored in the browser or needs to be retrieved from the Database using AJAX.
+ * Any requisite data is loaded from the server into the stored list, and data Series are generated
  */
 function updateChartDataPointsHC(chart, xType, yTypeList, graphType, numberOfEntries, status){
 
-    // Clear the old chart's yAxis and dataPoints. Unfortunately this must be done manually.
+    // Clear the old chart's yAxis and dataPoints. This must be done manually.
     chart = clearOldGraphValues(chart);
 
-    // Determine if any measurements are not already tracked in systems_and_measurements
+    // Determine if any measurements are not already tracked in systems_and_measurements list
     var activeMeasurements = getAllActiveMeasurements();
     var measurementsToFetch = _.difference(yTypeList, activeMeasurements);
 
     // If there are any measurements to fetch, get the ids then pass those to the API along with the system names
     // and add the new dataPoints to the systems_and_measurements object
+    // Data is requested for both established and pre-established data, which is labeled as such
     if (measurementsToFetch.length > 0) {
         var measurementIDList = [];
         _.each(measurementsToFetch, function(measurement){
             measurementIDList.push(measurement_types_and_info[measurement].id);
         });
-        callAPIForNewData(measurementIDList, 100);
-        callAPIForNewData(measurementIDList, 200);
+        callAPIForNewData(measurementIDList, PRE_ESTABLISHED);
+        callAPIForNewData(measurementIDList, ESTABLISHED);
     }
 
-    // Handle the x axis, for now just using time
+    // Label the x axis, for now just using time on the x axis
     // TODO: Expand to handle changing x axes
     chart.xAxis[0].setTitle({ text: XAXIS_TITLE });
 
-    // Get dataPoints and their configs for the chart, using systems_and_measurements and add them
+    // Generate a list of data series and their configuration options. Then add each object to the Chart options.
     var newDataSeries = getDataPointsForPlotHC(chart, xType, yTypeList, graphType, numberOfEntries, status);
     _.each(newDataSeries, function(series) {
         chart.addSeries(series);
     });
+
     return chart;
 }
 
@@ -107,39 +108,52 @@ function updateChartDataPointsHC(chart, xType, yTypeList, graphType, numberOfEnt
  * @param graphType - Type of graph to display. Ex: line, scatter
  * @param numberOfEntries - used to display data entered by user in the past
  * @returns {Array} - An array of dataPoints of yType measurement data for all systems
+ *
+ * Returns a list of data series for each system, measurement type, and status combination requested.
+ * These series also contain configurations for color, dash style, graph type, and which axis the data
+ * is plotted against.
  */
 function getDataPointsForPlotHC (chart, xType, yTypeList, graphType, numberOfEntries, status){
 
     // DataPoints to add to chart
     var dataPointsList = [];
 
-    // The name of a system and the y variable for which it is missing data
+    // The name of a system and the y variable for which it is missing data. used to warn users
+    // of which systems are missing requested data, and for which measurement.
     var missingYTypes = [];
 
-    // Track the number of axes being used
+    // Track the number of y axes being used.
     var numAxes = 0;
 
     // Axis dict ensures that each variable is plotted to the same, unique axis for that variable
     // i.e. nitrate values for each system to axis 0, pH values for each system to axis 1, etc.
+    // e.g.
+    // {
+    //   'nitrate' : {isAxis : true, axis : 0},
+    //   'pH' : {isAxis : false},
+    //   'o2' : {isAxis : true, axis : 1}
+    // }
     var axes = {};
-    _.each(yTypeList, function(axis){
-        axes[axis] = {isAxis:false};
+    _.each(yTypeList, function(yType){
+        axes[yType] = {isAxis:false};
     });
 
     // Begin iterating through the systems
     _.each(systems_and_measurements, function(system, j){
 
         var measurements = system.measurement;
-        // Used to link measurements to the same system
+        // Used to group measurement types by system, by linking them to an id. This ensures that the legend only
+        // shows "SystemName", instead of "SystemName-nitrate" "SystemName-pH", etc.
         var linkedTo = false;
 
         // Loop through selected measurement types
         _.each(yTypeList, function(yType) {
 
-            // Then find matching types in the systems_and_measurements object
+            // Find the measurement data entry that matches the given YType and Status ID
             _.each(measurements, function(measurement){
                 if (_.isEqual(measurement.type.toLowerCase(), yType.toLowerCase()) &&
                     _.isEqual(measurement.status, status)) {
+
                     var systemId = system.system_uid;
 
                     // Check if there is data for this system and measurement type
@@ -153,19 +167,28 @@ function getDataPointsForPlotHC (chart, xType, yTypeList, graphType, numberOfEnt
                             axes[yType].isAxis = true;
                             axes[yType].axis = numAxes++;
                         }
+
+                        // Number of the axis this series is plotted against, this determines line color and links
+                        // a series to this axis
                         var yAxis = axes[yType].axis;
+
                         // IMPORTANT: MEASUREMENT VALUES should be sorted by date to display
                         var dataValues = measurement.values;
+
+                        // Collect only the desired number of data points, this can be 30, 60, 90, or all data points.
                         if(!_.isEmpty(numberOfEntries)) {
                             dataValues = _.last(dataValues, numberOfEntries);
                         }
-                        // Push valid dataPoints and their configs to the list of dataPoints to plot
+
+                        // Generate the Object containing data and configurations for this particular series and push to
+                        // th list of series to plot
                         dataPointsList.push(
                             getDataPoints(system.name, dataValues, graphType, systemId, linkedTo, COLORS[yAxis], yAxis, DASHSTYLES[j], MARKERTYPES[j], yType));
                         linkedTo = true;
                     }
 
-                    // If there is no data, we will warn the user for this system and variable
+                    // If there is no data for the given system, measurement type, and status, we will warn the user
+                    // orr this system and variable
                     else{
                         missingYTypes.push(system.name + "-" + yType);
                     }
@@ -174,10 +197,11 @@ function getDataPointsForPlotHC (chart, xType, yTypeList, graphType, numberOfEnt
         });
     });
 
-    // Warn the user about missing data
+    // Populate the alert message if necessary, and display it
     if (missingYTypes.length > 0){
         $('#alert_placeholder').html(getAlertHTMLString("Missing values for: " + missingYTypes.toString(), DANGER));
     }
+
     return dataPointsList;
 }
 
@@ -189,8 +213,10 @@ function getDataPointsForPlotHC (chart, xType, yTypeList, graphType, numberOfEnt
 
 /**
  * Take measurement data object from AJAX response, and add to the global systems_and_measurements data
- * @param data
- * @param statusID
+ *
+ * @param data - The JSON response from the server
+ * @param statusID - The statusID parameter for which data was requested. This ID is used to label
+ *                   the response on the frontend with its respective system status
  */
 function addNewMeasurementData(data, statusID){
     console.log('success',data);
@@ -212,13 +238,23 @@ function addNewMeasurementData(data, statusID){
     });
 }
 
+
+/**
+ * Some custom error handling for the server response. If there is a non-AJAX related server error, log the
+ * corresponding error response to the console. Otherwise, proceed and add the new data to the currently stored data
+ *
+ * @param data - The JSON response from the server
+ * @param statusID - The statusID parameter for which data was requested. This ID is used to label
+ *                   the response on the frontend with its respective system status
+ *
+ */
+
 function processAJAXResponse(data, statusID){
     if("error" in data){
         console.log("Server returned an error...");
         console.log(data);
         throw "AJAX request reached the server but returned an error!";
     }else{
-        console.log("here");
         addNewMeasurementData(data, statusID);
     }
 }
@@ -226,8 +262,9 @@ function processAJAXResponse(data, statusID){
 
 /**
  * Sends an AJAX POST request to call for new, untracked measurement data for each system
- * @param measurementIDList
- * @param statusID
+ *
+ * @param measurementIDList - List of measurement IDs for which data is being requested
+ * @param statusID - System status ID for which data is being requested
  */
 function callAPIForNewData(measurementIDList, statusID){
     $.ajax({
@@ -237,15 +274,16 @@ function callAPIForNewData(measurementIDList, statusID){
         async: false,
         url: '/dav/aqxapi/v1/measurements/plot',
         data: JSON.stringify({systems: selectedSystemIDs, measurements: measurementIDList, status: statusID}, null, '\t'),
-        // Process API response
+        // Process API response if AJAX succesfully accessed the server
         success: function(data){
             processAJAXResponse(data, statusID)
         },
-        // Report any AJAX errors
+        // Report any AJAX-related errors
         error: ajaxError
     });
 }
 
+// Report any and all AJAX-related errors to the console.
 function ajaxError(jqXHR, textStatus, errorThrown){
     var redirectLink = 'error';
     alert('Unable to access the server... Look at the console (F12) for more information!');
@@ -257,25 +295,6 @@ function ajaxError(jqXHR, textStatus, errorThrown){
     console.log(errorThrown);
     window.location.href = redirectLink;
 }
-
-//function callAPIForNewData(measurementIDList, statusID) {
-//    var dfd = new $.Deferred();
-//    $.ajax({
-//        type: 'POST',
-//        contentType: 'application/json;charset=UTF-8',
-//        dataType: 'json',
-//        async: true,
-//        url: '/dav/aqxapi/v1/measurements/plot',
-//        data: JSON.stringify({systems: selectedSystemIDs, measurements: measurementIDList, status: statusID}, null, '\t')
-//    }).then(processAJAXResponse,ajaxError)
-//        .fail(function (jqXHR, textStatus, errorThrown) {
-//            dfd.reject(jqXHR, textStatus, errorThrown);
-//        })
-//        .done(function (data, textStatus, jqXHR) {
-//            dfd.resolve(data);
-//        });
-//    return dfd.promise();
-//}
 
 
 /* ##################################################################################################################
@@ -374,20 +393,23 @@ function getDataPoints(systemName, dataPoints, graphType, id, linkedTo, color, y
 
 /**
  *
- * @param yType
- * @param axisNum
- * @param units
+ * @param yType - Y Value, used to label this axis
+ * @param color - Color used to identify axis, and relate it to the color of the plotted data
+ * @param opposite - Boolean, Determines which side of the chart the axis should be plotted on
+ * @param units - Units for the given measurement type
  * @returns {{title: {text: *}, labels: {format: string, style: {color: *}}, opposite: boolean}}
  */
 function createYAxis(yType, color, opposite, units){
     var unitLabel;
+
+    // Determine how the units should be displayed for this variable
     if (units){
         unitLabel = (_.isEqual(units, "celsius")) ? "°C" : units;
     }else{
         unitLabel = "";
     }
-    //var color = COLORS[axisNum];
-    return { // Primary yAxis
+
+    return {
         title:
         {
             text: yType,
@@ -410,6 +432,12 @@ function createYAxis(yType, color, opposite, units){
     };
 }
 
+
+/**
+ * Generates a list of Y Axes, copied from the overlay graph.
+ * @param yAxes - List of selected y-axis values
+ * @returns {Array}
+ */
 function copyYAxes(yAxes){
     var axesToAdd = [];
     _.each(yAxes, function(axis){
@@ -422,6 +450,14 @@ function copyYAxes(yAxes){
     return axesToAdd;
 }
 
+
+/**
+ * Generate a list of the data series copied from the overlay graph
+ *
+ * @param series - The list of series stored in the overlay graph
+ * @param systemID - System ID for which data is being copied
+ * @returns {Array}
+ */
 function copySeries(series, systemID){
     var seriesToAdd = [];
     _.each(series, function (seriesItem) {
@@ -446,26 +482,45 @@ function copySeries(series, systemID){
 }
 
 
+/**
+ * Toggles between the overlay and split modes.
+ * The Split mode essentially copies over the series data for each system from the original overlay
+ * chart to a number of new individual charts. One new chart per system.
+ */
 function toggleSplitMode(){
+    // Can only split with 2+ systems
     if (selectedSystemIDs.length > 1) {
+
+        // List of new charts
         var splitCharts = [];
+
+        // Grab series and yAxes from the overlay chart
         var yAxes = CHART.yAxis;
         var series = CHART.series;
 
         _.each(selectedSystemIDs, function(systemID, k) {
+            // Copy over formatting options from overlay chart
             var new_opts = HC_OPTIONS;
+
             new_opts.title.text = "NO DATA FOR THIS SYSTEM";
             new_opts.chart.renderTo = "chart-" + k;
             new_opts.yAxis = copyYAxes(yAxes);
             new_opts.series = copySeries(series, systemID);
+
+            // Loop through series to extract system names and assign as titles. If there is no data
+            // for a system, then the series will not exist and the name remains "NO DATA FOR THIS SYSTEM"
             for (var i=0; (i<series.length); i++){
                 if(_.isEqual(systemID, series[i].userOptions.id)){
                     new_opts.title.text = series[i].name.split(",")[0].trim();
                 }
             }
+
+            // Add new split chart to list of charts
             var chart = new Highcharts.Chart(new_opts);
             splitCharts.push(chart);
         });
+
+        // Draw the split charts
         _.each(splitCharts, function(chart){chart.redraw()});
     }
 }
@@ -533,7 +588,7 @@ function main(){
             return this.defaultSelected;
         });
 
-        $('#'+NUMBER_OF_ENTRIES+' option').prop(SELECTED, function() {
+        $('#'+NUM_ENTRIES_ELEMENT_ID+' option').prop(SELECTED, function() {
             return this.defaultSelected;
         });
 
@@ -625,14 +680,29 @@ window.onload = function() {
     drawChart();
 };
 
+
+/**
+ * Using the metadata for a system and its measurements, generate HTML for the
+ * Tooltips displayed at each datapoint on the plot
+ * @returns {string}
+ */
 function tooltipFormatter(){
+    // Series names are of the format "SystemName - MeasurementType" so we extract the name and type from here
     var tooltipInfo = this.series.name.split(",");
     var yVal = tooltipInfo[1];
+
+    // Represent unitless features with "". And Celsius becomes "°C"
     var units = measurement_types_and_info[yVal].unit;
     units = (units) ? units : "";
     units = (_.isEqual(units, "celsius")) ? "°C" : units;
+
+    // Capitalize measurement type
     yVal = yVal.charAt(0).toUpperCase() + yVal.slice(1);
+
+    // Split datetime to separate date and time
     var datetime = this.point.date.split(" ");
+
+    // Generate a readable description of any annotations for this datapoint
     var eventString = "";
     if (this.point.annotations) {
         console.log('event found');
@@ -642,6 +712,7 @@ function tooltipFormatter(){
             eventString = eventString + '<br><p>' + annotationsMap[event.id]+ " at " + event.date + '<p>'
         });
     }
+
     return '<b>' + tooltipInfo[0] + '</b>' +
         '<br><p>' + yVal + ": " + this.y + ' ' + units + '</p>' +
         '<br><p>Hours in cycle: ' + this.x + '</p>' +

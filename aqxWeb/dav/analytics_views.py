@@ -11,16 +11,15 @@ app = None
 
 PRE_ESTABLISHED = 100
 ESTABLISHED = 200
+DEFAULT_MEASUREMENTS_LIST = [6, 7, 2, 1, 9, 8, 10]
 
 
+######################################################################
+# Displays an error page when an error occurs
+######################################################################
 @dav.route('/error')
 def error():
     return render_template("error.html")
-
-
-@dav.route('/home')
-def home():
-    return "Data Analytics and Viz Homepage"
 
 
 def init_dav(flask_app):
@@ -29,7 +28,7 @@ def init_dav(flask_app):
 
 
 ######################################################################
-# Interactive map of all active systems
+# Interactive map of all systems
 ######################################################################
 @dav.route('/explore')
 def explore():
@@ -56,6 +55,7 @@ def explore():
         traceback.print_exc()
         return render_template("error.html"), 400
 
+
 #######################################################################################
 # function : index
 # purpose : placeholder for dav.index
@@ -74,14 +74,11 @@ def index():
 @dav.route('/analyzeGraph', methods=['POST'])
 def analyze_graph():
     try:
-        msr_id_list = [6, 7, 2, 1, 9, 8, 10]
-
         ui_api = UIAPI(app)
         annotations_map = ui_api.getReadableAnnotations()
-        print annotations_map
 
-        # Load JSON formatted String from API. This will be piped into Javascript as a JS Object accessible in that scope
-        # TODO: There are currently no error pages, we're just stubbing abort for now
+        # Load JSON formatted String from API.
+        # This will be piped into Javascript as a JS Object accessible in that scope
         measurement_types_and_info = get_all_measurement_info()
         if 'error' in measurement_types_and_info:
             print measurement_types_and_info['error']
@@ -94,15 +91,20 @@ def analyze_graph():
         measurement_names.sort()
 
         selected_systemID_list = []
-        selected_systemID_list = json.dumps(request.form.get('selectedSystems')).translate(None, '\"\\').split(",")
-        traceback.print_exc()
-        if not selected_systemID_list:
-            print("System ID list or Status is undefined.")
-            print("Error processing selected systems form.")
-            return render_template("error.html"), 400
+        try:
+            selected_systemID_list = json.dumps(request.form.get('selectedSystems')).translate(None, '\"\\').split(",")
 
-        systems_and_measurements_json_pre_est = json_loads_byteified(get_readings_for_tsplot
-                                                                         (selected_systemID_list, msr_id_list, PRE_ESTABLISHED))['response']
+        except:
+            traceback.print_exc()
+            if not selected_systemID_list:
+                print("System ID list or Status is undefined.")
+                print("Error processing selected systems form.")
+                return render_template("error.html"), 400
+
+        systems_and_measurements_json_pre_est = json_loads_byteified(get_readings_for_tsplot(selected_systemID_list,
+                                                                                             DEFAULT_MEASUREMENTS_LIST,
+                                                                                             PRE_ESTABLISHED))['response']
+        # adding status 100 (pre-established) in every measurement of a system
         for system in systems_and_measurements_json_pre_est:
             for measurement in system['measurement']:
                 measurement['status'] = '100'
@@ -112,8 +114,10 @@ def analyze_graph():
             print("Error processing API call for measurement readings.")
             return render_template("error.html"), 400
 
-        systems_and_measurements_json = json_loads_byteified(get_readings_for_tsplot
-                                                             (selected_systemID_list, msr_id_list, ESTABLISHED))['response']
+        systems_and_measurements_json = json_loads_byteified(get_readings_for_tsplot(selected_systemID_list,
+                                                                                     DEFAULT_MEASUREMENTS_LIST,
+                                                                                     ESTABLISHED))['response']
+        # adding status 200 (established) in every measurement of a system
         for system in systems_and_measurements_json:
             for measurement in system['measurement']:
                 measurement['status'] = '200'
@@ -123,6 +127,7 @@ def analyze_graph():
             print("Error processing API call for measurement readings.")
             return render_template("error.html"), 400
 
+        # appends measurements of both types to the system_and_measurement_json
         for i in range(len(systems_and_measurements_json)):
             systems_and_measurements_json[i]['measurement'] += systems_and_measurements_json_pre_est[i]['measurement']
 
@@ -131,21 +136,20 @@ def analyze_graph():
         traceback.print_exc()
         return render_template("error.html"), 400
 
+
 ######################################################################
 # Interactive graph analysis of a given system measurements
+# takes a system_uid as parameter
+# displays a graph for the system whose system_uid is given
 ######################################################################
-
 @dav.route('/analyzeGraph/system/<system_uid>', methods=['GET'])
 def system_analyze(system_uid):
     try:
-        msr_id_list = [6, 7, 2, 1, 9, 8, 10]
-
         ui_api = UIAPI(app)
         annotations_map = ui_api.getReadableAnnotations()
 
         # Load JSON formatted String from API.
         # This will be piped into Javascript as a JS Object accessible in that scope
-        # TODO: There are currently no error pages, we're just stubbing abort for now
         measurement_types_and_info = get_all_measurement_info()
         if 'error' in measurement_types_and_info:
             print measurement_types_and_info['error']
@@ -162,14 +166,14 @@ def system_analyze(system_uid):
             selected_systemID_list = json.dumps(system_uid).translate(None, '\"\\').split(",")
         except:
             traceback.print_exc()
-            if not selected_systemID_list:
-                print("System ID list is undefined.")
+            if not selected_systemID_list or len(selected_systemID_list) > 1:
                 print("Incorrect system ID sent.")
                 return render_template("error.html"), 400
 
-        systems_and_measurements_json_pre_est = json_loads_byteified(get_readings_for_tsplot(selected_systemID_list, msr_id_list, PRE_ESTABLISHED))['response']
-        print ("Incorrect system ID sent.")
-
+        systems_and_measurements_json_pre_est = json_loads_byteified(get_readings_for_tsplot(selected_systemID_list,
+                                                                                             DEFAULT_MEASUREMENTS_LIST,
+                                                                                             PRE_ESTABLISHED))['response']
+        # adding status 200 (established) in every measurement of a system
         for system in systems_and_measurements_json_pre_est:
             for measurement in system['measurement']:
                 measurement['status'] = '100'
@@ -177,9 +181,10 @@ def system_analyze(system_uid):
             print systems_and_measurements_json_pre_est['error']
             return render_template("error.html"), 400
 
-        systems_and_measurements_json = json_loads_byteified(get_readings_for_tsplot
-                                                                 (selected_systemID_list, msr_id_list, ESTABLISHED))['response']
-
+        systems_and_measurements_json = json_loads_byteified(get_readings_for_tsplot(selected_systemID_list,
+                                                                                     DEFAULT_MEASUREMENTS_LIST,
+                                                                                     ESTABLISHED))['response']
+        # adding status 200 (established) in every measurement of a system
         for system in systems_and_measurements_json:
             for measurement in system['measurement']:
                 measurement['status'] = '200'
@@ -188,6 +193,7 @@ def system_analyze(system_uid):
             print systems_and_measurements_json['error']
             return render_template("error.html"), 400
 
+        # appends measurements of both types to the system_and_measurement_json
         for i in range(len(systems_and_measurements_json)):
             systems_and_measurements_json[i]['measurement'] += systems_and_measurements_json_pre_est[i]['measurement']
 
@@ -196,6 +202,7 @@ def system_analyze(system_uid):
     except:
         traceback.print_exc()
         return render_template("error.html"), 400
+
 
 ######################################################################
 # API call to get metadata of all the systems
@@ -331,6 +338,7 @@ def json_loads_byteified(json_text):
         json.loads(json_text, object_hook=_byteify),
         ignore_dicts=True
     )
+
 
 def _byteify(data, ignore_dicts=False):
     # if this is a unicode string, return its string representation

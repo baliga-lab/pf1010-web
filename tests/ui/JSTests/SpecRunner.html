@@ -12,14 +12,25 @@
   <script src="lib/jasmine-2.4.1/jasmine.js"></script>
   <script src="lib/jasmine-2.4.1/jasmine-html.js"></script>
   <script src="lib/jasmine-2.4.1/boot.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.0/angular.min.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.0/angular-mocks.js"></script>
 
   <script src="jasmine-jquery.js"></script>
 
+  <script src="../../../aqxWeb/static/js/moments.js"></script>
+  <script src="../../../aqxWeb/static/js/bootstrap-datetimepicker.js"></script>
+
+  <script type="text/javascript">
+      var app = angular.module('aqx', []);
+  </script>
+
   <!-- include source files here... -->
-  <script src="../../../aqxWeb/static/js/newsfeed.js"></script>
+  <script src="../../../aqxWeb/static/js/annotation.js"></script>
+  <script src="../../../aqxWeb/static/js/sys_measurements.js"></script>
 
   <!-- include spec files here... -->
-  <script src="spec/NewsFeedSpec.js"></script>
+  <script src="spec/AnnotationsSpec.js"></script>
+  <script src="spec/MeasurementsSpec.js"></script>
 
 </head>
 
