@@ -1396,7 +1396,6 @@ def delete_comment():
     return redirect(url_for('social.index'))
 
 
-@social.route('/add_post', methods=['POST'])
 #######################################################################################
 # function : add_post
 # purpose : adds posts newly created by user
@@ -1404,6 +1403,7 @@ def delete_comment():
 # returns: calls index function
 # Exception : None
 #######################################################################################
+@social.route('/add_post', methods=['POST'])
 def add_post():
     if session.get('uid') is None:
         return redirect_to_page('home')
@@ -1430,7 +1430,14 @@ def add_post():
     if user_profile and user_profile.one:
         user_profile = user_profile.one
 
-    user.add_post(text, privacy, link, user_profile)
+    title = request.form['link_title']
+    img = request.form['link_img']
+    description = request.form['link_description']
+
+    if title or img or description:
+        user.add_post(text, privacy, link, user_profile, title, img, description)
+    else:
+        user.add_post(text, privacy, link, user_profile)
     flash('Your post has been shared')
     return redirect_to_page(page_type, google_id)
 

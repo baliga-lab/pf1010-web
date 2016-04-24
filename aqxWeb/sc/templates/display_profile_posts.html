@@ -62,21 +62,39 @@
 
                         {% if row.post.link %}
                             {# image/gif content #}
-                            {% if row.post.link.endswith(".jpg") or row.post.link.endswith(".png") or row.post.link.endswith(".gif") %}
+                            {% if row.post.link.endswith(".jpg") or row.post.link.endswith(".png")
+                            or row.post.link.endswith(".gif") %}
                                 <img class="attachedImg" src="{{ row.post.link }}"
                                      onclick="window.open('{{ row.post.link }}', '_blank');"/>
 
                                 {# video content #}
-                            {% else %}
+                            {% elif "//www.youtube.com/" in row.post.link or "//vimeo.com" in row.post.link
+                            or "//player.vimeo.com/video" in row.post.link %}
                                 <div class="embed-responsive embed-responsive-16by9">
                                     <iframe class="embed-responsive-item"
-                                            src="{{ row.post.link.replace("/watch?v=", "/embed/")
-                                            .replace("https://vimeo.com", "https://player.vimeo.com/video") }}"
+                                            src="{{ row.post.link.replace("/watch?v=","/embed/")
+                                            .replace("//vimeo.com", "//player.vimeo.com/video") }}"
                                             allowfullscreen>
                                         [Your browser does not support frames or is currently configured not to display
                                         frames.
                                         Please use an up-to-date browser that is capable of displaying frames.]
                                     </iframe>
+                                </div>
+                            {% else %}
+                                <div class='embed_link_preview'
+                                     onclick="window.open('{{ row.post.link }}', '_blank');">
+                                    {% if row.post.link_title %}
+                                        <h4> {{ row.post.link_title }} </h4>
+                                    {% endif %}
+                                    <div class='url'>
+                                        <em><a href="{{ row.post.link }}"> {{ row.post.link }} </a></em>
+                                    </div>
+                                    {% if row.post.link_img %}
+                                        <img src='{{ row.post.link_img }}' class='thumb'/>
+                                    {% endif %}
+                                    {% if row.post.link_description %}
+                                        <p> {{ row.post.link_description }} </p>
+                                    {% endif %}
                                 </div>
                             {% endif %}
                         {% endif %}

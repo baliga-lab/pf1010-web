@@ -53,17 +53,10 @@
         <script src="{{ url_for('frontend.static', filename='js/moments.js') }}"></script>
         <script src="{{ url_for('frontend.static', filename='js/bootstrap-datetimepicker.js') }}"></script>
         <script type="text/javascript" src="{{ url_for('frontend.static', filename='js/app.js') }}"></script>
+        <script src="{{ url_for('frontend.static', filename='js/add_post_link.js') }}"></script>
 
         <script>
-            $("#addUrl").click(function () {
-                var link = $("#new_link").val();
-                if (link.length > 0) {
-                    $(".links").empty();
-                    $(".links").append("<a href='" + link + "'>" + link + "</a>");
-                    $(".links").append("<input type='hidden' name='link' value='" + link + "'/><br/>");
-                    $("#add_link").attr("disabled", "disabled");
-                }
-            });
+
         </script>
 
     {% endblock scripts %}

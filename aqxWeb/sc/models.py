@@ -168,20 +168,21 @@ class User:
     # returns : None
     # Exceptions : cypher.CypherError, cypher.CypherTransactionError
     ############################################################################
-
-    def add_post(self, text, privacy, link, profile=None):
+    def add_post(self, text, privacy, link, profile=None, title="", img="", description=""):
         user = self.find()
         post = Node(
             "Post",
             id=str(uuid.uuid4()),
             text=text,
-            link=link,
             privacy=privacy,
             creation_time=timestamp(),
             modified_time=timestamp(),
-            date=date()
+            date=date(),
+            link=link,
+            link_title=title,
+            link_img=img,
+            link_description=description
         )
-
         rel_post = Relationship(user, "POSTED", post)
         # if it is published in someone else's profile page
         if profile:
