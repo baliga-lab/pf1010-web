@@ -17,8 +17,6 @@ import logging
 from flask_oauth import OAuth
 import json
 
-
-
 social = Blueprint('social', __name__, template_folder='templates', static_folder="static")
 
 
@@ -33,6 +31,7 @@ def dbconn():
                                    password=get_app_instance().config['PASS'],
                                    host=get_app_instance().config['HOST'],
                                    database=get_app_instance().config['DB'])
+
 
 @social.route('/index')
 #######################################################################################
@@ -842,6 +841,7 @@ def groups():
             group = Group()
             return render_template("groups.html")
 
+
 #######################################################################################
 # function : self_groups
 # purpose : renders group_self.html
@@ -897,6 +897,7 @@ def recommended_groups():
             group = Group()
             recommended_groups = group.get_recommended_groups(sql_id)
             return render_template("group_recommended.html", recommended_groups=recommended_groups)
+
 
 #######################################################################################
 # function : search_groups

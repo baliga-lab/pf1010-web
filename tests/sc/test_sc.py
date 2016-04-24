@@ -6,6 +6,8 @@ from py2neo import Node
 from aqxWeb.sc import models
 from aqxWeb.sc.models import System
 from aqxWeb.sc.models import Group
+from aqxWeb.sc.models import User
+
 
 
 class FlaskTestCase(unittest.TestCase):
@@ -33,7 +35,6 @@ class FlaskTestCase(unittest.TestCase):
                          user_type="subscriber", organization="Northeastern University", creation_time=1461345863010,
                          modified_time=1461345863010, status=0)
         # --------------------------------------------------------------------------------------
-
         # Dummy User For System Participant/Subscriber
         # --------------------------------------------------------------------------------------
         global sql_id_user_system
@@ -51,6 +52,26 @@ class FlaskTestCase(unittest.TestCase):
                                 user_type="subscriber", organization="Northeastern University",
                                 creation_time=1461345863010,
                                 modified_time=1461345863010, status=0)
+        # --------------------------------------------------------------------------------------
+
+     # --------------------------------------------------------------------------------------
+        # Dummy User For Friends Testing
+        # --------------------------------------------------------------------------------------
+        global sql_id_user_friend
+        sql_id_user_friend = 77729
+        global google_id_user_friend
+        google_id_user_friend = "208305386777777043578"
+        global test_user_friend
+        test_user_friend = Node("User",
+                                sql_id=sql_id_user_friend, google_id=google_id_user_friend,
+                                givenName="Test User For Friend",
+                                familyName="Test User For Friend",
+                                displayName="Test User For Friend",
+                                email="ISBTestUserFriends@gmail.com", gender="female", dob="1980-07-20",
+                                image_url="http://blog.boostability.com/wp-content/uploads/2014/09/Panda-Update.jpg",
+                                user_type="subscriber", organization="Northeastern University",
+                                creation_time=1461345863020,
+                                modified_time=1461345863020, status=0)
         # --------------------------------------------------------------------------------------
 
 
@@ -125,6 +146,18 @@ class FlaskTestCase(unittest.TestCase):
         self.assertTrue(mocked.called, "Route To Friends Page Passed: " + res.data)
         self.helper_delete_user_node(test_user)
 
+    @patch('flask.templating._render', return_value='View Pending Friends Request works as expected')
+    def test_pending_friends(self, mocked):
+        self.helper_create_user_node(test_user)
+        with self.app as client:
+            with client.session_transaction() as session:
+                session['uid'] = test_user['sql_id']
+        res = client.get('/social/pendingRequest')
+        print(res.data)
+        self.assertTrue(mocked.called, "View Pending Friends Request works as expected" + res.data)
+        self.helper_delete_user_node(test_user)
+
+
     '''
     @patch('flask.templating._render', return_value='View pending friend request works as expected')
     def test_view_pending_friend_request(self, mocked):
@@ -198,6 +231,23 @@ class FlaskTestCase(unittest.TestCase):
             print(res.data)
             self.assertTrue(mocked.called, "Search Friends failed: " + res.data)
         self.helper_delete_user_node(test_user)
+
+    @patch('flask.templating._render', return_value='Block Friend Works')
+    def test_block_friend(self, mocked):
+        self.helper_create_user_node(test_user)
+        self.helper_create_user_node(test_user_friend)
+        self.helper_make_friend(test_user_friend['sql_id'])
+        with self.app as client:
+            with client.session_transaction() as session:
+                session['uid'] = test_user['sql_id']
+            res = client.post('/social/block_friend/'+ str(test_user_friend['sql_id']))
+
+            print(res.data)
+            self.assertFalse(mocked.called, "Block Friends passed: " + res.data)
+        self.helper_delete_friend(test_user_friend['sql_id'])
+        self.helper_delete_user_node(test_user_friend)
+        self.helper_delete_user_node(test_user)
+
 
     # --------------------------------------------------------------------------------------
     # Groups Page Tests
@@ -580,6 +630,21 @@ class FlaskTestCase(unittest.TestCase):
             delete_group_status = graph.cypher.execute(delete_group_query, group_uid=group_node_to_delete["group_uid"])
         except Exception as ex:
             print "Exception At helper_delete_group_node: " + str(ex.message)
+
+    # Helper function for creating friend relation
+    def helper_make_friend(self,google_id):
+        try:
+            User(test_user['sql_id']).accept_friend_request(google_id)
+        except Exception as ex:
+            print "Exception At helper_make_friends: " + str(ex.message)
+
+    def helper_delete_friend(self,google_id):
+        try:
+            User(test_user['sql_id']).delete_friend(google_id)
+        except Exception as ex:
+            print "Exception At helper_delete_friend: " + str(ex.message)
+
+
 
     # Helper Function To Make An User Admin For A Group Node In Neo4J Database
     def helper_make_admin_for_group(self, google_id, group_uid):
