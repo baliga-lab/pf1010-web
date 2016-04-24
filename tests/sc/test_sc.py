@@ -241,12 +241,29 @@ class FlaskTestCase(unittest.TestCase):
             with client.session_transaction() as session:
                 session['uid'] = test_user['sql_id']
             res = client.post('/social/block_friend/'+ str(test_user_friend['sql_id']))
-
             print(res.data)
             self.assertFalse(mocked.called, "Block Friends passed: " + res.data)
         self.helper_delete_friend(test_user_friend['sql_id'])
         self.helper_delete_user_node(test_user_friend)
         self.helper_delete_user_node(test_user)
+
+    @patch('flask.templating._render', return_value='UnBlock Friend Works')
+    def test_unblock_friend(self, mocked):
+        self.helper_create_user_node(test_user)
+        self.helper_create_user_node(test_user_friend)
+        self.helper_make_friend(test_user_friend['sql_id'])
+        with self.app as client:
+            with client.session_transaction() as session:
+                session['uid'] = test_user['sql_id']
+            res = client.post('/social/block_friend/'+ str(test_user_friend['sql_id']))
+            res2 = client.post('/social/unblock_friend/'+ str(test_user_friend['sql_id']))
+            print(res.data)
+            print(res2.data)
+            self.assertFalse(mocked.called, "Block Friends passed: " + res.data)
+        self.helper_delete_friend(test_user_friend['sql_id'])
+        self.helper_delete_user_node(test_user_friend)
+        self.helper_delete_user_node(test_user)
+
 
 
     # --------------------------------------------------------------------------------------
