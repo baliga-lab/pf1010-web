@@ -17,8 +17,6 @@ import logging
 from flask_oauth import OAuth
 import json
 
-
-
 social = Blueprint('social', __name__, template_folder='templates', static_folder="static")
 
 
@@ -33,6 +31,7 @@ def dbconn():
                                    password=get_app_instance().config['PASS'],
                                    host=get_app_instance().config['HOST'],
                                    database=get_app_instance().config['DB'])
+
 
 @social.route('/index')
 #######################################################################################
@@ -214,22 +213,24 @@ def editprofile():
 #######################################################################################
 @social.route('/updateprofile', methods=['POST'])
 def updateprofile():
-    sql_id = session.get('uid')
-    if sql_id is None:
-        return redirect(url_for('social.index'))
-    given_name = request.form.get('givenName', None)
-    family_name = request.form.get('familyName', None)
-    display_name = request.form.get('displayName', None)
-    gender = request.form.get('gender', None)
-    organization = request.form.get('organization', None)
-    user_type = request.form.get('user_type', None)
-    date_of_birth = request.form.get('dob', None)
-    User(sql_id).update_profile(given_name, family_name, display_name, gender, organization, user_type,
-                                date_of_birth)
-    session['displayName'] = display_name
-    flash("User Profile Updated successfully!")
-    return editprofile()
-
+    try:
+        sql_id = session.get('uid')
+        if sql_id is None:
+            return redirect(url_for('social.index'))
+        given_name = request.form.get('givenName', None)
+        family_name = request.form.get('familyName', None)
+        display_name = request.form.get('displayName', None)
+        gender = request.form.get('gender', None)
+        organization = request.form.get('organization', None)
+        user_type = request.form.get('user_type', None)
+        date_of_birth = request.form.get('dob', None)
+        User(sql_id).update_profile(given_name, family_name, display_name, gender, organization, user_type,
+                                    date_of_birth)
+        session['displayName'] = display_name
+        flash("User Profile Updated successfully!")
+        return editprofile()
+    except Exception as ex:
+        print "Exception Occurred At updateprofile: " + str(ex.message)
 
 #######################################################################################
 # function : profile
@@ -268,7 +269,6 @@ def profile(google_id):
         else:
             # accessing google API to retrieve profile data
             google_profile = get_google_profile(google_id, user_profile)
-
             privacy = get_user_privacy(sql_id)
             posts = get_all_profile_posts(sql_id)
             total_likes = get_total_likes_for_posts()
@@ -842,6 +842,7 @@ def groups():
             group = Group()
             return render_template("groups.html")
 
+
 #######################################################################################
 # function : self_groups
 # purpose : renders group_self.html
@@ -897,6 +898,7 @@ def recommended_groups():
             group = Group()
             recommended_groups = group.get_recommended_groups(sql_id)
             return render_template("group_recommended.html", recommended_groups=recommended_groups)
+
 
 #######################################################################################
 # function : search_groups
@@ -972,6 +974,48 @@ def view_group(group_uid):
         logging.exception("Exception at view_group: " + str(e))
 
 
+
+#######################################################################################
+# function : get_users_to_invite_groups
+# purpose : Fetch the users from database who are not related to the specific groups
+# parameters : None
+# returns: json data of existing user's name and organization
+#######################################################################################
+@social.route('/groups/get_users_to_invite_groups/<group_uid>', methods=['GET'])
+def get_users_to_invite_groups(group_uid):
+    try:
+        sql_id = session.get('uid')
+        # sql_id = 29
+        # group_uid = "456f3f2e3fh411e597b1000c29b92e09"
+        if sql_id is None:
+            return redirect(url_for('social.index'))
+        group = Group()
+        users_not_part_of_group = group.get_users_to_invite_groups(group_uid)
+        user_list = []
+        for user in users_not_part_of_group:
+            individual_user = {}
+            if user[0]["givenName"] is not None:
+                individual_user['givenName'] = user[0]["givenName"]
+            else:
+                individual_user['givenName'] = "No Given Name"
+
+            if user[0]["familyName"] is not None:
+                individual_user['familyName'] = user[0]["familyName"]
+            else:
+                individual_user['familyName'] = ""
+
+            if user[0]["organization"] is not None:
+                individual_user['organization'] = user[0]["organization"]
+            else:
+                individual_user['organization'] = ""
+
+            user_list.append(individual_user)
+        print jsonify(json_list=user_list)
+        return jsonify(json_list=user_list)
+    except Exception as e:
+        print "Exception at get_users_to_invite_groups: " + str(e.message)
+
+
 #######################################################################################
 # function : manage_group
 # purpose : renders group_manage.html
@@ -1007,8 +1051,8 @@ def manage_group(group_uid):
 
 
 #######################################################################################
-# function : updateprofile
-# purpose : updates user profile information in db
+# function : update_group_info
+# purpose : updates the group information in Neo4J DB
 # parameters : None
 # returns: None
 # Exception : None
@@ -1848,7 +1892,6 @@ def logout():
     session.pop('img', None)
     session.pop('email', None)
     session.pop('displayName', None)
-    flash('Logged out.')
     return redirect(url_for('index'))
 
 
