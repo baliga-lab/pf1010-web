@@ -85,7 +85,7 @@ class User:
             user = get_graph_connection_uri().find_one("User", "sql_id", self.sql_id)
             return user
         except cypher.CypherError, cypher.CypherTransactionError:
-            raise "Exception occured in function User.find()"
+            raise "Exception occurred in function User.find()"
 
     ############################################################################
     # function : update_profile
@@ -119,7 +119,7 @@ class User:
                                                              gender=gender, organization=organization,
                                                              user_type=user_type, dob=dob)
         except Exception as e:
-            raise "Exception occured in function updateprofile()"
+            raise "Exception occurred in function updateprofile()"
 
 
 
@@ -192,7 +192,7 @@ class User:
             if profile:
                 get_graph_connection_uri().create(rel_posted_to)
         except cypher.CypherError, cypher.CypherTransactionError:
-            raise "Exception occured in function add_post "
+            raise "Exception occurred in function add_post "
 
     ############################################################################
     # function : add_post_to
@@ -222,7 +222,7 @@ class User:
             get_graph_connection_uri().cypher.execute(command,
                                                       {'sql_id': posted_to_user_id, 'post_id': post_node[0]['post_id']})
         except cypher.CypherError, cypher.CypherTransactionError:
-            raise "Exception occured in function add_post_to "
+            raise "Exception occurred in function add_post_to "
 
     ############################################################################
     # function : test_add_post
@@ -254,7 +254,7 @@ class User:
         try:
             get_graph_connection_uri().create(rel)
         except cypher.CypherError, cypher.CypherTransactionError:
-            raise "Exception occured in function test_add_post "
+            raise "Exception occurred in function test_add_post "
 
     #######################################################################################
     # function : checkStatus
@@ -304,7 +304,7 @@ class User:
             get_graph_connection_uri().cypher.execute(query, post_id=post_id,
                                                       new_content=new_content, time_now=timestamp())
         except cypher.CypherError, cypher.CypherTransactionError:
-            raise "Exception occured in function edit_post"
+            raise "Exception occurred in function edit_post"
 
     ############################################################################
     # function : get_user_sql_id
@@ -344,7 +344,7 @@ class User:
         try:
             get_graph_connection_uri().cypher.execute(deleteCommentsQuery, postid=post_id)
         except cypher.CypherError, cypher.CypherTransactionError:
-            raise "Exception occured in function delete_post : deleteCommentsQuery "
+            raise "Exception occurred in function delete_post : deleteCommentsQuery "
 
         # Deletes posts and all related relationships
 
@@ -356,7 +356,7 @@ class User:
         try:
             get_graph_connection_uri().cypher.execute(deletePostQuery, postid=post_id)
         except cypher.CypherError, cypher.CypherTransactionError:
-            raise "Exception occured in function delete_post : deletePostQuery "
+            raise "Exception occurred in function delete_post : deletePostQuery "
 
     ############################################################################
     # function : add_comment
@@ -386,7 +386,7 @@ class User:
             rel = Relationship(post, 'HAS', comment)
             get_graph_connection_uri().create(rel)
         except cypher.CypherError, cypher.CypherTransactionError:
-            raise "Exception occured in function add_comment "
+            raise "Exception occurred in function add_comment "
 
     ############################################################################
     # function : test_add_comment
@@ -416,7 +416,7 @@ class User:
         try:
             get_graph_connection_uri().create(rel)
         except cypher.CypherError, cypher.CypherTransactionError:
-            raise "Exception occured in function test_add_comment "
+            raise "Exception occurred in function test_add_comment "
 
     ############################################################################
     # function : edit_comment
@@ -443,7 +443,7 @@ class User:
             get_graph_connection_uri().cypher.execute(query, comment_id=comment_id,
                                                       new_comment=new_comment, timenow=timestamp())
         except cypher.CypherError, cypher.CypherTransactionError:
-            raise "Exception occured in function edit_comment"
+            raise "Exception occurred in function edit_comment"
 
     ############################################################################
     # function : delete_comment
@@ -466,7 +466,7 @@ class User:
         try:
             get_graph_connection_uri().cypher.execute(query, comment_id=comment_id)
         except cypher.CypherError, cypher.CypherTransactionError:
-            raise "Exception occured in function delete_comment "
+            raise "Exception occurred in function delete_comment "
 
     ############################################################################
     # function : like_post
@@ -485,7 +485,7 @@ class User:
         try:
             get_graph_connection_uri().create_unique(rel)
         except cypher.CypherError, cypher.CypherTransactionError:
-            raise "Exception occured in function like_post "
+            raise "Exception occurred in function like_post "
 
     ############################################################################
     # function : unlike_post
@@ -508,7 +508,7 @@ class User:
         try:
             get_graph_connection_uri().cypher.execute(query, postid=post_id, user_sql_id=user_sql_id)
         except cypher.CypherError, cypher.CypherTransactionError:
-            raise "Exception occured in function unlike_post"
+            raise "Exception occurred in function unlike_post"
 
     ############################################################################
     # function : get_search_friends
@@ -529,7 +529,7 @@ class User:
             results = get_graph_connection_uri().cypher.execute(query)
             return results
         except cypher.CypherError, cypher.CypherTransactionError:
-            raise "Exception occured in function get_search_friends"
+            raise "Exception occurred in function get_search_friends"
 
     ############################################################################
     # function : get_friends_and_sent_req
@@ -552,7 +552,7 @@ class User:
             frnds_res = get_graph_connection_uri().cypher.execute(my_friends_query, sql_id=my_sql_id)
             return sentreq_res, receivedreq_res, frnds_res
         except cypher.CypherError, cypher.CypherTransactionError:
-            raise "Exception occured in function get_friends_and_sent_req"
+            raise "Exception occurred in function get_friends_and_sent_req"
 
     ############################################################################
     # function : send_friend_request
@@ -578,7 +578,7 @@ class User:
                                                                 sender_sid=my_user_node.properties["sql_id"],
                                                                 receiver_sid=friend_user_node.properties["sql_id"])
         except cypher.CypherError, cypher.CypherTransactionError:
-            raise "Exception occured in function send_friend_request "
+            raise "Exception occurred in function send_friend_request "
 
     ############################################################################
     # function : accept_friend_request
@@ -608,7 +608,7 @@ class User:
                                                                 blocker_id='')
 
         except cypher.CypherError, cypher.CypherTransactionError:
-            raise "Exception occured in function accept_friend_request "
+            raise "Exception occurred in function accept_friend_request "
 
     ############################################################################
     # function : block_a_friend
@@ -634,7 +634,7 @@ class User:
                                                                 blocked_sid=blocked_user_node.properties["sql_id"],
                                                                 blocker_id=str((my_user_node.properties["sql_id"])))
         except cypher.CypherError, cypher.CypherTransactionError:
-            raise "Exception occured in function block_a_friend "
+            raise "Exception occurred in function block_a_friend "
 
     ############################################################################
     # function : unblock_a_friend
@@ -659,7 +659,7 @@ class User:
                                                                 today=date(),
                                                                 blocker_id='')
         except cypher.CypherError, cypher.CypherTransactionError:
-            raise "Exception occured in function block_a_friend "
+            raise "Exception occurred in function block_a_friend "
 
     ############################################################################
     # function : delete_friend_request
@@ -683,7 +683,7 @@ class User:
             results = get_graph_connection_uri().cypher.execute(query, acceptor_sid=my_user_node.properties["sql_id"],
                                                                 accepted_sid=receiver_user_node.properties["sql_id"])
         except cypher.CypherError, cypher.CypherTransactionError:
-            raise "Exception occured in function delete_friend_request "
+            raise "Exception occurred in function delete_friend_request "
 
     ############################################################################
     # function : delete_friend
@@ -709,7 +709,7 @@ class User:
             results = get_graph_connection_uri().cypher.execute(query, acceptor_sid=my_user_node.properties["sql_id"],
                                                                 accepted_sid=receiver_user_node.properties["sql_id"])
         except cypher.CypherError, cypher.CypherTransactionError:
-            raise "Exception occured in function delete_friend "
+            raise "Exception occurred in function delete_friend "
 
     ############################################################################
     # function : get_pending_friend_request
@@ -731,7 +731,7 @@ class User:
             pending_friends_request = get_graph_connection_uri().cypher.execute(query, u_sql_id=u_sql_id)
             return pending_friends_request
         except cypher.CypherError, cypher.CypherTransactionError:
-            raise "Exception occured in function get_pending_friend_request"
+            raise "Exception occurred in function get_pending_friend_request"
 
     ############################################################################
     # function : get_recommended_frnds
@@ -760,7 +760,7 @@ class User:
             reco_list = get_graph_connection_uri().cypher.execute(reco_friends_query, sql_id=my_sql_id)
             return reco_list
         except cypher.CypherError, cypher.CypherTransactionError:
-            raise "Exception occured in function get_recommended_frnds"
+            raise "Exception occurred in function get_recommended_frnds"
 
     ############################################################################
     # function : get_mutual_friends
@@ -785,7 +785,7 @@ class User:
             mutual_list = get_graph_connection_uri().cypher.execute(mutual_query, my_sid=my_sql_id, oth_sid=other_sid)
             return mutual_list
         except cypher.CypherError, cypher.CypherTransactionError:
-            raise "Exception occured in function get_mutual_friends"
+            raise "Exception occurred in function get_mutual_friends"
 
     ############################################################################
     # function : get_my_friends
@@ -808,7 +808,7 @@ class User:
             friendlist = get_graph_connection_uri().cypher.execute(query, sql_id=my_sql_id, blocker_id="")
             return friendlist
         except cypher.CypherError, cypher.CypherTransactionError:
-            raise "Exception occured in function get_my_friends"
+            raise "Exception occurred in function get_my_friends"
 
     ############################################################################
     # function : is_friend
@@ -832,7 +832,7 @@ class User:
                                                                        'blocker_id': ""})
             return friend
         except cypher.CypherError, cypher.CypherTransactionError:
-            raise "Exception occured in function is_friend"
+            raise "Exception occurred in function is_friend"
 
     ############################################################################
     # function : get_my_blocked_friends
@@ -857,7 +857,7 @@ class User:
 
             return friendlist
         except cypher.CypherError, cypher.CypherTransactionError:
-            raise "Exception occured in function get_my_blocked_friends"
+            raise "Exception occurred in function get_my_blocked_friends"
 
     ############################################################################
     # function : get_user_by_google_id
@@ -880,7 +880,7 @@ class User:
             user_profile = get_graph_connection_uri().cypher.execute(query, google_id=google_id)
             return user_profile
         except cypher.CypherError, cypher.CypherTransactionError:
-            raise "Exception occured in function get_user_by_google_id()"
+            raise "Exception occurred in function get_user_by_google_id()"
 
 
 ########### END OF USER class #############
@@ -931,7 +931,7 @@ def get_all_recent_posts(user_id):
         posts = get_graph_connection_uri().cypher.execute(query, {'sql_id': user_id})
         return posts
     except cypher.CypherError, cypher.CypherTransactionError:
-        raise "Exception occured in function get_all_recent_posts "
+        raise "Exception occurred in function get_all_recent_posts "
 
 
 ############################################################################
@@ -958,7 +958,7 @@ def get_all_profile_posts(user_id):
         posts = get_graph_connection_uri().cypher.execute(query, {'sql_id': user_id})
         return posts
     except cypher.CypherError, cypher.CypherTransactionError:
-        raise "Exception occured in function get_all_profile_posts"
+        raise "Exception occurred in function get_all_profile_posts"
 
 
 ############################################################################
@@ -980,7 +980,7 @@ def get_all_recent_comments():
         comments = get_graph_connection_uri().cypher.execute(query)
         return comments
     except cypher.CypherError, cypher.CypherTransactionError:
-        raise "Exception occured in function get_all_recent_comments "
+        raise "Exception occurred in function get_all_recent_comments "
 
 
 ############################################################################
@@ -999,7 +999,7 @@ def get_total_likes_for_posts():
         total_likes = get_graph_connection_uri().cypher.execute(query)
         return total_likes
     except cypher.CypherError, cypher.CypherTransactionError:
-        raise "Exception occured in function get_total_likes_for_posts"
+        raise "Exception occurred in function get_total_likes_for_posts"
 
 
 ############################################################################
@@ -1019,7 +1019,7 @@ def get_all_post_owners():
         post_owners = get_graph_connection_uri().cypher.execute(query)
         return post_owners
     except cypher.CypherError, cypher.CypherTransactionError:
-        raise "Exception occured in function get_all_post_owners "
+        raise "Exception occurred in function get_all_post_owners "
 
 
 ############################################################################
@@ -1039,7 +1039,7 @@ def get_all_recent_likes():
         likes = get_graph_connection_uri().cypher.execute(query)
         return likes
     except cypher.CypherError, cypher.CypherTransactionError:
-        raise "Exception occured in function get_all_recent_likes "
+        raise "Exception occurred in function get_all_recent_likes "
 
 
 ############################################################################
@@ -1100,7 +1100,7 @@ def get_sql_id(google_id):
         sql_id = get_graph_connection_uri().cypher.execute(query, google_id=google_id)
         return sql_id
     except cypher.CypherError, cypher.CypherTransactionError:
-        raise "Exception occured in function get_sqlId()"
+        raise "Exception occurred in function get_sqlId()"
 
 
 ############################################################################
@@ -1125,6 +1125,29 @@ def get_address_from_lat_lng(latitude, longitude):
         return address
     except Exception as e:
         return address
+
+
+############################################################################
+# function : update_profile_image_url
+# purpose : function to update the image url of the user in Neo4J DB
+# params :
+#           sql_id : sql_id of the user
+#           image_url : image url from google account for the user
+# returns : None
+# Exceptions : General Exception
+############################################################################
+def update_profile_image_url(sql_id, image_url):
+    update_image_url_query = """
+        MATCH (u:User)
+        WHERE u.sql_id = {sql_id}
+        SET u.image_url = {image_url}
+        RETURN u
+    """
+    try:
+        update_image_url_status = get_graph_connection_uri().cypher.execute(update_image_url_query,
+                                                                            sql_id=sql_id, image_url=image_url)
+    except Exception as ex:
+        raise "Exception occurred in function update_profile_image_url(): " + str(ex.message)
 
 
 ################################################################################
@@ -1160,7 +1183,7 @@ class System:
             system = get_graph_connection_uri().find_one("System", "system_uid", system_uid)
             return system
         except cypher.CypherError, cypher.CypherTransactionError:
-            print "Exception occured in function System.find()"
+            print "Exception occurred in function System.find()"
 
     ############################################################################
     # function : get_system_post_owners
@@ -1182,7 +1205,7 @@ class System:
             likes = get_graph_connection_uri().cypher.execute(query, system_uid=system_uid)
             return likes
         except cypher.CypherError, cypher.CypherTransactionError:
-            print "Exception occured in function get_system_post_owners"
+            print "Exception occurred in function get_system_post_owners"
 
     ############################################################################
     # function : get_system_recent_likes
@@ -1205,7 +1228,7 @@ class System:
             likes = get_graph_connection_uri().cypher.execute(query, system_uid=system_uid)
             return likes
         except cypher.CypherError, cypher.CypherTransactionError:
-            print "Exception occured in function get_system_recent_likes"
+            print "Exception occurred in function get_system_recent_likes"
 
     ############################################################################
     # function : get_total_likes_for_system_posts
@@ -1226,7 +1249,7 @@ class System:
             total_likes = get_graph_connection_uri().cypher.execute(query, system_uid=system_uid)
             return total_likes
         except cypher.CypherError, cypher.CypherTransactionError:
-            print "Exception occured in function get_total_likes_for_system_posts"
+            print "Exception occurred in function get_total_likes_for_system_posts"
 
     ############################################################################
     # function : get_system_recent_posts
@@ -1249,7 +1272,7 @@ class System:
             posts = get_graph_connection_uri().cypher.execute(query, system_uid=system_uid)
             return posts
         except cypher.CypherError, cypher.CypherTransactionError:
-            print "Exception occured in function get_system_recent_posts "
+            print "Exception occurred in function get_system_recent_posts "
 
     ############################################################################
     # function : get_system_recent_comments
@@ -1274,7 +1297,7 @@ class System:
             comments = get_graph_connection_uri().cypher.execute(query, system_uid=system_uid)
             return comments
         except cypher.CypherError, cypher.CypherTransactionError:
-            print "Exception occured in function get_system_recent_comments "
+            print "Exception occurred in function get_system_recent_comments "
 
     ############################################################################
     # function : get_system_by_name
@@ -1297,7 +1320,7 @@ class System:
             system_details = get_graph_connection_uri().cypher.execute(query, system_name=regex_pattern)
             return system_details
         except cypher.CypherError, cypher.CypherTransactionError:
-            print "Exception occured in function get_system_by_name"
+            print "Exception occurred in function get_system_by_name"
 
     ############################################################################
     # function : get_system_by_uid
@@ -1319,7 +1342,7 @@ class System:
             system_neo4j = get_graph_connection_uri().cypher.execute(query, system_uid=system_uid)
             return system_neo4j
         except cypher.CypherError, cypher.CypherTransactionError:
-            print "Exception occured in function get_system_by_uid"
+            print "Exception occurred in function get_system_by_uid"
 
     ############################################################################
     # function : get_mysql_system_by_uid
@@ -1336,7 +1359,7 @@ class System:
             system_mysql = "hello"
             return system_mysql
         except Exception as e:
-            print "Exception occured in function get_mysql_system_by_uid()"
+            print "Exception occurred in function get_mysql_system_by_uid()"
 
     ############################################################################
     # function : get_admin_systems
@@ -1359,7 +1382,7 @@ class System:
             admin_systems = get_graph_connection_uri().cypher.execute(query, sql_id=sql_id)
             return admin_systems
         except cypher.CypherError, cypher.CypherTransactionError:
-            print "Exception occured in function get_admin_systems"
+            print "Exception occurred in function get_admin_systems"
 
     ############################################################################
     # function : get_system_admins
@@ -1381,7 +1404,7 @@ class System:
             system_admins = get_graph_connection_uri().cypher.execute(query, system_uid=system_uid)
             return system_admins
         except cypher.CypherError, cypher.CypherTransactionError:
-            print "Exception occured in function get_system_admins"
+            print "Exception occurred in function get_system_admins"
 
     ############################################################################
     # function : get_participated_systems
@@ -1404,7 +1427,7 @@ class System:
             participated_systems = get_graph_connection_uri().cypher.execute(query, sql_id=sql_id)
             return participated_systems
         except cypher.CypherError, cypher.CypherTransactionError:
-            print "Exception occured in function get_participated_systems"
+            print "Exception occurred in function get_participated_systems"
 
     ############################################################################
     # function : get_user_privilege_for_system
@@ -1438,7 +1461,7 @@ class System:
                     user_privilege = "SYS_PENDING_SUBSCRIBER"
             return user_privilege
         except cypher.CypherError, cypher.CypherTransactionError:
-            print "Exception occured in function get_user_privilege_for_system"
+            print "Exception occurred in function get_user_privilege_for_system"
 
     ############################################################################
     # function : approve_system_participant
@@ -1467,7 +1490,7 @@ class System:
                                                                                    google_id=google_id,
                                                                                    system_uid=system_uid)
         except cypher.CypherError, cypher.CypherTransactionError:
-            print "Exception occured in function approve_system_participant"
+            print "Exception occurred in function approve_system_participant"
 
     ############################################################################
     # function : reject_system_participant
@@ -1487,7 +1510,7 @@ class System:
                                                                                    google_id=google_id,
                                                                                    system_uid=system_uid)
         except cypher.CypherError, cypher.CypherTransactionError:
-            print "Exception occured in function reject_system_participant"
+            print "Exception occurred in function reject_system_participant"
 
     ############################################################################
     # function : pending_subscribe_to_system
@@ -1517,7 +1540,7 @@ class System:
                                                                                    google_id=google_id,
                                                                                    system_uid=system_uid)
         except cypher.CypherError, cypher.CypherTransactionError:
-            print "Exception occured in function pending_subscribe_to_system"
+            print "Exception occurred in function pending_subscribe_to_system"
 
     ############################################################################
     # function : subscribe_to_system
@@ -1547,7 +1570,7 @@ class System:
                                                                                    google_id=google_id,
                                                                                    system_uid=system_uid)
         except cypher.CypherError, cypher.CypherTransactionError:
-            print "Exception occured in function subscribe_to_system"
+            print "Exception occurred in function subscribe_to_system"
 
     ############################################################################
     # function : pending_participate_to_system
@@ -1578,7 +1601,7 @@ class System:
                 google_id=google_id,
                 system_uid=system_uid)
         except cypher.CypherError, cypher.CypherTransactionError:
-            print "Exception occured in function pending_participate_to_system"
+            print "Exception occurred in function pending_participate_to_system"
 
     ############################################################################
     # function : leave_system
@@ -1598,7 +1621,7 @@ class System:
                                                                                    google_id=google_id,
                                                                                    system_uid=system_uid)
         except cypher.CypherError, cypher.CypherTransactionError:
-            print "Exception occured in function leave_system"
+            print "Exception occurred in function leave_system"
 
     ############################################################################
     # function : delete_system_participant
@@ -1618,7 +1641,7 @@ class System:
                                                                                    google_id=google_id,
                                                                                    system_uid=system_uid)
         except cypher.CypherError, cypher.CypherTransactionError:
-            print "Exception occured in function delete_system_participant"
+            print "Exception occurred in function delete_system_participant"
 
     ############################################################################
     # function : make_admin_for_system
@@ -1647,7 +1670,7 @@ class System:
                                                                                    google_id=google_id,
                                                                                    system_uid=system_uid)
         except cypher.CypherError, cypher.CypherTransactionError:
-            print "Exception occured in function make_admin_for_system"
+            print "Exception occurred in function make_admin_for_system"
 
     ############################################################################
     # function : make_participant_for_system
@@ -1677,7 +1700,7 @@ class System:
                 google_id=google_id,
                 system_uid=system_uid)
         except cypher.CypherError, cypher.CypherTransactionError:
-            print "Exception occured in function make_participant_for_system"
+            print "Exception occurred in function make_participant_for_system"
 
     ############################################################################
     # function : make_subscriber_for_system
@@ -1706,7 +1729,7 @@ class System:
                                                                                    google_id=google_id,
                                                                                    system_uid=system_uid)
         except cypher.CypherError, cypher.CypherTransactionError:
-            print "Exception occured in function make_subscriber_for_system"
+            print "Exception occurred in function make_subscriber_for_system"
 
     ############################################################################
     # function : delete_system_admin
@@ -1726,7 +1749,7 @@ class System:
                                                                                    google_id=google_id,
                                                                                    system_uid=system_uid)
         except cypher.CypherError, cypher.CypherTransactionError:
-            print "Exception occured in function delete_system_admin"
+            print "Exception occurred in function delete_system_admin"
 
     ############################################################################
     # function : delete_system_subscriber
@@ -1746,7 +1769,7 @@ class System:
                                                                                    google_id=google_id,
                                                                                    system_uid=system_uid)
         except cypher.CypherError, cypher.CypherTransactionError:
-            print "Exception occured in function delete_system_subscriber"
+            print "Exception occurred in function delete_system_subscriber"
 
     ############################################################################
     # function : get_system_participants
@@ -1766,7 +1789,7 @@ class System:
             system_participants = get_graph_connection_uri().cypher.execute(query, system_uid=system_uid)
             return system_participants
         except cypher.CypherError, cypher.CypherTransactionError:
-            print "Exception occured in function get_system_participants"
+            print "Exception occurred in function get_system_participants"
 
     ############################################################################
     # function : get_participants_pending_approval
@@ -1786,7 +1809,7 @@ class System:
             participants_pending_approval = get_graph_connection_uri().cypher.execute(query, system_uid=system_uid)
             return participants_pending_approval
         except cypher.CypherError, cypher.CypherTransactionError:
-            print "Exception occured in function get_participants_pending_approval"
+            print "Exception occurred in function get_participants_pending_approval"
 
     ############################################################################
     # function : subscribed_systems
@@ -1807,7 +1830,7 @@ class System:
             subscribed_systems = get_graph_connection_uri().cypher.execute(query, sql_id=sql_id)
             return subscribed_systems
         except cypher.CypherError, cypher.CypherTransactionError:
-            print "Exception occured in function get_subscribed_systems"
+            print "Exception occurred in function get_subscribed_systems"
 
     ############################################################################
     # function : get_system_subscribers
@@ -1827,7 +1850,7 @@ class System:
             system_subscribers = get_graph_connection_uri().cypher.execute(query, system_uid=system_uid)
             return system_subscribers
         except cypher.CypherError, cypher.CypherTransactionError:
-            print "Exception occured in function get_system_subscribers"
+            print "Exception occurred in function get_system_subscribers"
 
     ############################################################################
     # function : get_subscribers_pending_approval
@@ -1847,7 +1870,7 @@ class System:
             subscribers_pending_approval = get_graph_connection_uri().cypher.execute(query, system_uid=system_uid)
             return subscribers_pending_approval
         except cypher.CypherError, cypher.CypherTransactionError:
-            print "Exception occured in function get_subscribers_pending_approval"
+            print "Exception occurred in function get_subscribers_pending_approval"
 
     ############################################################################
     # function : get_recommended_systems
@@ -1876,7 +1899,7 @@ class System:
                                                                                        minimum_depth_level)
             return mutual_system_between_friends
         except cypher.CypherError, cypher.CypherTransactionError:
-            print "Exception occured in function get_recommended_systems"
+            print "Exception occurred in function get_recommended_systems"
 
     ############################################################################
     # function : add_system_post
@@ -1905,7 +1928,7 @@ class System:
             get_graph_connection_uri().create(sys_syspost_relationship)
             get_graph_connection_uri().create(user_syspost_relationship)
         except cypher.CypherError, cypher.CypherTransactionError:
-            print "Exception occured in function add_system_post "
+            print "Exception occurred in function add_system_post "
 
     ############################################################################
     # function : delete_system_comment
@@ -1925,7 +1948,7 @@ class System:
         try:
             get_graph_connection_uri().cypher.execute(query, commentid=commentid)
         except cypher.CypherError, cypher.CypherTransactionError:
-            print "Exception occured in function delete_system_comment "
+            print "Exception occurred in function delete_system_comment "
 
     ############################################################################
     # function : edit_system_comment
@@ -1949,7 +1972,7 @@ class System:
             get_graph_connection_uri().cypher.execute(query, commentid=comment_id,
                                                       newcomment=new_comment, timenow=timestamp())
         except cypher.CypherError, cypher.CypherTransactionError:
-            print "Exception occured in function edit_system_comment"
+            print "Exception occurred in function edit_system_comment"
 
     ############################################################################
     # function : edit_system_post
@@ -1973,7 +1996,7 @@ class System:
             get_graph_connection_uri().cypher.execute(query, postid=post_id,
                                                       newcontent=new_content, timenow=timestamp())
         except cypher.CypherError, cypher.CypherTransactionError:
-            print "Exception occured in function edit_system_post"
+            print "Exception occurred in function edit_system_post"
 
     ############################################################################
     # function : delete_system_post
@@ -1998,7 +2021,7 @@ class System:
         try:
             get_graph_connection_uri().cypher.execute(deleteSystemCommentsQuery, postid=post_id)
         except cypher.CypherError, cypher.CypherTransactionError:
-            print "Exception occured in function delete_system_post : deleteSystemCommentsQuery "
+            print "Exception occurred in function delete_system_post : deleteSystemCommentsQuery "
 
         # Deletes posts and all related relationships
 
@@ -2010,7 +2033,7 @@ class System:
         try:
             get_graph_connection_uri().cypher.execute(deleteSystemPostQuery, postid=post_id)
         except cypher.CypherError, cypher.CypherTransactionError:
-            print "Exception occured in function delete_system_post :deleteSystemPostQuery "
+            print "Exception occurred in function delete_system_post :deleteSystemPostQuery "
 
     ############################################################################
     # function : like_system_post
@@ -2028,7 +2051,7 @@ class System:
         try:
             get_graph_connection_uri().create_unique(rel)
         except cypher.CypherError, cypher.CypherTransactionError:
-            print "Exception occured in function like_post "
+            print "Exception occurred in function like_post "
 
     ############################################################################
     # function : add_system_comment
@@ -2056,7 +2079,7 @@ class System:
         try:
             get_graph_connection_uri().create(rel)
         except cypher.CypherError, cypher.CypherTransactionError:
-            print "Exception occured in function add_system_comment "
+            print "Exception occurred in function add_system_comment "
 
     ############################################################################
     # function : unlike_system_post
@@ -2079,7 +2102,7 @@ class System:
         try:
             get_graph_connection_uri().cypher.execute(query, postid=system_postid, userSqlId=user_sql_id)
         except cypher.CypherError, cypher.CypherTransactionError:
-            print "Exception occured in function unlike_system_post"
+            print "Exception occurred in function unlike_system_post"
 
     ############################################################################
     # function : get_mutual_system_between_friends
@@ -2125,7 +2148,7 @@ class System:
                                                                                       system_uid_collection=list_of_mutual_systems.keys())
             return mutual_system_between_friends
         except cypher.CypherError, cypher.CypherTransactionError:
-            print "Exception occured in function get_mutual_system_between_friends"
+            print "Exception occurred in function get_mutual_system_between_friends"
 
     ############################################################################
     # function : get_all_systems
@@ -2145,7 +2168,7 @@ class System:
             recommended_systems = get_graph_connection_uri().cypher.execute(query)
             return recommended_systems
         except cypher.CypherError, cypher.CypherTransactionError:
-            print "Exception occured in function get_all_systems"
+            print "Exception occurred in function get_all_systems"
 
 
 ################################################################################
@@ -2203,7 +2226,7 @@ class Group:
             results = get_graph_connection_uri().cypher.execute(query)
             return results
         except cypher.CypherError, cypher.CypherTransactionError:
-            print "Exception occured in function get_search_friends"
+            print "Exception occurred in function get_search_friends"
 
     ############################################################################
     # function : create_group
@@ -2232,7 +2255,7 @@ class Group:
             get_graph_connection_uri().create(user_groupadmin_relationship)
             return group_uid
         except cypher.CypherError, cypher.CypherTransactionError:
-            print "Exception occured in function create_group "
+            print "Exception occurred in function create_group "
 
     ############################################################################
     # function : find
@@ -2249,7 +2272,7 @@ class Group:
             group = get_graph_connection_uri().find_one("Group", "group_uid", group_uid)
             return group
         except cypher.CypherError, cypher.CypherTransactionError:
-            print "Exception occured in function Group.find()"
+            print "Exception occurred in function Group.find()"
 
     ############################################################################
     # function : get_group_by_uid
@@ -2271,7 +2294,7 @@ class Group:
             group_neo4j = get_graph_connection_uri().cypher.execute(query, group_uid=group_uid)
             return group_neo4j
         except cypher.CypherError, cypher.CypherTransactionError:
-            print "Exception occured in function get_group_by_uid"
+            print "Exception occurred in function get_group_by_uid"
 
     ############################################################################
     # function : add_group_post
@@ -2300,7 +2323,7 @@ class Group:
             get_graph_connection_uri().create(group_post_relationship)
             get_graph_connection_uri().create(user_group_post_relationship)
         except cypher.CypherError, cypher.CypherTransactionError:
-            print "Exception occured in function add_group_post "
+            print "Exception occurred in function add_group_post "
 
     ############################################################################
     # function : edit_group_post
@@ -2375,7 +2398,7 @@ class Group:
         try:
             get_graph_connection_uri().create_unique(rel)
         except cypher.CypherError, cypher.CypherTransactionError:
-            print "Exception occured in function like_group_post "
+            print "Exception occurred in function like_group_post "
 
     ############################################################################
     # function : unlike_group_post
@@ -2398,7 +2421,7 @@ class Group:
         try:
             get_graph_connection_uri().cypher.execute(query, postid=group_postid, userSqlId=user_sql_id)
         except cypher.CypherError, cypher.CypherTransactionError:
-            print "Exception occured in function unlike_group_post"
+            print "Exception occurred in function unlike_group_post"
 
     ############################################################################
     # function : add_group_comment
@@ -2426,7 +2449,7 @@ class Group:
         try:
             get_graph_connection_uri().create(rel)
         except cypher.CypherError, cypher.CypherTransactionError:
-            print "Exception occured in function add_group_comment "
+            print "Exception occurred in function add_group_comment "
 
     ############################################################################
     # function : edit_group_comment
@@ -2450,7 +2473,7 @@ class Group:
             get_graph_connection_uri().cypher.execute(query, commentid=comment_id,
                                                       newcomment=new_comment, timenow=timestamp())
         except cypher.CypherError, cypher.CypherTransactionError:
-            print "Exception occured in function edit_group_comment"
+            print "Exception occurred in function edit_group_comment"
 
     ############################################################################
     # function : delete_group_comment
@@ -2470,7 +2493,7 @@ class Group:
         try:
             get_graph_connection_uri().cypher.execute(query, commentid=commentid)
         except cypher.CypherError, cypher.CypherTransactionError:
-            print "Exception occured in function delete_group_comment "
+            print "Exception occurred in function delete_group_comment "
 
     ############################################################################
     # function : get_group_recent_comments
@@ -2495,7 +2518,7 @@ class Group:
             comments = get_graph_connection_uri().cypher.execute(query, group_uid=group_uid)
             return comments
         except cypher.CypherError, cypher.CypherTransactionError:
-            print "Exception occured in function get_group_recent_comments "
+            print "Exception occurred in function get_group_recent_comments "
 
     ############################################################################
     # function : get_group_recent_posts
@@ -2518,7 +2541,7 @@ class Group:
             posts = get_graph_connection_uri().cypher.execute(query, group_uid=group_uid)
             return posts
         except cypher.CypherError, cypher.CypherTransactionError:
-            print "Exception occured in function get_group_recent_posts "
+            print "Exception occurred in function get_group_recent_posts "
 
     ############################################################################
     # function : get_group_recent_likes
@@ -2540,7 +2563,7 @@ class Group:
             likes = get_graph_connection_uri().cypher.execute(query, group_id=group_id)
             return likes
         except cypher.CypherError, cypher.CypherTransactionError:
-            print "Exception occured in function get_group_recent_likes"
+            print "Exception occurred in function get_group_recent_likes"
 
     ############################################################################
     # function : get_total_likes_for_group_posts
@@ -2561,7 +2584,7 @@ class Group:
             total_likes = get_graph_connection_uri().cypher.execute(query, group_uid=group_uid)
             return total_likes
         except cypher.CypherError, cypher.CypherTransactionError:
-            print "Exception occured in function get_total_likes_for_group_posts"
+            print "Exception occurred in function get_total_likes_for_group_posts"
 
     ############################################################################
     # function : get_group_post_owners
@@ -2583,7 +2606,7 @@ class Group:
             likes = get_graph_connection_uri().cypher.execute(query, group_uid=group_uid)
             return likes
         except cypher.CypherError, cypher.CypherTransactionError:
-            print "Exception occured in function get_group_post_owners"
+            print "Exception occurred in function get_group_post_owners"
 
     ############################################################################
     # function : get_user_privilege_for_group
@@ -2616,7 +2639,7 @@ class Group:
                     user_privilege = "GROUP_PENDING_MEMBER"
             return user_privilege
         except cypher.CypherError, cypher.CypherTransactionError:
-            print "Exception occured in function get_user_privilege_for_group"
+            print "Exception occurred in function get_user_privilege_for_group"
 
     ############################################################################
     # function : get_group_admins
@@ -2638,7 +2661,7 @@ class Group:
             group_admins = get_graph_connection_uri().cypher.execute(query, group_uid=group_uid)
             return group_admins
         except cypher.CypherError, cypher.CypherTransactionError:
-            print "Exception occured in function get_group_admins"
+            print "Exception occurred in function get_group_admins"
 
     ############################################################################
     # function : get_group_members
@@ -2660,7 +2683,7 @@ class Group:
             group_members = get_graph_connection_uri().cypher.execute(query, group_uid=group_uid)
             return group_members
         except cypher.CypherError, cypher.CypherTransactionError:
-            print "Exception occured in function get_group_members"
+            print "Exception occurred in function get_group_members"
 
     ############################################################################
     # function : get_members_pending_approval
@@ -2682,7 +2705,7 @@ class Group:
             group_pending_members = get_graph_connection_uri().cypher.execute(query, group_uid=group_uid)
             return group_pending_members
         except cypher.CypherError, cypher.CypherTransactionError:
-            print "Exception occured in function get_members_pending_approval"
+            print "Exception occurred in function get_members_pending_approval"
 
     ############################################################################
     # function : approve_group_member
@@ -2714,7 +2737,7 @@ class Group:
                                                                                    google_id=google_id,
                                                                                    group_uid=group_uid)
         except cypher.CypherError, cypher.CypherTransactionError:
-            print "Exception occured in function approve_group_member"
+            print "Exception occurred in function approve_group_member"
 
     ############################################################################
     # function : reject_group_member
@@ -2737,7 +2760,7 @@ class Group:
                                                                                    google_id=google_id,
                                                                                    group_uid=group_uid)
         except cypher.CypherError, cypher.CypherTransactionError:
-            print "Exception occured in function reject_group_member"
+            print "Exception occurred in function reject_group_member"
 
     ############################################################################
     # function : delete_group_admin
@@ -2762,7 +2785,7 @@ class Group:
                                                                                    google_id=google_id,
                                                                                    group_uid=group_uid)
         except cypher.CypherError, cypher.CypherTransactionError:
-            print "Exception occured in function delete_group_admin"
+            print "Exception occurred in function delete_group_admin"
 
     ############################################################################
     # function : make_admin_for_group
@@ -2794,7 +2817,7 @@ class Group:
                                                                                    google_id=google_id,
                                                                                    group_uid=group_uid)
         except cypher.CypherError, cypher.CypherTransactionError:
-            print "Exception occured in function make_admin_for_group"
+            print "Exception occurred in function make_admin_for_group"
 
     ############################################################################
     # function : delete_group_member
@@ -2817,7 +2840,7 @@ class Group:
                                                                                    google_id=google_id,
                                                                                    group_uid=group_uid)
         except cypher.CypherError, cypher.CypherTransactionError:
-            print "Exception occured in function delete_group_member"
+            print "Exception occurred in function delete_group_member"
 
             ############################################################################
 
@@ -2841,7 +2864,7 @@ class Group:
                                                                                    google_id=google_id,
                                                                                    group_uid=group_uid)
         except cypher.CypherError, cypher.CypherTransactionError:
-            print "Exception occured in function leave_group"
+            print "Exception occurred in function leave_group"
 
 
 
@@ -2878,7 +2901,7 @@ class Group:
                                                                                    google_id=google_id,
                                                                                    group_uid=group_uid)
         except cypher.CypherError, cypher.CypherTransactionError:
-            print "Exception occured in function join_group_pending"
+            print "Exception occurred in function join_group_pending"
 
     ############################################################################
     # function : join_group
@@ -2911,7 +2934,7 @@ class Group:
                                                                                    google_id=google_id,
                                                                                    group_uid=group_uid)
         except cypher.CypherError, cypher.CypherTransactionError:
-            print "Exception occured in function join_group"
+            print "Exception occurred in function join_group"
 
     ############################################################################
     # function : update_group_info
@@ -2940,7 +2963,7 @@ class Group:
                                                                       is_private_group=is_private_group,
                                                                       modified_time=timestamp())
         except Exception as ex:
-            print "Exception occured in function update_group_info: " + str(ex)
+            print "Exception occurred in function update_group_info: " + str(ex)
 
     ############################################################################
     # function : get_recommended_groups
@@ -2969,7 +2992,7 @@ class Group:
                                                                                     minimum_depth_level)
             return mutual_group_between_friends
         except Exception as ex:
-            print "Exception occured in function get_recommended_groups: " + str(ex.message)
+            print "Exception occurred in function get_recommended_groups: " + str(ex.message)
 
     ############################################################################
     # function : get_mutual_group_between_friends
@@ -3015,7 +3038,7 @@ class Group:
                                                                                      group_uid_collection=list_of_mutual_groups.keys())
             return mutual_group_between_friends
         except Exception as ex:
-            print "Exception occured in function get_mutual_system_between_friends: " + str(ex.message)
+            print "Exception occurred in function get_mutual_system_between_friends: " + str(ex.message)
 
     ############################################################################
     # function : get_group_members
@@ -3037,7 +3060,7 @@ class Group:
             group_members = get_graph_connection_uri().cypher.execute(query, group_uid=group_uid)
             return group_members
         except Exception as ex:
-            print "Exception occured in function get_group_members: " + str(ex.message)
+            print "Exception occurred in function get_group_members: " + str(ex.message)
 
     ############################################################################
     # function : get_members_pending_approval
@@ -3059,7 +3082,7 @@ class Group:
             members_pending_approval = get_graph_connection_uri().cypher.execute(query, group_uid=group_uid)
             return members_pending_approval
         except Exception as ex:
-            print "Exception occured in function get_members_pending_approval: " + str(ex.message)
+            print "Exception occurred in function get_members_pending_approval: " + str(ex.message)
 
     ############################################################################
     # function : get_admin_groups
@@ -3082,7 +3105,7 @@ class Group:
             admin_groups = get_graph_connection_uri().cypher.execute(query, sql_id=sql_id)
             return admin_groups
         except Exception as ex:
-            print "Exception occured in function get_members_pending_approval: " + str(ex.message)
+            print "Exception occurred in function get_members_pending_approval: " + str(ex.message)
 
     ############################################################################
     # function : get_member_groups
@@ -3105,4 +3128,30 @@ class Group:
             member_groups = get_graph_connection_uri().cypher.execute(query, sql_id=sql_id)
             return member_groups
         except Exception as ex:
-            print "Exception occured in function get_member_groups: " + str(ex.message)
+            print "Exception occurred in function get_member_groups: " + str(ex.message)
+
+    ############################################################################
+    # function : get_users_to_invite_groups
+    # purpose :  Fetch the users from database who are not related to the specific groups
+    # params :
+    #       self : Group
+    #       group_uid :  uid of group
+    # returns : User node(s)
+    # Exceptions : General Exception
+    ############################################################################
+    def get_users_to_invite_groups(self, group_uid):
+        try:
+            query_to_fetch_users = """
+                MATCH (u:User), (g:Group)
+                WHERE NOT (u)-[:GROUP_ADMIN]->(g)
+                and NOT (u)-[:GROUP_MEMBER]->(g)
+                and NOT (u)-[:GROUP_PENDING_MEMBER]->(g)
+                and g.group_uid = {group_uid}
+                RETURN u
+                ORDER BY u.givenName
+            """
+            users_not_part_of_group = get_graph_connection_uri().cypher.execute(query_to_fetch_users,
+                                                                                group_uid=group_uid)
+            return users_not_part_of_group
+        except Exception as ex:
+            print "Exception occurred in function get_users_to_invite_groups: " + str(ex.message)

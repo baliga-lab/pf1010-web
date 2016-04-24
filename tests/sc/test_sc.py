@@ -20,7 +20,7 @@ class FlaskTestCase(unittest.TestCase):
         run.init_dav_app(run.app)
 
         # Do not change the test_user as it's the primary user to set session. If your test require
-        # additional user, create separate node. Scroll down below for more examples on System & Groups
+        # additional user, create separate node. Scroll down for more examples on System & Groups
         # --------------------------------------------------------------------------------------
         global sql_id
         sql_id = 19136
@@ -302,7 +302,7 @@ class FlaskTestCase(unittest.TestCase):
                 session['uid'] = test_user['sql_id']
             updated_group_name = str(test_group_node['name']) + " Updated"
             updated_group_description = str(test_group_node['description']) + " Updated"
-            res = client.post('/manage/groups/update_group_info',
+            res = client.post('/social/manage/groups/update_group_info',
                               data=dict(group_uid=test_group_node['group_uid'],
                                         name=updated_group_name,
                                         description=updated_group_description,
