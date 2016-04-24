@@ -3,7 +3,7 @@
 from flask import session
 from datetime import datetime
 from py2neo import Node
-from models import get_graph_connection_uri, timestamp, User
+from models import get_graph_connection_uri, timestamp, User, update_profile_image_url
 import uuid
 
 def get_or_create_user(conn, cursor, google_id, googleAPIResponse):
@@ -65,6 +65,11 @@ def get_or_create_user(conn, cursor, google_id, googleAPIResponse):
     session['uid']=result
     session['email'] = email
     session['img']=imgurl
+
+    # During Login, The Image Url Is Updated In Neo4J DB To Avoid The Image Discrepancies From Google Account
+    if imgurl is not None:
+        update_profile_image_url(result, imgurl)
+
     if displayName is None:
         displayName = ""
     session['displayName'] = displayName
