@@ -11,8 +11,8 @@
 
 
 {% block content %}
-<div class="row">
-    <div class="col-sm-3 hidden-sm hidden-xs">
+    <div class="col-md-3 leftPaneDiv">
+      <div class="row" groupDescription>
         <div class="profile">
             <img class="imgstyle img-responsive" id="userImage" src="{{ google_profile['img_url'] or user_profile['image_url'] }}"
                  width="200"/> <br/>
@@ -121,6 +121,7 @@
         </div>
 
         <br/>
+    </div>
     </div>
 
     {# NEWSFEED #}
