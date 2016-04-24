@@ -367,7 +367,7 @@ var app = angular.module('aqx');
 app.controller('AnnotationController', function ($scope, $http) {
 
     $scope.dataSubmit = function () {
-        var systemID = $('#systemID').html();
+        var systemID = $("#ID").html();
         var annotation = { annotationID: $('#number').val(), timestamp: $('#recordedDateAndTime').val() };
         $http.post('/aqxapi/v2/system/' + systemID + '/annotation', annotation).then(onSuccess, onFailure);
         function onSuccess(response) {
