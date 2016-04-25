@@ -161,7 +161,8 @@
                                 {% if cmt.postid == row.post.id %}
                                     <li>
                                         <div class="media-left">
-                                         <a href="{% if cmt.google_id %}/social/profile/{{ cmt.google_id }}
+                                         <a href="{% if cmt.user
+                                         and cmt.user.google_id %}/social/profile/{{ cmt.user.google_id }}
                                                 {% else %}#{% endif %}"> {# LINK TO USER'S PROFILE #}
                                                 {% if row.user and row.user.image_url %}
                                                     <img class="media-object" src="{{ cmt.user.image_url }}"

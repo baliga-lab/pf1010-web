@@ -152,8 +152,10 @@
                                 {% if cmt.postid == row.post.id %}
                                     <li>
                                         <div class="media-left">
-                                            <a href="#"> {# LINK TO USER'S PROFILE #}
-                                                {% if user_privilege == "SYS_ADMIN" or user_privilege == "SYS_PARTICIPANT" %}
+                                            {% if user_privilege == "SYS_ADMIN" or user_privilege == "SYS_PARTICIPANT" %}
+                                                <a href="{% if cmt.user
+                                                and cmt.user.google_id %}/social/profile/{{ cmt.user.google_id }}
+                                                {% else %}#{% endif %}"> {# LINK TO USER'S PROFILE #}
                                                     {% if row.user and row.user.image_url %}
                                                         <img class="media-object" src="{{ cmt.user.image_url }}"
                                                             alt="{{ cmt.displayName }}'s Picture" height="32" width="32"/>
@@ -164,12 +166,13 @@
                                                             alt="" height="32" width="32"/>
                                                         {# PLACEHOLDER IMAGE FOR USER'S PROFILE PIC #}
                                                     {% endif %}
-                                                {% else %}
-                                                    <img class="media-object"
-                                                            src="{{ url_for('frontend.static', filename='images/users/gloom.png') }}"
-                                                            alt="" height="32" width="32"/>
-                                                {% endif %}
-                                            </a>
+                                                </a>
+                                            {% else %}
+                                                <img class="media-object"
+                                                        src="{{ url_for('frontend.static', filename='images/users/gloom.png') }}"
+                                                        alt="" height="32" width="32"/>
+                                            {% endif %}
+
                                         </div>
                                         <div class="media-body">
                                             <h5>
