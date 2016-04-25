@@ -424,6 +424,22 @@ class FlaskTestCase(unittest.TestCase):
         self.helper_delete_user_node(test_user_timeline)
         self.helper_delete_user_node(test_user)
 
+    # -- Review
+    @patch('flask.templating._render', return_value='Make Post on Timeline Page Works As Expected')
+    def test_timeline_post(self, mocked):
+        self.helper_create_user_node(test_user)
+        self.helper_create_user_node(test_user_timeline)
+        self.helper_make_friend(test_user_timeline['sql_id'])
+        with self.app as client:
+            with client.session_transaction() as session:
+                session['uid'] = test_user['sql_id']
+            res = client.post('/social/add_profile_post',
+                              data=dict(str(test_user['google_id']), "profile",
+                                        "https://pf1010.systemsbiology.net/contact"))
+            self.assertFalse(mocked.called, "Make Post on Timeline Page Failed: " + res.data)
+        self.helper_delete_user_node(test_user_timeline)
+        self.helper_delete_user_node(test_user)
+
     # --------------------------------------------------------------------------------------
     # Groups Page Tests
     # --------------------------------------------------------------------------------------
