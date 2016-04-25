@@ -52,6 +52,8 @@ class API:
                 'name': organism[0],
                 'count': organism[1]
             })
+        # Get the status
+        status = self.systemDAO.getStatusForSystem(systemUID)[0]
         # Recompile the system
         system = {
             'ID': result[0],
@@ -62,7 +64,7 @@ class API:
             'startDate': str(result[5]),
             'location': {'lat': str(result[6]), 'lng': str(result[7])},
             'technique': result[8],
-            'status': result[9],
+            'status': status,
             'gbMedia': media,
             'crops': crops,
             'organisms': organisms,

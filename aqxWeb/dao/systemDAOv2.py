@@ -33,6 +33,28 @@ class systemDAO:
 
         return result
 
+    def getStatusForSystem(self, system_uid):
+        conn = self.getDBConn()
+        cursor = conn.cursor()
+
+        query = ("SELECT st.status_type "
+                 "FROM system_status ss "
+                 "LEFT JOIN status_types st ON ss.sys_status_id = st.id "
+                 "WHERE ss.system_uid = %s "
+                 "ORDER BY ss.id DESC "
+                 "LIMIT 1")
+
+        try:
+            cursor.execute(query, (system_uid,))
+            result = cursor.fetchone()
+        except:
+            raise
+        finally:
+            cursor.close()
+            conn.close()
+
+        return result
+
     def getOrganismsForSystem(self, system_id):
         conn = self.getDBConn()
         cursor = conn.cursor()
