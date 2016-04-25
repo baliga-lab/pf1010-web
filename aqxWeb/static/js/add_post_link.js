@@ -53,8 +53,6 @@ function getLinkMeta(url) {
                     if (result.title) {
                         text += "<h3>" + result.title  + "</h3>";
                         text += "<input type='hidden' name='link_title' value='" + result.title + "'/>";
-                    } else {
-                        text += "<input type='hidden' name='link_title' value=''/>";
                     }
                     // link url
                     text += "<div class='url'><em><a href='" + url + "' target='_blank'>" + url + "</a></em></div>";
@@ -62,15 +60,11 @@ function getLinkMeta(url) {
                     if (result.img) {
                         text += "<img src='" + result.img + "' class='thumb'/>";
                         text += "<input type='hidden' name='link_img' value='" + result.img + "'/>";
-                    } else {
-                        text += "<input type='hidden' name='link_img' value=''/>";
                     }
                     // link description
                     if (result.description) {
                         text += "<p>" + result.description + "</p>";
                         text += "<input type='hidden' name='link_description' value='" + result.description + "'/>";
-                    } else {
-                        text += "<input type='hidden' name='link_description' value=''/>";
                     }
                     text += "</div>";
                     $(".links").empty();

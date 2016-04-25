@@ -1422,7 +1422,7 @@ def add_post():
 
     user = User(session['uid'])
     privacy = request.form['privacy']
-    link = request.form['link']
+    link = request.form.get('link', '')
 
     user_profile = None
     if page_type == 'profile':
@@ -1430,9 +1430,9 @@ def add_post():
     if user_profile and user_profile.one:
         user_profile = user_profile.one
 
-    title = request.form['link_title']
-    img = request.form['link_img']
-    description = request.form['link_description']
+    title = request.form.get('link_title', '')
+    img = request.form.get('link_img', '')
+    description = request.form.get('link_description', '')
 
     if title or img or description:
         user.add_post(text, privacy, link, user_profile, title, img, description)
