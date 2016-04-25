@@ -702,8 +702,8 @@ class FlaskTestCase(unittest.TestCase):
         with self.app as client:
             with client.session_transaction() as session:
                 session['uid'] = test_user['sql_id']
-            res = client.post('/social/delete_group_post',
-                              data=dict(system_uid=system_uid, postid=post_group_id))
+            res = client.post('/social/delete_system_post',
+                              data=dict(system_uid=system_uid, postid=post_system_id))
             #print(res.data)
             self.assertFalse(mocked.called, "Delete system post Failed: " + res.data)
         self.helper_delete_system_node(test_system_node)
@@ -717,13 +717,32 @@ class FlaskTestCase(unittest.TestCase):
         with self.app as client:
             with client.session_transaction() as session:
                 session['uid'] = test_user['sql_id']
-            res = client.post('/social/edit_group_post',
-                              data=dict(group_uid=group_uid, postid=post_group_id, editedpost ="This is an edited post"))
+            res = client.post('/social/edit_system_post',
+                              data=dict(system_uid=system_uid, postid=post_system_id, editedpost="This is an edited post"))
             #print(res.data)
             self.assertFalse(mocked.called, "Edit system post Failed: " + res.data)
         self.helper_delete_system_post_node(post_system_id)
         self.helper_delete_system_node(test_system_node)
         self.helper_delete_user_node(test_user)
+
+    """
+    @patch('flask.templating._render', return_value='Add system comment Works As Expected')
+    def test_add_system_comment(self, mocked):
+        self.helper_create_user_node(test_user)
+        self.helper_create_system_node(test_system_node)
+        self.helper_create_system_post_node(test_system_post_node)
+        with self.app as client:
+            with client.session_transaction() as session:
+                session['uid'] = test_user['sql_id']
+            res = client.post('/social/add_system_comment',
+                              data=dict(system_uid=system_uid, postid=test_system_post_node['id'],
+                                        newcomment="This is a New comment"))
+            #print(res.data)
+            self.assertFalse(mocked.called, "Add system comment Failed: " + res.data)
+        self.helper_delete_system_post_node(post_system_id)
+        self.helper_delete_system_node(test_system_node)
+        self.helper_delete_user_node(test_user)
+    """
 
     @patch('flask.templating._render', return_value='Route To Search Systems Page Works As Expected')
     def test_search_systems_page_render(self, mocked):
