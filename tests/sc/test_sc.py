@@ -93,6 +93,22 @@ class FlaskTestCase(unittest.TestCase):
                                 description="Unit Test Social System Description", location_lat=42.338660,
                                 location_lng=-71.092186, status=0, creation_time=1461345863010,
                                 modified_time=1461345863010)
+        global test_system_post_node
+        test_system_post_node = Node(
+            "SystemPost",
+            id=post_system_id,
+            text="This is a test system post",
+            privacy="Public",
+            userid=sql_id,
+            creation_time=1461345863010,
+            modified_time=1461345863010,
+            date=1461345863010,
+            link="None",
+            link_title="None",
+            link_img="None",
+            link_description="None"
+        )
+
         # --------------------------------------------------------------------------------------
 
 
@@ -664,6 +680,51 @@ class FlaskTestCase(unittest.TestCase):
     # System Page Tests
     # --------------------------------------------------------------------------------------
 
+    @patch('flask.templating._render', return_value='Add system post Works As Expected')
+    def test_add_system_post(self, mocked):
+        self.helper_create_user_node(test_user)
+        self.helper_create_system_node(test_system_node)
+        with self.app as client:
+            with client.session_transaction() as session:
+                session['uid'] = test_user['sql_id']
+            res = client.post('/social/systems/add_system_post',
+                              data=dict(system_uid=system_uid, privacy="public", text="This is a test group post",
+                                        link="None",link_title="None", link_img="None",link_description="None"))
+            self.assertFalse(mocked.called, "Add system post Failed: " + res.data)
+        self.helper_delete_system_node(test_system_node)
+        self.helper_delete_user_node(test_user)
+
+    @patch('flask.templating._render', return_value='Delete system post Works As Expected')
+    def test_delete_system_post(self, mocked):
+        self.helper_create_user_node(test_user)
+        self.helper_create_system_node(test_system_node)
+        self.helper_create_system_post_node(test_system_post_node)
+        with self.app as client:
+            with client.session_transaction() as session:
+                session['uid'] = test_user['sql_id']
+            res = client.post('/social/delete_group_post',
+                              data=dict(system_uid=system_uid, postid=post_group_id))
+            #print(res.data)
+            self.assertFalse(mocked.called, "Delete system post Failed: " + res.data)
+        self.helper_delete_system_node(test_system_node)
+        self.helper_delete_user_node(test_user)
+
+    @patch('flask.templating._render', return_value='Edit system post Works As Expected')
+    def test_edit_system_post(self, mocked):
+        self.helper_create_user_node(test_user)
+        self.helper_create_system_node(test_system_node)
+        self.helper_create_system_post_node(test_system_post_node)
+        with self.app as client:
+            with client.session_transaction() as session:
+                session['uid'] = test_user['sql_id']
+            res = client.post('/social/edit_group_post',
+                              data=dict(group_uid=group_uid, postid=post_group_id, editedpost ="This is an edited post"))
+            #print(res.data)
+            self.assertFalse(mocked.called, "Edit system post Failed: " + res.data)
+        self.helper_delete_system_post_node(post_system_id)
+        self.helper_delete_system_node(test_system_node)
+        self.helper_delete_user_node(test_user)
+
     @patch('flask.templating._render', return_value='Route To Search Systems Page Works As Expected')
     def test_search_systems_page_render(self, mocked):
         self.helper_create_user_node(test_user)
@@ -1034,7 +1095,7 @@ class FlaskTestCase(unittest.TestCase):
         except Exception as ex:
             print "Exception At helper_create_group_post_node: " + str(ex.message)
 
-     # Helper Function To Delete User Node In Neo4J Database
+     # Helper Function To Delete User Post Node In Neo4J Database
     def helper_delete_group_post_node(self, group_post_to_delete):
         try:
             delete_group_post_query = """
@@ -1046,6 +1107,26 @@ class FlaskTestCase(unittest.TestCase):
         except Exception as ex:
             print "Exception At helper_delete_group_post_node: " + str(ex.message)
 
+    # Helper Function To Create System Post Node In Neo4J Database
+    def helper_create_system_post_node(self, system_post_node_to_create):
+        try:
+            # Same Group Node If Exists Is Removed
+            self.helper_delete_system_post_node(post_system_id)
+            graph.create(system_post_node_to_create)
+        except Exception as ex:
+            print "Exception At helper_create_system_post_node: " + str(ex.message)
+
+     # Helper Function To Delete System Post Node In Neo4J Database
+    def helper_delete_system_post_node(self, system_post_to_delete):
+        try:
+            delete_group_post_query = """
+                MATCH (s:SystemPost)
+                WHERE s.id = {postid}
+                DETACH DELETE s
+            """
+            delete_system_status = graph.cypher.execute(delete_group_post_query, postid=system_post_to_delete)
+        except Exception as ex:
+            print "Exception At helper_delete_system_post_node: " + str(ex.message)
     # --------------------------------------------------------------------------------------
 
     if __name__ == '__main__':
