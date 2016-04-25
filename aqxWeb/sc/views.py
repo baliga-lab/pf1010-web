@@ -52,8 +52,6 @@ def index():
                       'home', session['uid'])  # info about timeline/page)
     privacy.user_relation = None
     admin_systems = System().get_admin_systems(session['uid'])
-    participated_systems = System().get_participated_systems(session['uid'])
-    subscribed_systems = System().get_subscribed_systems(session['uid'])
     return render_template('home.html', posts=posts, comments=comments,
                            privacy_info=privacy, likes=likes,
                            total_likes=total_likes, post_owners=post_owners,
@@ -1465,14 +1463,12 @@ def add_post():
     if user_profile and user_profile.one:
         user_profile = user_profile.one
 
-    title = request.form.get('link_title', '')
-    img = request.form.get('link_img', '')
-    description = request.form.get('link_description', '')
+    link_title = request.form.get('link_title', '')
+    link_img = request.form.get('link_img', '')
+    link_description = request.form.get('link_description', '')
 
-    if title or img or description:
-        user.add_post(text, privacy, link, user_profile, title, img, description)
-    else:
-        user.add_post(text, privacy, link, user_profile)
+    user.add_post(text, privacy, link, user_profile, link_title, link_img, link_description)
+
     flash('Your post has been shared')
     return redirect_to_page(page_type, google_id)
 
@@ -1517,11 +1513,16 @@ def add_system_post():
             created_date = convert_milliseconds_to_normal_date(system_neo4j[0][0]['creation_time'])
             privacy = request.form['privacy']
             text = request.form['text']
-            link = request.form['link']
+            link = request.form.get('link', '')
+            link_title = request.form.get('link_title', '')
+            link_img = request.form.get('link_img', '')
+            link_description = request.form.get('link_description', '')
+
             if text == "":
                 flash('Post cannot be empty.')
             else:
-                System().add_system_post(system_uid, user_sql_id, text, privacy, link)
+                System().add_system_post(system_uid, user_sql_id, text, privacy,
+                                         link, link_title, link_img, link_description)
     return redirect(url_for('social.view_system', system_uid=system_uid))
 
 
@@ -1551,11 +1552,16 @@ def add_group_post():
             created_date = convert_milliseconds_to_normal_date(group_neo4j[0][0]['creation_time'])
             privacy = request.form['privacy']
             text = request.form['text']
-            link = request.form['link']
+            link = request.form.get('link', '')
+            link_title = request.form.get('link_title', '')
+            link_img = request.form.get('link_img', '')
+            link_description = request.form.get('link_description', '')
+
             if text == "":
                 flash('Post cannot be empty.')
             else:
-                Group().add_group_post(group_uid, user_sql_id, text, privacy, link)
+                Group().add_group_post(group_uid, user_sql_id, text, privacy,
+                                         link, link_title, link_img, link_description)
     return redirect(url_for('social.view_group', group_uid=group_uid))
 
 

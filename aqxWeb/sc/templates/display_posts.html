@@ -67,8 +67,7 @@
                             or row.post.link.endswith(".gif") %}
                                 <img class="attachedImg" src="{{ row.post.link }}"
                                      onclick="window.open('{{ row.post.link }}', '_blank');"/>
-
-                                {# video content #}
+                            {# video content #}
                             {% elif "//www.youtube.com/" in row.post.link or "//vimeo.com" in row.post.link
                             or "//player.vimeo.com/video" in row.post.link %}
                                 <div class="embed-responsive embed-responsive-16by9">
@@ -81,6 +80,7 @@
                                         Please use an up-to-date browser that is capable of displaying frames.]
                                     </iframe>
                                 </div>
+                            {# other content #}
                             {% else %}
                                 <div class='embed_link_preview'
                                      onclick="window.open('{{ row.post.link }}', '_blank');">

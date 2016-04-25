@@ -1909,25 +1909,29 @@ class System:
     # returns : None
     # Exceptions : cypher.CypherError, cypher.CypherTransactionError
     ############################################################################
-    def add_system_post(self, system_uid, user_sql_id, text, privacy, link):
-        systemnew = System().find(system_uid)
+    def add_system_post(self, system_uid, user_sql_id, text, privacy, link, title="", img="", description=""):
+        new_system = System().find(system_uid)
         user = User(user_sql_id).find()
         post = Node(
             "SystemPost",
             id=str(uuid.uuid4()),
             text=text,
-            link=link,
             privacy=privacy,
             userid=user_sql_id,
             creation_time=timestamp(),
             modified_time=timestamp(),
-            date=date()
+            date=date(),
+            link=link,
+            link_title=title,
+            link_img=img,
+            link_description=description
         )
-        sys_syspost_relationship = Relationship(systemnew, "SYS_POSTED", post)
-        user_syspost_relationship = Relationship(user, "USER_POSTED", post)
+
+        sys_post_relationship = Relationship(new_system, "SYS_POSTED", post)
+        user_post_relationship = Relationship(user, "USER_POSTED", post)
         try:
-            get_graph_connection_uri().create(sys_syspost_relationship)
-            get_graph_connection_uri().create(user_syspost_relationship)
+            get_graph_connection_uri().create(sys_post_relationship)
+            get_graph_connection_uri().create(user_post_relationship)
         except cypher.CypherError, cypher.CypherTransactionError:
             print "Exception occurred in function add_system_post "
 
@@ -2304,19 +2308,22 @@ class Group:
     # returns : None
     # Exceptions : cypher.CypherError, cypher.CypherTransactionError
     ############################################################################
-    def add_group_post(self, group_uid, user_sql_id, text, privacy, link):
+    def add_group_post(self, group_uid, user_sql_id, text, privacy, link, title="", img="", description=""):
         group = Group().find(group_uid)
         user = User(user_sql_id).find()
         post = Node(
             "GroupPost",
             id=str(uuid.uuid4()),
             text=text,
-            link=link,
             privacy=privacy,
             userid=user_sql_id,
             creation_time=timestamp(),
             modified_time=timestamp(),
-            date=date()
+            date=date(),
+            link=link,
+            link_title=title,
+            link_img=img,
+            link_description=description
         )
         group_post_relationship = Relationship(group, "GROUP_POSTED", post)
         user_group_post_relationship = Relationship(user, "USER_POSTED", post)
