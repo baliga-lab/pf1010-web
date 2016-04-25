@@ -158,7 +158,7 @@
                 user_privilege is not GROUP_MEMBER or GROUP_ADMIN. If ignored, below error message appears. -->
                 <!-- group_social.js:43 Uncaught TypeError: Cannot set property '_renderItem' of undefined-->
                 <input type="hidden" id="txtFriendName" class="form-control input-sm"
-                               placeholder="Enter Name (3 Characters Min) .."/>
+                       placeholder="Enter Name (3 Characters Min) .."/>
             {% endif %}
             <!-- End Of Div for Invite Group Members -->
 
@@ -232,8 +232,10 @@
     <!-- jQuery Script For DOM Manipulation In Groups Page -->
     <script type="text/javascript" src="{{ url_for('social.static', filename='js/group_social.js') }}"></script>
     <script type="text/javascript">
-        list_users_autocomplete("{{ group_neo4j[0][0]["group_uid"] }}",
-                "{{ url_for('social.get_users_to_invite_groups', group_uid=group_neo4j[0][0]["group_uid"]) }}",
-                "{{ url_for('social.invite_group_member') }}");
+        $(document).ready(function () {
+            list_users_autocomplete("{{ group_neo4j[0][0]["group_uid"] }}",
+                    "{{ url_for('social.get_users_to_invite_groups', group_uid=group_neo4j[0][0]["group_uid"]) }}",
+                    "{{ url_for('social.invite_group_member') }}");
+        });
     </script>
 {% endblock %}
