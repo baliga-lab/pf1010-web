@@ -24,6 +24,8 @@ class measurementDAO:
                 table = getTableName(measurement, systemUID)
                 cursor.execute(query % table)
                 reading = cursor.fetchone()
+                if reading:
+                    reading = round(reading[0], 2)
                 readings[measurement] = reading
         except:
             raise
