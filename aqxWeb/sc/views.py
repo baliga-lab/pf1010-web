@@ -1021,6 +1021,8 @@ def get_users_to_invite_groups(group_uid):
         return jsonify(user_json_list=user_list)
     except Exception as ex:
         print "Exception at get_users_to_invite_groups: " + str(ex.message)
+        user_list = []
+        return jsonify(user_json_list=user_list)
 
 
 #######################################################################################
@@ -1169,6 +1171,7 @@ def invite_group_member():
             return redirect(url_for('social.groups'))
     except Exception as ex:
         print "Exception at invite_group_member: " + str(ex.message)
+        return redirect(url_for('social.groups'))
 
 
 #######################################################################################
