@@ -12,10 +12,12 @@ ${BROWSER}        Firefox
 ${DELAY}          0
 ${VALID USER}     demo
 ${VALID PASSWORD}    mode
-${WELCOME URL}    http://${SERVER}/ui/ui-index
-${ABOUT URL}      http://${SERVER}/ui/about
-${EXPLORE URL}    http://${SERVER}/ui/explore
-${NEWSFEED URL}   http://${SERVER}/ui/newsfeed
+${WELCOME URL}    http://${SERVER}
+${ABOUT URL}      http://${SERVER}/about
+${EXPLORE URL}    http://${SERVER}/dav/explore
+${CURRICULUM URL}   http://${SERVER}/curriculum
+${RESOURCES URL}   http://${SERVER}/resources
+${GOOGLEACCOUNT URL}   https://accounts.google.com
 ${ERROR URL}      http://${SERVER}/error.html
 
 *** Keywords ***
@@ -26,7 +28,6 @@ Open Browser To Project Feed 1010
     Project Feed 1010 Should Be Open
 
 Project Feed 1010 Should Be Open
-    Location Should Be    ${WELCOME URL}
     Title Should Be    Project Feed 1010
 
 About Should Be Open
@@ -43,10 +44,16 @@ Go To Explore
     Go To    ${EXPLORE URL}
     Explore Should Be Open
 
-Newsfeed Should Be Open
-    Title Should Be    Newsfeed
+Curriculum Should Be Open
+    Title Should Be    Curriculum
 
-Go To Newsfeed
-    Go To    ${NEWSFEED URL}
-    Newsfeed Should Be Open
+Go To Curriculum
+    Go To    ${CURRICULUM URL}
+    Curriculum Should Be Open
 
+Resources Should Be Open
+    Title Should Be    Resources
+
+Go To Resources
+    Go To    ${RESOURCES URL}
+    Resources Should Be Open
