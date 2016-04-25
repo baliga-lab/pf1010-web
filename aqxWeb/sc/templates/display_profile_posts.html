@@ -10,7 +10,8 @@
                     {# USER OF POST #}
                     <div class="media-left">
                         {# LINK TO USER'S PROFILE #}
-                        <a href="{% if row.user %}/social/profile/{{ row.user.google_id }}{% else %}#{% endif %}">
+                        <a href="{% if row.user %}{{ url_for('social.profile', google_id=row.user.google_id) }}
+                        {% else %}#{% endif %}">
                             {% if row.user.image_url %}
                                 <img class="media-object" src="{{ row.user.image_url }}"
                                      alt="{{ row.user.displayName }}'s Picture">
@@ -160,7 +161,8 @@
                                     {% if cmt.post_id == row.post.id and cmt.comment and cmt.comment.content %}
                                         <li>
                                             <div class="media-left">
-                                                <a href="{% if cmt.google_id %}/social/profile/{{ cmt.google_id }}
+                                                <a href="{% if cmt.google_id %}
+                                                {{ url_for('social.profile', google_id= cmt.google_id) }}
                                                 {% else %}#{% endif %}">
                                                     {# LINK TO USER'S PROFILE #}
                                                     {% if cmt.image_url %}

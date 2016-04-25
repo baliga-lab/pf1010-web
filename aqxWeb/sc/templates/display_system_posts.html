@@ -13,7 +13,8 @@
                     <div class="media-left">
                         {# LINK TO USER'S PROFILE #}
                         {% if user_privilege == "SYS_ADMIN" or user_privilege == "SYS_PARTICIPANT" %}
-                            <a href="/social/profile/{% if row.user %}{{ row.user.google_id }}{% endif %}">
+                            <a href="{% if row.user %}{{ url_for('social.profile', google_id=row.user.google_id) }}
+                            {% else %}#{% endif %}">
                                 {% if row.user.image_url %}
                                 <img class="media-object" src="{{ row.user.image_url }}"
                                      alt="{{ row.displayName }}'s Picture"
@@ -170,8 +171,8 @@
                                     <li>
                                         <div class="media-left">
                                             {% if user_privilege == "SYS_ADMIN" or user_privilege == "SYS_PARTICIPANT" %}
-                                                <a href="{% if cmt.user
-                                                and cmt.user.google_id %}/social/profile/{{ cmt.user.google_id }}
+                                                <a href="{% if cmt.user and cmt.user.google_id %}
+                                                {{ url_for('social.profile', google_id=cmt.user.google_id) }}
                                                 {% else %}#{% endif %}"> {# LINK TO USER'S PROFILE #}
                                                     {% if row.user and row.user.image_url %}
                                                         <img class="media-object" src="{{ cmt.user.image_url }}"

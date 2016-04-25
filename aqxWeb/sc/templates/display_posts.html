@@ -8,7 +8,8 @@
                     {# USER OF POST #}
                     <div class="media-left">
                         {# LINK TO USER'S PROFILE #}
-                        <a href="{% if row.user %}/social/profile/{{ row.user.google_id }}{% else %}#{% endif %}">
+                        <a href="{% if row.user %}{{ url_for('social.profile', google_id=row.user.google_id) }}
+                        {% else %}#{% endif %}">
                             {% if row.user.image_url %}
                                 <img class="media-object" src="{{ row.user.image_url }}"
                                      alt="{{ row.displayName }}'s Picture">
@@ -54,7 +55,7 @@
                             {{ row.displayName }}
                             {% if row.profile_user %}
                                 <span class="sub-text"> to </span>
-                                <a href="/social/profile/{{ row.profile_user.google_id }}">
+                                <a href="{{ url_for('social.profile', google_id=row.profile_user.google_id) }}">
                                     {{ row.profile_user.displayName }}</a>
                             {% endif %}
                             <span class="date sub-text">posted on {{ row.post.date }}</span>
@@ -161,9 +162,9 @@
                                 {% if cmt.postid == row.post.id %}
                                     <li>
                                         <div class="media-left">
-                                         <a href="{% if cmt.user
-                                         and cmt.user.google_id %}/social/profile/{{ cmt.user.google_id }}
-                                                {% else %}#{% endif %}"> {# LINK TO USER'S PROFILE #}
+                                         <a href="{% if cmt.user and cmt.user.google_id %}
+                                         {{ url_for('social.profile', google_id=cmt.user.google_id) }}
+                                         {% else %}#{% endif %}"> {# LINK TO USER'S PROFILE #}
                                                 {% if row.user and row.user.image_url %}
                                                     <img class="media-object" src="{{ cmt.user.image_url }}"
                                                          alt="{{ cmt.displayName }}'s Picture"/>
