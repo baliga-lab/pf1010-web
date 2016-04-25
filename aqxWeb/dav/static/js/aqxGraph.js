@@ -713,10 +713,11 @@ function tooltipFormatter(){
     var eventString = "";
     if (this.point.annotations) {
         console.log('event found');
+        var event_datetime = new Date(event.date + SPACE + GMT);
         eventString = "<br><p>Most recent event(s): </p>";
         _.each(this.point.annotations, function (event) {
             console.log(event);
-            eventString = eventString + '<br><p>' + annotationsMap[event.id]+ " at " + event.date + '<p>'
+            eventString = eventString + '<br><p>' + annotationsMap[event.id]+ " at " + event_datetime.toString() + '<p>'
         });
     }
 
