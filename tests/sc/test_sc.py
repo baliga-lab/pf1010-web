@@ -23,6 +23,12 @@ class FlaskTestCase(unittest.TestCase):
         # --------------------------------------------------------------------------------------
         global sql_id
         sql_id = 19136
+        global post_id
+        post_id = 1
+        global post_system_id
+        post_system_id = 2
+        global post_group_id
+        post_group_id = 3
         global google_id
         google_id = "708635381087572041278"
         global test_user
@@ -105,6 +111,21 @@ class FlaskTestCase(unittest.TestCase):
                                group_description=group_description, is_private_group=is_private_group,
                                status=0, creation_time=1461345863010,
                                modified_time=1461345863010)
+        global test_group_post_node
+        test_group_post_node = Node(
+            "GroupPost",
+            id=post_group_id,
+            text="This is a test group post",
+            privacy="Public",
+            userid=sql_id,
+            creation_time=1461345863010,
+            modified_time=1461345863010,
+            date=1461345863010,
+            link="None",
+            link_title="None",
+            link_img="None",
+            link_description="None"
+        )
         # --------------------------------------------------------------------------------------
 
         # Dummy User For Group Member/Pending_Member
@@ -326,7 +347,7 @@ class FlaskTestCase(unittest.TestCase):
             res = client.post('/social/updateprofile',
                               data=dict(givenName="Chandler", familyName="Bing", displayName="Chandler", gender="Male",
                                         organization="Northeastern", user_type="participant", dob="1989-12-20"))
-            print(res.data)
+            print(res)
             self.assertTrue(mocked.called, "Route To Home Page Failed: " + res.data)
         self.helper_delete_user_node(test_user)
 
@@ -367,6 +388,51 @@ class FlaskTestCase(unittest.TestCase):
     # --------------------------------------------------------------------------------------
     # Groups Page Tests
     # --------------------------------------------------------------------------------------
+
+    @patch('flask.templating._render', return_value='Add group post Works As Expected')
+    def test_add_group_post(self, mocked):
+        self.helper_create_user_node(test_user)
+        self.helper_create_group_node(test_group_node)
+        with self.app as client:
+            with client.session_transaction() as session:
+                session['uid'] = test_user['sql_id']
+            res = client.post('/social/groups/add_group_post',
+                              data=dict(group_uid=group_uid, privacy="public", text="This is a test group post",
+                                        link="None",link_title="None", link_img="None",link_description="None"))
+            self.assertFalse(mocked.called, "Add group post Failed: " + res.data)
+        self.helper_delete_group_node(test_group_node)
+        self.helper_delete_user_node(test_user)
+
+    @patch('flask.templating._render', return_value='Delete group post Works As Expected')
+    def test_delete_group_post(self, mocked):
+        self.helper_create_user_node(test_user)
+        self.helper_create_group_node(test_group_node)
+        self.helper_create_group_post_node(test_group_post_node)
+        with self.app as client:
+            with client.session_transaction() as session:
+                session['uid'] = test_user['sql_id']
+            res = client.post('/social/delete_group_post',
+                              data=dict(group_uid=group_uid, postid=post_group_id))
+            #print(res.data)
+            self.assertFalse(mocked.called, "Delete group post Failed: " + res.data)
+        self.helper_delete_group_node(test_group_node)
+        self.helper_delete_user_node(test_user)
+
+    @patch('flask.templating._render', return_value='Edit group post Works As Expected')
+    def test_edit_group_post(self, mocked):
+        self.helper_create_user_node(test_user)
+        self.helper_create_group_node(test_group_node)
+        self.helper_create_group_post_node(test_group_post_node)
+        with self.app as client:
+            with client.session_transaction() as session:
+                session['uid'] = test_user['sql_id']
+            res = client.post('/social/edit_group_post',
+                              data=dict(group_uid=group_uid, postid=post_group_id, editedpost ="This is an edited post"))
+            #print(res.data)
+            self.assertFalse(mocked.called, "Edit group post Failed: " + res.data)
+        self.helper_delete_group_post_node(post_group_id)
+        self.helper_delete_group_node(test_group_node)
+        self.helper_delete_user_node(test_user)
 
     @patch('flask.templating._render', return_value='Create Groups Page Render Works As Expected')
     def test_create_groups_page_render(self, mocked):
@@ -958,6 +1024,27 @@ class FlaskTestCase(unittest.TestCase):
                                                         system_uid=system_node_to_delete['system_uid'])
         except Exception as ex:
             print "Exception At helper_delete_system_node: " + str(ex.message)
+
+    # Helper Function To Create Group Post Node In Neo4J Database
+    def helper_create_group_post_node(self, group_post_node_to_create):
+        try:
+            # Same Group Node If Exists Is Removed
+            self.helper_delete_group_post_node(post_group_id)
+            graph.create(group_post_node_to_create)
+        except Exception as ex:
+            print "Exception At helper_create_group_post_node: " + str(ex.message)
+
+     # Helper Function To Delete User Node In Neo4J Database
+    def helper_delete_group_post_node(self, group_post_to_delete):
+        try:
+            delete_group_post_query = """
+                MATCH (g:GroupPost)
+                WHERE g.id = {postid}
+                DETACH DELETE g
+            """
+            delete_group_status = graph.cypher.execute(delete_group_post_query, postid=group_post_to_delete)
+        except Exception as ex:
+            print "Exception At helper_delete_group_post_node: " + str(ex.message)
 
     # --------------------------------------------------------------------------------------
 
