@@ -7,6 +7,7 @@ from aqxWeb.dav.app.dav_api import DavAPI
 
 import json
 import MySQLdb
+import os
 # test DAV Api calls
 
 
@@ -19,7 +20,9 @@ class DavApiTest(unittest.TestCase):
         cls.app = run.app.test_client()
         cls.conn = MySQLdb.connect(host=run.app.config['HOST'], user=run.app.config['USER'],
                                    passwd=run.app.config['PASS'], db=run.app.config['DB'])
-
+        cls.path = os.getcwd() + '/data/'
+        if 'tests/dav/app' not in cls.path:
+            cls.path = os.getcwd() + '/tests/dav/app/data/'
         # cls.conn = MySQLdb.connect(host=run.app.config['HOST'], user=run.app.config['USER'],
         #                   passwd=run.app.config['PASS'], db=run.app.config['DB'])
 
@@ -37,7 +40,7 @@ class DavApiTest(unittest.TestCase):
     # get_all_aqx_metadata
     def test_get_all_aqx_metadata(self):
         actual_result = analytics_views.get_all_aqx_metadata()
-        with open('data/test_get_all_aqx_metadata.txt') as f:
+        with open(self.path + 'test_get_all_aqx_metadata.txt') as f:
             expected_result = f.readlines()[0]
         self.assertEquals(expected_result, actual_result)
 
@@ -158,7 +161,7 @@ class DavApiTest(unittest.TestCase):
         system_uid_list = ["5cc8402478ee11e59d5c000c29b92d09"]
         msr_id_list = ["8"]
         actual_result = davAPI.get_readings_for_plot(system_uid_list, msr_id_list, 200)
-        with open('data/test_get_readings_for_plot1_er.txt') as f:
+        with open(self.path + 'test_get_readings_for_plot1_er.txt') as f:
             expected_result = f.readlines()[0]
         self.assertEqual(expected_result, actual_result)
 
@@ -172,7 +175,7 @@ class DavApiTest(unittest.TestCase):
 
         actual_result = davAPI.get_readings_for_plot(system_uid_list, msr_id_list, 200)
 
-        with open('data/test_get_readings_for_plot2_er.txt') as f:
+        with open(self.path + 'test_get_readings_for_plot2_er.txt') as f:
             expected_result = f.readlines()[0]
         self.assertEqual(expected_result, actual_result)
 
@@ -184,7 +187,7 @@ class DavApiTest(unittest.TestCase):
         msr_id_list = [6]
 
         actual_result = analytics_views.get_readings_for_tsplot(system_uid_list, msr_id_list,200)
-        with open('data/test_get_readings_for_plot3_er.txt') as f:
+        with open(self.path + 'test_get_readings_for_plot3_er.txt') as f:
             expected_result = f.readlines()[0]
         self.assertEqual(expected_result, actual_result)
 
@@ -196,7 +199,7 @@ class DavApiTest(unittest.TestCase):
         msr_id_list = [6, 8, 9]
 
         actual_result = analytics_views.get_readings_for_tsplot(system_uid_list, msr_id_list, 200)
-        with open('data/test_get_readings_for_plot4_er.txt') as f:
+        with open(self.path + 'test_get_readings_for_plot4_er.txt') as f:
             expected_result = f.readlines()[0]
 
         self.assertEqual(expected_result, actual_result)
@@ -211,7 +214,7 @@ class DavApiTest(unittest.TestCase):
         system_uid_list = ["b9752004864911e58f3f000c29b92d09", "3ddb948a5afe11e5a2ac000c29b92d09"]
         msr_id_list = ["1", "3", "4"]
         actual_result = analytics_views.get_readings_for_tsplot(system_uid_list, msr_id_list,200)
-        with open('data/test_get_readings_for_plot5_er.txt') as f:
+        with open(self.path + 'test_get_readings_for_plot5_er.txt') as f:
             expected_result = f.readlines()[0]
 
         self.assertEqual(expected_result, actual_result)
@@ -225,7 +228,7 @@ class DavApiTest(unittest.TestCase):
         system_uid_list = ["3ddb948a5afe11e5a2ac000c29b92d09", "b9cf213a8efa11e587db000c29b92d09"]
         msr_id_list = [1, 5]
         actual_result = analytics_views.get_readings_for_tsplot(system_uid_list, msr_id_list,200)
-        with open('data/test_get_readings_for_plot6_er.txt') as f:
+        with open(self.path + 'test_get_readings_for_plot6_er.txt') as f:
             expected_result = f.readlines()[0]
 
         self.assertEqual(expected_result, actual_result)
@@ -235,7 +238,7 @@ class DavApiTest(unittest.TestCase):
         msr_id_list = [6, 8, 9]
 
         actual_result = analytics_views.get_readings_for_tsplot(system_uid_list, msr_id_list,200)
-        with open('data/test_get_readings_for_plot7_er.txt') as f:
+        with open(self.path + 'test_get_readings_for_plot7_er.txt') as f:
             expected_result = f.readlines()[0]
 
         self.assertEqual(expected_result, actual_result)
@@ -245,7 +248,7 @@ class DavApiTest(unittest.TestCase):
         msr_id_list = [8]
         status_id = 200
         actual_result = analytics_views.get_readings_for_tsplot(system_uid_list, msr_id_list, status_id)
-        with open('data/test_get_readings_for_plot_phase1_er.txt') as f:
+        with open(self.path + 'test_get_readings_for_plot_phase1_er.txt') as f:
             expected_result = f.readlines()[0]
 
         self.assertEqual(expected_result, actual_result)
@@ -256,7 +259,7 @@ class DavApiTest(unittest.TestCase):
         msr_id_list = [8]
         status_id = 200
         actual_result = analytics_views.get_readings_for_tsplot(system_uid_list, msr_id_list, status_id)
-        with open('data/test_get_readings_for_plot_phase2_er.txt') as f:
+        with open(self.path + 'test_get_readings_for_plot_phase2_er.txt') as f:
             expected_result = f.readlines()[0]
 
         self.assertEqual(expected_result, actual_result)
@@ -266,7 +269,7 @@ class DavApiTest(unittest.TestCase):
         msr_id_list = [6, 8]
         status_id = 200
         actual_result = analytics_views.get_readings_for_tsplot(system_uid_list, msr_id_list, status_id)
-        with open('data/test_get_readings_for_plot_phase3_er.txt') as f:
+        with open(self.path + 'test_get_readings_for_plot_phase3_er.txt') as f:
             expected_result = f.readlines()[0]
 
         self.assertEqual(expected_result, actual_result)
@@ -278,7 +281,7 @@ class DavApiTest(unittest.TestCase):
         msr_id_list = [8]
         status_id = 200
         actual_result = analytics_views.get_readings_for_tsplot(system_uid_list, msr_id_list, status_id)
-        with open('data/test_get_readings_for_plot_annotations1_er.txt') as f:
+        with open(self.path + 'test_get_readings_for_plot_annotations1_er.txt') as f:
             expected_result = f.readlines()[0]
 
         self.assertEqual(expected_result, actual_result)
@@ -290,7 +293,7 @@ class DavApiTest(unittest.TestCase):
         msr_id_list = [8,9]
         status_id = 200
         actual_result = analytics_views.get_readings_for_tsplot(system_uid_list, msr_id_list, status_id)
-        with open('data/test_get_readings_for_plot_annotations2_er.txt') as f:
+        with open(self.path + 'test_get_readings_for_plot_annotations2_er.txt') as f:
             expected_result = f.readlines()[0]
 
         self.assertEqual(expected_result, actual_result)
@@ -326,7 +329,7 @@ class DavApiTest(unittest.TestCase):
         expected_status_code = 200
         actual_result_temp = json.loads(response.data)
         actual_result = json.dumps(actual_result_temp)
-        with open('data/test_get_readings_for_plot.txt') as f:
+        with open(self.path + 'test_get_readings_for_plot.txt') as f:
             expected_result = f.readlines()[0]
         self.assertEqual(expected_result, actual_result)
         self.assertEquals(expected_status_code, actual_status_code)
@@ -338,7 +341,7 @@ class DavApiTest(unittest.TestCase):
         expected_status_code = 200
         actual_result_temp = json.loads(response.data)
         actual_result = json.dumps(actual_result_temp)
-        with open('data/test_get_system_measurements.txt') as f:
+        with open(self.path + 'test_get_system_measurements.txt') as f:
             expected_result = f.readlines()[0]
         self.assertEquals(expected_result, actual_result)
         self.assertEquals(expected_status_code, actual_status_code)
@@ -374,7 +377,7 @@ class DavApiTest(unittest.TestCase):
         expected_status_code = 200
         actual_result_temp = json.loads(response.data)
         actual_result = json.dumps(actual_result_temp)
-        with open('data/test_get_system_measurement_1.txt') as f:
+        with open(self.path + 'test_get_system_measurement_1.txt') as f:
             expected_result = f.readlines()[0]
         self.assertEquals(expected_result, actual_result)
         self.assertEquals(expected_status_code, actual_status_code)
@@ -428,7 +431,7 @@ class DavApiTest(unittest.TestCase):
         expected_status_code = 200
         actual_result_temp = json.loads(response.data)
         actual_result = json.dumps(actual_result_temp)
-        with open('data/test_get_system_measurement_5.txt') as f:
+        with open(self.path + 'test_get_system_measurement_5.txt') as f:
             expected_result = f.readlines()[0]
         self.assertEquals(expected_result, actual_result)
         self.assertEquals(expected_status_code, actual_status_code)
@@ -442,7 +445,7 @@ class DavApiTest(unittest.TestCase):
         expected_status_code = 200
         actual_result_temp = json.loads(response.data)
         actual_result = json.dumps(actual_result_temp)
-        with open('data/test_get_system_measurement_6.txt') as f:
+        with open(self.path + 'test_get_system_measurement_6.txt') as f:
             expected_result = f.readlines()[0]
 
         self.assertEquals(expected_result, actual_result)

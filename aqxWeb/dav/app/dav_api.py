@@ -336,9 +336,12 @@ class DavAPI:
                 "values": reading_obj["value_list"]
             }
             measurement_list.append(measurement)
+        system_name = self.sys.get_system_name(system_uid)
+        if 'error' in system_name:
+            return system_name
         system_measurement = {
             "system_uid": system_uid,
-            "name": self.sys.get_system_name(system_uid),
+            "name": system_name,
             "status" : status,
             "measurement": measurement_list
         }

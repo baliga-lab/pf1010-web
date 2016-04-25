@@ -22,7 +22,9 @@ class SystemsDAO:
         try:
             cursor.execute(query, (system_uid,))
             result, = cursor.fetchall()
-
+        except Exception as e:
+            error = {'error': e.message}
+            return error
         finally:
             cursor.close()
             conn.close()
