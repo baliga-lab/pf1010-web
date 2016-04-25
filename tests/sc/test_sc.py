@@ -153,6 +153,18 @@ class FlaskTestCase(unittest.TestCase):
             link_img="None",
             link_description="None"
         )
+        global  test_group_comment_id
+        test_group_comment_id = 1
+        global test_group_comment
+        test_group_comment = Node(
+            "GroupComment",
+            id=str(test_group_comment_id),
+            content="This is a new group comment",
+            user_sql_id=sql_id,
+            user_display_name="Test User For System",
+            creation_time=1461345863010,
+            modified_time=1461345863010
+        )
         # --------------------------------------------------------------------------------------
 
         # Dummy User For Group Member/Pending_Member
@@ -457,6 +469,95 @@ class FlaskTestCase(unittest.TestCase):
                               data=dict(group_uid=group_uid, postid=post_group_id, editedpost ="This is an edited post"))
             #print(res.data)
             self.assertFalse(mocked.called, "Edit group post Failed: " + res.data)
+        self.helper_delete_group_post_node(post_group_id)
+        self.helper_delete_group_node(test_group_node)
+        self.helper_delete_user_node(test_user)
+
+    @patch('flask.templating._render', return_value='Add group comment Works As Expected')
+    def test_add_group_comment(self, mocked):
+        self.helper_create_user_node(test_user)
+        self.helper_create_group_node(test_group_node)
+        self.helper_create_group_post_node(test_group_post_node)
+        with self.app as client:
+            with client.session_transaction() as session:
+                session['uid'] = test_user['sql_id']
+            res = client.post('/social/add_group_comment',
+                              data=dict(group_uid=group_uid, postid=int(test_group_post_node['id']),
+                                        newcomment="This is a New comment"))
+            #print(res.data)
+            self.assertFalse(mocked.called, "Add group comment Failed: " + res.data)
+        self.helper_delete_group_post_node(post_group_id)
+        self.helper_delete_group_node(test_group_node)
+        self.helper_delete_user_node(test_user)
+
+    @patch('flask.templating._render', return_value='Like group post Works As Expected')
+    def test_like_group_post(self, mocked):
+        self.helper_create_user_node(test_user)
+        self.helper_create_group_node(test_group_node)
+        self.helper_create_group_post_node(test_group_post_node)
+        with self.app as client:
+            with client.session_transaction() as session:
+                session['uid'] = test_user['sql_id']
+            res = client.post('/social/like_or_unlike_group_post',
+                              data=dict(group_uid=group_uid, postid=int(test_group_post_node['id']),
+                                        submit="likePost"))
+            #print(res.data)
+            self.assertFalse(mocked.called, "Like group post Failed: " + res.data)
+        self.helper_delete_group_post_node(post_group_id)
+        self.helper_delete_group_node(test_group_node)
+        self.helper_delete_user_node(test_user)
+
+    @patch('flask.templating._render', return_value='UnLike group post Works As Expected')
+    def test_unlike_group_post(self, mocked):
+        self.helper_create_user_node(test_user)
+        self.helper_create_group_node(test_group_node)
+        self.helper_create_group_post_node(test_group_post_node)
+        with self.app as client:
+            with client.session_transaction() as session:
+                session['uid'] = test_user['sql_id']
+            res = client.post('/social/like_or_unlike_group_post',
+                              data=dict(group_uid=group_uid, postid=int(test_group_post_node['id']),
+                                        submit="unlikePost"))
+            #print(res.data)
+            self.assertFalse(mocked.called, "UnLike group post Failed: " + res.data)
+        self.helper_delete_group_post_node(post_group_id)
+        self.helper_delete_group_node(test_group_node)
+        self.helper_delete_user_node(test_user)
+
+    @patch('flask.templating._render', return_value='Edit group comment Works As Expected')
+    def test_edit_group_comment(self, mocked):
+        self.helper_create_user_node(test_user)
+        self.helper_create_group_node(test_group_node)
+        self.helper_create_group_post_node(test_group_post_node)
+        self.helper_create_group_comment_node(test_group_comment)
+        with self.app as client:
+            with client.session_transaction() as session:
+                session['uid'] = test_user['sql_id']
+            res = client.post('/social/edit_or_delete_group_comment',
+                              data=dict(group_uid=group_uid, commentid=test_group_comment_id,
+                                        editedcomment= "This is test edited comment",
+                                        submit="editComment"))
+            #print(res.data)
+            self.assertFalse(mocked.called, "UnLike group comment Failed: " + res.data)
+        self.helper_delete_group_post_node(post_group_id)
+        self.helper_delete_group_comment_node(test_group_comment_id)
+        self.helper_delete_group_node(test_group_node)
+        self.helper_delete_user_node(test_user)
+
+    @patch('flask.templating._render', return_value='Delete group comment Works As Expected')
+    def test_delete_group_comment(self, mocked):
+        self.helper_create_user_node(test_user)
+        self.helper_create_group_node(test_group_node)
+        self.helper_create_group_post_node(test_group_post_node)
+        self.helper_create_group_comment_node(test_group_comment)
+        with self.app as client:
+            with client.session_transaction() as session:
+                session['uid'] = test_user['sql_id']
+            res = client.post('/social/edit_or_delete_group_comment',
+                              data=dict(group_uid=group_uid, commentid=test_group_comment_id,
+                                        submit="deleteComment"))
+            #print(res.data)
+            self.assertFalse(mocked.called, "UnLike group comment Failed: " + res.data)
         self.helper_delete_group_post_node(post_group_id)
         self.helper_delete_group_node(test_group_node)
         self.helper_delete_user_node(test_user)
@@ -1235,7 +1336,7 @@ class FlaskTestCase(unittest.TestCase):
     def helper_create_system_comment_node(self, system_comment_node_to_create):
         try:
             # Same System comment Node If Exists Is Removed
-            self.helper_delete_system_comment_node(1)
+            self.helper_delete_system_comment_node(test_system_comment_id)
             graph.create(system_comment_node_to_create)
         except Exception as ex:
             print "Exception At helper_create_system_comment_node: " + str(ex.message)
@@ -1251,6 +1352,27 @@ class FlaskTestCase(unittest.TestCase):
             delete_system_status = graph.cypher.execute(delete_system_comment_query, commentid=system_comment_to_delete)
         except Exception as ex:
             print "Exception At helper_delete_system_comment_node: " + str(ex.message)
+
+    # Helper Function To Create group comment Node In Neo4J Database
+    def helper_create_group_comment_node(self, group_comment_node_to_create):
+        try:
+            # Same group comment Node If Exists Is Removed
+            self.helper_delete_group_comment_node(test_group_comment_id)
+            graph.create(group_comment_node_to_create)
+        except Exception as ex:
+            print "Exception At helper_create_group_comment_node: " + str(ex.message)
+
+     # Helper Function To Delete group comment Node In Neo4J Database
+    def helper_delete_group_comment_node(self, group_comment_to_delete):
+        try:
+            delete_group_comment_query = """
+                MATCH (g:GroupComment)
+                WHERE g.id = {commentid}
+                DETACH DELETE g
+            """
+            delete_group_status = graph.cypher.execute(delete_group_comment_query, commentid=group_comment_to_delete)
+        except Exception as ex:
+            print "Exception At helper_delete_group_comment_node: " + str(ex.message)
     # --------------------------------------------------------------------------------------
 
     if __name__ == '__main__':
