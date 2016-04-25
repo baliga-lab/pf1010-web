@@ -328,20 +328,20 @@ class FlaskTestCase(unittest.TestCase):
     # Timeline related Tests
     # --------------------------------------------------------------------------------------
 
-#    @patch('flask.templating._render', return_value='Accept friends on timeline test works as expected')
-#    def test_profile(self, mocked):
-#        self.helper_create_user_node(test_user)
-#        self.helper_create_user_node(test_user_friend)
-#        self.helper_make_friend(test_user_friend['sql_id'])
-#        with self.app as client:
-#            with client.session_transaction() as session:
-#                session['uid'] = test_user['sql_id']
-#            res = client.get('/social/delete_friend_timeline/'+ str(test_user_friend['sql_id']))
-#            print(res.data)
-#            self.assertFalse(mocked.called, "Route To Home Page Failed: " + res.data)
-#        self.helper_delete_friend(test_user_friend['sql_id'])
-#        self.helper_delete_user_node(test_user_friend)
-#        self.helper_delete_user_node(test_user)
+    @patch('flask.templating._render', return_value='Accept friends on timeline test works as expected')
+    def test_profile(self, mocked):
+        self.helper_create_user_node(test_user)
+        self.helper_create_user_node(test_user_friend)
+        self.helper_make_friend(test_user_friend['sql_id'])
+        with self.app as client:
+            with client.session_transaction() as session:
+                session['uid'] = test_user['sql_id']
+            res = client.get('/social/delete_friend_timeline/'+ str(test_user_friend['sql_id'])+"?next=/profile/"+str(test_user['google_id']))
+            print(res.data)
+            self.assertFalse(mocked.called, "Route To Home Page Failed: " + res.data)
+        self.helper_delete_friend(test_user_friend['sql_id'])
+        self.helper_delete_user_node(test_user_friend)
+        self.helper_delete_user_node(test_user)
 
 
 
