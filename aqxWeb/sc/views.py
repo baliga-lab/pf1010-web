@@ -232,6 +232,7 @@ def updateprofile():
     except Exception as ex:
         print "Exception Occurred At updateprofile: " + str(ex.message)
 
+
 #######################################################################################
 # function : profile
 # purpose : Load the pages for user given its google id
@@ -974,7 +975,6 @@ def view_group(group_uid):
         logging.exception("Exception at view_group: " + str(e))
 
 
-
 #######################################################################################
 # function : get_users_to_invite_groups
 # purpose : Fetch the users from database who are not related to the specific groups
@@ -994,10 +994,15 @@ def get_users_to_invite_groups(group_uid):
         user_list = []
         for user in users_not_part_of_group:
             individual_user = {}
+
+            individual_user['google_id'] = user[0]["google_id"]
+
             if user[0]["givenName"] is not None:
                 individual_user['givenName'] = user[0]["givenName"]
+                individual_user['label'] = user[0]["givenName"]
             else:
                 individual_user['givenName'] = "No Given Name"
+                individual_user['label'] = user[0]["givenName"]
 
             if user[0]["familyName"] is not None:
                 individual_user['familyName'] = user[0]["familyName"]
@@ -1009,11 +1014,15 @@ def get_users_to_invite_groups(group_uid):
             else:
                 individual_user['organization'] = ""
 
+            if user[0]["image_url"] is not None:
+                individual_user['image_url'] = user[0]["image_url"]
+            else:
+                individual_user['image_url'] = ""
+
             user_list.append(individual_user)
-        print jsonify(json_list=user_list)
-        return jsonify(json_list=user_list)
-    except Exception as e:
-        print "Exception at get_users_to_invite_groups: " + str(e.message)
+        return jsonify(user_json_list=user_list)
+    except Exception as ex:
+        print "Exception at get_users_to_invite_groups: " + str(ex.message)
 
 
 #######################################################################################
@@ -1114,7 +1123,7 @@ def create_group():
 
 #######################################################################################
 @social.route('/manage/groups/approve_reject_member', methods=['POST'])
-# function : approve_reject_group_member for a group
+# function : approve_reject_group_member
 # purpose : approve/reject the member request made for the particular group
 # parameters : None
 # Exception : None
@@ -1136,6 +1145,32 @@ def approve_reject_group_member():
         return redirect(url_for('social.manage_group', group_uid=group_uid))
     else:
         return redirect(url_for('social.groups'))
+
+
+#######################################################################################
+@social.route('/manage/groups/invite_group_member', methods=['POST'])
+# function : invite_group_member
+# purpose : make the user as group member
+# parameters : None
+# Exception : General Exception
+#######################################################################################
+def invite_group_member():
+    try:
+        if request.method == 'POST':
+            google_id = request.form["google_id"]
+            group_uid = request.form["group_uid"]
+            group = Group()
+            sql_id = session.get('uid')
+            # sql_id = 29;
+            if sql_id is not None:
+                user_privilege = group.get_user_privilege_for_group(sql_id, group_uid)
+                if user_privilege == "GROUP_ADMIN" or user_privilege == "GROUP_MEMBER":
+                    group.approve_group_member(google_id, group_uid)
+            return redirect(url_for('social.view_group', group_uid=group_uid))
+        else:
+            return redirect(url_for('social.groups'))
+    except Exception as ex:
+        print "Exception at invite_group_member: " + str(ex.message)
 
 
 #######################################################################################
