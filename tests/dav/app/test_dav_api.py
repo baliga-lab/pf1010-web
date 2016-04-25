@@ -57,10 +57,10 @@ class DavApiTest(unittest.TestCase):
                                                      value='111')),
                                 content_type='application/json')
         actual_status_code = response._status_code
-        expected_status_code = 201
+        expected_status_code = 400
         actual_result_temp = json.loads(response.data)
         actual_result = json.dumps(actual_result_temp)
-        expected_result = '{"status": {"message": "Record successfully inserted"}}'
+        expected_result = '{"error": "Value too high or too low"}'
         self.assertEquals(expected_result, actual_result)
         self.assertEquals(expected_status_code, actual_status_code)
 
@@ -76,7 +76,7 @@ class DavApiTest(unittest.TestCase):
         expected_status_code = 400
         actual_result_temp = json.loads(response.data)
         actual_result = json.dumps(actual_result_temp)
-        expected_result = '{"error": "Value at the given time already recorded"}'
+        expected_result = '{"error": "Value too high or too low"}'
         self.assertEquals(expected_result, actual_result)
         self.assertEquals(expected_status_code, actual_status_code)
 
