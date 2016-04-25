@@ -96,7 +96,7 @@ class FlaskTestCase(unittest.TestCase):
         global test_system_post_node
         test_system_post_node = Node(
             "SystemPost",
-            id=post_system_id,
+            id=str(post_system_id),
             text="This is a test system post",
             privacy="Public",
             userid=sql_id,
@@ -108,7 +108,18 @@ class FlaskTestCase(unittest.TestCase):
             link_img="None",
             link_description="None"
         )
-
+        global  test_system_comment_id
+        test_system_comment_id = 1
+        global test_system_comment
+        test_system_comment = Node(
+            "SystemComment",
+            id=str(test_system_comment_id),
+            content="This is a new system comment",
+            user_sql_id=sql_id,
+            user_display_name="Test User For System",
+            creation_time=1461345863010,
+            modified_time=1461345863010
+        )
         # --------------------------------------------------------------------------------------
 
 
@@ -130,7 +141,7 @@ class FlaskTestCase(unittest.TestCase):
         global test_group_post_node
         test_group_post_node = Node(
             "GroupPost",
-            id=post_group_id,
+            id=str(post_group_id),
             text="This is a test group post",
             privacy="Public",
             userid=sql_id,
@@ -725,7 +736,7 @@ class FlaskTestCase(unittest.TestCase):
         self.helper_delete_system_node(test_system_node)
         self.helper_delete_user_node(test_user)
 
-    """
+
     @patch('flask.templating._render', return_value='Add system comment Works As Expected')
     def test_add_system_comment(self, mocked):
         self.helper_create_user_node(test_user)
@@ -743,8 +754,8 @@ class FlaskTestCase(unittest.TestCase):
         self.helper_delete_system_node(test_system_node)
         self.helper_delete_user_node(test_user)
 
-    @patch('flask.templating._render', return_value='Like system comment Works As Expected')
-    def test_like_system_comment(self, mocked):
+    @patch('flask.templating._render', return_value='Like system post Works As Expected')
+    def test_like_system_post(self, mocked):
         self.helper_create_user_node(test_user)
         self.helper_create_system_node(test_system_node)
         self.helper_create_system_post_node(test_system_post_node)
@@ -755,14 +766,13 @@ class FlaskTestCase(unittest.TestCase):
                               data=dict(system_uid=system_uid, postid=int(test_system_post_node['id']),
                                         submit="likePost"))
             #print(res.data)
-            self.assertFalse(mocked.called, "Like system comment Failed: " + res.data)
+            self.assertFalse(mocked.called, "Like system post Failed: " + res.data)
         self.helper_delete_system_post_node(post_system_id)
         self.helper_delete_system_node(test_system_node)
         self.helper_delete_user_node(test_user)
-    """
-    
-    @patch('flask.templating._render', return_value='UnLike system comment Works As Expected')
-    def test_unlike_system_comment(self, mocked):
+
+    @patch('flask.templating._render', return_value='UnLike system post Works As Expected')
+    def test_unlike_system_post(self, mocked):
         self.helper_create_user_node(test_user)
         self.helper_create_system_node(test_system_node)
         self.helper_create_system_post_node(test_system_post_node)
@@ -772,6 +782,44 @@ class FlaskTestCase(unittest.TestCase):
             res = client.post('/social/like_or_unlike_system_post',
                               data=dict(system_uid=system_uid, postid=int(test_system_post_node['id']),
                                         submit="unlikePost"))
+            #print(res.data)
+            self.assertFalse(mocked.called, "UnLike system post Failed: " + res.data)
+        self.helper_delete_system_post_node(post_system_id)
+        self.helper_delete_system_node(test_system_node)
+        self.helper_delete_user_node(test_user)
+
+    @patch('flask.templating._render', return_value='Edit system comment Works As Expected')
+    def test_edit_system_comment(self, mocked):
+        self.helper_create_user_node(test_user)
+        self.helper_create_system_node(test_system_node)
+        self.helper_create_system_post_node(test_system_post_node)
+        self.helper_create_system_comment_node(test_system_comment)
+        with self.app as client:
+            with client.session_transaction() as session:
+                session['uid'] = test_user['sql_id']
+            res = client.post('/social/edit_or_delete_system_comment',
+                              data=dict(system_uid=system_uid, commentid=test_system_comment_id,
+                                        editedcomment= "This is test edited comment",
+                                        submit="editComment"))
+            #print(res.data)
+            self.assertFalse(mocked.called, "UnLike system comment Failed: " + res.data)
+        self.helper_delete_system_post_node(post_system_id)
+        self.helper_delete_system_comment_node(test_system_comment_id)
+        self.helper_delete_system_node(test_system_node)
+        self.helper_delete_user_node(test_user)
+
+    @patch('flask.templating._render', return_value='Delete system comment Works As Expected')
+    def test_delete_system_comment(self, mocked):
+        self.helper_create_user_node(test_user)
+        self.helper_create_system_node(test_system_node)
+        self.helper_create_system_post_node(test_system_post_node)
+        self.helper_create_system_comment_node(test_system_comment)
+        with self.app as client:
+            with client.session_transaction() as session:
+                session['uid'] = test_user['sql_id']
+            res = client.post('/social/edit_or_delete_system_comment',
+                              data=dict(system_uid=system_uid, commentid=test_system_comment_id,
+                                        submit="deleteComment"))
             #print(res.data)
             self.assertFalse(mocked.called, "UnLike system comment Failed: " + res.data)
         self.helper_delete_system_post_node(post_system_id)
@@ -788,6 +836,8 @@ class FlaskTestCase(unittest.TestCase):
             print(res.data)
             self.assertTrue(mocked.called, "Route To Search Systems Page Failed: " + res.data)
         self.helper_delete_user_node(test_user)
+
+
 
     @patch('flask.templating._render', return_value='Route To My Systems Page Works As Expected')
     def test_my_systems_page_render(self, mocked):
@@ -1181,6 +1231,26 @@ class FlaskTestCase(unittest.TestCase):
         except Exception as ex:
             print "Exception At helper_delete_system_post_node: " + str(ex.message)
 
+    # Helper Function To Create System comment Node In Neo4J Database
+    def helper_create_system_comment_node(self, system_comment_node_to_create):
+        try:
+            # Same System comment Node If Exists Is Removed
+            self.helper_delete_system_comment_node(1)
+            graph.create(system_comment_node_to_create)
+        except Exception as ex:
+            print "Exception At helper_create_system_comment_node: " + str(ex.message)
+
+     # Helper Function To Delete System comment Node In Neo4J Database
+    def helper_delete_system_comment_node(self, system_comment_to_delete):
+        try:
+            delete_system_comment_query = """
+                MATCH (s:SystemComment)
+                WHERE s.id = {commentid}
+                DETACH DELETE s
+            """
+            delete_system_status = graph.cypher.execute(delete_system_comment_query, commentid=system_comment_to_delete)
+        except Exception as ex:
+            print "Exception At helper_delete_system_comment_node: " + str(ex.message)
     # --------------------------------------------------------------------------------------
 
     if __name__ == '__main__':
