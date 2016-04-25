@@ -47,18 +47,20 @@ function list_users_autocomplete(group_uid, url_to_get_users_to_invite, url_to_a
                 .data("ui-autocomplete-item", item.label)
                 .append("<img src='" + item.image_url + "'" + "height='32' width='32'/>" + " " + item.label + " - " + item.organization)
                 .appendTo(ul).click(function () {
-                    $.ajax({
-                        type: 'post',
-                        url: url_to_add_group_member,
-                        data: {
-                            google_id: google_id_of_user_to_add,
-                            group_uid: group_uid
-                        },
-                        success: function (result) {
-                            alert("You successfully invited " + given_name_of_user_to_add + " !!");
-                            location.reload()
-                        }
-                    });
+                    if (confirm("Are you sure you want to invite " + given_name_of_user_to_add + " to this group?")) {
+                        $.ajax({
+                            type: 'post',
+                            url: url_to_add_group_member,
+                            data: {
+                                google_id: google_id_of_user_to_add,
+                                group_uid: group_uid
+                            },
+                            success: function (result) {
+                                alert("You successfully invited " + given_name_of_user_to_add + " !!");
+                                location.reload()
+                            }
+                        });
+                    }
                 });
 
         }

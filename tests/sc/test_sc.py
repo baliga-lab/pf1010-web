@@ -9,7 +9,6 @@ from aqxWeb.sc.models import Group
 from aqxWeb.sc.models import User
 
 
-
 class FlaskTestCase(unittest.TestCase):
     def setUp(self):
         run.app.config['TESTING'] = True
@@ -54,7 +53,7 @@ class FlaskTestCase(unittest.TestCase):
                                 modified_time=1461345863010, status=0)
         # --------------------------------------------------------------------------------------
 
-     # --------------------------------------------------------------------------------------
+        # --------------------------------------------------------------------------------------
         # Dummy User For Friends Testing
         # --------------------------------------------------------------------------------------
         global sql_id_user_friend
@@ -127,6 +126,26 @@ class FlaskTestCase(unittest.TestCase):
                                modified_time=1461345863010, status=0)
         # --------------------------------------------------------------------------------------
 
+        # --------------------------------------------------------------------------------------
+        # Dummy User For Timeline Page
+        # --------------------------------------------------------------------------------------
+        global sql_id_user_timeline
+        sql_id_user_timeline = 46250
+        global google_id_user_timeline
+        google_id_user_timeline = "608205396037595043178"
+        global test_user_timeline
+        test_user_timeline = Node("User",
+                                  sql_id=sql_id_user_timeline, google_id=google_id_user_timeline,
+                                  givenName="Test User For Timeline",
+                                  familyName="Test User For Timeline",
+                                  displayName="Test User For Timeline",
+                                  email="ISBTestUser@gmail.com", gender="male", dob="1989-03-19",
+                                  image_url="https://www.gstatic.com/webp/gallery3/1.png",
+                                  user_type="subscriber", organization="Northeastern University",
+                                  creation_time=1461345863010,
+                                  modified_time=1461345863010, status=0)
+        # --------------------------------------------------------------------------------------
+
         global graph
         graph = models.get_graph_connection_uri()
 
@@ -156,7 +175,6 @@ class FlaskTestCase(unittest.TestCase):
         print(res.data)
         self.assertTrue(mocked.called, "View Pending Friends Request works as expected" + res.data)
         self.helper_delete_user_node(test_user)
-
 
     '''
     @patch('flask.templating._render', return_value='View pending friend request works as expected')
@@ -240,8 +258,7 @@ class FlaskTestCase(unittest.TestCase):
         with self.app as client:
             with client.session_transaction() as session:
                 session['uid'] = test_user['sql_id']
-            res = client.post('/social/block_friend/'+ str(test_user_friend['sql_id']))
-            print(res.data)
+            res = client.post('/social/block_friend/' + str(test_user_friend['sql_id']))
             self.assertFalse(mocked.called, "Block Friends passed: " + res.data)
         self.helper_delete_friend(test_user_friend['sql_id'])
         self.helper_delete_user_node(test_user_friend)
@@ -255,10 +272,8 @@ class FlaskTestCase(unittest.TestCase):
         with self.app as client:
             with client.session_transaction() as session:
                 session['uid'] = test_user['sql_id']
-            res = client.post('/social/block_friend/'+ str(test_user_friend['sql_id']))
-            res2 = client.post('/social/unblock_friend/'+ str(test_user_friend['sql_id']))
-            print(res.data)
-            print(res2.data)
+            res = client.post('/social/block_friend/' + str(test_user_friend['sql_id']))
+            res2 = client.post('/social/unblock_friend/' + str(test_user_friend['sql_id']))
             self.assertFalse(mocked.called, "Block Friends passed: " + res.data)
         self.helper_delete_friend(test_user_friend['sql_id'])
         self.helper_delete_user_node(test_user_friend)
@@ -272,96 +287,129 @@ class FlaskTestCase(unittest.TestCase):
         with self.app as client:
             with client.session_transaction() as session:
                 session['uid'] = test_user['sql_id']
-            res = client.post('/social/delete_friend/'+ str(test_user_friend['sql_id']))
-            print(res.data)
+            res = client.post('/social/delete_friend/' + str(test_user_friend['sql_id']))
             self.assertFalse(mocked.called, "Delete Friends passed: " + res.data)
         self.helper_delete_user_node(test_user_friend)
         self.helper_delete_user_node(test_user)
 
-
-    # --------------------------------------------------------------------------------------
-    # Profile related Tests
-    # --------------------------------------------------------------------------------------
-
-
-
-    @patch('flask.templating._render', return_value='Update Profile test works as expected')
-    def test_update_profile(self, mocked):
+    @patch('flask.templating._render', return_value='Get Friends JSON For Search Friends Works As Expected')
+    def test_get_friends(self, mocked):
         self.helper_create_user_node(test_user)
         with self.app as client:
             with client.session_transaction() as session:
                 session['uid'] = test_user['sql_id']
-            res = client.post('/social/updateprofile',data=dict(givenName="Chandler", familyName="Bing", displayName="Chandler",gender="Male",organization="Northeastern",user_type="participant",dob="1989-12-20"))
-            print(res.data)
-            self.assertTrue(mocked.called, "Route To Home Page Failed: " + res.data)
+            res = client.get('/social/getfriends')
+            self.assertFalse(mocked.called, "Get Friends JSON For Search Friends Failed: " + res.data)
         self.helper_delete_user_node(test_user)
 
+    # --------------------------------------------------------------------------------------
+    # Edit Profile related Tests
+    # --------------------------------------------------------------------------------------
 
-
-
-    @patch('flask.templating._render', return_value='Edit Profile test works as expected')
-    def test_editprofile(self, mocked):
+    @patch('flask.templating._render', return_value='Edit Profile Page Render Works As Expected')
+    def test_editprofile_page_render(self, mocked):
         self.helper_create_user_node(test_user)
         with self.app as client:
             with client.session_transaction() as session:
                 session['uid'] = test_user['sql_id']
             res = client.get('/social/editprofile')
             print(res.data)
-            self.assertTrue(mocked.called, "Route To Home Page Failed: " + res.data)
+            self.assertTrue(mocked.called, "Edit Profile Page Render Failed: " + res.data)
         self.helper_delete_user_node(test_user)
 
-
-    @patch('flask.templating._render', return_value='Profile page test works as expected')
-    def test_profile(self, mocked):
+    @patch('flask.templating._render', return_value='Update Profile Functionality Works As Expected')
+    def test_update_profile(self, mocked):
         self.helper_create_user_node(test_user)
-        self.helper_create_group_node(test_group_node)
         with self.app as client:
             with client.session_transaction() as session:
                 session['uid'] = test_user['sql_id']
-            res = client.get('/social/profile/'+ str(test_user['google_id']))
+            res = client.post('/social/updateprofile',
+                              data=dict(givenName="Chandler", familyName="Bing", displayName="Chandler", gender="Male",
+                                        organization="Northeastern", user_type="participant", dob="1989-12-20"))
             print(res.data)
             self.assertTrue(mocked.called, "Route To Home Page Failed: " + res.data)
         self.helper_delete_user_node(test_user)
-
 
     # --------------------------------------------------------------------------------------
     # Timeline related Tests
     # --------------------------------------------------------------------------------------
 
-    @patch('flask.templating._render', return_value='Accept friends on timeline test works as expected')
-    def test_profile(self, mocked):
+    """
+    # TimeLine Page Render Requires Google Access Token Which Obtained At RunTime When The User Logs In. Cannot Be Mocked.
+    @patch('flask.templating._render', return_value='Timeline Page Render Works As Expected')
+    def test_timeline_page_render(self, mocked):
         self.helper_create_user_node(test_user)
-        self.helper_create_user_node(test_user_friend)
-        self.helper_make_friend(test_user_friend['sql_id'])
+        self.helper_create_user_node(test_user_timeline)
         with self.app as client:
             with client.session_transaction() as session:
                 session['uid'] = test_user['sql_id']
-            res = client.get('/social/delete_friend_timeline/'+ str(test_user_friend['sql_id'])+"?next=/profile/"+str(test_user['google_id']))
+            res = client.get('/social/profile/' + str(test_user_timeline['google_id']))
             print(res.data)
-            self.assertFalse(mocked.called, "Route To Home Page Failed: " + res.data)
-        self.helper_delete_friend(test_user_friend['sql_id'])
-        self.helper_delete_user_node(test_user_friend)
+            self.assertTrue(mocked.called, "Route To Home Page Failed: " + res.data)
+        self.helper_delete_user_node(test_user_timeline)
         self.helper_delete_user_node(test_user)
+    """
 
-
-
-
-
-
+    @patch('flask.templating._render', return_value='Delete Friend on Timeline Page Works As Expected')
+    def test_timeline_delete_friend(self, mocked):
+        self.helper_create_user_node(test_user)
+        self.helper_create_user_node(test_user_timeline)
+        self.helper_make_friend(test_user_timeline['sql_id'])
+        with self.app as client:
+            with client.session_transaction() as session:
+                session['uid'] = test_user['sql_id']
+            res = client.get('/social/delete_friend_timeline/' +
+                             str(test_user_timeline['sql_id']) + "?next=/profile/" + str(test_user['google_id']))
+            self.assertFalse(mocked.called, "Route To Home Page Failed: " + res.data)
+        self.helper_delete_user_node(test_user_timeline)
+        self.helper_delete_user_node(test_user)
 
     # --------------------------------------------------------------------------------------
     # Groups Page Tests
     # --------------------------------------------------------------------------------------
 
-    @patch('flask.templating._render', return_value='Get Groups works as expected')
-    def test_get_groups(self, mocked):
+    @patch('flask.templating._render', return_value='Create Groups Page Render Works As Expected')
+    def test_create_groups_page_render(self, mocked):
         self.helper_create_user_node(test_user)
         with self.app as client:
             with client.session_transaction() as session:
                 session['uid'] = test_user['sql_id']
             res = client.get('/social/groups/')
             print(res.data)
-            self.assertTrue(mocked.called, "Get Groups failed: " + res.data)
+            self.assertTrue(mocked.called, "Create Groups Page Render failed: " + res.data)
+        self.helper_delete_user_node(test_user)
+
+    @patch('flask.templating._render', return_value='My Groups Page Render Works As Expected')
+    def test_my_group_page_render(self, mocked):
+        self.helper_create_user_node(test_user)
+        with self.app as client:
+            with client.session_transaction() as session:
+                session['uid'] = test_user['sql_id']
+            res = client.get('/social/groups/self')
+            print(res.data)
+            self.assertTrue(mocked.called, "My Groups Page Render Failed: " + res.data)
+        self.helper_delete_user_node(test_user)
+
+    @patch('flask.templating._render', return_value='Search Groups Page Render Works As Expected')
+    def test_search_group_page_render(self, mocked):
+        self.helper_create_user_node(test_user)
+        with self.app as client:
+            with client.session_transaction() as session:
+                session['uid'] = test_user['sql_id']
+            res = client.get('/social/groups/search')
+            print(res.data)
+            self.assertTrue(mocked.called, "Search Groups Page Render Failed: " + res.data)
+        self.helper_delete_user_node(test_user)
+
+    @patch('flask.templating._render', return_value='Recommended Groups Page Render Works As Expected')
+    def test_recommended_group_page_render(self, mocked):
+        self.helper_create_user_node(test_user)
+        with self.app as client:
+            with client.session_transaction() as session:
+                session['uid'] = test_user['sql_id']
+            res = client.get('/social/groups/recommended')
+            print(res.data)
+            self.assertTrue(mocked.called, "Recommended Groups Page Render Failed: " + res.data)
         self.helper_delete_user_node(test_user)
 
     @patch('flask.templating._render', return_value='View Group Page Render Works As Expected')
@@ -486,6 +534,66 @@ class FlaskTestCase(unittest.TestCase):
         self.helper_delete_user_node(test_user_group)
         self.helper_delete_user_node(test_user)
 
+    @patch('flask.templating._render', return_value='Get Users JSON To Invite For Group Works As Expected')
+    def test_get_users_to_invite_groups(self, mocked):
+        self.helper_create_user_node(test_user)
+        self.helper_create_group_node(test_group_node)
+        with self.app as client:
+            with client.session_transaction() as session:
+                session['uid'] = test_user['sql_id']
+            res = client.get('/social/groups/get_users_to_invite_groups/' + str(test_group_node['group_uid']))
+            self.assertFalse(mocked.called, "Get Users JSON To Invite For Group Failed: " + res.data)
+        self.helper_delete_group_node(test_group_node)
+        self.helper_delete_user_node(test_user)
+
+    @patch('flask.templating._render', return_value='Invite Group Member Works As Expected')
+    def test_invite_group_member(self, mocked):
+        self.helper_create_user_node(test_user)
+        self.helper_create_user_node(test_user_group)
+        self.helper_create_group_node(test_group_node)
+        self.helper_make_admin_for_group(test_user['google_id'], test_group_node['group_uid'])
+        with self.app as client:
+            with client.session_transaction() as session:
+                session['uid'] = test_user['sql_id']
+            res = client.post('/social/manage/groups/invite_group_member',
+                              data=dict(google_id=test_user_group['google_id'],
+                                        group_uid=test_group_node['group_uid']))
+            self.assertFalse(mocked.called, "Invite Group Member Failed: " + res.data)
+        self.helper_leave_group(test_user_group['google_id'], test_group_node['group_uid'])
+        self.helper_leave_group(test_user['google_id'], test_group_node['group_uid'])
+        self.helper_delete_group_node(test_group_node)
+        self.helper_delete_user_node(test_user_group)
+        self.helper_delete_user_node(test_user)
+
+    @patch('flask.templating._render', return_value='Join / Leave Group Works As Expected')
+    def test_join_leave_group(self, mocked):
+        self.helper_create_user_node(test_user)
+        self.helper_create_group_node(test_group_node)
+        with self.app as client:
+            with client.session_transaction() as session:
+                session['uid'] = test_user['sql_id']
+
+            res = client.post(
+                "/social/manage/groups/join_leave?next=/social/groups/" + str(test_group_node['group_uid']),
+                data=dict(google_id=test_user['google_id'],
+                          group_uid=test_group_node['group_uid'],
+                          is_private_group=test_group_node['is_private_group'],
+                          submit="Join"))
+            self.assertFalse(mocked.called, "Join Group Member Failed: " + res.data)
+
+            self.helper_leave_group(test_user['google_id'], test_group_node['group_uid'])
+            self.helper_make_admin_for_group(test_user['google_id'], test_group_node['group_uid'])
+            res = client.post(
+                "/social/manage/groups/join_leave?next=/social/groups/" + str(test_group_node['group_uid']),
+                data=dict(google_id=test_user['google_id'],
+                          group_uid=test_group_node['group_uid'],
+                          is_private_group=test_group_node['is_private_group'],
+                          submit="Leave"))
+            self.assertFalse(mocked.called, "Leave Group Member Failed: " + res.data)
+
+        self.helper_delete_group_node(test_group_node)
+        self.helper_delete_user_node(test_user)
+
     # --------------------------------------------------------------------------------------
     # System Page Tests
     # --------------------------------------------------------------------------------------
@@ -499,6 +607,28 @@ class FlaskTestCase(unittest.TestCase):
             res = client.get('/social/systems/')
             print(res.data)
             self.assertTrue(mocked.called, "Route To Search Systems Page Failed: " + res.data)
+        self.helper_delete_user_node(test_user)
+
+    @patch('flask.templating._render', return_value='Route To My Systems Page Works As Expected')
+    def test_my_systems_page_render(self, mocked):
+        self.helper_create_user_node(test_user)
+        with self.app as client:
+            with client.session_transaction() as session:
+                session['uid'] = test_user['sql_id']
+            res = client.get('/social/systems/self')
+            print(res.data)
+            self.assertTrue(mocked.called, "Route To My Systems Page Failed: " + res.data)
+        self.helper_delete_user_node(test_user)
+
+    @patch('flask.templating._render', return_value='Route To All Systems Page Works As Expected')
+    def test_all_systems_page_render(self, mocked):
+        self.helper_create_user_node(test_user)
+        with self.app as client:
+            with client.session_transaction() as session:
+                session['uid'] = test_user['sql_id']
+            res = client.get('/social/systems/all')
+            print(res.data)
+            self.assertTrue(mocked.called, "Route To All Systems Page Failed: " + res.data)
         self.helper_delete_user_node(test_user)
 
     @patch('flask.templating._render', return_value='Search Systems Post Method Works As Expected')
@@ -732,19 +862,17 @@ class FlaskTestCase(unittest.TestCase):
             print "Exception At helper_delete_group_node: " + str(ex.message)
 
     # Helper function for creating friend relation
-    def helper_make_friend(self,google_id):
+    def helper_make_friend(self, google_id):
         try:
             User(test_user['sql_id']).accept_friend_request(google_id)
         except Exception as ex:
             print "Exception At helper_make_friends: " + str(ex.message)
 
-    def helper_delete_friend(self,google_id):
+    def helper_delete_friend(self, google_id):
         try:
             User(test_user['sql_id']).delete_friend(google_id)
         except Exception as ex:
             print "Exception At helper_delete_friend: " + str(ex.message)
-
-
 
     # Helper Function To Make An User Admin For A Group Node In Neo4J Database
     def helper_make_admin_for_group(self, google_id, group_uid):
