@@ -108,7 +108,7 @@ class FlaskTestCase(unittest.TestCase):
             link_img="None",
             link_description="None"
         )
-        global  test_system_comment_id
+        global test_system_comment_id
         test_system_comment_id = 1
         global test_system_comment
         test_system_comment = Node(
@@ -153,7 +153,7 @@ class FlaskTestCase(unittest.TestCase):
             link_img="None",
             link_description="None"
         )
-        global  test_group_comment_id
+        global test_group_comment_id
         test_group_comment_id = 1
         global test_group_comment
         test_group_comment = Node(
@@ -425,6 +425,7 @@ class FlaskTestCase(unittest.TestCase):
         self.helper_delete_user_node(test_user)
 
     # -- Review
+    """
     @patch('flask.templating._render', return_value='Make Post on Timeline Page Works As Expected')
     def test_timeline_post(self, mocked):
         self.helper_create_user_node(test_user)
@@ -439,6 +440,7 @@ class FlaskTestCase(unittest.TestCase):
             self.assertFalse(mocked.called, "Make Post on Timeline Page Failed: " + res.data)
         self.helper_delete_user_node(test_user_timeline)
         self.helper_delete_user_node(test_user)
+    """
 
     # --------------------------------------------------------------------------------------
     # Groups Page Tests
@@ -453,7 +455,7 @@ class FlaskTestCase(unittest.TestCase):
                 session['uid'] = test_user['sql_id']
             res = client.post('/social/groups/add_group_post',
                               data=dict(group_uid=group_uid, privacy="public", text="This is a test group post",
-                                        link="None",link_title="None", link_img="None",link_description="None"))
+                                        link="None", link_title="None", link_img="None", link_description="None"))
             self.assertFalse(mocked.called, "Add group post Failed: " + res.data)
         self.helper_delete_group_node(test_group_node)
         self.helper_delete_user_node(test_user)
@@ -468,7 +470,7 @@ class FlaskTestCase(unittest.TestCase):
                 session['uid'] = test_user['sql_id']
             res = client.post('/social/delete_group_post',
                               data=dict(group_uid=group_uid, postid=post_group_id))
-            #print(res.data)
+            # print(res.data)
             self.assertFalse(mocked.called, "Delete group post Failed: " + res.data)
         self.helper_delete_group_node(test_group_node)
         self.helper_delete_user_node(test_user)
@@ -482,8 +484,8 @@ class FlaskTestCase(unittest.TestCase):
             with client.session_transaction() as session:
                 session['uid'] = test_user['sql_id']
             res = client.post('/social/edit_group_post',
-                              data=dict(group_uid=group_uid, postid=post_group_id, editedpost ="This is an edited post"))
-            #print(res.data)
+                              data=dict(group_uid=group_uid, postid=post_group_id, editedpost="This is an edited post"))
+            # print(res.data)
             self.assertFalse(mocked.called, "Edit group post Failed: " + res.data)
         self.helper_delete_group_post_node(post_group_id)
         self.helper_delete_group_node(test_group_node)
@@ -500,7 +502,7 @@ class FlaskTestCase(unittest.TestCase):
             res = client.post('/social/add_group_comment',
                               data=dict(group_uid=group_uid, postid=int(test_group_post_node['id']),
                                         newcomment="This is a New comment"))
-            #print(res.data)
+            # print(res.data)
             self.assertFalse(mocked.called, "Add group comment Failed: " + res.data)
         self.helper_delete_group_post_node(post_group_id)
         self.helper_delete_group_node(test_group_node)
@@ -517,7 +519,7 @@ class FlaskTestCase(unittest.TestCase):
             res = client.post('/social/like_or_unlike_group_post',
                               data=dict(group_uid=group_uid, postid=int(test_group_post_node['id']),
                                         submit="likePost"))
-            #print(res.data)
+            # print(res.data)
             self.assertFalse(mocked.called, "Like group post Failed: " + res.data)
         self.helper_delete_group_post_node(post_group_id)
         self.helper_delete_group_node(test_group_node)
@@ -534,7 +536,7 @@ class FlaskTestCase(unittest.TestCase):
             res = client.post('/social/like_or_unlike_group_post',
                               data=dict(group_uid=group_uid, postid=int(test_group_post_node['id']),
                                         submit="unlikePost"))
-            #print(res.data)
+            # print(res.data)
             self.assertFalse(mocked.called, "UnLike group post Failed: " + res.data)
         self.helper_delete_group_post_node(post_group_id)
         self.helper_delete_group_node(test_group_node)
@@ -551,9 +553,9 @@ class FlaskTestCase(unittest.TestCase):
                 session['uid'] = test_user['sql_id']
             res = client.post('/social/edit_or_delete_group_comment',
                               data=dict(group_uid=group_uid, commentid=test_group_comment_id,
-                                        editedcomment= "This is test edited comment",
+                                        editedcomment="This is test edited comment",
                                         submit="editComment"))
-            #print(res.data)
+            # print(res.data)
             self.assertFalse(mocked.called, "UnLike group comment Failed: " + res.data)
         self.helper_delete_group_post_node(post_group_id)
         self.helper_delete_group_comment_node(test_group_comment_id)
@@ -572,7 +574,7 @@ class FlaskTestCase(unittest.TestCase):
             res = client.post('/social/edit_or_delete_group_comment',
                               data=dict(group_uid=group_uid, commentid=test_group_comment_id,
                                         submit="deleteComment"))
-            #print(res.data)
+            # print(res.data)
             self.assertFalse(mocked.called, "UnLike group comment Failed: " + res.data)
         self.helper_delete_group_post_node(post_group_id)
         self.helper_delete_group_node(test_group_node)
@@ -817,7 +819,7 @@ class FlaskTestCase(unittest.TestCase):
                 session['uid'] = test_user['sql_id']
             res = client.post('/social/systems/add_system_post',
                               data=dict(system_uid=system_uid, privacy="public", text="This is a test group post",
-                                        link="None",link_title="None", link_img="None",link_description="None"))
+                                        link="None", link_title="None", link_img="None", link_description="None"))
             self.assertFalse(mocked.called, "Add system post Failed: " + res.data)
         self.helper_delete_system_node(test_system_node)
         self.helper_delete_user_node(test_user)
@@ -832,7 +834,7 @@ class FlaskTestCase(unittest.TestCase):
                 session['uid'] = test_user['sql_id']
             res = client.post('/social/delete_system_post',
                               data=dict(system_uid=system_uid, postid=post_system_id))
-            #print(res.data)
+            # print(res.data)
             self.assertFalse(mocked.called, "Delete system post Failed: " + res.data)
         self.helper_delete_system_node(test_system_node)
         self.helper_delete_user_node(test_user)
@@ -846,13 +848,13 @@ class FlaskTestCase(unittest.TestCase):
             with client.session_transaction() as session:
                 session['uid'] = test_user['sql_id']
             res = client.post('/social/edit_system_post',
-                              data=dict(system_uid=system_uid, postid=post_system_id, editedpost="This is an edited post"))
-            #print(res.data)
+                              data=dict(system_uid=system_uid, postid=post_system_id,
+                                        editedpost="This is an edited post"))
+            # print(res.data)
             self.assertFalse(mocked.called, "Edit system post Failed: " + res.data)
         self.helper_delete_system_post_node(post_system_id)
         self.helper_delete_system_node(test_system_node)
         self.helper_delete_user_node(test_user)
-
 
     @patch('flask.templating._render', return_value='Add system comment Works As Expected')
     def test_add_system_comment(self, mocked):
@@ -865,7 +867,7 @@ class FlaskTestCase(unittest.TestCase):
             res = client.post('/social/add_system_comment',
                               data=dict(system_uid=system_uid, postid=int(test_system_post_node['id']),
                                         newcomment="This is a New comment"))
-            #print(res.data)
+            # print(res.data)
             self.assertFalse(mocked.called, "Add system comment Failed: " + res.data)
         self.helper_delete_system_post_node(post_system_id)
         self.helper_delete_system_node(test_system_node)
@@ -882,7 +884,7 @@ class FlaskTestCase(unittest.TestCase):
             res = client.post('/social/like_or_unlike_system_post',
                               data=dict(system_uid=system_uid, postid=int(test_system_post_node['id']),
                                         submit="likePost"))
-            #print(res.data)
+            # print(res.data)
             self.assertFalse(mocked.called, "Like system post Failed: " + res.data)
         self.helper_delete_system_post_node(post_system_id)
         self.helper_delete_system_node(test_system_node)
@@ -899,7 +901,7 @@ class FlaskTestCase(unittest.TestCase):
             res = client.post('/social/like_or_unlike_system_post',
                               data=dict(system_uid=system_uid, postid=int(test_system_post_node['id']),
                                         submit="unlikePost"))
-            #print(res.data)
+            # print(res.data)
             self.assertFalse(mocked.called, "UnLike system post Failed: " + res.data)
         self.helper_delete_system_post_node(post_system_id)
         self.helper_delete_system_node(test_system_node)
@@ -916,9 +918,9 @@ class FlaskTestCase(unittest.TestCase):
                 session['uid'] = test_user['sql_id']
             res = client.post('/social/edit_or_delete_system_comment',
                               data=dict(system_uid=system_uid, commentid=test_system_comment_id,
-                                        editedcomment= "This is test edited comment",
+                                        editedcomment="This is test edited comment",
                                         submit="editComment"))
-            #print(res.data)
+            # print(res.data)
             self.assertFalse(mocked.called, "UnLike system comment Failed: " + res.data)
         self.helper_delete_system_post_node(post_system_id)
         self.helper_delete_system_comment_node(test_system_comment_id)
@@ -937,7 +939,7 @@ class FlaskTestCase(unittest.TestCase):
             res = client.post('/social/edit_or_delete_system_comment',
                               data=dict(system_uid=system_uid, commentid=test_system_comment_id,
                                         submit="deleteComment"))
-            #print(res.data)
+            # print(res.data)
             self.assertFalse(mocked.called, "UnLike system comment Failed: " + res.data)
         self.helper_delete_system_post_node(post_system_id)
         self.helper_delete_system_node(test_system_node)
@@ -953,8 +955,6 @@ class FlaskTestCase(unittest.TestCase):
             print(res.data)
             self.assertTrue(mocked.called, "Route To Search Systems Page Failed: " + res.data)
         self.helper_delete_user_node(test_user)
-
-
 
     @patch('flask.templating._render', return_value='Route To My Systems Page Works As Expected')
     def test_my_systems_page_render(self, mocked):
@@ -1315,7 +1315,8 @@ class FlaskTestCase(unittest.TestCase):
         except Exception as ex:
             print "Exception At helper_create_group_post_node: " + str(ex.message)
 
-     # Helper Function To Delete User Post Node In Neo4J Database
+            # Helper Function To Delete User Post Node In Neo4J Database
+
     def helper_delete_group_post_node(self, group_post_to_delete):
         try:
             delete_group_post_query = """
@@ -1336,7 +1337,8 @@ class FlaskTestCase(unittest.TestCase):
         except Exception as ex:
             print "Exception At helper_create_system_post_node: " + str(ex.message)
 
-     # Helper Function To Delete System Post Node In Neo4J Database
+            # Helper Function To Delete System Post Node In Neo4J Database
+
     def helper_delete_system_post_node(self, system_post_to_delete):
         try:
             delete_system_post_query = """
@@ -1357,7 +1359,8 @@ class FlaskTestCase(unittest.TestCase):
         except Exception as ex:
             print "Exception At helper_create_system_comment_node: " + str(ex.message)
 
-     # Helper Function To Delete System comment Node In Neo4J Database
+            # Helper Function To Delete System comment Node In Neo4J Database
+
     def helper_delete_system_comment_node(self, system_comment_to_delete):
         try:
             delete_system_comment_query = """
@@ -1378,7 +1381,8 @@ class FlaskTestCase(unittest.TestCase):
         except Exception as ex:
             print "Exception At helper_create_group_comment_node: " + str(ex.message)
 
-     # Helper Function To Delete group comment Node In Neo4J Database
+            # Helper Function To Delete group comment Node In Neo4J Database
+
     def helper_delete_group_comment_node(self, group_comment_to_delete):
         try:
             delete_group_comment_query = """
@@ -1389,6 +1393,7 @@ class FlaskTestCase(unittest.TestCase):
             delete_group_status = graph.cypher.execute(delete_group_comment_query, commentid=group_comment_to_delete)
         except Exception as ex:
             print "Exception At helper_delete_group_comment_node: " + str(ex.message)
+
     # --------------------------------------------------------------------------------------
 
     if __name__ == '__main__':
