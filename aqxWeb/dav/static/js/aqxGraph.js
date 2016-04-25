@@ -28,6 +28,8 @@ var BACKGROUND = {
 var OVERLAY = true;
 var PRE_ESTABLISHED = 100;
 var ESTABLISHED = 200;
+var SPACE = ' ';
+var GMT = 'GMT';
 
 /* ##################################################################################################################
  MAIN CHART LOADING FUNCTIONS
@@ -699,8 +701,13 @@ function tooltipFormatter(){
     // Capitalize measurement type
     yVal = yVal.charAt(0).toUpperCase() + yVal.slice(1);
 
-    // Split datetime to separate date and time
-    var datetime = this.point.date.split(" ");
+    // Get local time and get the day, month, year, and time
+    var datestr = this.point.date + SPACE + GMT;
+    var datetime = new Date(datestr);
+    var time = datetime.toTimeString();
+    var day   = datetime.getDate(),
+        month = datetime.getMonth()+1,
+        year  = datetime.getFullYear();
 
     // Generate a readable description of any annotations for this datapoint
     var eventString = "";
@@ -716,7 +723,7 @@ function tooltipFormatter(){
     return '<b>' + tooltipInfo[0] + '</b>' +
         '<br><p>' + yVal + ": " + this.y + ' ' + units + '</p>' +
         '<br><p>Hours in cycle: ' + this.x + '</p>' +
-        '<br><p>Measured on: ' + datetime[0] + '</p>' +
-        '<br><p>At time: ' + datetime[1] +'</p>' +
+        '<br><p>Measured on: ' + day + '/' + month + '/' + year + '</p>' +
+        '<br><p>At time: ' + time +'</p>' +
         eventString;
 }
