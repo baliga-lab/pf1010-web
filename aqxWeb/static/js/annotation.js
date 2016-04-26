@@ -374,11 +374,13 @@ app.controller('AnnotationController', function ($scope, $http) {
             function onSuccess(response) {
                 console.log(response);
                 alert("Recordings submitted sucessfully");
+                window.location.reload();
             }
 
             function onFailure(error) {
                 console.log(error);
                 alert("Invalid data");
+                window.location.reload();
             }
         } else {
             alert("Invalid data");
