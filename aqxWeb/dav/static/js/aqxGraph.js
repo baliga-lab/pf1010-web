@@ -122,7 +122,7 @@ function getDataPointsForPlotHC (chart, xType, yTypeList, graphType, numberOfEnt
 
     // The name of a system and the y variable for which it is missing data. used to warn users
     // of which systems are missing requested data, and for which measurement.
-    var missingYTypes = [];
+    var missingYTypes = "";
 
     // Track the number of y axes being used.
     var numAxes = 0;
@@ -192,7 +192,7 @@ function getDataPointsForPlotHC (chart, xType, yTypeList, graphType, numberOfEnt
                     // If there is no data for the given system, measurement type, and status, we will warn the user
                     // orr this system and variable
                     else{
-                        missingYTypes.push(system.name + "-" + yType);
+                        missingYTypes = missingYTypes +  "<li>"+ system.name + " - " + yType + "</li>";
                     }
                 }
             });
@@ -201,7 +201,7 @@ function getDataPointsForPlotHC (chart, xType, yTypeList, graphType, numberOfEnt
 
     // Populate the alert message if necessary, and display it
     if (missingYTypes.length > 0){
-        $('#alert_placeholder').html(getAlertHTMLString("Missing values for: " + missingYTypes.toString(), DANGER));
+        $('#alert_placeholder').html(getAlertHTMLString("These system(s) do not have any data for the selected period: " + missingYTypes, DANGER));
     }
 
     return dataPointsList;
