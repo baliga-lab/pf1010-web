@@ -76,7 +76,7 @@ class annotationDAO:
 
         query = ('SELECT a.annotation_key, a.annotation_value, a.annotation_desc, sa.timestamp '
                  'FROM system_annotations sa '
-                 'LEFT JOIN annotations a ON sa.annotation_id = a.id'
+                 'LEFT JOIN annotations a ON sa.annotation_id = a.id '
                  'WHERE sa.system_id = %s ')
 
         try:
