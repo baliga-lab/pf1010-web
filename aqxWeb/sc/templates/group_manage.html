@@ -188,14 +188,17 @@
                                     </a>
                                 </td>
                                 <td>
-                                    <!-- Form Post For Delete Of Admin(s) -->
-                                    <form action="{{ url_for('social.delete_group_admin') }}" method="post">
+                                    <!-- Form Post For Delete Of Admin(s) or Make Him/Her Just Member For The Group -->
+                                    <form action="{{ url_for('social.delete_group_admin_or_make_member') }}" method="post">
                                         <input type="hidden" name="google_id"
                                                value="{{ admin[0]["google_id"] }}">
                                         <input type="hidden" name="group_uid"
                                                value="{{ group_neo4j[0][0]["group_uid"] }}">
-                                        <!-- Self Delete Is Prevented -->
+                                        <!-- Self Removing Admin Privileges Is Prevented -->
                                         {% if admin[0]["sql_id"] != logged_in_user["sql_id"] %}
+                                            <button type="submit" class="btn btn-success" name="submit"
+                                                    value="MakeMember" onclick="return getUserConsent()">Make Member
+                                            </button>
                                             <button type="submit" class="btn btn-danger" name="submit"
                                                     value="DeleteAdmin" onclick="return getUserConsent()">Delete
                                             </button>
@@ -261,7 +264,7 @@
                                     </a>
                                 </td>
                                 <td>
-                                    <!-- Form Post For Delete Of Member(s) and Make Admin For The Group -->
+                                    <!-- Form Post For Delete Of Member(s) or Make Admin For The Group -->
                                     <form action="{{ url_for('social.delete_group_member_or_make_admin') }}"
                                           method="post">
                                         <input type="hidden" name="google_id"

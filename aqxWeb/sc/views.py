@@ -596,8 +596,6 @@ def all_systems_neo4j():
 @social.route('/systems/<system_uid>', methods=['GET', 'POST'])
 def view_system(system_uid):
     sql_id = session.get('uid')
-    # sql_id = 29
-    # system_uid = "2e79ea8a411011e5aac7000c29b92d09"
     if sql_id is None:
         return redirect(url_for('social.search_systems'))
     try:
@@ -720,7 +718,6 @@ def participate_subscribe_leave_system():
 @social.route('/manage/systems/<system_uid>', methods=['GET', 'POST'])
 def manage_system(system_uid):
     sql_id = session.get('uid')
-    # system_uid = "416f3f2e3fe411e597b1000c29b92e09"
     if sql_id is None:
         return redirect(url_for('social.index'))
     system = System()
@@ -933,8 +930,6 @@ def get_groups():
 @social.route('/groups/<group_uid>', methods=['GET', 'POST'])
 def view_group(group_uid):
     sql_id = session.get('uid')
-    # sql_id = 29
-    # group_uid = "456f3f2e3fh411e597b1000c29b92e09"
     if sql_id is None:
         return redirect(url_for('social.index'))
     try:
@@ -983,8 +978,6 @@ def view_group(group_uid):
 def get_users_to_invite_groups(group_uid):
     try:
         sql_id = session.get('uid')
-        # sql_id = 29
-        # group_uid = "456f3f2e3fh411e597b1000c29b92e09"
         if sql_id is None:
             return redirect(url_for('social.index'))
         group = Group()
@@ -1035,7 +1028,6 @@ def get_users_to_invite_groups(group_uid):
 @social.route('/manage/groups/<group_uid>', methods=['GET', 'POST'])
 def manage_group(group_uid):
     sql_id = session.get('uid')
-    # sql_id = 29
     if sql_id is None:
         return redirect(url_for('social.index'))
     group = Group()
@@ -1134,7 +1126,6 @@ def approve_reject_group_member():
         group_uid = request.form["group_uid"]
         group = Group()
         sql_id = session.get('uid')
-        # sql_id = 29;
         if sql_id is not None:
             user_privilege = group.get_user_privilege_for_group(sql_id, group_uid)
             if user_privilege == "GROUP_ADMIN":
@@ -1161,7 +1152,6 @@ def invite_group_member():
             group_uid = request.form["group_uid"]
             group = Group()
             sql_id = session.get('uid')
-            # sql_id = 29;
             if sql_id is not None:
                 user_privilege = group.get_user_privilege_for_group(sql_id, group_uid)
                 if user_privilege == "GROUP_ADMIN" or user_privilege == "GROUP_MEMBER":
@@ -1173,29 +1163,32 @@ def invite_group_member():
         print "Exception at invite_group_member: " + str(ex.message)
         return redirect(url_for('social.groups'))
 
-
 #######################################################################################
-@social.route('/manage/groups/delete_admin', methods=['POST'])
-# function : delete_group_admin
-# purpose : Delete the specified admin for the group
+@social.route('/manage/groups/delete_group_admin_or_make_member', methods=['POST'])
+# function : delete_group_admin_or_make_member
+# purpose : Delete the specified admin for the group or remove the priviliges and make him/her member
 # parameters : None
-# Exception : None
+# Exception : General Exception
 #######################################################################################
-def delete_group_admin():
-    if request.method == 'POST':
-        google_id = request.form["google_id"]
-        group_uid = request.form["group_uid"]
-        group = Group()
-        sql_id = session.get('uid')
-        # sql_id = 29;
-        if sql_id is not None:
-            user_privilege = group.get_user_privilege_for_group(sql_id, group_uid)
-            if user_privilege == "GROUP_ADMIN":
-                if request.form['submit'] == 'DeleteAdmin':
-                    group.delete_group_admin(google_id, group_uid)
-        return redirect(url_for('social.manage_group', group_uid=group_uid))
-    else:
-        return redirect(url_for('social.groups'))
+def delete_group_admin_or_make_member():
+    try:
+        if request.method == 'POST':
+            google_id = request.form["google_id"]
+            group_uid = request.form["group_uid"]
+            group = Group()
+            sql_id = session.get('uid')
+            if sql_id is not None:
+                user_privilege = group.get_user_privilege_for_group(sql_id, group_uid)
+                if user_privilege == "GROUP_ADMIN":
+                    if request.form['submit'] == 'MakeMember':
+                        group.join_group(google_id, group_uid)
+                    elif request.form['submit'] == 'DeleteAdmin':
+                        group.delete_group_admin(google_id, group_uid)
+            return redirect(url_for('social.manage_group', group_uid=group_uid))
+        else:
+            return redirect(url_for('social.groups'))
+    except Exception as ex:
+        print "Exception at delete_group_admin_or_make_member: " + str(ex.message)
 
 
 #######################################################################################
@@ -1211,7 +1204,6 @@ def delete_group_member_or_make_admin():
         group_uid = request.form["group_uid"]
         group = Group()
         sql_id = session.get('uid')
-        # sql_id=29
         if sql_id is not None:
             user_privilege = group.get_user_privilege_for_group(sql_id, group_uid)
             if user_privilege == "GROUP_ADMIN":
