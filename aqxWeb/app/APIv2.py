@@ -173,3 +173,6 @@ class API:
         readings = self.measurementDAO.getLatestReadingsForSystem(systemUID)
         return json.dumps(readings)
 
+    def submitReading(self, measurementType, systemUID, reading):
+        rowID = self.measurementDAO.submitReading(measurementType, systemUID, reading)
+        return json.dumps({rowID: rowID})

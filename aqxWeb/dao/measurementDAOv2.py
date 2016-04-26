@@ -42,4 +42,31 @@ class measurementDAO:
 
         return readings
 
+    def submitReading(self, measurementType, systemUID, reading):
+        conn = self.getDBConn()
+        cursor = conn.cursor()
+
+        value = reading['value']
+        timestamp = reading['timestamp']
+
+        table = getTableName(measurementType, systemUID)
+
+        query = ('INSERT INTO ' + table + ' (value, time) '
+                 'VALUES (%s, %s)')
+
+        values = (value, timestamp)
+
+        try:
+            cursor.execute(query, values)
+            conn.commit()
+        except:
+            conn.rollback()
+            raise
+        finally:
+            cursor.close()
+            conn.close()
+
+        return cursor.lastrowid
+
+
 
