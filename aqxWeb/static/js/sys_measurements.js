@@ -6,9 +6,6 @@ app.controller('MeasurementController', function ($scope, $http, $timeout) {
     $scope.message = false;
     $scope.error = false;
 
-    $scope.min = document.getElementById("measure-value").min;
-    $scope.max = document.getElementById("measure-value").max;
-
     $scope.clearMessage = function() {
         $scope.message = false;
         $scope.error = false;
@@ -20,13 +17,13 @@ app.controller('MeasurementController', function ($scope, $http, $timeout) {
         measure.max = Number(angular.element('#measure-value').attr('max'));
 
         // Convert datetime's timezone to UTC
-        if (measure.time) {
-            measure.time = new Date(Date.UTC(measure.time.getFullYear(),
-                measure.time.getMonth(),
-                measure.time.getDate(),
-                measure.time.getHours(),
-                measure.time.getMinutes(),
-                measure.time.getSeconds()
+        if (measure.datetime) {
+            measure.time = new Date(Date.UTC(measure.datetime.getFullYear(),
+                measure.datetime.getMonth(),
+                measure.datetime.getDate(),
+                measure.datetime.getHours(),
+                measure.datetime.getMinutes(),
+                measure.datetime.getSeconds()
             ));
         }
 
@@ -36,7 +33,6 @@ app.controller('MeasurementController', function ($scope, $http, $timeout) {
             console.log(response);
             $scope.message = true;
             $scope.error = false;
-            $scope.measure.time = "";
             $scope.measure.value = "";
             $timeout(function() {
                 $scope.message = false;
@@ -44,13 +40,17 @@ app.controller('MeasurementController', function ($scope, $http, $timeout) {
         }
         function onFailure(error) {
             console.log(error.data.error);
-            if (error.data.error == "Time required" || error.data.error == "Value required"
+            if (error.data.error == "Time required") {
+                $scope.error1 = false;
+                $scope.error2 = true;
+            } else if (error.data.error == "Value required"
                     || error.data.error == "Value too high or too low") {
-                $scope.error = false;
+                $scope.error2 = false;
+                $scope.error1 = true;
             } else {
-                $scope.error = true;
+                $scope.error1 = true;
                 $timeout(function() {
-                    $scope.error = false;
+                    $scope.error1 = false;
                 }, 3500);
             }
         }
