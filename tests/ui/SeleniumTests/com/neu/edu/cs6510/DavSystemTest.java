@@ -1,4 +1,4 @@
-package cs5004.neu.edu;
+package com.neu.edu.cs6510;
 
 import java.util.concurrent.TimeUnit;
 
@@ -45,7 +45,7 @@ public class DavSystemTest {
     // Click Allow button
 
     // Not for the deployed version
-    wait.until(ExpectedConditions.elementToBeClickable(By.id("submit_approve_access"))).click();
+//    wait.until(ExpectedConditions.elementToBeClickable(By.id("submit_approve_access"))).click();
     // Till here common to all test cases.
 
     wait.until(ExpectedConditions.elementToBeClickable(By.linkText("Explore"))).click();
@@ -112,11 +112,9 @@ public class DavSystemTest {
       Log.getLogger("No system selected");
       System.out.println("No system selected");
     }
+    // Close the browser.
+    driver.close();
   }
 }
-// // Click on 'Logout' Button
-// driver.findElement(By.xpath("//*[@id='gb_71']")).click();
-// // Close the browser.
-// driver.close();
 
 

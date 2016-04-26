@@ -1,4 +1,4 @@
-package cs5004.neu.edu;
+package com.neu.edu.cs6510;
 
 import java.util.concurrent.TimeUnit;
 
@@ -13,12 +13,12 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 
 public class AnnotationsDAVTest {
 
-  public static final String YOUR_PASSWORD = "";
+  public static final String YOUR_PASSWORD = "password@123!";
   public static final String PASSWD = "Passwd";
   public static final String SITE_NAME = "http://127.0.0.1:5000/";
   public static final String EMAIL = "Email";
   public static final String LOGIN_WITH_GOOGLE = "Login with Google+";
-  public static final String YOUR_GMAIL_ID = "";
+  public static final String YOUR_GMAIL_ID = "pmneuseattle";
   public static final String NEXT = "next";
   protected static final String SELENIUM_ACQA_SYSTEM_1 = "Selenium AcqaSystem_1";
 
@@ -52,7 +52,7 @@ public class AnnotationsDAVTest {
     driver.findElement(By.id("signIn")).click();
     // Click Allow button
 
-    wait.until(ExpectedConditions.elementToBeClickable(By.id("submit_approve_access"))).click();
+//    wait.until(ExpectedConditions.elementToBeClickable(By.id("submit_approve_access"))).click();
     // Till here common to all test cases.
 
     // Select system
@@ -89,27 +89,12 @@ public class AnnotationsDAVTest {
     driver.findElement(By.id("addUrl")).click();
     Select select_public = new Select(driver.findElement(By.name("privacy")));
     select_public.selectByVisibleText("Public");
-    driver.findElement(By.id("new_post")).sendKeys("It's saturday");
+    driver.findElement(By.id("new_post")).sendKeys("It's tuesday: final");
     wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//input[@value='Share']")))
         .click();
 
-    // Explore
-    wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//*[@title='Explore']"))).click();
 
-    Select exploreTechnique = new Select(driver.findElement(By.id("selectTechnique")));
-    exploreTechnique.selectByVisibleText("Ebb and Flow (Media-based)");
-
-    Select exploreGrowbed = new Select(driver.findElement(By.id("selectGrowbedMedium")));
-    exploreGrowbed.selectByVisibleText("Coconut Coir");
-
-    Select exploreStatus = new Select(driver.findElement(By.id("selectStatus")));
-    exploreStatus.selectByVisibleText("Pre-Established");
-
-    wait.until(ExpectedConditions.elementToBeClickable(By.id("submitbtn"))).click();
-    // // Click on 'Logout' Button
-    // driver.findElement(By.xpath("//*[@id='gb_71']")).click();
-    // // Close the browser.
-    // driver.close();
+     driver.close();
 
   }
 }

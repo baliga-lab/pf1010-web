@@ -1,4 +1,4 @@
-package cs5004.neu.edu;
+package com.neu.edu.cs6510;
 
 import java.util.concurrent.TimeUnit;
 
@@ -51,7 +51,7 @@ public class MeasurementTest {
     driver.findElement(By.id("signIn")).click();
     // Click Allow button
 
-    wait.until(ExpectedConditions.elementToBeClickable(By.id(SUBMIT_APPROVE_ACCESS))).click();
+//    wait.until(ExpectedConditions.elementToBeClickable(By.id(SUBMIT_APPROVE_ACCESS))).click();
     // Till here common to all test cases.
 
 
@@ -131,9 +131,7 @@ public class MeasurementTest {
     // Add measurement end
 
 
-    // // Click on 'Logout' Button
-    // driver.findElement(By.xpath("//*[@id='gb_71']")).click();
-    // // Close the browser.
-    // driver.close();
+   // Close the browser.
+    driver.close();
   }
 }
