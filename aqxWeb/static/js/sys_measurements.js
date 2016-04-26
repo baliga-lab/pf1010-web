@@ -31,8 +31,9 @@ app.controller('MeasurementController', function ($scope, $http, $timeout) {
 
         function onSuccess(response) {
             console.log(response);
+            $scope.error1 = false;
+            $scope.error2 = false;
             $scope.message = true;
-            $scope.error = false;
             $scope.measure.value = "";
             $timeout(function() {
                 $scope.message = false;
@@ -43,11 +44,15 @@ app.controller('MeasurementController', function ($scope, $http, $timeout) {
             if (error.data.error == "Time required") {
                 $scope.error1 = false;
                 $scope.error2 = true;
+                $timeout(function() {
+                    $scope.error2 = false;
+                }, 3500);
             } else if (error.data.error == "Value required"
                     || error.data.error == "Value too high or too low") {
                 $scope.error2 = false;
-                $scope.error1 = true;
+                $scope.error1 = false;
             } else {
+                $scope.error2 = false;
                 $scope.error1 = true;
                 $timeout(function() {
                     $scope.error1 = false;
