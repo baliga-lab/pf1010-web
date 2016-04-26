@@ -272,11 +272,12 @@ class FlaskTestCase(unittest.TestCase):
                 session['uid'] = test_user['sql_id']
             res = client.post('/social/add_post',
                               data=dict(google_id=test_user['google_id'], privacy="public",
-                                        text="This is a test group post",
+                                        text="This is a test post",
                                         link="None", link_title="None", link_img="None", link_description="None",
                                         page_type="home"))
             self.assertFalse(mocked.called, "Add home post Failed: " + res.data)
         self.helper_delete_user_node(test_user)
+        self.helper_delete_user_posts()
 
     @patch('flask.templating._render', return_value='Delete home post Works As Expected')
     def test_delete_home_post(self, mocked):
@@ -315,11 +316,12 @@ class FlaskTestCase(unittest.TestCase):
                 session['uid'] = test_user['sql_id']
             res = client.post('/social/add_comment',
                               data=dict(postid=int(test_post_node['id']),
-                                        newcomment="This is a New comment"))
+                                        newcomment="This is a test comment"))
             # print(res.data)
             self.assertFalse(mocked.called, "Add home comment Failed: " + res.data)
         self.helper_delete_post_node(test_post_node['id'])
         self.helper_delete_user_node(test_user)
+        self.helper_delete_comment()
 
     @patch('flask.templating._render', return_value='Add home comment Works As Expected')
     def test_no_comment_add_home_comment(self, mocked):
@@ -335,6 +337,7 @@ class FlaskTestCase(unittest.TestCase):
             self.assertFalse(mocked.called, "Add home comment Failed: " + res.data)
         self.helper_delete_post_node(test_post_node['id'])
         self.helper_delete_user_node(test_user)
+        self.helper_delete_comment()
 
     @patch('flask.templating._render', return_value='Add home comment Works As Expected')
     def test_no_postid_add_home_comment(self, mocked):
@@ -350,6 +353,7 @@ class FlaskTestCase(unittest.TestCase):
             self.assertFalse(mocked.called, "Add home comment Failed: " + res.data)
         self.helper_delete_post_node(test_post_node['id'])
         self.helper_delete_user_node(test_user)
+        self.helper_delete_comment()
 
     @patch('flask.templating._render', return_value='Like home post Works As Expected')
     def test_like_home_post(self, mocked):
@@ -636,11 +640,12 @@ class FlaskTestCase(unittest.TestCase):
                 session['uid'] = test_user['sql_id']
             res = client.post('/social/add_post',
                               data=dict(google_id=test_user['google_id'], privacy="public",
-                                        text="This is a test group post",
+                                        text="This is a test post",
                                         link="None", link_title="None", link_img="None", link_description="None",
                                         page_type="profile"))
             self.assertFalse(mocked.called, "Add profile post Failed: " + res.data)
         self.helper_delete_user_node(test_user)
+        self.helper_delete_user_posts()
 
     # --------------------------------------------------------------------------------------
     # Edit Profile related Tests
@@ -752,6 +757,7 @@ class FlaskTestCase(unittest.TestCase):
             self.assertFalse(mocked.called, "Add group post Failed: " + res.data)
         self.helper_delete_group_node(test_group_node)
         self.helper_delete_user_node(test_user)
+        self.helper_delete_group_posts()
 
     @patch('flask.templating._render', return_value='Delete group post Works As Expected')
     def test_delete_group_post(self, mocked):
@@ -766,6 +772,7 @@ class FlaskTestCase(unittest.TestCase):
             # print(res.data)
             self.assertFalse(mocked.called, "Delete group post Failed: " + res.data)
         self.helper_delete_group_node(test_group_node)
+        self.helper_delete_group_post_node(test_group_post_node['id'])
         self.helper_delete_user_node(test_user)
 
     @patch('flask.templating._render', return_value='Edit group post Works As Expected')
@@ -794,12 +801,13 @@ class FlaskTestCase(unittest.TestCase):
                 session['uid'] = test_user['sql_id']
             res = client.post('/social/add_group_comment',
                               data=dict(group_uid=group_uid, postid=int(test_group_post_node['id']),
-                                        newcomment="This is a New comment"))
+                                        newcomment="This is a new group comment"))
             # print(res.data)
             self.assertFalse(mocked.called, "Add group comment Failed: " + res.data)
         self.helper_delete_group_post_node(post_group_id)
         self.helper_delete_group_node(test_group_node)
         self.helper_delete_user_node(test_user)
+        self.helper_delete_group_comment()
 
     @patch('flask.templating._render', return_value='Like group post Works As Expected')
     def test_like_group_post(self, mocked):
@@ -850,8 +858,8 @@ class FlaskTestCase(unittest.TestCase):
                                         submit="editComment"))
             # print(res.data)
             self.assertFalse(mocked.called, "Edit group comment Failed: " + res.data)
-        self.helper_delete_group_post_node(post_group_id)
-        self.helper_delete_group_comment_node(test_group_comment_id)
+        self.helper_delete_group_post_node(test_group_post_node['id'])
+        self.helper_delete_group_comment_node(test_group_comment['id'])
         self.helper_delete_group_node(test_group_node)
         self.helper_delete_user_node(test_user)
 
@@ -869,8 +877,8 @@ class FlaskTestCase(unittest.TestCase):
                                         submit="deleteComment"))
             # print(res.data)
             self.assertFalse(mocked.called, "Delete group comment Failed: " + res.data)
-        self.helper_delete_group_post_node(post_group_id)
-        self.helper_delete_group_node(test_group_node)
+        self.helper_delete_group_post_node(test_group_post_node['id'])
+        self.helper_delete_group_node(test_group_node['id'])
         self.helper_delete_user_node(test_user)
 
     @patch('flask.templating._render', return_value='Create Groups Page Render Works As Expected')
@@ -1216,6 +1224,7 @@ class FlaskTestCase(unittest.TestCase):
             self.assertFalse(mocked.called, "Add system post Failed: " + res.data)
         self.helper_delete_system_node(test_system_node)
         self.helper_delete_user_node(test_user)
+        self.helper_delete_system_posts()
 
     @patch('flask.templating._render', return_value='Delete system post Works As Expected')
     def test_delete_system_post(self, mocked):
@@ -1259,12 +1268,13 @@ class FlaskTestCase(unittest.TestCase):
                 session['uid'] = test_user['sql_id']
             res = client.post('/social/add_system_comment',
                               data=dict(system_uid=system_uid, postid=int(test_system_post_node['id']),
-                                        newcomment="This is a New comment"))
+                                        newcomment="This is a new system comment"))
             # print(res.data)
             self.assertFalse(mocked.called, "Add system comment Failed: " + res.data)
         self.helper_delete_system_post_node(post_system_id)
         self.helper_delete_system_node(test_system_node)
         self.helper_delete_user_node(test_user)
+        self.helper_delete_system_comment()
 
     @patch('flask.templating._render', return_value='Like system post Works As Expected')
     def test_like_system_post(self, mocked):
@@ -1315,8 +1325,8 @@ class FlaskTestCase(unittest.TestCase):
                                         submit="editComment"))
             # print(res.data)
             self.assertFalse(mocked.called, "Edit system comment Failed: " + res.data)
-        self.helper_delete_system_post_node(post_system_id)
-        self.helper_delete_system_comment_node(test_system_comment_id)
+        self.helper_delete_system_post_node(test_system_post_node['id'])
+        self.helper_delete_system_comment_node(test_system_comment['id'])
         self.helper_delete_system_node(test_system_node)
         self.helper_delete_user_node(test_user)
 
@@ -1683,6 +1693,42 @@ class FlaskTestCase(unittest.TestCase):
         except Exception as ex:
             print "Exception At helper_delete_user_node: " + str(ex.message)
 
+    # Helper Function To Delete System Comment In Neo4J Database
+    def helper_delete_system_comment(self):
+        try:
+            delete_system_comment_query = """
+                MATCH (u:SystemComment)
+                WHERE u.content = {content}
+                DETACH DELETE u
+            """
+            delete_user_status = graph.cypher.execute(delete_system_comment_query, content="This is a new system comment")
+        except Exception as ex:
+            print "Exception At helper_delete_system_comment: " + str(ex.message)
+
+    # Helper Function To Delete User Post In Neo4J Database
+    def helper_delete_user_posts(self):
+        try:
+            delete_user_post_query = """
+                MATCH (u:Post)
+                WHERE u.text = {text}
+                DETACH DELETE u
+            """
+            delete_user_status = graph.cypher.execute(delete_user_post_query, text="This is a test post")
+        except Exception as ex:
+            print "Exception At helper_delete_user_posts: " + str(ex.message)
+
+    # Helper Function To Delete User Group Node In Neo4J Database
+    def helper_delete_group_posts(self):
+        try:
+            delete_group_posts_query = """
+                MATCH (u:GroupPost)
+                WHERE u.text = {text}
+                DETACH DELETE u
+            """
+            delete_user_status = graph.cypher.execute(delete_group_posts_query, text="This is a test group post")
+        except Exception as ex:
+            print "Exception At helper_delete_group_posts: " + str(ex.message)
+
     # Helper Function To Create Group Node In Neo4J Database
     def helper_create_group_node(self, group_node_to_create):
         try:
@@ -1814,7 +1860,7 @@ class FlaskTestCase(unittest.TestCase):
     def helper_create_group_post_node(self, group_post_node_to_create):
         try:
             # Same Group Post Node If Exists Is Removed
-            self.helper_delete_group_post_node(post_group_id)
+            self.helper_delete_group_post_node(group_post_node_to_create['id'])
             graph.create(group_post_node_to_create)
         except Exception as ex:
             print "Exception At helper_create_group_post_node: " + str(ex.message)
@@ -1880,7 +1926,7 @@ class FlaskTestCase(unittest.TestCase):
     def helper_create_system_comment_node(self, system_comment_node_to_create):
         try:
             # Same System comment Node If Exists Is Removed
-            self.helper_delete_system_comment_node(test_system_comment_id)
+            self.helper_delete_system_comment_node(system_comment_node_to_create['id'])
             graph.create(system_comment_node_to_create)
         except Exception as ex:
             print "Exception At helper_create_system_comment_node: " + str(ex.message)
@@ -1902,7 +1948,7 @@ class FlaskTestCase(unittest.TestCase):
     def helper_create_group_comment_node(self, group_comment_node_to_create):
         try:
             # Same group comment Node If Exists Is Removed
-            self.helper_delete_group_comment_node(test_group_comment_id)
+            self.helper_delete_group_comment_node(test_group_comment['id'])
             graph.create(group_comment_node_to_create)
         except Exception as ex:
             print "Exception At helper_create_group_comment_node: " + str(ex.message)
@@ -1941,6 +1987,43 @@ class FlaskTestCase(unittest.TestCase):
             delete_status = graph.cypher.execute(delete_comment_query, commentid=comment_to_delete)
         except Exception as ex:
             print "Exception At helper_delete_comment_node: " + str(ex.message)
+
+    # Helper Function To Delete User System Node In Neo4J Database
+    def helper_delete_system_posts(self):
+        try:
+            delete_system_posts_query = """
+                MATCH (u:SystemPost)
+                WHERE u.text = {text}
+                DETACH DELETE u
+            """
+            delete_user_status = graph.cypher.execute(delete_system_posts_query, text="This is a test system post")
+        except Exception as ex:
+            print "Exception At helper_delete_system_posts: " + str(ex.message)
+
+    # Helper Function To Delete User Comment In Neo4J Database
+    def helper_delete_comment(self):
+        try:
+            delete_comment_query = """
+                MATCH (u:Comment)
+                WHERE u.content = {content}
+                DETACH DELETE u
+            """
+            delete_user_status = graph.cypher.execute(delete_comment_query, content="This is a test comment")
+        except Exception as ex:
+            print "Exception At helper_delete_comment: " + str(ex.message)
+
+    # Helper Function To Delete group Comment In Neo4J Database
+    def helper_delete_group_comment(self):
+        try:
+            delete_group_comment_query = """
+                MATCH (u:GroupComment)
+                WHERE u.content = {content}
+                DETACH DELETE u
+            """
+            delete_user_status = graph.cypher.execute(delete_group_comment_query, content="This is a new group comment")
+        except Exception as ex:
+            print "Exception At helper_delete_group_comment: " + str(ex.message)
+
 
     # --------------------------------------------------------------------------------------
 
