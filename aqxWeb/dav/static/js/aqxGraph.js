@@ -364,7 +364,9 @@ function getAlertHTMLString(alertText, type){
 }
 
 /**
- *
+ * Create a series for the given dataPoints
+ * NOTE: turboThreshold is 1000 by default, and 0 disables it.
+ *       please refer to http://api.highcharts.com/highcharts#plotOptions.series.turboThreshold
  * @param systemName - name of system
  * @param dataPoints - array of values for graph; [{x:"", y: "", date: "", marker: ""}]
  * @param graphType
@@ -384,6 +386,7 @@ function getDataPoints(systemName, dataPoints, graphType, id, linkedTo, color, y
         yAxis: yAxis,
         //dashStyle: DASHSTYLES[j],
         dashStyle: dashStyle,
+        turboThreshold:0,
         marker: {symbol: markerType}
     };
     if(linkedTo) {
