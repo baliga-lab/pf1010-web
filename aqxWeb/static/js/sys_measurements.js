@@ -6,6 +6,9 @@ app.controller('MeasurementController', function ($scope, $http, $timeout) {
     $scope.message = false;
     $scope.error = false;
 
+    $scope.min = document.getElementById("measure-value").min;
+    $scope.max = document.getElementById("measure-value").max;
+
     $scope.clearMessage = function() {
         $scope.message = false;
         $scope.error = false;
@@ -15,6 +18,17 @@ app.controller('MeasurementController', function ($scope, $http, $timeout) {
         measure.system_uid = angular.element('#UID').html();
         measure.min = Number(angular.element('#measure-value').attr('min'));
         measure.max = Number(angular.element('#measure-value').attr('max'));
+
+        // Convert datetime's timezone to UTC
+        if (measure.time) {
+            measure.time = new Date(Date.UTC(measure.time.getFullYear(),
+                measure.time.getMonth(),
+                measure.time.getDate(),
+                measure.time.getHours(),
+                measure.time.getMinutes(),
+                measure.time.getSeconds()
+            ));
+        }
 
         console.log(measure);
 

@@ -12,7 +12,7 @@
     <div class="container">
         <div class="row">
             {% if metadata.user == session['uid'] %}
-                <div class="col-sm-3">
+                <div class="col-md-2">
                     <ul class="nav nav-stacked">
                         <li id="overview-li">
                             <a href="{{ url_for("frontend.sys_overview", system_uid=metadata.UID) }}"
@@ -35,9 +35,9 @@
                         </li>
                     </ul>
                 </div>
-                <div class="col-sm-9">
-                    <h3>Input Measurements</h3>
-
+                <div class="col-sm-7">
+                    <h2>Input Measurements</h2>
+                    <hr>
                     <div ng-controller="MeasurementController">
                         <div class="form-group">
                             <label for="measure-id">Measurement Type:</label>
@@ -59,7 +59,7 @@
                             <span class="hidden" id="UID">{{ metadata.UID }}</span>
                             <div class="form-group">
                                 <label for="measure-datetime">Date & Time</label>
-                                <input class="form-control" type="datetime-local" id="measure-datetime"
+                                <input class="form-control dt" type="datetime-local" id="measure-datetime"
                                        name="measure-date"
                                        ng-model="measure.time" required>
                             </div>
@@ -159,9 +159,9 @@
                             <div class="form-group">
                                 <label for="measure-value">Value</label>
                                 <div class="input-group">
-                                    <input id="measure-value" class="form-control numeric" name="measure-value" type="number"
+                                    <input id="measure-value" class="form-control val" name="measure-value" type="number"
                                            pattern="[0-9]+(.[0-9]+)?" style="text-align: right;" placeholder="0.00"
-                                           step="0.01" min="0" max=""
+                                           step="0.01" min="0" max="1000"
                                            aria-describedby="addon" ng-model="measure.value" required>
                                     <span ng-switch-when="5" id="addon" class="input-group-addon">lux</span>
                                     <span ng-switch-when="9" id="addon" class="input-group-addon">&nbsp;</span>
@@ -191,6 +191,26 @@
                         </form>
                     </div>
                 </div>
+                <div class="col-sm-3 hidden-xs hidden-sm">
+                    <h4>Latest Readings</h4>
+                    <hr>
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Type</th>
+                                <th>Value</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for reading in readings %}
+                                <tr>
+                                    <td>{{ reading.name }}</td>
+                                    <td>{{ reading.value }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
             {% else %}
                 <h3>Oops! Looks like this isn't your system.</h3>
                 <p>Please hit the 'Back' key or go to 'Home'</p>
@@ -205,44 +225,45 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui-touch-punch/0.2.3/jquery.ui.touch-punch.min.js"></script>
     <script src="{{ url_for('frontend.static', filename='js/jquery.numeric.min.js') }}"></script>
     <script src="{{ url_for('frontend.static', filename='js/sys_measurements.js') }}"></script>
-    <script src="{{ url_for('frontend.static', filename='js/strip_colors.js') }}"></script>
+    {# <script src="{{ url_for('frontend.static', filename='js/strip_colors.js') }}"></script> #}
     <script>
-        var isDragging = false;
+        $("input.dt").attr('max', new Date);
 
-        $("input.numeric").numeric();
         $("select.id").change(function() {
             if ($(this).val() == "1") {
-                $("input.numeric").attr('min', 60.00);
-                $("input.numeric").attr('max', 140.00);
+                $("input.val").attr('min', 0.00);
+                $("input.val").attr('max', 300.00);
             } else if ($(this).val() == "2") {
-                $("input.numeric").attr('min', 0.00);
-                $("input.numeric").attr('max', 1.00);
+                $("input.val").attr('min', 0.00);
+                $("input.val").attr('max', 6.00);
             } else if ($(this).val() == "3") {
-                $("input.numeric").attr('min', 0.00);
-                $("input.numeric").attr('max', 1000000);
+                $("input.val").attr('min', 0.00);
+                $("input.val").attr('max', 1000000.00);
             } else if ($(this).val() == "4") {
-                $("input.numeric").attr('min', 60.00);
-                $("input.numeric").attr('max', 140.00);
+                $("input.val").attr('min', 0.00);
+                $("input.val").attr('max', 300.00);
             } else if ($(this).val() == "5") {
-                $("input.numeric").attr('min', 0.00);
-                $("input.numeric").attr('max', 1000000);
+                $("input.val").attr('min', 0.00);
+                $("input.val").attr('max', 1000000.00);
             } else if ($(this).val() == "6") {
-                $("input.numeric").attr('min', 5.00);
-                $("input.numeric").attr('max', 150.00);
+                $("input.val").attr('min', 0.00);
+                $("input.val").attr('max', 200.00);
             } else if ($(this).val() == "7") {
-                $("input.numeric").attr('max', 0.25);
+                $("input.val").attr('min', 0.00);
+                $("input.val").attr('max', 10.00);
             } else if ($(this).val() == "8") {
-                $("input.numeric").attr('min', 0.00);
-                $("input.numeric").attr('max', 1000000);
+                $("input.val").attr('min', 0.00);
+                $("input.val").attr('max', 1000000.00);
             } else if ($(this).val() == "9") {
-                $("input.numeric").attr('min', 6.00);
-                $("input.numeric").attr('max', 7.00);
+                $("input.val").attr('min', 5.00);
+                $("input.val").attr('max', 9.00);
             } else if ($(this).val() == "10") {
-                $("input.numeric").attr('min', 22.00);
-                $("input.numeric").attr('max', 30.00);
+                $("input.val").attr('min', 18.00);
+                $("input.val").attr('max', 33.00);
             }
         });
 
+        {#var isDragging = false;
         function updateNH4Values(posx) {
             aqx.updateStripValues(posx, 'nh4', 0.0, 6.0, aqx.nh4GradientColor);
         }
@@ -274,6 +295,6 @@
         function updateAlkalinityValues(posx) {
             aqx.updateStripValues(posx, 'alk', 0.0, 300.0, aqx.alkGradientColor);
         }
-        aqx.connectStrip('alk', updateAlkalinityValues);
+        aqx.connectStrip('alk', updateAlkalinityValues);#}
     </script>
 {% endblock scripts %}

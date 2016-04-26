@@ -23,11 +23,17 @@ class measurementDAO:
                  'LIMIT 1')
 
         try:
+            readings = []
             for measurement in measurements:
                 table = getTableName(measurement, systemUID)
                 cursor.execute(query % table)
                 reading = cursor.fetchone()
-                readings[measurement] = reading
+                if reading:
+                    reading = round(reading[0], 2)
+                readings.append({
+                    'name': measurement,
+                    'value': reading
+                })
         except:
             raise
         finally:
@@ -35,32 +41,5 @@ class measurementDAO:
             conn.close()
 
         return readings
-
-
-    def submitReading(self, measurementType, systemUID, reading):
-        conn = self.getDBConn()
-        cursor = conn.cursor()
-
-        value = reading['value']
-        timestamp = reading['timestamp']
-
-        table = getTableName(measurementType, systemUID)
-
-        query = ('INSERT INTO ' + table + ' (value, time) '
-                 'VALUES (%s, %s)')
-
-        values = (value, timestamp)
-
-        try:
-            cursor.execute(query, values)
-            conn.commit()
-        except:
-            conn.rollback()
-            raise
-        finally:
-            cursor.close()
-            conn.close()
-
-        return cursor.lastrowid
 
 

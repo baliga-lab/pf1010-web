@@ -12,7 +12,7 @@
     <div class="container">
         <div class="row">
             {% if metadata.user == session['uid'] %}
-                <div class="col-sm-3">
+                <div class="col-md-2">
                     <ul class="nav nav-stacked">
                         <li id="overview-li">
                             <a href="{{ url_for("frontend.sys_overview", system_uid=metadata.UID) }}"
@@ -35,9 +35,9 @@
                         </li>
                     </ul>
                 </div>
-                <div class="col-sm-9" ng-controller="AnnotationController">
-                    <h3>Add Annotations</h3>
-
+                <div class="col-md-10" ng-controller="AnnotationController">
+                    <h2>Add Annotations</h2>
+                    <hr>
                     <form id="myForm" class="appnitro" method="post" action="">
                         <ul>
                             <li id="li_1">
@@ -198,7 +198,7 @@
                 <h3>Oops! Looks like this isn't your system.</h3>
                 <p>Please hit the 'Back' key or go to 'Home'</p>
             {% endif %}
-    </div>
+        </div>
     </div>
 {% endblock %}
 

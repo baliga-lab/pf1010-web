@@ -15,6 +15,16 @@ app.controller('CreateSystemController', function ($scope, $http, $window) {
     $scope.create = function(system) {
         system.gbMedia[0].count = 1;
 
+        // Convert datetime's timezone to UTC
+        if (system.startDate) {
+            system.startDate = new Date(Date.UTC(system.startDate.getFullYear(),
+                system.startDate.getMonth(),
+                system.startDate.getDate(),
+                0, 0, 0));
+        }
+
+        console.log(system);
+
         function onSuccess(response) {
             console.log(response);
             var socSystem = {

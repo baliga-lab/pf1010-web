@@ -8,7 +8,6 @@ from flask_oauth import OAuth
 # UI imports
 from flask_bootstrap import Bootstrap
 from frontend import frontend as ui
-from services import init_app as init_ui_app
 from servicesV2 import init_app as init_ui_app2
 from nav import nav
 import views
@@ -32,7 +31,6 @@ app.register_blueprint(ui, url_prefix='')
 pool = None
 # Social Component DB Configuration Settings
 app.config.from_pyfile("sc/settings.cfg")
-app.config['BOOTSTRAP_SERVE_LOCAL'] = True
 
 #OAuth Configuration Settings
 app.config.from_pyfile("OAuth_Settings.cfg")
@@ -118,8 +116,7 @@ def Home():
 if __name__ == "__main__":
     app.debug = True
     app.config.from_envvar('AQUAPONICS_SETTINGS')
-    init_ui_app(app) # includes api v1
-    init_ui_app2(app) # includes api v2
+    init_ui_app2(app)
     init_dav_app(app)
     init_sc_app(app)
     nav.init_app(app)

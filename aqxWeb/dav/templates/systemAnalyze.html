@@ -14,14 +14,39 @@
 {% block content %}
     <div class="container" style="width: 100%; margin-top: 2%; margin-left: 2%">
         <div class="row">
-            <div id="alert_placeholder"></div>
-            <div class="col-sm-9">
+            <div class="col-md-2">
+                <ul class="nav nav-stacked">
+                    <li id="overview-li">
+                        <a href="{{ url_for("frontend.sys_overview", system_uid=metadata.UID) }}"
+                           title="Overview">Overview</a>
+                    </li>
+                    {% if metadata.user == session['uid'] %}
+                        <li id="measurement-li" class="active">
+                            <a href="{{ url_for("frontend.sys_measurements", system_uid=metadata.UID) }}"
+                               title="Measurement">Measurements</a>
+                        </li>
+                        <li id="annotate-li">
+                            <a href="{{ url_for("frontend.sys_annotations", system_uid=metadata.UID) }}"
+                               title="Annotations">Annotations <span class="sr-only">(current)</span></a>
+                        </li>
+                        <li id="social-li"><a
+                            href="{{ url_for("social.view_system", system_uid=metadata.UID) }}" title="Social">
+                        Social</a>
+                        </li>
+                    {% endif %}
+                    <li id="analytics-li">
+                        <a href="{{ url_for('dav.system_analyze', system_uid=metadata.UID) }}" title="Analytics">Analytics</a>
+                    </li>
+                </ul>
+            </div>
+            <div class="col-md-7">
+                <div id="alert_placeholder"></div>
                 <div id="analyzeContainer" style="height: 500px; width: 100%;"></div>
             </div>
             <div id="measurementLegend" style="width: 50%;">
                 <div id="legendTypes"></div>
             </div>
-            <div class="col-sm-3">
+            <div class="col-md-3">
                 <div class="form-group">
                     <label class="control-label">Select Y Axis</label>
                     <select class="chosen-select" multiple id="selectYAxis">
@@ -60,7 +85,6 @@
                     <input class="btn btn-green" type="button" id="resetbtn" name="reset" value="Reset"/>
                 </div>
             </div>
-            <br>
         </div>
     </div>
 {% endblock %}

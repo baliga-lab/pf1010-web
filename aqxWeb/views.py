@@ -1,7 +1,7 @@
 from flask import render_template
 from frontend import frontend
 
-from servicesV2 import getEnums, getSystem
+from servicesV2 import getEnums, getSystem, getLatestReadingsForSystem
 
 import json
 
@@ -38,12 +38,14 @@ def contact():
 @frontend.route('/system/<system_uid>/overview')
 def sys_overview(system_uid):
     metadata = json.loads(getSystem(system_uid))
+    readings = json.loads(getLatestReadingsForSystem(system_uid))
     return render_template('sys_overview.html', **locals())
 
 
 @frontend.route('/system/<system_uid>/measurements')
 def sys_measurements(system_uid):
     metadata = json.loads(getSystem(system_uid))
+    readings = json.loads(getLatestReadingsForSystem(system_uid))
     return render_template('sys_measurements.html', **locals())
 
 

@@ -147,6 +147,7 @@ def system_analyze(system_uid):
     try:
         ui_api = UIAPI(app)
         annotations_map = ui_api.getReadableAnnotations()
+        metadata = json.loads(ui_api.getSystem(system_uid))
 
         # Load JSON formatted String from API.
         # This will be piped into Javascript as a JS Object accessible in that scope
