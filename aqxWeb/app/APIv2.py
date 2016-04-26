@@ -76,7 +76,7 @@ class API:
         results = self.systemDAO.getSystemsForUser(userID)
         for result in results:
             systems.append({
-                'ID:': result[0],
+                'ID': result[0],
                 'UID': result[1],
                 'name': result[2]
             })
