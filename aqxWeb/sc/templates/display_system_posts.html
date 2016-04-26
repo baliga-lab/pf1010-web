@@ -225,7 +225,7 @@
                                             <div class="input-group col-md-12">
                                                 <p>{{ cmt.comment.content }}</p>
                                                 {% if cmt.comment.user_sql_id == session['uid'] %}
-                                                    <button type="submit" class="btn btn-blue btn-sm" name="submit"
+                                                    <button type="submit" class="btn btn-blue btn-xs" name="submit"
                                                             value="edit"
                                                             aria-label="Left Align"
                                                             onclick="showEditCommentDiv('{{ cmt.comment.id }}')">
