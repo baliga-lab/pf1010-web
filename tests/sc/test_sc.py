@@ -804,7 +804,7 @@ class FlaskTestCase(unittest.TestCase):
                                         newcomment="This is a new group comment"))
             # print(res.data)
             self.assertFalse(mocked.called, "Add group comment Failed: " + res.data)
-        self.helper_delete_group_post_node(post_group_id)
+        self.helper_delete_group_post_node(test_group_post_node['id'])
         self.helper_delete_group_node(test_group_node)
         self.helper_delete_user_node(test_user)
         self.helper_delete_group_comment()
@@ -822,7 +822,7 @@ class FlaskTestCase(unittest.TestCase):
                                         submit="likePost"))
             # print(res.data)
             self.assertFalse(mocked.called, "Like group post Failed: " + res.data)
-        self.helper_delete_group_post_node(post_group_id)
+        self.helper_delete_group_post_node(test_group_post_node['id'])
         self.helper_delete_group_node(test_group_node)
         self.helper_delete_user_node(test_user)
 
@@ -839,7 +839,7 @@ class FlaskTestCase(unittest.TestCase):
                                         submit="unlikePost"))
             # print(res.data)
             self.assertFalse(mocked.called, "UnLike group post Failed: " + res.data)
-        self.helper_delete_group_post_node(post_group_id)
+        self.helper_delete_group_post_node(test_group_post_node['id'])
         self.helper_delete_group_node(test_group_node)
         self.helper_delete_user_node(test_user)
 
@@ -878,7 +878,7 @@ class FlaskTestCase(unittest.TestCase):
             # print(res.data)
             self.assertFalse(mocked.called, "Delete group comment Failed: " + res.data)
         self.helper_delete_group_post_node(test_group_post_node['id'])
-        self.helper_delete_group_node(test_group_node['id'])
+        self.helper_delete_group_node(test_group_node)
         self.helper_delete_user_node(test_user)
 
     @patch('flask.templating._render', return_value='Create Groups Page Render Works As Expected')
@@ -1019,7 +1019,6 @@ class FlaskTestCase(unittest.TestCase):
             with client.session_transaction() as session:
                 session['uid'] = ""
             res = client.get('/social/manage/groups/' + str(test_group_node['group_uid']))
-            print(res.data)
             self.assertFalse(mocked.called, "Route To Manage Group Page Failed: " + res.data)
         self.helper_leave_group(test_user['google_id'], test_group_node['group_uid'])
         self.helper_delete_group_node(test_group_node)
@@ -1252,7 +1251,6 @@ class FlaskTestCase(unittest.TestCase):
             res = client.post('/social/edit_system_post',
                               data=dict(system_uid=system_uid, postid=post_system_id,
                                         editedpost="This is an edited post"))
-            # print(res.data)
             self.assertFalse(mocked.called, "Edit system post Failed: " + res.data)
         self.helper_delete_system_post_node(post_system_id)
         self.helper_delete_system_node(test_system_node)
@@ -1271,7 +1269,7 @@ class FlaskTestCase(unittest.TestCase):
                                         newcomment="This is a new system comment"))
             # print(res.data)
             self.assertFalse(mocked.called, "Add system comment Failed: " + res.data)
-        self.helper_delete_system_post_node(post_system_id)
+        self.helper_delete_system_post_node(test_system_post_node['id'])
         self.helper_delete_system_node(test_system_node)
         self.helper_delete_user_node(test_user)
         self.helper_delete_system_comment()
@@ -1289,7 +1287,7 @@ class FlaskTestCase(unittest.TestCase):
                                         submit="likePost"))
             # print(res.data)
             self.assertFalse(mocked.called, "Like system post Failed: " + res.data)
-        self.helper_delete_system_post_node(post_system_id)
+        self.helper_delete_system_post_node(test_system_post_node['id'])
         self.helper_delete_system_node(test_system_node)
         self.helper_delete_user_node(test_user)
 
@@ -1306,7 +1304,7 @@ class FlaskTestCase(unittest.TestCase):
                                         submit="unlikePost"))
             # print(res.data)
             self.assertFalse(mocked.called, "UnLike system post Failed: " + res.data)
-        self.helper_delete_system_post_node(post_system_id)
+        self.helper_delete_system_post_node(test_system_post_node['id'])
         self.helper_delete_system_node(test_system_node)
         self.helper_delete_user_node(test_user)
 
@@ -1440,7 +1438,6 @@ class FlaskTestCase(unittest.TestCase):
         self.helper_delete_system_node(test_system_node)
         self.helper_delete_user_node(test_user)
 
-
     @patch('flask.templating._render', return_value='Route To System Page Works As Expected')
     def test_view_system_page_render(self, mocked):
         self.helper_create_user_node(test_user)
@@ -1455,7 +1452,7 @@ class FlaskTestCase(unittest.TestCase):
         self.helper_delete_user_node(test_user)
 
     @patch('flask.templating._render', return_value='Route To System Page Works As Expected')
-    def test_view_nouser_system_page_render(self, mocked):
+    def test_view_no_user_system_page_render(self, mocked):
         self.helper_create_user_node(test_user)
         self.helper_create_system_node(test_system_node)
         with self.app as client:
@@ -1504,7 +1501,6 @@ class FlaskTestCase(unittest.TestCase):
             with client.session_transaction() as session:
                 session['uid'] = ""
             res = client.get('/social/manage/systems/' + str(system_uid))
-            print(res.data)
             self.assertFalse(mocked.called, "Route To Manage System Page Failed: " + res.data)
         self.helper_leave_system(test_user['google_id'], test_system_node['system_uid'])
         self.helper_delete_system_node(test_system_node)
@@ -1519,7 +1515,6 @@ class FlaskTestCase(unittest.TestCase):
             with client.session_transaction() as session:
                 session['uid'] = "121212"
             res = client.get('/social/manage/systems/' + str(system_uid))
-            print(res.data)
             self.assertFalse(mocked.called, "Route To Manage System Page Failed: " + res.data)
         self.helper_leave_system(test_user['google_id'], test_system_node['system_uid'])
         self.helper_delete_system_node(test_system_node)
@@ -1701,7 +1696,8 @@ class FlaskTestCase(unittest.TestCase):
                 WHERE u.content = {content}
                 DETACH DELETE u
             """
-            delete_user_status = graph.cypher.execute(delete_system_comment_query, content="This is a new system comment")
+            delete_user_status = graph.cypher.execute(delete_system_comment_query,
+                                                      content="This is a new system comment")
         except Exception as ex:
             print "Exception At helper_delete_system_comment: " + str(ex.message)
 
@@ -2023,7 +2019,6 @@ class FlaskTestCase(unittest.TestCase):
             delete_user_status = graph.cypher.execute(delete_group_comment_query, content="This is a new group comment")
         except Exception as ex:
             print "Exception At helper_delete_group_comment: " + str(ex.message)
-
 
     # --------------------------------------------------------------------------------------
 
