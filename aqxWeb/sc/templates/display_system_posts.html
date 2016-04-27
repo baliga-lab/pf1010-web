@@ -94,7 +94,7 @@
 
                         {% if row.post.link %}
                             {# image/gif content #}
-                            {% if row.post.link.endswith(".jpg") or row.post.link.endswith(".png") or row.post.link.endswith(".gif") %}
+                            {% if ".jpg" in row.post.link or ".png" in row.post.link or ".gif" in row.post.link %}
                                 <img class="attachedImg" src="{{ row.post.link }}"
                                      onclick="window.open('{{ row.post.link }}', '_blank');" />
                             {# video content #}
@@ -113,12 +113,12 @@
                             {# other content #}
                             {% else %}
                                 <div class='embed_link_preview'
-                                     onclick="window.open('{{ row.post.link }}', '_blank');">
+                                     onclick="window.open('{{ row.post.link }}', '_blank'); return false;">
                                     {% if row.post.link_title %}
                                         <h4> {{ row.post.link_title }} </h4>
                                     {% endif %}
                                     <div class='url'>
-                                        <em><a href="{{ row.post.link }}" target="_blank"> {{ row.post.link }} </a></em>
+                                        <em><a href="#"> {{ row.post.link }} </a></em>
                                     </div>
                                     {% if row.post.link_img %}
                                         <img src='{{ row.post.link_img }}' class='thumb'/>
