@@ -7,18 +7,16 @@ Documentation     A resource file with reusable keywords and variables.
 Library           Selenium2Library
 
 *** Variables ***
-${SERVER}         127.0.0.1:5000 
+${SERVER}         pf1010.systemsbiology.net
 ${BROWSER}        Firefox
 ${DELAY}          0
 ${VALID USER}     demo
 ${VALID PASSWORD}    mode
-${WELCOME URL}    http://${SERVER}
-${ABOUT URL}      http://${SERVER}/about
-${EXPLORE URL}    http://${SERVER}/dav/explore
-${CURRICULUM URL}   http://${SERVER}/curriculum
-${RESOURCES URL}   http://${SERVER}/resources
-${GOOGLEACCOUNT URL}   https://accounts.google.com
-${ERROR URL}      http://${SERVER}/error.html
+${WELCOME URL}    https://${SERVER}
+${ABOUT URL}      https://${SERVER}/about
+${EXPLORE URL}    https://${SERVER}/dav/explore
+${CURRICULUM URL}   https://${SERVER}/curriculum
+${RESOURCES URL}   https://${SERVER}/resources
 
 *** Keywords ***
 Open Browser To Project Feed 1010
