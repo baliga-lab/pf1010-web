@@ -332,15 +332,17 @@ describe("Annotations", function () {
             $controller = _$controller_;
         }));
 
-        it('should submit valid inputs', function () {
+        it('should submit valid system ID', function () {
             loadFixtures("annotations.html");
             var $scope = {};
             var controller = $controller('AnnotationController', {$scope: $scope});
-            $scope.dataSubmit();
-            expect($("#systemID").html()).toBeDefined();
-            expect($("#recordedDateAndTime").html()).toBeDefined();
-            //expect($scope.strength).toEqual('strong');
+            expect($("#ID").html()).toBeDefined();
         });
-
+        it('should submit valid Date time', function () {
+            loadFixtures("annotations.html");
+            var $scope = {};
+            var controller = $controller('AnnotationController', {$scope: $scope});
+            expect($("#recordedDateAndTime").html()).toBeDefined();
+            });
     });
 });
