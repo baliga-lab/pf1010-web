@@ -13,14 +13,14 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 
 public class AnnotationsDAVTest {
 
-  public static final String YOUR_PASSWORD = "password@123!";
+  public static final String YOUR_PASSWORD = "";
   public static final String PASSWD = "Passwd";
-  public static final String SITE_NAME = "http://127.0.0.1:5000/";
+  public static final String SITE_NAME = "https://pf1010.systemsbiology.net/";
   public static final String EMAIL = "Email";
   public static final String LOGIN_WITH_GOOGLE = "Login with Google+";
-  public static final String YOUR_GMAIL_ID = "pmneuseattle";
+  public static final String YOUR_GMAIL_ID = "";
   public static final String NEXT = "next";
-  protected static final String SELENIUM_ACQA_SYSTEM_1 = "Selenium AcqaSystem_1";
+  protected static final String SELENIUM_ACQA_SYSTEM_1 = "Selenium AcqaSystem_2";
 
   public static void main(String[] args) {
 

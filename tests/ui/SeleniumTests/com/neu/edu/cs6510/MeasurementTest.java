@@ -16,7 +16,7 @@ public class MeasurementTest {
 
 
 
-  public static final String SELENIUM_ACQA_SYSTEM_4 = "Selenium AcqaSystem_4";
+  public static final String SELENIUM_ACQA_SYSTEM = "Selenium AcqaSystem_2";
   public static final String SUBMIT_APPROVE_ACCESS = "submit_approve_access";
   public static final String SELENIUM_TEST_FOR_NEW_POST_TEST_3 =
       "Selenium test for new post test 3";
@@ -66,7 +66,7 @@ public class MeasurementTest {
     // Create system start
     driver.findElement(By.linkText("Create")).click();
     driver.findElement(By.xpath("//input[@placeholder='System Name']")).sendKeys(
-        SELENIUM_ACQA_SYSTEM_4);
+        SELENIUM_ACQA_SYSTEM);
     driver.findElement(By.xpath("//input[@placeholder='Address']")).sendKeys(
         "401 Terry Ave N, Seattle, WA 98109");
     driver.findElement(By.linkText("Get Coordinates")).click();
@@ -92,7 +92,7 @@ public class MeasurementTest {
     selectd5.selectByVisibleText("Nile Tilapia");
     driver.findElement(By.xpath("//input[@ng-model='system.organisms[0].count']")).sendKeys("2");
 
-    wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//*[contains(text(), 'Create')]")))
+    wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//button[@class='btn btn-green']")))
         .click();
     // create system end
 
@@ -101,7 +101,7 @@ public class MeasurementTest {
         new Select(driver.findElement(By.xpath("//select[@ng-model='measure.measurement_id']")));
     select_measurement1.selectByVisibleText("Ammonium");
 
-    WebElement dateBox = driver.findElement(By.xpath("//input[@ng-model='measure.time']"));
+    WebElement dateBox = driver.findElement(By.xpath("//input[@ng-model='measure.datetime']"));
     // Fill date as mm/dd/yyyy as 09/25/2013
     dateBox.sendKeys("04/25/2016");
     // Press tab to shift focus to time field
@@ -116,7 +116,7 @@ public class MeasurementTest {
         new Select(driver.findElement(By.xpath("//select[@ng-model='measure.measurement_id']")));
     select_measurement2.selectByVisibleText("Light");
 
-    WebElement dateBox1 = driver.findElement(By.xpath("//input[@ng-model='measure.time']"));
+    WebElement dateBox1 = driver.findElement(By.xpath("//input[@ng-model='measure.datetime']"));
     // Fill date as mm/dd/yyyy as 09/25/2013
     dateBox1.sendKeys("04/25/2016");
     // Press tab to shift focus to time field

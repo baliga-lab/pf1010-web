@@ -75,7 +75,7 @@ public class DavSystemTest {
     wait.until(ExpectedConditions.elementToBeClickable(By.linkText("Explore"))).click();
 
     Select exploreTechnique = new Select(driver.findElement(By.id("selectTechnique")));
-    exploreTechnique.selectByVisibleText("Ebb and Flow (Media-based)");
+    exploreTechnique.selectByVisibleText("Floating Raft");
 
     Select exploreGrowbed = new Select(driver.findElement(By.id("selectGrowbedMedium")));
     exploreGrowbed.selectByVisibleText("Coconut Coir");
