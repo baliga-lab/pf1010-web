@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+
+{% block title %}Create Group{% endblock %}
+
+{% block styles %}
+    {{ super() }}
+    <link rel="stylesheet" href="{{ url_for('social.static', filename='css/groups.css') }}">
+    <link href="//cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.6.3/css/bootstrap-select.css" rel="stylesheet"/>
+{% endblock %}
+
+{% block content %}
+
+    <!-- Entire Page Div Container -->
+    <div class="container" id="searchGroupsTab">
+
+        <h3 class="page-header"><i class="fa fa-users" aria-hidden="true"></i>&nbsp; Groups</h3>
+        <ul class="nav nav-tabs">
+            <li class="active">
+                <a href="">
+                    <span class="glyphicon glyphicon-plus"
+                          aria-hidden="true"></span>&nbsp;Create Group
+                </a>
+            </li>
+            <li>
+                <a href="{{ url_for('social.self_groups') }}">
+                    <span class="glyphicon glyphicon-user"
+                          aria-hidden="true"></span>&nbsp;My Groups
+                </a>
+            </li>
+            <li>
+                <a href="{{ url_for('social.search_groups') }}">
+                    <span class="glyphicon glyphicon-search"
+                          aria-hidden="true"></span>&nbsp;Search Groups
+                </a>
+            </li>
+            <li><a href="{{ url_for('social.recommended_groups') }}">
+                <span class="glyphicon glyphicon-star"
+                      aria-hidden="true"></span>&nbsp;Recommended Groups</a>
+            </li>
+        </ul>
+
+        <br/>
+
+        <!-- Create Groups Div -->
+        <div class="container" id="createGroupTab">
+            <form action="{{ url_for('social.create_group') }}" method="post"> 
+                <div class="form-group">
+                      <label for="txtGroupName">Name:</label> 
+                    <input type="text"
+                           class="form-control"
+                           name="name"
+                           id="txtGroupName"  
+                           pattern=".{1,}"
+                           required 
+                           title="Group Name Cannot Be Empty"
+                           placeholder="Group Name"
+                           autofocus > </input>
+                </div>
+                 
+                <div class="form-group">
+                      <label for="txtGroupDescription">Description:</label> 
+                    <input type="text"
+                           class="form-control"
+                           name="description"
+                           id="txtGroupDescription"  
+                           pattern=".{1,}"
+                           required 
+                           title="Group Description Cannot Be Empty"
+                           placeholder="Group Description"> </input>
+                </div>
+                 
+                <div class="form-group"> 
+                    <b>Private Group: &nbsp;</b> 
+                    <label class="radio-inline"> 
+                        <input type="radio"
+                               name="is_private_group"
+                               id="rbYes"
+                               value="true"
+                               autofocus
+                               required
+                        />
+                        Yes 
+                    </label> 
+                    <label class="radio-inline"> 
+                        <input type="radio"
+                               name="is_private_group"
+                               id="rbNo"
+                               value="false"
+                               required 
+                        />
+                        No 
+                    </label> 
+                </div>
+                <button type="submit" class="btn btn-green form-control" value="Save">Create</button>
+            </form>
+        </div>
+        <!-- End of Create Groups Div -->
+
+    </div>
+    <!-- End of Entire Page Div Container -->
+
+    <br/><br/>
+{% endblock %}
+
+{% block scripts %}
+    {{ super() }}
+    <!-- jQuery Script For DOM Manipulation In Search Groups Page -->
+    <script type="text/javascript" src="{{ url_for('social.static', filename='js/groups.js') }}"></script>
+
+{% endblock %}

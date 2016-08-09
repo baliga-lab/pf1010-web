@@ -4,12 +4,12 @@
 
 {% block content %}
     <div class="container">
-        <h1 class="page-header">Friends</h1>
+        <h3 class="page-header"><i class="fa fa-users" aria-hidden="true"></i>&nbsp; Friends</h3>
         <ul class="nav nav-tabs">
-            <li><a href="{{ url_for('social.friends') }}">MyFriends</a></li>
-            <li class="active"><a href="searchFriends.html">Search Friends</a></li>
-            <li><a href="{{ url_for('social.pendingRequest') }}">Pending Requests</a></li>
-            <li><a href="{{ url_for('social.recofriends') }}">Recommended Friends</a></li>
+            <li><a href="{{ url_for('social.friends') }}"><span class="glyphicon glyphicon-user" aria-hidden="true"></span>&nbsp;MyFriends</a></li>
+            <li class="active"><a href="{{ url_for('social.searchFriends') }}"><span class="glyphicon glyphicon-search" aria-hidden="true"></span>&nbsp;Search Friends</a></li>
+            <li><a href="{{ url_for('social.pendingRequest') }}"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span>&nbsp;Pending Requests</a></li>
+            <li><a href="{{ url_for('social.recofriends') }}"><span class="glyphicon glyphicon-star" aria-hidden="true"></span>&nbsp;Recommended Friends</a></li>
         </ul>
         <br>
 
@@ -24,8 +24,9 @@
 
 {% block scripts %}
     {{ super() }}
-    <script src="http://code.jquery.com/jquery-1.10.2.js"></script>
-    <script src="http://code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.11.4/jquery-ui.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.6.3/js/bootstrap-select.js"></script>
     <script type=text/javascript>
         $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
     </script>
@@ -53,11 +54,11 @@
                     var store_sql_id = item.user_sql_id;
                     var google_id = item.gid;
 
-                    var $a = $("<div></div>");
-                    $("<a id='profile' class='col-sm-6'></a>").text(item.label).appendTo($a).click(function () {
-                        window.location = "profile/" + google_id;
+                    var $a = $("<div></div>").click(function () {
+                         window.location = "profile/" + google_id;
                     });
-
+                    $("<b id='profile' class='col-md-6'></b>").text(item.label).appendTo($a);
+                    
                     if (item.friend_status == "Add Friend") {
                         $("<button type='button' class='btn btn-primary'></button>").text(item.friend_status).appendTo($a).click(function () {
 
@@ -91,7 +92,7 @@
                     }
 
                     $("<br>").appendTo($a);
-                    $("<span class='m-org'></span>").text(item.org).appendTo($a);
+                    $("<em class='m-org'></em>").text(item.org).appendTo($a);
 
                     return $("<li></li>").append($a).appendTo(ul);
 

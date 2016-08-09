@@ -1,0 +1,241 @@
+{% extends "base.html" %}
+
+{% block title %}Groups{% endblock %}
+
+{% block styles %}
+    {{ super() }}
+    <link rel="stylesheet" href="{{ url_for('social.static', filename='css/group_social.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('social.static', filename='css/layout.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('social.static', filename='css/newsfeed.css') }}">
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.6.3/css/bootstrap-select.css"/>
+    <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/themes/smoothness/jquery-ui.css">
+{% endblock %}
+
+{% block content %}
+
+    <!-- Div for Groups Pane - Container Div -->
+    <div class="container groupDiv">
+
+        <!-- Div for Left Pane (Group Description, Participant, Manage Requests) - Groups Page -->
+        <div class="col-md-3 leftPaneDiv">
+            <div class="row groupDescription">
+                <h4 class="groupName">  {{ group_neo4j[0][0]['name'] }} </h4>
+                <h5 class="groupCreated" id="groupCreatedTime"><b>Created On: </b>
+                    {{ creation_date }}
+                </h5>
+                <h5 class="groupDescription"><b> Description: </b> {{ group_neo4j[0][0]['description'] }}</h5>
+            </div>
+
+
+            <br>
+            <form id="join_leave_group"
+                  action="{{ url_for('social.join_leave_group') }}" method="post">
+                <div class="row sendRequests">
+                    <input type="hidden" name="google_id"
+                           value="{{ logged_in_user["google_id"] }}">
+                    <input type="hidden" name="group_uid"
+                           value="{{ group_neo4j[0][0]["group_uid"] }}">
+                    <input type="hidden" name="is_private_group"
+                           value="{{ group_neo4j[0][0]["is_private_group"] }}">
+
+                    {% if not user_privilege %}
+                        <button class="btn btn-primary" name="submit" value="Join" role="button">Join</button>
+                    {% elif user_privilege=="GROUP_MEMBER" or user_privilege=="GROUP_ADMIN" %}
+                        <button class="btn btn-danger" name="submit" value="Leave" role="button"
+                                onclick="return getUserConsent()">Leave
+                        </button>
+
+                    {% elif user_privilege=="GROUP_PENDING_MEMBER" %}
+                        <button class="btn btn-danger" name="submit" role="button" value="Leave"
+                                onclick="return getUserConsent()">Cancel Request
+                        </button>
+                    {% endif %}
+                </div>
+            </form>
+
+            <!-- Div for Managing Member Requests (Approve/Reject) Button. Manage Group Settings Too -->
+            {% if user_privilege == "GROUP_ADMIN" %}
+
+                <div class="row pendingRequestsTitleDiv">
+                    <h4>Member Request ({{ members_pending_approval | length }})</h4>
+                </div>
+
+                <div class="row pendingRequests">
+                    <!-- Iterate Over Pending Approval Members -->
+                    {% if members_pending_approval %}
+                        {% for pending_member in members_pending_approval %}
+                            <form action="{{ url_for('social.approve_reject_group_member') }}" method="post">
+                                <div class="row pendingRequestElements">
+                                    &nbsp;&nbsp;&nbsp;&nbsp;
+                                    <input type="hidden" name="google_id"
+                                           value="{{ pending_member[0]["google_id"] }}">
+                                    <input type="hidden" name="group_uid"
+                                           value="{{ group_neo4j[0][0]["group_uid"] }}">
+                                    <a href="{{ url_for('social.profile', google_id=pending_member[0]["google_id"]) }}">
+                                        <img class="pendingMemberImage img-circle"
+                                             src="{{ pending_member[0]["image_url"] }}">
+                                        {% if pending_member[0]["displayName"] is not none %}
+                                            {{ pending_member[0]["displayName"] }}
+                                        {% else %}
+                                            {{ "No Display Name" }}
+                                        {% endif %}
+                                    </a>
+                                    <button type="submit" name="submit" value="Approve" class="btn btn-success">
+                                        Approve
+                                    </button>
+                                    <button type="submit" name="submit" value="Reject" class="btn btn-danger">
+                                        Reject
+                                    </button>
+                                </div>
+                            </form>
+                        {% endfor %}
+                        <!-- There exists No Pending Approval Members -->
+                    {% else %}
+                        <span>
+                                <h5>Currently, there are no pending Members for the Group</h5>
+                            </span>
+                    {% endif %}
+                </div>
+
+                <!-- Div for Manage Settings/Adding Admin(s) To The Group -->
+                <div class="row">
+                    <span>
+                        <a href="{{ url_for('social.manage_group', group_uid= group_neo4j[0][0]["group_uid"]) }}">
+                            <img class="cogWheelIcon"
+                                 src="{{ url_for('social.static', filename='images/system_settings.png') }}">
+                            Manage Group
+                        </a>
+                    </span>
+                </div>
+                <!-- End Of Div for Manage Settings/Adding Admin(s) To The Group -->
+
+            {% endif %}
+            <!-- End of Div for Managing Member Requests (Approve/Reject) Button. Manage Group Settings Too -->
+
+            <br/>
+
+            <!-- Div for Group Members -->
+            <div class="row">
+                <h4>Group Members ({{ group_members | length }})</h4>
+                {% if group_members %}
+                    {% for member in group_members %}
+                        <div class="memberElements">
+                            {% if loop.index < stop_at %}
+                                <img class="memberImage img-circle" src="{{ member[0]['image_url'] }}">
+                                <a href="{{ url_for('social.profile',google_id=member[0]['google_id']) }}">
+                                    {{ member[0]['displayName'] }}
+                                </a>
+                                </li>
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+                <br>
+                <button type="button" class="btn btn-info btn-sm" data-toggle="modal" data-target="#myMembersModal">See
+                    All Members
+                </button>
+                <br><br>
+            </div>
+            <!-- End Of Div for Group Members -->
+
+            <!-- Div for Invite Group Members -->
+            {% if user_privilege=="GROUP_MEMBER" or user_privilege=="GROUP_ADMIN" %}
+                <div class="row">
+                    <h4> Invite Members &nbsp;
+                        <span class="glyphicon glyphicon-plus"
+                              aria-hidden="true">
+                        </span>
+                    </h4>
+                    <div class="invite-member-div">
+                        <input type="text" id="txtFriendName" class="form-control input-sm"
+                               placeholder="Enter Name (3 Characters Min) .."/>
+                    </div>
+                    <br><br>
+                </div>
+            {% else %}
+                <!-- The jQuery autocomplete looks for the input field. Hence hiding it if the
+                user_privilege is not GROUP_MEMBER or GROUP_ADMIN. If ignored, below error message appears. -->
+                <!-- group_social.js:43 Uncaught TypeError: Cannot set property '_renderItem' of undefined-->
+                <input type="hidden" id="txtFriendName" class="form-control input-sm"
+                       placeholder="Enter Name (3 Characters Min) .."/>
+            {% endif %}
+            <!-- End Of Div for Invite Group Members -->
+
+        </div>
+        <!-- End Div for Left Pane (Group Description, Participant, Manage Requests) - Groups Page -->
+
+
+        <!-- This centerPaneDiv for Group posts - Group Page -->
+        <div class="main col-sm-9">
+            {# NEWSFEED #}
+            {% include "post_group_form.html" %}
+
+            <h3>Recent Posts</h3>
+            {% include "display_group_posts.html" %}
+        </div>
+        <!-- End of centerPaneDiv (Group Posts) - Group Page -->
+
+
+    </div>
+    <!-- End of Div for Groups Pane - Container Div -->
+
+    <!-- Div for Group Members Modal -->
+    <div id="myMembersModal" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">Group Members ({{ group_members | length }})</h4>
+                </div>
+                <div class="modal-body">
+                    {% if group_members %}
+                        <ul>
+                            {% for member in group_members %}
+                                <li>
+                                    <img class="memberImage" src="{{ member[0]['image_url'] }}">
+                                    <a href="{{ url_for('social.profile',google_id=member[0]['google_id']) }}">
+                                        {{ member[0]['displayName'] }}
+                                    </a>
+                                </li>
+                                <br/>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <ul>
+                                <span class="fa-stack fa-2x">
+                                    <i class="fa fa-circle fa-stack-2x"></i>
+                                    <i class="fa fa-meh-o fa-stack-1x fa-inverse"></i>
+                                </span>
+                            &nbsp; Be the first one to join the group!
+                        </ul>
+                    {% endif %}
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+                <!-- Modal -->
+            </div>
+        </div>
+    </div>
+    <!-- End Of Div for Group Members Modal -->
+
+{% endblock %}
+
+
+{% block scripts %}
+    {{ super() }}
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.11.4/jquery-ui.js"></script>
+    <!-- jQuery Script For DOM Manipulation In Groups Page -->
+    <script type="text/javascript" src="{{ url_for('social.static', filename='js/group_social.js') }}"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            list_users_autocomplete("{{ group_neo4j[0][0]["group_uid"] }}",
+                    "{{ url_for('social.get_users_to_invite_groups', group_uid=group_neo4j[0][0]["group_uid"]) }}",
+                    "{{ url_for('social.invite_group_member') }}");
+        });
+    </script>
+{% endblock %}

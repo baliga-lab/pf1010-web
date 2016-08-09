@@ -1,0 +1,114 @@
+{% extends "base.html" %}
+
+{% block styles %}
+    {{ super() }}
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap-theme.min.css"
+          integrity="sha384-fLW2N01lMqjakBkx3l/M9EahuwpSfeNvV63J5ezn3uZzapT0u7EYsXMjQV+0En5r" crossorigin="anonymous">
+    <link rel="stylesheet" href="{{ url_for('dav.static', filename='css/explore.css') }}">
+    <link rel="stylesheet" href="{{ url_for('dav.static', filename='css/chosen.min.css') }}">
+{% endblock %}
+
+{% block title %}Analyze Your System{% endblock %}
+
+
+{% block content %}
+    <div class="container" style="width: 100%; margin-top: 2%; margin-left: 2%">
+        <div class="row">
+            <div class="col-md-2">
+                <ul class="nav nav-stacked">
+                    <li id="overview-li">
+                        <a href="{{ url_for("frontend.sys_overview", system_uid=metadata.UID) }}"
+                           title="Overview">Overview</a>
+                    </li>
+                    {% if metadata.user == session['uid'] %}
+                        <li id="measurement-li" class="active">
+                            <a href="{{ url_for("frontend.sys_measurements", system_uid=metadata.UID) }}"
+                               title="Measurement">Measurements</a>
+                        </li>
+                        <li id="annotate-li">
+                            <a href="{{ url_for("frontend.sys_annotations", system_uid=metadata.UID) }}"
+                               title="Annotations">Annotations <span class="sr-only">(current)</span></a>
+                        </li>
+                        <li id="social-li"><a
+                            href="{{ url_for("social.view_system", system_uid=metadata.UID) }}" title="Social">
+                        Social</a>
+                        </li>
+                    {% endif %}
+                    <li id="analytics-li">
+                        <a href="{{ url_for('dav.system_analyze', system_uid=metadata.UID) }}" title="Analytics">Analytics</a>
+                    </li>
+                </ul>
+            </div>
+            <div class="col-md-7">
+                <div id="alert_placeholder"></div>
+                <div id="analyzeContainer" style="height: 500px; width: 100%;"></div>
+            </div>
+            <div id="measurementLegend" style="width: 50%;">
+                <div id="legendTypes"></div>
+            </div>
+            <div class="col-md-3">
+                <div class="form-group">
+                    <label class="control-label">Select Y Axis</label>
+                    <select class="chosen-select" multiple id="selectYAxis">
+                        {% for name in measurement_names %}
+                            {% if not name == 'time' %}
+                                <option value="{{ name }}">{{ name }}</option>{% endif %}
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="control-label">View Data in Status</label>
+                    <select class="explore-dropdown" id="selectStatus">
+                        <option value="100">Pre-Established</option>
+                        <option value="200" selected="selected">Established</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="control-label">View data from</label>
+                    <select class="explore-dropdown" id="selectNumberOfEntries">
+                        <option value="">All the data</option>
+                        <option value="30">last 30 entries</option>
+                        <option value="60">last 60 entries</option>
+                        <option value="90">last 90 entries</option>
+                    </select>
+                </div>
+                <div id="graphType" class="form-group">
+                    <label class="control-label">Select Graph Type</label>
+                    <select class="explore-dropdown" id="selectGraphType">
+                        <option value="line">Line Chart</option>
+                        <option value="scatter">Scatter Plot</option>
+                        <option value="spline">Spline</option>
+                    </select>
+                </div>
+                <div id="buttons" class="form-group">
+                    <input class="btn btn-green" type="submit" id="submitbtn" name="newgraph" value="Submit"/>
+                    <input class="btn btn-green" type="button" id="resetbtn" name="reset" value="Reset"/>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+
+{% block scripts %}
+    {{ super() }}
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    <script src="https://code.highcharts.com/highcharts.js"></script>
+    <script src="https://code.highcharts.com/modules/exporting.js"></script>
+    <script type="text/javascript" src="{{ url_for('dav.static', filename='js/jquery.blockUI.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('dav.static', filename='js/export-csv.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('dav.static', filename='js/underscore-min.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('dav.static', filename='js/chosen.jquery.min.js') }}"></script>
+    <script src="{{ url_for('dav.static', filename='js/highChartsTheme.js') }}"></script>
+    <script src="{{ url_for('dav.static', filename='js/aqxSystemGraph.js') }}"></script>
+    <script>
+        var systems_and_measurements = {{ systems_and_measurements_json | safe }};
+        {#        systems_and_measurements = systems_and_measurements.response;#}
+        var selectedSystemIDs = {{ selected_systemID_list|safe }};
+        var measurement_types_and_info = {{ measurement_types_and_info | safe }};
+        measurement_types_and_info = measurement_types_and_info.measurement_info;
+        {#        var defaultStatus = {{ default_status|safe }};#}
+        var annotationsMap = {{ annotations_map | safe }};
+        $(document).ready(main());
+    </script>
+{% endblock %}

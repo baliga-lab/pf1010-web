@@ -1,0 +1,312 @@
+{% extends "base.html" %}
+
+{% block title %}Curriculum{% endblock %}
+
+{% block content %}
+    <h1 class="page-header">Curriculum</h1>
+    <p>Are you looking into learning more about sustainable food sources in a classroom setting? Take a look at our
+        module on modeling sustainable food systems! Each lesson can be completed independently or together in a
+        classroom. Get started today!</p>
+
+    <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
+        <div class="panel panel-success">
+            <div class="panel-heading" role="tab" id="heading1">
+                <h4 class="panel-title">
+                    <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion" href="#collapse1"
+                       aria-expanded="false" aria-controls="collapse1">
+                        Lesson 1: Introduction to Food Security
+                    </a>
+                </h4>
+            </div>
+            <div id="collapse1" class="panel-collapse collapse" role="tabpanel" aria-labelledby="heading1">
+                <div class="panel-body">
+                    <h4>Goal:</h4>
+                    <p>Introduce students to the concept of food security and dispel any misconceptions that this is not
+                        <strong>our</strong> problem in the US.</p>
+                    <hr>
+                    <h4>Activities:</h4>
+                    <p>Stand up for numbers, video from PBS Frontline, group and class discussion to produce a
+                        definition
+                        of food security</p>
+                    <hr>
+                    <h4>Files:</h4>
+                    <ul>
+                        <li>
+                            <a href="{{ url_for('frontend.static', filename='docs/lesson1/curr_temp.docx') }}">Curriculum Template</a>
+                        </li>
+                        <li>
+                            <a href="{{ url_for('frontend.static', filename='docs/lesson1/read_disc.docx') }}">Reading and Discussion</a>
+                        </li>
+                    </ul>
+                    <hr>
+                    <h4>End Goal of Lesson:</h4>
+                    <p>Students will come away with a definition of food security that is similar to the World Health
+                        Organization’s definition, as well as an understanding that this is a <strong>global challenge</strong>
+                        they will have to deal with within their lifetime.</p>
+                </div>
+            </div>
+        </div>
+        <div class="panel panel-success">
+            <div class="panel-heading" role="tab" id="heading2">
+                <h4 class="panel-title">
+                    <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion"
+                       href="#collapse2" aria-expanded="false" aria-controls="collapse2">
+                        Lesson 2: Stakeholder Activity - Who Cares?
+                    </a>
+                </h4>
+            </div>
+            <div id="collapse2" class="panel-collapse collapse" role="tabpanel" aria-labelledby="heading2">
+                <div class="panel-body">
+                    <h4>Goal:</h4>
+                    <p>Introduce the voices of potential stakeholders in the food security problem and to begin to
+                        see
+                        that this is a very complex issue.</p>
+                    <hr>
+                    <h4>Activities:</h4>
+                    <p>Groups of students will receive a stakeholder card and will prepare a very short presentation in
+                        the voices of their stakeholders</p>
+                    <p><strong>Stakeholders</strong></p>
+                    <div class="row">
+                        <div class="col-sm-4">
+                            <ul>
+                                <li>
+                                    <a href="{{ url_for('frontend.static', filename='docs/lesson2/card_envi.docx') }}">Environment</a>
+                                </li>
+                                <li>
+                                    <a href="{{ url_for('frontend.static', filename='docs/lesson2/card_water.docx') }}">Earth's Water Supply</a>
+                                </li>
+                                <li>
+                                    <a href="{{ url_for('frontend.static', filename='docs/lesson2/card_energy.docx') }}">Energy Companies</a>
+                                </li>
+                                <li>
+                                    <a href="{{ url_for('frontend.static', filename='docs/lesson2/card_who.docx') }}">World Health Organization</a>
+                                </li>
+                                <li>
+                                    <a href="{{ url_for('frontend.static', filename='docs/lesson2/card_food.docx') }}">Food Transport Companies</a>
+                                </li>
+                                <li><a href="{{ url_for('frontend.static', filename='docs/lesson2/card_agri.docx') }}">Agriculture Supply Companies</a>
+                                </li>
+                                <li>
+                                    <a href="{{ url_for('frontend.static', filename='docs/lesson2/card_poli.docx') }}">World Policy Makers</a>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="col-sm-4">
+                            <ul>
+                                <li>
+                                    <a href="{{ url_for('frontend.static', filename='docs/lesson2/card_dev_econ.docx') }}">Developed Economy</a>
+                                </li>
+                                <li>
+                                    <a href="{{ url_for('frontend.static', filename='docs/lesson2/card_dev_cit.docx') }}">Developed Citizens</a>
+                                </li>
+                                <li>
+                                    <a href="{{ url_for('frontend.static', filename='docs/lesson2/card_dev_farm.docx') }}">Developed Farmers</a>
+                                </li>
+                                <li>
+                                    <a href="{{ url_for('frontend.static', filename='docs/lesson2/card_dev_fish.docx') }}">Developed Fishers</a>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="col-sm-4">
+                            <ul>
+                                <li>
+                                    <a href="{{ url_for('frontend.static', filename='docs/lesson2/card_devi_econ.docx') }}">Developing Economy</a>
+                                </li>
+                                <li>
+                                    <a href="{{ url_for('frontend.static', filename='docs/lesson2/card_devi_cit.docx') }}">Developing Citizens</a>
+                                </li>
+                                <li>
+                                    <a href="{{ url_for('frontend.static', filename='docs/lesson2/card_devi_farm.docx') }}">Developing Farmers</a>
+                                </li>
+                                <li>
+                                    <a href="{{ url_for('frontend.static', filename='docs/lesson2/card_devi_fish.docx') }}">Developing Fishers</a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    <hr>
+                    <h4>Files:</h4>
+                    <ul>
+                        <li>
+                            <a href="{{ url_for('frontend.static', filename='docs/lesson2/curr_temp.docx') }}">Curriculum Template</a>
+                        </li>
+                        <li>
+                            <a href="{{ url_for('frontend.static', filename='docs/lesson2/stakeholder_sheet.docx') }}">Stakeholder Activity Sheet</a>
+                        </li>
+                        <li>
+                            <a href="{{ url_for('frontend.static', filename='docs/lesson2/stakeholder_vocab.docx') }}">Stakeholder Vocabulary</a>
+                        </li>
+                        <li>
+                            <a href="{{ url_for('frontend.static', filename='docs/lesson2/stakeholder_org.docx') }}">Stakeholder Important Organizations</a>
+                        </li>
+                        <li>
+                            <a href="{{ url_for('frontend.static', filename='docs/lesson2/guiding_q.docx') }}">Guiding Questions for Activity</a>
+                        </li>
+                        <li>
+                            <a href="{{ url_for('frontend.static', filename='docs/lesson2/teacher_info.docx') }}">Teacher Information</a>
+                        </li>
+                    </ul>
+                    <hr>
+                    <h4>End Goal of Lesson:</h4>
+                    <p>Students will have a sheet completed with the different stakeholder groups, the key issues
+                        important
+                        to each stakeholder group and the position each group takes on the question: “Can we simply
+                        expand
+                        the current food production system as it is now to meet the needs of 9 billion people by
+                        2050?”</p>
+                </div>
+            </div>
+        </div>
+        <div class="panel panel-success">
+            <div class="panel-heading" role="tab" id="heading3">
+                <h4 class="panel-title">
+                    <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion"
+                       href="#collapse3" aria-expanded="false" aria-controls="collapse3">
+                        Lesson 3: Food Security as a System
+                    </a>
+                </h4>
+            </div>
+            <div id="collapse3" class="panel-collapse collapse" role="tabpanel" aria-labelledby="heading3">
+                <div class="panel-body">
+                    <h4>Goal:</h4>
+                    <p>Encourage students to start thinking of food security using a systems approach.</p>
+                    <hr>
+                    <h4>Activities:</h4>
+                    <p>Students are introduced to the Waters Foundation Tools of Systems Thinking and are walked through
+                        the Coffee Crutch Activity. They will create a basic causal loop diagram of food security using
+                        the stakeholder information from lesson 2.</p>
+                    <hr>
+                    <h4>Files:</h4>
+                    <ul>
+                        <li>
+                            <a href="{{ url_for('frontend.static', filename='docs/lesson3/teacher_info.docx') }}">Teacher Information</a>
+                        </li>
+                        <li>
+                            <a href="{{ url_for('frontend.static', filename='docs/lesson3/loop_ex.jpg') }}">Causal Loop Example</a>
+                        </li>
+                    </ul>
+                    <hr>
+                    <h4>End Goal of Lesson:</h4>
+                    <p>Students will experience building a systems diagram of food security that they will continue to
+                        add to and refer back to as the unit continues.</p>
+                </div>
+            </div>
+        </div>
+        <div class="panel panel-success">
+            <div class="panel-heading" role="tab" id="heading4">
+                <h4 class="panel-title">
+                    <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion"
+                       href="#collapse4" aria-expanded="false" aria-controls="collapse4">
+                        Lesson 4: Why Don't We Just Grow More?
+                    </a>
+                </h4>
+            </div>
+            <div id="collapse4" class="panel-collapse collapse" role="tabpanel" aria-labelledby="heading4">
+                <div class="panel-body">
+                    <h4>Goal:</h4>
+                    <p>Have students begin to investigate the environmental impact node of food security and determine
+                        if it is a tipping point. This is the last lesson before a summative assessment.</p>
+                    <hr>
+                    <h4>Activities:</h4>
+                    <p>Students read reports from the World Resources Institute, analyzing a ‘menu’ of possible actions through
+                        the eyes of their stakeholders.</p>
+                    <hr>
+                    <h4>Files:</h4>
+                    <ul>
+                        <li>
+                            <a href="{{ url_for('frontend.static', filename='docs/lesson4/teacher_info.docx') }}">Teacher Information</a>
+                        </li>
+                    </ul>
+                    <hr>
+                    <h4>End Goal of Lesson:</h4>
+                    <p>Students will discover some potential actions that could help solve the problem of food security,
+                        analyze how the different stakeholder groups are impacted and work with their causal loop diagram
+                        to determine tipping point nodes, extendable edges, etc.</p>
+                </div>
+            </div>
+        </div>
+        <div class="panel panel-info">
+            <div class="panel-heading" role="tab" id="heading5">
+                <h4 class="panel-title">
+                    <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion"
+                       href="#collapse5" aria-expanded="false" aria-controls="collapse5">
+                        Writing Activity / Summative Assessment (Lessons 1 - 4)
+                    </a>
+                </h4>
+            </div>
+            <div id="collapse5" class="panel-collapse collapse" role="tabpanel" aria-labelledby="heading5">
+                <div class="panel-body">
+                    <h4>Task:</h4>
+                    <p>Using the Claims/Evidence/Reasoning writing format, answer the following question:</p>
+                    <div class="alert">
+                        The population of the planet is growing very quickly. Is the answer to food security in a growing
+                        population to simply grow more food?
+                    </div>
+                    <hr>
+                    <h4>Files:</h4>
+                    <ul>
+                        <li><a href="{{ url_for('frontend.static', filename='docs/summative_assessment.docx') }}">Writing Activity / Summative Assessment</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="panel panel-success">
+            <div class="panel-heading" role="tab" id="heading6">
+                <h4 class="panel-title">
+                    <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion"
+                       href="#collapse6" aria-expanded="false" aria-controls="collapse6">
+                        Lesson 5: Where Does Our Food Come From?
+                    </a>
+                </h4>
+            </div>
+            <div id="collapse6" class="panel-collapse collapse" role="tabpanel" aria-labelledby="heading6">
+                <div class="panel-body">
+                    <h4>Goal:</h4>
+                    <p>To understand a food system using a simple mathematical model to simulate a real-world food supply chain.</p>
+                    <hr>
+                    <h4>Activities:</h4>
+                    <p>View a website about producing and distributing chocolate. Students participate in a model, using city data cards and data analysis to show how food distribution uses resources in the food system. </p>
+                    <hr>
+                    <h4>Files:</h4>
+                    <ul>
+                        <li>
+                            <a href="{{ url_for('frontend.static', filename='docs/lesson5/teacher_info.docx') }}">Teacher Information</a>
+                        </li>
+                    </ul>
+                    <hr>
+                    <h4>End Goal of Lesson:</h4>
+                    <p>Students will conclude that distribution of food is an important part of the food system that should be a key consideration in examining resource use. </p>
+                </div>
+            </div>
+        </div>
+        <div class="panel panel-success">
+            <div class="panel-heading" role="tab" id="heading7">
+                <h4 class="panel-title">
+                    <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion"
+                       href="#collapse7" aria-expanded="false" aria-controls="collapse7">
+                        Lesson 6: Is It Important to Know Where Our Food Comes From - Science Fiction vs. Real Life
+                    </a>
+                </h4>
+            </div>
+            <div id="collapse7" class="panel-collapse collapse" role="tabpanel" aria-labelledby="heading7">
+                <div class="panel-body">
+                    <h4>Goal:</h4>
+                    <p>Help students understand the nature of sustainable food systems and how different parts can be affected by human impact on resources.</p>
+                    <hr>
+                    <h4>Activities:</h4>
+                    <p>Students read a science fiction article and watch 'Soylent Green' (science fiction film). Students participate in discussion and respond to analysis questions to explore the vulnerability of  the human food supply chain.</p>
+                    <hr>
+                    <h4>Files:</h4>
+                    <ul>
+                        <li>
+                            <a href="{{ url_for('frontend.static', filename='docs/lesson6/teacher_info.docx') }}">Teacher Information</a>
+                        </li>
+                    </ul>
+                    <hr>
+                    <h4>End Goal of Lesson:</h4>
+                    <p>Students realize that we need alternative methods for producing food as backup should our current system be adversely affected by changes in resource availability. Students are primed to begin solving the problems faced if drastic changes occur in our food system. </p>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

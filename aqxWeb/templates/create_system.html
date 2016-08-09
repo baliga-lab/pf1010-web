@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+
+{% block title %}Create System{% endblock %}
+
+{% block content %}
+
+    <div ng-controller="CreateSystemController">
+        <form ng-submit="create(system)">
+            <h2>Create System</h2>
+            <p>*all fields are required</p>
+            <div class="form-group">
+                <label>System Name</label>
+                <input type="text" class="form-control" ng-model="system.name" placeholder="System Name" required>
+            </div>
+            <div class="form-group">
+                <label>Location</label>
+                <p>In order to correctly pinpoint the location of your system on the map, we will need its latitude and
+                    longitude coordinates. You can either enter them in manually or enter an address below and we'll do
+                    the
+                    conversion for you.</p>
+                <div class="input-group">
+                    <input type="text" class="form-control" ng-model="address" placeholder="Address" required>
+                <span class="input-group-btn">
+                    <a class="btn btn-green" ng-click="geocode(address)">Get Coordinates</a>
+                </span>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="row">
+                    <div class="col-xs-6">
+                        <input class="form-control" ng-model="system.location.lat" placeholder="Latitude" required>
+                    </div>
+                    <div class="col-xs-6">
+                        <input class="form-control" ng-model="system.location.lng" placeholder="Longitude" required>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="form-group col-sm-4">
+                    <label>Date Started</label>
+                <input type="date" class="form-control" ng-model="system.startDate" required>
+                </div>
+                <div class="form-group col-sm-4">
+                    <label>Aquaponics Technique</label>
+                    <select class="form-control" ng-model="system.techniqueID" required>
+                        {% for technique in enums['techniques'] %}
+                            <option value="{{ technique.ID }}">{{ technique.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group col-sm-4">
+                    <label>Growbed Media</label>
+                    <select class="form-control" ng-model="system.gbMedia[0].ID" required>
+                        {% for medium in enums['growbedMedia'] %}
+                            <option value="{{ medium.ID }}">{{ medium.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="row">
+                    <div class="col-xs-8">
+                        <label>Crop</label>
+                <select class="form-control" ng-model="system.crops[0].ID" required>
+                    {% for crop in enums['crops'] %}
+                        <option value="{{ crop.ID }}">{{ crop.name }}</option>
+                    {% endfor %}
+                </select>
+                    </div>
+                    <div class="col-xs-4">
+                        <label>&nbsp;</label>
+                        <input type="number" min="0" class="form-control" ng-model="system.crops[0].count" placeholder="Number of Crops" required>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="row">
+                    <div class="col-xs-8">
+                        <label>Aquatic Organism</label>
+                <select class="form-control" ng-model="system.organisms[0].ID" required>
+                    {% for organism in enums['organisms'] %}
+                        <option value="{{ organism.ID }}">{{ organism.name }}</option>
+                    {% endfor %}
+                </select>
+                    </div>
+                    <div class="col-xs-4">
+                        <label>&nbsp;</label>
+                        <input type="number" min="0" class="form-control" ng-model="system.organisms[0].count" placeholder="Number of Organisms" required>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <button type="submit" class="btn btn-green">Create</button>
+            </div>
+        </form>
+    </div>
+
+{% endblock %}
+
+{% block scripts %}
+    {{ super() }}
+    <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?signed_in=true&v=3.exp"></script>
+    <script type="text/javascript" src="{{ url_for('frontend.static', filename='js/create_system.js') }}"></script>
+{% endblock %}

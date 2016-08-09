@@ -6,14 +6,15 @@
     {{ super() }}
     <link rel="stylesheet" type="text/css" href="{{ url_for('social.static', filename='css/layout.css') }}">
     <link rel="stylesheet" type="text/css" href="{{ url_for('social.static', filename='css/newsfeed.css') }}">
+      <link rel="stylesheet" href="{{ url_for('social.static', filename='css/profile.css') }}">
 {% endblock %}
 
 
 {% block content %}
-
-    <div class="col-sm-3">
-        <div class="row">
-            <img class="imgstyle" id="userImage" src="{{ google_profile['img_url'] or user_profile['image_url'] }}"
+    <div class="col-md-3 leftPaneDiv">
+      <div class="row" groupDescription>
+        <div class="profile">
+            <img class="imgstyle img-responsive" id="userImage" src="{{ google_profile['img_url'] or user_profile['image_url'] }}"
                  width="200"/> <br/>
             <h3 class="username">  {{ user_profile['displayName'] }} </h3>
             {% if google_profile['plus_url'] %}
@@ -28,7 +29,7 @@
             <a type="button" class="btn btn-info btn-sm" disabled>Friend Request Sent</a>
         {% endif %}
         {% if status=="Friends" %}
-            <a type="button" class="btn btn-info btn-sm" href="{{ url_for('social.delete_friend', u_sql_id=sqlId) }}">Unfriend
+            <a type="button" class="btn btn-info btn-sm" href="{{ url_for('social.delete_friend_timeline', u_sql_id=sql_id) }}">Unfriend
             </a>
         {% endif %}
         {% if status=="Me" %}
@@ -37,56 +38,83 @@
         {% endif %}
         {% if status=="Add friend" %}
             <a type="button" class="btn btn-info btn-sm"
-               href="{{ url_for('social.send_friend_request', u_sql_id=sqlId) }}">Add friend
+               href="{{ url_for('social.send_friend_request_timeline', u_sql_id=sql_id) }}">Add friend
             </a>
         {% endif %}
         <div id="systems">
-            <h5><b>Participant Systems</b></h5>
+            <h4><b>Participant Systems <span class="badge">{{ participated_systems | length}}</span></b></h4>
             <ul class="nav nav-pills nav-stacked">
                 {% if participated_systems %}
-                    <li><a href="{{ url_for('social.view_system',system_uid=participated_systems[0][0]['system_uid']) }}">{{ participated_systems[0][0]['name'] }}</a></li>
+                     {% for row in participated_systems %}
+                         {% if loop.index < stop_at %}
+                                <li>
+                                    <a href="{{ url_for('social.view_system',system_uid=row[0]['system_uid']) }}">{{ row[0]['name'] }}</a>
+                                </li>
+                         {% endif %}
+                            {% endfor %}
                 {% else %}
-                    <li>None</li>
+                    <li><a>None</a></li>
                 {% endif %}
             </ul>
-            <h5><b>Subscribed Systems</b></h5>
+            <h4><b>Subscribed Systems <span class="badge">{{ subscribed_systems | length}}</span></b></h4>
             <ul class="nav nav-pills nav-stacked">
                 {% if subscribed_systems %}
                     <li>
-                        <a href="{{ url_for('social.view_system',system_uid=subscribed_systems[0][0]['system_uid']) }}">{{ subscribed_systems[0][0]['name'] }}</a>
+                        {% for row in subscribed_systems %}
+                             {% if loop.index < stop_at %}
+                                <li>
+                                    <a href="{{ url_for('social.view_system',system_uid=row[0]['system_uid']) }}">{{ row[0]['name'] }}</a>
+                                </li>
+                            {% endif %}
+                            {% endfor %}
                     </li>
                 {% else %}
-                    <li>None</li>
+                    <li><a>None</a></li>
                 {% endif %}
             </ul>
-            <h5><b>Admin Systems</b></h5>
+            <h4><b>Admin Systems <span class="badge">{{ admin_systems | length}}</span></b></h4>
             <ul class="nav nav-pills nav-stacked">
                 {% if admin_systems %}
                     <li>
-                        <a href="{{ url_for('social.view_system',system_uid=admin_systems[0][0]['system_uid']) }}">{{ admin_systems[0][0]['name'] }}</a>
+                       {% for row in admin_systems %}
+                    {% if loop.index < stop_at %}
+                                <li>
+                                    <a href="{{ url_for('social.view_system',system_uid=row[0]['system_uid']) }}">{{ row[0]['name'] }}</a>
+                                </li>
+                            {% endif %}
+                            {% endfor %}
                     </li>
                 {% else %}
-                    <li>None</li>
+                    <li><a>None</a></li>
                 {% endif %}
             </ul>
 
-            <button type="button" class="btn btn-info btn-sm" data-toggle="modal" data-target="#myModal">See all
+            <button type="button" class="btn btn-grey btn-sm" data-toggle="modal" data-target="#myModal">See all
                 systems
             </button>
         </div>
-
+    <hr>
         <div id="friends">
-            <h4>Friends</h4>
+            <h4>Friends <span class="badge">{{ friends | length}}</span></h4>
             <ul class="nav nav-pills nav-stacked">
                 {% if friends %}
-                    <li>
-                        <a href="{{ url_for('social.profile',google_id=friends[0][0]['google_id']) }}">{{ friends[0][0]['displayName'] }}</a>
-                    </li>
+                   {% for row in friends %}
+                        {% if loop.index < stop_at %}
+                            <div class="row">
+                                <ul>
+                                    <li>
+                                         <img class="memberImage img-circle" src="{{ row[0]['image_url'] }}">
+                                        <a href="{{ url_for('social.profile',google_id=row[0]['google_id']) }}">{{ row[0]['displayName'] }}</a>
+                                    </li><br>
+                                </ul>
+                            </div>
+                       {% endif %}
+                        {% endfor %}
                 {% else %}
                     <li>None</li>
                 {% endif %}
             </ul>
-            <button type="button" class="btn btn-info btn-sm" data-toggle="modal" data-target="#myFriendModal">See all
+            <button type="button" class="btn btn-grey btn-sm" data-toggle="modal" data-target="#myFriendModal">See all
                 Friends
             </button>
 
@@ -94,9 +122,10 @@
 
         <br/>
     </div>
+    </div>
 
     {# NEWSFEED #}
-    <div class="main col-sm-9">
+    <div class="col-sm-9 main">
         {% include "post_form.html" %}
 
         <h3>User Posts</h3>
@@ -174,6 +203,7 @@
                             <div class="row">
                                 <ul>
                                     <li>
+                                        <img class="memberImage img-circle" src="{{ row[0]['image_url'] }}">
                                         <a href="{{ url_for('social.profile',google_id=row[0]['google_id']) }}">{{ row[0]['displayName'] }}</a>
                                     </li>
                                 </ul>
@@ -188,5 +218,5 @@
             </div>
         </div>
     </div>
-
+</div>
 {% endblock %}

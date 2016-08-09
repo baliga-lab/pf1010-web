@@ -1,23 +1,23 @@
 {% extends "base.html" %}
 
-{% block title %} {% endblock %}
+{% block title %}Friends{% endblock %}
 
 {% block content %}
 
     <div class="container">
-        <h1 class="page-header">Friends</h1>
+        <h3 class="page-header"><i class="fa fa-users" aria-hidden="true"></i>&nbsp; Friends</h3>
         <ul class="nav nav-tabs">
-            <li class="active"><a href="{{ url_for('social.friends') }}">My Friends</a></li>
-            <li><a href="{{ url_for('social.searchFriends') }}">Search Friends</a></li>
-            <li><a href="{{ url_for('social.pendingRequest') }}">Accept/Reject Requests</a></li>
-            <li><a href="{{ url_for('social.recofriends') }}">Recommended Friends</a></li>
+            <li class="active"><a href="{{ url_for('social.friends') }}"><span class="glyphicon glyphicon-user" aria-hidden="true"></span>&nbsp;My Friends</a></li>
+            <li><a href="{{ url_for('social.searchFriends') }}"><span class="glyphicon glyphicon-search" aria-hidden="true"></span>&nbsp;Search Friends</a></li>
+            <li><a href="{{ url_for('social.pendingRequest') }}"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span>&nbsp;Pending Requests</a></li>
+            <li><a href="{{ url_for('social.recofriends') }}"><span class="glyphicon glyphicon-star" aria-hidden="true"></span>&nbsp;Recommended Friends</a></li>
         </ul>
+
         <table class="table">
 
             <!-- Search Results Div -->
             <div class="row">
-                <h4>My Friends:</h4>
-                <hr>
+                <br>
                 {% if Friends or UnblockedFriend %}
                     <thead>
                     <tr>
@@ -29,26 +29,28 @@
                     <tbody>
                     {% for row in Friends %}
                         <tr>
-                            <td><img src="{{ url_for('frontend.static', filename='images/users/vileplume.png') }}"></td>
-                            <td>{{ row.n.displayName }}</td>
+                            <td><img src="{{ row.n.image_url }}" class="img-circle" alt="User Image" width="60"
+                                     height="60"></td>
+                            <td><a href="profile/{{ row.n.google_id }}">{{ row.n.displayName }}</a></td>
                             <td>
                                 <a type="button" href="{{ url_for('social.block_friend', u_sql_id=row.n.sql_id) }}"
-                                   class="btn btn-primary">Block</a>
+                                   class="btn btn-danger">Block</a>
                                 <a type="button" href="{{ url_for('social.delete_friend', u_sql_id=row.n.sql_id) }}"
-                                   class="btn btn-primary">Delete</a>
+                                   class="btn btn-danger">Delete</a>
                             </td>
                         </tr>
 
                     {% endfor %}
                     {% for row in UnblockedFriend %}
                         <tr>
-                            <td><img src="{{ url_for('frontend.static', filename='images/users/vileplume.png') }}"></td>
-                            <td>{{ row.n.displayName }}</td>
+                            <td><img src="{{ row.n.image_url }}" class="img-circle" alt="User Image" width="60"
+                                     height="60"></td>
+                            <td><a href="profile/{{ row.n.google_id }}">{{ row.n.displayName }}</a></td>
                             <td>
                                 <a type="button" href="{{ url_for('social.unblock_friend', u_sql_id=row.n.sql_id) }}"
-                                   class="btn btn-primary">UnBlock</a>
+                                   class="btn btn-info">Unblock</a>
                                 <a type="button" href="{{ url_for('social.delete_friend', u_sql_id=row.n.sql_id) }}"
-                                   class="btn btn-primary">Delete</a>
+                                   class="btn btn-danger">Delete</a>
                             </td>
                         </tr>
 
@@ -59,10 +61,10 @@
                 {% else %}
                     <div class="row">
                         <ul class="pull-left">
-                            <img src="{{ url_for('social.static', filename='images/sad_smiley.png') }}"
-                                 alt="FriendRequest"
-                                 height="32"
-                                 width="32">
+                            <span class="fa-stack fa-2x">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa fa-meh-o fa-stack-1x fa-inverse"></i>
+                            </span>
                         </ul>
                         <br/>
                         <ul>

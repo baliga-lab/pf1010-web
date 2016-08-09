@@ -14,6 +14,9 @@
     <link rel="stylesheet" type="text/css" href="{{ url_for('frontend.static', filename='css/style.css') }}">
 {% endblock %}
 
+{% block body_attribs %}
+    ng-app="aqx"
+{% endblock body_attribs %}
 {% block body %}
 
     {% block navbar %}
@@ -22,59 +25,6 @@
         {% else %}
             {{ nav.guest.render(renderer='nav_renderer') }}
         {% endif %}
-        <!--
-        <div id="register-popup" class="overlay">
-            <div class="popup">
-                <form class="form-horizontal" role="form">
-                    <h2 class="page-header change-border-width">Registration</h2>
-                    <p>Looks like it's your first time logging in! Please take a moment and let us know who you are, so we can best accomodate you.</p>
-
-                    <a class="close" href="#">&times;</a>
-
-                    <div class="form-group">
-                        <label class="control-label col-sm-3">Role:</label>
-                        <div class="col-sm-4">
-                            <input type="radio" name="role" value="moderator"> Farmer/Teacher<br>
-                            <input type="radio" name="role" value="user"> Student<br>
-                            <input type="radio" name="role" value="observer"> Observer<br>
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label class="control-label col-sm-3">Address:</label>
-                        <div class="col-sm-9">
-                            <input type="text" class="form-control" id="location" placeholder="Address">
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label class="control-label col-sm-3">City:</label>
-                        <div class="dropdown col-sm-3">
-                            <select class="form-control">
-                                <option>Boston</option>
-                                <option>Portland</option>
-                                <option>Seattle</option>
-                            </select>
-                        </div>
-                        <label class="control-label col-sm-3">State:</label>
-                        <div class="dropdown col-sm-3">
-                            <select class="form-control">
-                                <option>MA</option>
-                                <option>OR</option>
-                                <option>WA</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div class="form-group top-margin ">
-                        <div class="col-sm-offset-2 col-sm-10">
-                            <button type="submit" class="btn btn-green btn-block">Submit</button>
-                        </div>
-                    </div>
-                </form>
-            </div>
-        </div>
-        -->
     {% endblock %}
 
     {% block feature %}
@@ -90,12 +40,25 @@
     </div>
 
 
+    {% block footer %}
+        {% include "footer.html" %}
+    {% endblock %}
+
+
     {% block scripts %}
         {{ super() }}
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
         <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/jquery-ui.min.js"></script>
         <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.0/angular.min.js"></script>
+        <script src="{{ url_for('frontend.static', filename='js/moments.js') }}"></script>
+        <script src="{{ url_for('frontend.static', filename='js/bootstrap-datetimepicker.js') }}"></script>
         <script type="text/javascript" src="{{ url_for('frontend.static', filename='js/app.js') }}"></script>
+        <script src="{{ url_for('frontend.static', filename='js/add_post_link.js') }}"></script>
+
+        <script>
+
+        </script>
+
     {% endblock scripts %}
 
 {% endblock %}

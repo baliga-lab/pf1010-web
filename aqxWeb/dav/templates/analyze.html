@@ -2,49 +2,64 @@
 
 {% block styles %}
     {{ super() }}
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.2/css/select2.min.css" rel="stylesheet" />
-    <link rel="stylesheet"  href="{{ url_for('dav.static', filename='css/select2-skins.min.css')}}">
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap-theme.min.css" integrity="sha384-fLW2N01lMqjakBkx3l/M9EahuwpSfeNvV63J5ezn3uZzapT0u7EYsXMjQV+0En5r" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap-theme.min.css"
+          integrity="sha384-fLW2N01lMqjakBkx3l/M9EahuwpSfeNvV63J5ezn3uZzapT0u7EYsXMjQV+0En5r" crossorigin="anonymous">
     <link rel="stylesheet" href="{{ url_for('dav.static', filename='css/explore.css') }}">
+    <link rel="stylesheet" href="{{ url_for('dav.static', filename='css/toggles.css') }}">
+    <link rel="stylesheet" href="{{ url_for('dav.static', filename='css/toggles-soft.css') }}">
+    <link rel="stylesheet" href="{{ url_for('dav.static', filename='css/chosen.min.css') }}">
 {% endblock %}
 
 {% block title %}Analyze{% endblock %}
 
 {% block content %}
-    <div class="container" style="width: 100%; margin-top: 2%; margin-left: 2%">
-        <div style="width: 100%">
-            <div id = "alert_placeholder" style="width: 90%"></div>
-            <div style="width: 90%;">
-                <div id="analyzeContainer" style="height: 500px; width: 100%;"> </div>
+    <h1 class="page-header">
+        Analyze
+    </h1>
+    <div class="container">
+        <div class="row">
+            <a href="{{ url_for('dav.explore') }}"><i class="fa fa-chevron-left" aria-hidden="true"></i> Back to Explore</a>
+        </div>
+        <br>
+        <div class="row">
+            <div id="alert_placeholder"></div>
+            <div class="col-sm-9">
+                <div id="analyzeContainer" style="height: 500px; width: 100%;"></div>
+                <div class="row">
+                    <div id="chart-0" class="col-sm-6 no-padding"></div>
+                    <div id="chart-1" class="col-sm-6 no-padding"></div>
+                </div>
+                <div class="row">
+                    <div id="chart-2" class="col-sm-6 no-padding"></div>
+                    <div id="chart-3" class="col-sm-6 no-padding"></div>
+                </div>
             </div>
-            <div id="measurementLegend"style="width: 50%;">
+            <div id="measurementLegend" style="width: 50%;">
                 <div id="legendTypes"></div>
             </div>
-            <br>
-            <div style="width: 30%;">
-                <div class="form-group">
+            <div class="col-sm-3">
+                <div class="form-group hidden">
                     <label class="control-label">Select X Axis</label>
                     <select class="explore-dropdown" id="selectXAxis">
                         <option name="xAxisTypes" value="time" selected="selected">Time</option>
+                        {# Loop through the list of measurement_types to populate X Axis Type dropdown #}
                         {% for name in measurement_names %}
                             <option name="xAxisTypes" value="{{ name }}">{{ name }}</option>
                         {% endfor %}
                     </select>
                 </div>
-            </div>
-            <div style="width: 30%;">
                 <div class="form-group">
                     <label class="control-label">Select Y Axis</label>
-                    <select class="js-example-basic-multiple explore-dropdown" multiple="multiple" id="selectYAxis">
+                    <select class="chosen-select" multiple id="selectYAxis">
+                        {# Loop through the list of measurement_types to populate Y Axis Type dropdown #}
+                        {# Time is excluded from this dropdown #}
                         {% for name in measurement_names %}
-                            {% if not name == 'time' %}<option value="{{ name }}">{{ name }}</option>{% endif %}
+                            {% if not name == 'time' %}
+                                <option value="{{ name }}">{{ name }}</option>{% endif %}
                         {% endfor %}
                     </select>
                 </div>
-            </div>
-
-            <div style="width: 30%;">
-                <div id="graphType" style="height: 100%; width: 100%;">
+                <div id="graphType" class="form-group">
                     <label class="control-label">Select Graph Type</label>
                     <select class="explore-dropdown" id="selectGraphType">
                         <option value="line">Line Chart</option>
@@ -52,30 +67,68 @@
                         <option value="spline">Spline</option>
                     </select>
                 </div>
-                <div id="buttons" style="padding-top: 3%">
-                    <input class="btn btn-green" type="submit" id="submitbtn" name="newgraph" value="Submit"/>
-                    <input class="btn btn-green" type="button" id="resetbtn" name="reset" value="Reset"/>
+                <div class="form-group">
+                    <label class="control-label">View data from</label>
+                    <select class="explore-dropdown" id="selectNumberOfEntries">
+                        <option value="">All the data</option>
+                        <option value="30">last 30 entries</option>
+                        <option value="60">last 60 entries</option>
+                        <option value="90">last 90 entries</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="control-label">View Data in Status</label>
+                    <select class="explore-dropdown" id="selectStatus">
+                        <option value="100">Pre-Established</option>
+                        <option value="200" selected="selected">Established</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <div style="width: 100%" class="toggle toggle-soft"></div>
+                </div>
+                <div class="form-group">
+                    <div class="form-group text-center">
+                        <input class="btn btn-green" type="submit" id="submitbtn" name="newgraph"
+                               value="Submit"/>
+                        <input class="btn btn-grey" type="button" id="resetbtn" name="reset" value="Reset"/>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
+
 {% endblock %}
 
 {% block scripts %}
     {{ super() }}
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.2/js/select2.full.js"></script>
-    <script src="http://code.highcharts.com/highcharts.js"></script>
-    <script src="http://code.highcharts.com/modules/exporting.js"></script>
+    <script src="https://code.highcharts.com/highcharts.js"></script>
+    <script src="https://code.highcharts.com/modules/exporting.js"></script>
+    <script type="text/javascript" src="{{ url_for('dav.static', filename='js/jquery.blockUI.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('dav.static', filename='js/export-csv.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('dav.static', filename='js/underscore-min.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('dav.static', filename='js/toggles.min.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('dav.static', filename='js/chosen.jquery.min.js') }}"></script>
+    <script src="{{ url_for('dav.static', filename='js/highChartsTheme.js') }}"></script>
     <script src="{{ url_for('dav.static', filename='js/aqxGraph.js') }}"></script>
     <script>
+{#      systems_and_measurements - list(Object):  #}
+{#      List of JS Objects, each containing systems, metadata, and measurement data for selected measurement types #}
         var systems_and_measurements = {{ systems_and_measurements_json | safe }};
-        systems_and_measurements = systems_and_measurements.response;
+
+{#      selectedSystemIDs - list(String):  #}
+{#      List of System UIDs for each system that was selected on the Explore page #}
         var selectedSystemIDs = {{ selected_systemID_list|safe }};
+
+{#      measurement_types_and_info- Object:  #}
+{#      JSON response containing measurement type data. IDs, measurement names, units, and ranges. #}
         var measurement_types_and_info = {{ measurement_types_and_info | safe }};
         measurement_types_and_info = measurement_types_and_info.measurement_info;
+
+{#      measurement_types_and_info- Object:  #}
+{#      JSON response containing annotation type data. IDs, annotation types, and descriptions #}
+        var annotationsMap = {{ annotations_map | safe }};
+
         $(document).ready(main());
     </script>
 {% endblock %}

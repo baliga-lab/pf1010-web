@@ -7,16 +7,16 @@ Documentation     A resource file with reusable keywords and variables.
 Library           Selenium2Library
 
 *** Variables ***
-${SERVER}         127.0.0.1:5000 
+${SERVER}         pf1010.systemsbiology.net
 ${BROWSER}        Firefox
 ${DELAY}          0
 ${VALID USER}     demo
 ${VALID PASSWORD}    mode
-${WELCOME URL}    http://${SERVER}/ui/ui-index
-${ABOUT URL}      http://${SERVER}/ui/about
-${EXPLORE URL}    http://${SERVER}/ui/explore
-${NEWSFEED URL}   http://${SERVER}/ui/newsfeed
-${ERROR URL}      http://${SERVER}/error.html
+${WELCOME URL}    https://${SERVER}
+${ABOUT URL}      https://${SERVER}/about
+${EXPLORE URL}    https://${SERVER}/dav/explore
+${CURRICULUM URL}   https://${SERVER}/curriculum
+${RESOURCES URL}   https://${SERVER}/resources
 
 *** Keywords ***
 Open Browser To Project Feed 1010
@@ -26,7 +26,6 @@ Open Browser To Project Feed 1010
     Project Feed 1010 Should Be Open
 
 Project Feed 1010 Should Be Open
-    Location Should Be    ${WELCOME URL}
     Title Should Be    Project Feed 1010
 
 About Should Be Open
@@ -43,10 +42,16 @@ Go To Explore
     Go To    ${EXPLORE URL}
     Explore Should Be Open
 
-Newsfeed Should Be Open
-    Title Should Be    Newsfeed
+Curriculum Should Be Open
+    Title Should Be    Curriculum
 
-Go To Newsfeed
-    Go To    ${NEWSFEED URL}
-    Newsfeed Should Be Open
+Go To Curriculum
+    Go To    ${CURRICULUM URL}
+    Curriculum Should Be Open
 
+Resources Should Be Open
+    Title Should Be    Resources
+
+Go To Resources
+    Go To    ${RESOURCES URL}
+    Resources Should Be Open

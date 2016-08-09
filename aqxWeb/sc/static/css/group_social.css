@@ -1,0 +1,47 @@
+.groupDiv {
+    padding-left: 5px;
+    padding-right: 5px;
+    text-align: justify;
+}
+
+.leftPaneDiv, .rightPaneDiv {
+    border-radius: 25px;
+    border: 1px solid #23434d;
+    padding-left: 30px;
+    padding-right: 30px;
+    background-color: #f0f0f5;
+}
+
+.cogWheelIcon {
+    height: 45px;
+    width: 45px;
+}
+
+.pendingRequests {
+    overflow-x: hidden;
+    overflow-y: auto;
+    height: 100px;
+}
+
+.memberImage, .pendingMemberImage {
+    height: 40px;
+    width: 40px;
+}
+
+h4 {
+    color: #449d44;
+}
+
+.ui-autocomplete {
+    max-height: 100px;
+    overflow-y: auto;
+    /* prevent horizontal scrollbar */
+    overflow-x: hidden;
+}
+
+/* IE 6 doesn't support max-height
+ * we use height instead, but this forces the menu to always be this tall
+ */
+* html .ui-autocomplete {
+    height: 100px;
+}

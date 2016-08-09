@@ -5,6 +5,8 @@
 {% block styles %}
     {{ super() }}
     <link rel="stylesheet" href="{{ url_for('social.static', filename='css/system_social.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('social.static', filename='css/layout.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('social.static', filename='css/newsfeed.css') }}">
 {% endblock %}
 
 {% block content %}
@@ -23,11 +25,18 @@
                 <h5 class="systemCreated" id="systemCreatedTime"><b>Created On: </b>
                     {{ created_date }}
                 </h5>
-                <h5 class="systemLocation"><b> Location: </b> Northeastern University, Boston</h5>
+                <h5 class="systemLocation"><b> Location: </b> {{ system_location }} </h5>
+                <div id="map">
+                </div>
+                <a href="http://www.google.com/maps/place/{{ system_neo4j[0][0]['location_lat'] }},{{ system_neo4j[0][0]['location_lng'] }}"
+                   target="_blank">
+                    Click Here For Navigation
+                </a>
                 <h5 class="systemDescription"><b> Description: </b> {{ system_neo4j[0][0]['description'] }}</h5>
             </div>
             <!-- End of Div for System Description (Name, Creation Time, Location and Description -->
 
+            <hr/>
 
             <!-- Div for Participants (List of Participants) -->
             <div class="row">
@@ -40,7 +49,7 @@
                             <!-- Only Admin and Participants Has The Privilege To View The Picture & Name Of All Participants-->
                             {% if user_privilege == "SYS_ADMIN" or user_privilege == "SYS_PARTICIPANT" %}
                                 <a href="{{ url_for('social.profile', google_id=participant[0]["google_id"]) }}">
-                                    <img class="participantImage" src="{{ participant[0]["image_url"] }}">
+                                    <img class="participantImage img-circle" src="{{ participant[0]["image_url"] }}">
                                     {% if participant[0]["displayName"] is not none %}
                                         {{ participant[0]["displayName"] }}
                                     {% else %}
@@ -63,7 +72,18 @@
                 {% endif %}
             </div>
             <!-- End of Div for Participants (List of Participants) -->
+            </br/>
+            <!-- See All Participants Button -->
+            {% if system_participants | length > 0 %}
+                <div class="row">
+                    <button type="button" class="btn btn-info btn-sm" data-toggle="modal"
+                            data-target="#participantModal">See All Participants
+                    </button>
+                </div>
+            {% endif %}
+            <!-- End Of See All Participants Button -->
 
+            <hr/>
 
             <!-- Div for Subscribers (List of Subscribers) -->
             <div class="row">
@@ -76,7 +96,7 @@
                             <!-- Only Admin and Participants Has The Privilege To View The Picture & Name Of All Participants-->
                             {% if user_privilege == "SYS_ADMIN" or user_privilege == "SYS_PARTICIPANT" %}
                                 <a href="{{ url_for('social.profile', google_id=subscriber[0]["google_id"]) }}">
-                                    <img class="participantImage" src="{{ subscriber[0]["image_url"] }}">
+                                    <img class="participantImage img-circle" src="{{ subscriber[0]["image_url"] }}">
                                     {% if subscriber[0]["displayName"] is not none %}
                                         {{ subscriber[0]["displayName"] }}
                                     {% else %}
@@ -88,17 +108,17 @@
                                 <!-- The subscriber will be able to see his/her own name and picture -->
                                 {% if subscriber[0]["sql_id"] == logged_in_user["sql_id"] %}
                                     <a href="{{ url_for('social.profile', google_id=subscriber[0]["google_id"]) }}">
-                                    <img class="participantImage" src="{{ session["img"] }}">
-                                    {% if subscriber[0]["displayName"] is not none %}
-                                        {{ subscriber[0]["displayName"] }}
-                                    {% else %}
-                                        No Display Name
-                                    {% endif %}
+                                        <img class="participantImage" src="{{ session["img"] }}">
+                                        {% if subscriber[0]["displayName"] is not none %}
+                                            {{ subscriber[0]["displayName"] }}
+                                        {% else %}
+                                            No Display Name
+                                        {% endif %}
                                     </a>
                                 {% else %}
-                                <img class="participantImage"
-                                     src="{{ url_for('social.static', filename='images/default_profile_pic.png') }}">
-                                Anonymous
+                                    <img class="participantImage"
+                                         src="{{ url_for('social.static', filename='images/default_profile_pic.png') }}">
+                                    Anonymous
                                 {% endif %}
                             {% endif %}
                         </div>
@@ -110,7 +130,18 @@
                 {% endif %}
             </div>
             <!-- End of Div for Subscribers (List of Subscribers) -->
+            <br/>
+            <!-- See All Subscribers Button -->
+            {% if system_subscribers | length > 0 %}
+                <div class="row">
+                    <button type="button" class="btn btn-info btn-sm" data-toggle="modal"
+                            data-target="#subscriberModal">See All Subscribers
+                    </button>
+                </div>
+            {% endif %}
+            <!-- End Of See All Subscribers Button -->
 
+            <hr/>
 
             <!-- Div for Managing Pending Requests (Approve/Reject) Button. Manage System Settings Too -->
             {% if user_privilege == "SYS_ADMIN" %}
@@ -124,13 +155,14 @@
                     {% if participants_pending_approval %}
                         {% for pending_participants in participants_pending_approval %}
                             <form action="{{ url_for('social.approve_reject_system_participant') }}" method="post">
-                                <div class="pendingRequestElements">
+                                <div class="row pendingRequestElements">
+                                    &nbsp;&nbsp;&nbsp;&nbsp;
                                     <input type="hidden" name="google_id"
                                            value="{{ pending_participants[0]["google_id"] }}">
                                     <input type="hidden" name="system_uid"
                                            value="{{ system_neo4j[0][0]["system_uid"] }}">
                                     <a href="{{ url_for('social.profile', google_id=pending_participants[0]["google_id"]) }}">
-                                        <img class="pendingParticipantImage"
+                                        <img class="pendingParticipantImage img-circle"
                                              src="{{ pending_participants[0]["image_url"] }}">
                                         {% if pending_participants[0]["displayName"] is not none %}
                                             {{ pending_participants[0]["displayName"] }}
@@ -155,11 +187,14 @@
                     {% endif %}
                 </div>
 
+                <hr/>
+
                 <!-- Div for Manage Settings/Adding Admin(s) To The Systems -->
                 <div class="row">
                     <span>
                         <a href="{{ url_for('social.manage_system', system_uid= system_neo4j[0][0]["system_uid"]) }}">
-                            <img class="cogWheelIcon" src="{{ url_for('social.static', filename='images/system_settings.png') }}">
+                            <img class="cogWheelIcon"
+                                 src="{{ url_for('social.static', filename='images/system_settings.png') }}">
                             Manage System
                         </a>
                     </span>
@@ -172,7 +207,8 @@
             <br/>
 
             <!-- Div for Subscribe / Request to Join Button-->
-            <form id ="participate_subscribe_leave_system_form" action="{{ url_for('social.participate_subscribe_leave_system') }}" method="post">
+            <form id="participate_subscribe_leave_system_form"
+                  action="{{ url_for('social.participate_subscribe_leave_system') }}" method="post">
                 <div class="row sendRequests">
                     <input type="hidden" name="google_id"
                            value="{{ logged_in_user["google_id"] }}">
@@ -183,13 +219,15 @@
                         <button type="submit" name="submit" value="Participate" class="btn btn-success">Participate
                         </button>
                     {% else %}
-                        {% if user_privilege == "SYS_ADMIN" or user_privilege == "SYS_PARTICIPANT" or
-                                user_privilege == "SYS_SUBSCRIBER" or user_privilege == "SYS_PENDING_PARTICIPANT"
-                                or user_privilege == "SYS_PENDING_SUBSCRIBER" %}
-                            <button type="submit" name="submit" value="Leave" id="btnLeave"
-                                    onclick="return getUserConsent()" class="btn btn-danger">Leave System
-                            </button>
-                        {% endif %}
+                        <button type="submit" name="submit" value="Leave" id="btnLeave"
+                                onclick="return getUserConsent()" class="btn btn-danger">
+                            {% if user_privilege == "SYS_ADMIN" or user_privilege == "SYS_PARTICIPANT" or
+                                user_privilege == "SYS_SUBSCRIBER" %}
+                                Leave System
+                            {% else %}
+                                Cancel Participant Request
+                            {% endif %}
+                        </button>
                     {% endif %}
                 </div>
             </form>
@@ -208,11 +246,11 @@
         <!-- This centerPaneDiv for system posts -->
         <div class="col-md-6 centerPaneDiv">
             <div class="row">
-            {# NEWSFEED #}
-                    {% include "post_system_form.html" %}
+                {# NEWSFEED #}
+                {% include "post_system_form.html" %}
 
-                    <h3>Recent Posts</h3>
-                    {% include "display_system_posts.html" %}
+                <h3>Recent Posts</h3>
+                {% include "display_system_posts.html" %}
             </div>
         </div>
         <!-- End Div for Center Pane (System Posts) - Systems Page -->
@@ -223,63 +261,157 @@
 
         <!-- This is the rightPaneDiv for system data -->
         <div class="col-md-3 rightPaneDiv">
-
+            <h2>Summary</h2>
+            {% if user_privilege == "SYS_ADMIN" %}
+                <a class="btn-blue" href="{{ url_for('frontend.sys_measurements', system_uid=system_neo4j[0][0]["system_uid"]) }}">
+                <i class="fa fa-plus"></i>Input Measurements</a> <br>
+                <a class="btn-blue" href="{{ url_for('frontend.sys_annotations', system_uid=system_neo4j[0][0]["system_uid"]) }}">
+                <i class="fa fa-plus"></i>Add Annotations</a> <br>
+                <a class="btn-blue" href="{{ url_for('dav.system_analyze', system_uid=system_neo4j[0][0]["system_uid"]) }}">
+                <i class="fa fa-plus"></i>Analyze Data</a>
+            {% endif %}
             <div class="row">
-
-                <h2> Summary</h2>
-                <div class="table-responsive">
-                  <table class="table">
+                <table id="placar" class="table table-responsive">
                     <thead>
-                      <tr>
+                    <tr>
                         <th>Name</th>
                         <th>Value</th>
                         <th>Last Updated</th>
-                      </tr>
+                    </tr>
                     </thead>
                     <tbody>
-                      <tr>
-                        <td>Alkalinity</td>
-                        <td>60.00</td>
-                        <td>2016-01-14 20:00:00</td>
-                      </tr>
-                      <tr>
-                        <td>Ammonium</td>
-                        <td>0E-10</td>
-                        <td>2016-01-14 20:00:00</td>
-                      </tr>
-                      <tr>
-                        <td>Chlorine</td>
-                        <td>0E-10</td>
-                        <td>2016-01-14 20:00:00</td>
-                      </tr>
-                      <tr>
-                        <td>Hardness</td>
-                        <td>300.00</td>
-                        <td>2016-01-14 20:00:00</td>
-                      </tr>
-                      <tr>
-                        <td>Light</td>
-                        <td>0E-10</td>
-                        <td>2016-01-14 20:00:00</td>
-                      </tr>
+                    {% if measurements is not none %}
+                        {% for row in measurements %}
+                            <tr>
+                                <td> {{ row.name }} </td>
+                                <td> {{ row.value }} </td>
+                                <td>  {{ row.time }}  </td>
+                            </tr>
+                        {% endfor %}
+                    {% endif %}
                     </tbody>
-                  </table>
-                  </div>
+                </table>
             </div>
         </div>
-        <!-- End Div for Right Pane (System Data) - Systems Page -->
+    </div>
+    <!-- End Div for Right Pane (System Data) - Systems Page -->
 
-        <!-- ---------------------------------------------------------  -->
+    <!-- ---------------------------------------------------------  -->
 
     </div>
     <!-- End of Div for Systems Pane - Container Div -->
 
+
+    <!-- Modal for Participants -->
+    <div id="participantModal" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">Participants ({{ system_participants | length }}) </h4>
+                </div>
+                <div class="modal-body">
+                    <ul>
+                        {% for participant in system_participants %}
+                            <li>
+                                <!-- Only Admin and Participants Has The Privilege To View The Picture & Name Of All Participants-->
+                                {% if user_privilege == "SYS_ADMIN" or user_privilege == "SYS_PARTICIPANT"  %}
+                                    <a href="{{ url_for('social.profile', google_id=participant[0]["google_id"]) }}">
+                                        <img class="participantImage img-circle"
+                                             src="{{ participant[0]["image_url"] }}">
+                                        {% if participant[0]["displayName"] is not none %}
+                                            {{ participant[0]["displayName"] }}
+                                        {% else %}
+                                            No Display Name
+                                        {% endif %}
+                                    </a>
+                                    <!-- Guest, Subscribers & Pending Users Shall Not Be Able To See The Picture & Name Of All Participants-->
+                                {% else %}
+                                    <img class="participantImage"
+                                         src="{{ url_for('social.static', filename='images/default_profile_pic.png') }}">
+                                    Anonymous
+                                {% endif %}
+                            </li>
+                            <br/>
+                        {% endfor %}  
+                    </ul>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+                <!-- Modal -->
+            </div>
+        </div>
+    </div>
+    <!-- End of Modal for Participants -->
+
+    <!-- Modal for Subscribers -->
+    <div id="subscriberModal" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">Subscribers ({{ system_subscribers | length }})</h4>
+                </div>
+                <div class="modal-body">
+                    <ul>
+                        {% for subscriber in system_subscribers %}
+                            <li>
+                                <!-- Only Admin and Participants Has The Privilege To View The Picture & Name Of All Participants-->
+                                {% if user_privilege == "SYS_ADMIN" or user_privilege == "SYS_PARTICIPANT" %}
+                                    <a href="{{ url_for('social.profile', google_id=subscriber[0]["google_id"]) }}">
+                                        <img class="participantImage img-circle" src="{{ subscriber[0]["image_url"] }}">
+                                        {% if subscriber[0]["displayName"] is not none %}
+                                            {{ subscriber[0]["displayName"] }}
+                                        {% else %}
+                                            No Display Name
+                                        {% endif %}
+                                    </a>
+                                    <!-- Guest, Subscribers & Pending Users Shall Not Be Able To See The Picture & Name Of All Participants-->
+                                {% else %}
+                                    <!-- The subscriber will be able to see his/her own name and picture -->
+                                    {% if subscriber[0]["sql_id"] == logged_in_user["sql_id"] %}
+                                        <a href="{{ url_for('social.profile', google_id=subscriber[0]["google_id"]) }}">
+                                            <img class="participantImage" src="{{ session["img"] }}">
+                                            {% if subscriber[0]["displayName"] is not none %}
+                                                {{ subscriber[0]["displayName"] }}
+                                            {% else %}
+                                                No Display Name
+                                            {% endif %}
+                                        </a>
+                                    {% else %}
+                                        <img class="participantImage"
+                                             src="{{ url_for('social.static', filename='images/default_profile_pic.png') }}">
+                                        Anonymous
+                                    {% endif %}
+                                {% endif %}
+                            </li>
+                            </br>
+                        {% endfor %}  
+                    </ul>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+                <!-- Modal -->
+            </div>
+        </div>
+    </div>
+    <!-- End of Modal for Subscribers -->
 
 {% endblock %}
 
 
 {% block scripts %}
     {{ super() }}
+    <!-- Javascript Google Maps API -->
+    <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?signed_in=true&v=3.exp"></script>
     <!-- jQuery Script For DOM Manipulation In Systems Page -->
     <script type="text/javascript" src="{{ url_for('social.static', filename='js/system_social.js') }}"></script>
+    <script type="text/javascript">
+        renderGoogleMaps("{{ system_neo4j[0][0]['location_lat'] }}",
+                "{{ system_neo4j[0][0]['location_lng'] }}", "{{ system_neo4j[0][0]['name'] }}");
+    </script>
 {% endblock %}

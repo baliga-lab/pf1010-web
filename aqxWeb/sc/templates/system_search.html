@@ -9,21 +9,35 @@
 
 {% block content %}
 
-    <!-- Entire Page Div Container -->
-    <div class="container" id="searchSystemsTab">
-        <h1 class="page-header">Systems</h1>
-        <ul class="nav nav-tabs" id="tab-headers">
-            <li><a href="#mySystemsTab">My Systems</a></li>
-            <li><a href="#allSystemsTab">All Systems</a></li>
-        </ul>
-        <br>
+    <div class="container">
 
-        <!-- My Systems Div -->
-        <div class="row" id="mySystemsTab">
+        <h3 class="page-header"><i class="fa fa-users" aria-hidden="true"></i>&nbsp; Systems</h3>
+        <ul class="nav nav-tabs">
+            <li class="active">
+                <a href="">
+                    <span class="glyphicon glyphicon-search"
+                          aria-hidden="true"></span>&nbsp;Search Systems
+                </a>
+            </li>
+            <li>
+                <a href="{{ url_for('social.self_systems') }}">
+                    <span class="glyphicon glyphicon-user"
+                          aria-hidden="true"></span>&nbsp;My Systems</a>
+            </li>
+            <li><a href="{{ url_for('social.all_systems_neo4j') }}">
+                <span class="glyphicon glyphicon-star"
+                      aria-hidden="true"></span>&nbsp;All Systems</a>
+            </li>
+        </ul>
+
+        <br/>
+
+        <!-- Search Systems -->
+        <div class="row" id="searchSystemsTab">
 
             <form action="{{ url_for('social.search_systems') }}" method="post">
                 <!-- Search Box and Button Control Div -->
-                <div class="row systemSearchDiv">
+                <div class="container systemSearchDiv">
                     <div class="input-group col-md-6 pull-left">
                           <input type="text" class="form-control"
                                  name="txtSystemName"   pattern=".{1,}" required
@@ -41,7 +55,7 @@
             </form>
 
             {% if post_method %}
-                <br/><br/>
+                <br/>
                 <!-- Search Results Div -->
                 <h4 class="page-header" style="padding-left: 10px">Search Results:</h4>
                 <div class="row systemSearchResults">
@@ -49,9 +63,10 @@
                         {% for row in system_search_results %}
                             <div class="row">
                                 <ul class="pull-left">
-                                    <img src="{{ url_for('social.static', filename='images/default_system_thumbnail.png') }}"
-                                         alt="System" height="32"
-                                         width="32">
+                                    <span class="fa-stack fa-2x">
+                                        <i class="fa fa-circle fa-stack-2x"></i>
+                                        <i class="fa fa-leaf fa-stack-1x fa-inverse"></i>
+                                    </span>
                                 </ul>
                                 <br/>
                                 <ul>
@@ -60,11 +75,12 @@
                             </div>
                         {% endfor %}
                     {% else %}
-                        <div class="row">
+                        <div class="container">
                             <ul class="pull-left">
-                                <img src="{{ url_for('social.static', filename='images/sad_smiley.png') }}" alt="System"
-                                     height="32"
-                                     width="32">
+                                <span class="fa-stack fa-2x">
+                                    <i class="fa fa-circle fa-stack-2x"></i>
+                                    <i class="fa fa-meh-o fa-stack-1x fa-inverse"></i>
+                                </span>
                             </ul>
                             <br/>
                             <ul>
@@ -76,213 +92,10 @@
                 <!-- End of Search Results Div -->
             {% endif %}
 
-            <br/>
-
-            <!-- Div To Display System Where The Logged In User Is Administrator/Participant For That System -->
-            <div class="row">
-
-                <!-- Div To Display System Where The Logged In User Is Administrator For That System -->
-                <div class="col-md-6 adminSystem">
-                    <h4>Administrator</h4>
-                    <hr>
-                    {% if admin_systems %}
-                        {% for row in admin_systems %}
-                            <div class="row">
-                                <ul class="pull-left">
-                                    <img src="{{ url_for('social.static', filename='images/default_system_thumbnail.png') }}"
-                                         alt="System" height="32"
-                                         width="32">
-                                </ul>
-                                <br/>
-                                <ul>
-                                    <a href="{{ url_for('social.view_system', system_uid=row.system.system_uid) }}">{{ row.system.name }}</a>
-                                </ul>
-                            </div>
-                        {% endfor %}
-                    {% else %}
-                        <div class="row">
-                            <ul class="pull-left">
-                                <img src="{{ url_for('social.static', filename='images/sad_smiley.png') }}" alt="System"
-                                     height="32"
-                                     width="32">
-                            </ul>
-                            <br/>
-                            <ul>
-                                You are yet to become admin for any system.
-                            </ul>
-                        </div>
-                    {% endif %}
-                </div>
-                <!-- End of Div To Display System Where The Logged In User Is Administrator For That System -->
-
-                <!-- Div To Display System Where The Logged In User Is Participant For That System -->
-                <div class="col-md-6 particpatedSystem">
-
-                    <h4>Participated Systems</h4>
-                    <hr>
-                    {% if participated_systems %}
-                        {% for row in participated_systems %}
-                            <div class="row">
-                                <ul class="pull-left">
-                                    <img src="{{ url_for('social.static', filename='images/default_system_thumbnail.png') }}"
-                                         alt="System" height="32"
-                                         width="32">
-                                </ul>
-                                <br/>
-                                <ul>
-                                    <a href="{{ url_for('social.view_system', system_uid=row.system.system_uid) }}"> {{ row.system.name }} </a>
-                                </ul>
-                            </div>
-                        {% endfor %}
-                    {% else %}
-                        <div class="row">
-                            <ul class="pull-left">
-                                <img src="{{ url_for('social.static', filename='images/sad_smiley.png') }}" alt="System"
-                                     height="32"
-                                     width="32">
-                            </ul>
-                            <br/>
-                            <ul>
-                                You are yet to become participant for any system.
-                            </ul>
-                        </div>
-                    {% endif %}
-
-                </div>
-                <!-- End of Div To Display System Where The Logged In User Is Participant For That System -->
-
-            </div>
-            <!-- End of Div To Display System Where The Logged In User Is Administrator/Participant For That System -->
-
-
-            <br/>
-
-            <!-- Div To Display System Where The Logged In User Is Subscriber/Recommended System For That System -->
-            <div class="row">
-
-                <!-- Div To Display System Where The Logged In User Is Subscriber For That System -->
-                <div class="col-md-6 subscribedSystem">
-                    <h4>Subscribed Systems</h4>
-                    <hr>
-
-                    {% if subscribed_systems %}
-                        {% for row in subscribed_systems %}
-                            <div class="row">
-                                <ul class="pull-left">
-                                    <img src="{{ url_for('social.static', filename='images/default_system_thumbnail.png') }}"
-                                         alt="System" height="32"
-                                         width="32">
-                                </ul>
-                                <br/>
-                                <ul>
-                                    <a href="{{ url_for('social.view_system', system_uid=row.system.system_uid) }}">{{ row.system.name }}</a>
-                                </ul>
-                            </div>
-                        {% endfor %}
-                    {% else %}
-                        <div class="row">
-                            <ul class="pull-left">
-                                <img src="{{ url_for('social.static', filename='images/sad_smiley.png') }}" alt="System"
-                                     height="32"
-                                     width="32">
-                            </ul>
-                            <br/>
-                            <ul>
-                                You are yet to become subscriber for any system.
-                            </ul>
-                        </div>
-                    {% endif %}
-
-                </div>
-                <!-- End of Div To Display System Where The Logged In User Is Subscriber For That System -->
-
-                <!-- Div To Display Recommended System -->
-                <div class="col-md-6 recommendedSystem">
-
-                    <h4>Recommended Systems</h4>
-                    <hr>
-
-                    {% if recommended_systems %}
-                        {% for row in recommended_systems %}
-                            <div class="row">
-                                <ul class="pull-left">
-                                    <img src="{{ url_for('social.static', filename='images/default_system_thumbnail.png') }}"
-                                         alt="System" height="32"
-                                         width="32">
-                                </ul>
-                                <br/>
-                                <ul>
-                                    <a href="{{ url_for('social.view_system', system_uid=row.system.system_uid) }}">{{ row.system.name }}</a>
-                                </ul>
-                            </div>
-                        {% endfor %}
-                    {% else %}
-                        <div class="row">
-                            <ul class="pull-left">
-                                <img src="{{ url_for('social.static', filename='images/sad_smiley.png') }}" alt="System"
-                                     height="32"
-                                     width="32">
-                            </ul>
-                            <br/>
-                            <ul>
-                                Sorry, We did not find any recommended system.
-                            </ul>
-                        </div>
-                    {% endif %}
-
-                </div>
-                <!-- End of Div To Display Recommended System -->
-
-                <br/>
-                <br/>
-
-            </div>
-            <!-- End of Div To Display System Where The Logged In User Is Subscriber/Recommended For That System -->
-
         </div>
-        <!-- End of My Systems Div -->
-
-
-        <!-- All Systems Div -->
-        <div class="row" id="allSystemsTab">
-            <!-- Search Results Div -->
-            <div class="row allSystemResults">
-                {% if all_systems %}
-                    {% for row in all_systems %}
-                        <div class="row">
-                            <ul class="pull-left">
-                                <img src="{{ url_for('social.static', filename='images/default_system_thumbnail.png') }}"
-                                     alt="System" height="32"
-                                     width="32">
-                            </ul>
-                            <br/>
-                            <ul>
-                                <a href="{{ url_for('social.view_system', system_uid=row.system.system_uid) }}">{{ row.system.name }}</a>
-                            </ul>
-                        </div>
-                    {% endfor %}
-                {% else %}
-                    <div class="row">
-                        <ul class="pull-left">
-                            <img src="{{ url_for('social.static', filename='images/sad_smiley.png') }}" alt="System"
-                                 height="32"
-                                 width="32">
-                        </ul>
-                        <br/>
-                        <ul>
-                            Sorry, there are no system in the database.
-                        </ul>
-                    </div>
-                {% endif %}
-            </div>
-            <!-- End of Search Results Div -->
-        </div>
-        <!-- End of All Systems Div -->
 
     </div>
-    <!-- End of Entire Page Div Container -->
 
-    <br/><br/>
 {% endblock %}
 
 {% block scripts %}

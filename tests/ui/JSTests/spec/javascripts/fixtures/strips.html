@@ -1,0 +1,86 @@
+<div class="col-sm-9">
+    <h3>Input Measurements</h3>
+
+    <div ng-controller="MeasurementController">
+        <div class="form-group">
+            <label for="measure-id">Measurement Type:</label>
+            <select class="form-control ng-valid ng-not-empty ng-dirty ng-valid-parse ng-touched"
+                    ng-model="measure.measurement_id" id="measure-id">
+                <option value="1">Alkalinity</option>
+                <option value="2">Ammonium</option>
+                <option value="3">Chlorine</option>
+                <option value="4">Hardness</option>
+                <option value="5">Light</option>
+                <option value="6">Nitrate</option>
+                <option value="7">Nitrite</option>
+                <option value="8">Dis. Oxygen</option>
+                <option value="9">pH</option>
+                <option value="10">Temperature</option>
+            </select>
+            <hr>
+        </div>
+        <form ng-show="measure.measurement_id" ng-switch="" on="measure.measurement_id"
+              class="ng-pristine ng-invalid ng-invalid-required ng-valid-pattern">
+            <span class="hidden" id="UID">c66133e8083511e69617000c29b92d09</span>
+            <div class="form-group">
+                <label for="measure-datetime">Date &amp; Time</label>
+                <input class="form-control ng-pristine ng-untouched ng-empty ng-invalid ng-invalid-required"
+                       type="datetime-local" id="measure-datetime" name="measure-date" ng-model="measure.time"
+                       required="">
+            </div>
+
+            <!-- ngSwitchWhen: 1 -->
+
+            <!-- ngSwitchWhen: 2 -->
+            <div ng-switch-when="2" class="ng-scope">
+                <div class="form-group">
+                    <label for="nh4-strip">Strip Color</label>
+                    <div id="nh4-strip" class="form-control nh4-strip">
+                        <div id="nh4-picker" class="strip-picker" style="left: 100px;"></div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="nh4-preview">Preview</label>
+                    <div id="nh4-preview" class="form-control nh4-preview"></div>
+                </div>
+            </div><!-- end ngSwitchWhen: -->
+
+            <!-- ngSwitchWhen: 3 -->
+
+            <!-- ngSwitchWhen: 4 -->
+
+            <!-- ngSwitchWhen: 6 -->
+
+            <!-- ngSwitchWhen: 7 -->
+
+            <!-- ngSwitchWhen: 9 -->
+
+            <div class="form-group">
+                <label for="measure-value">Value</label>
+                <div class="input-group">
+                    <input id="measure-value"
+                           class="form-control ng-pristine ng-untouched ng-valid ng-empty ng-valid-pattern"
+                           name="measure-value" type="number" pattern="[0-9]+(.[0-9]+)?" style="text-align: right;"
+                           placeholder="0.0" step="0.001" aria-describedby="addon" ng-model="measure.value">
+                    <!-- ngSwitchWhen: 5 -->
+                    <!-- ngSwitchWhen: 10 -->
+                    <!-- ngSwitchDefault:  -->
+                </div>
+            </div>
+
+            <div ng-show="message" class="alert alert-warning alert-dismissable ng-hide" role="alert">
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">×</span>
+                </button>
+                Measurement has been added!
+            </div>
+            <!-- button panel -->
+            <div class="form-group">
+                <div class="col-sm-10">
+                    <button type="submit" class="btn btn-green" ng-click="addMeasurement(measure)">Submit
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>

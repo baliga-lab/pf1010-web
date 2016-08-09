@@ -5,12 +5,12 @@
 {% block content %}
 
     <div class="container">
-        <h1 class="page-header">Friends</h1>
+        <h3 class="page-header"><i class="fa fa-users" aria-hidden="true"></i>&nbsp; Friends</h3>
         <ul class="nav nav-tabs">
-            <li><a href="{{ url_for('social.friends') }}">MyFriends</a></li>
-            <li><a href="{{ url_for('social.searchFriends') }}">Search Friends</a></li>
-            <li><a href="{{ url_for('social.pendingRequest') }}">Pending Requests</a></li>
-            <li class="active"><a href="recofriends.html">Recommended Friends</a></li>
+            <li><a href="{{ url_for('social.friends') }}"><span class="glyphicon glyphicon-user" aria-hidden="true"></span>&nbsp;MyFriends</a></li>
+            <li><a href="{{ url_for('social.searchFriends') }}"><span class="glyphicon glyphicon-search" aria-hidden="true"></span>&nbsp;Search Friends</a></li>
+            <li><a href="{{ url_for('social.pendingRequest') }}"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span>&nbsp;Pending Requests</a></li>
+            <li class="active"><a href="{{ url_for('social.recofriends') }}"><span class="glyphicon glyphicon-star" aria-hidden="true"></span>&nbsp;Recommended Friends</a></li>
         </ul>
 
         <table class="table">
@@ -28,7 +28,7 @@
                     <tbody>
                     {% for row in recolist %}
                         <tr>
-                            <td><img src="{{ url_for('frontend.static', filename='images/users/vileplume.png') }}"></td>
+                            <td><img src="{{ row['r_friend'].friend_image }}" class="img-circle" alt="User Image" width="60" height="60"></td>
                             <td>
                                 <a href="profile/{{ row['r_friend'].gid }}">{{ row['r_friend'].FriendName }}</a>
                                 {% if (row['r_friend'].Num_Mutual_Friends) == 1 %}
@@ -60,7 +60,7 @@
                         </ul>
                         <br/>
                         <ul>
-                            Oops! Your friends have no recommended friends!
+                            Oops! Please search add some friends first to get recommended friends!
                         </ul>
                     </div>
                 {% endif %}

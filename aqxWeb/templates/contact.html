@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block title %}Contact Us{% endblock %}
+
+{% block content %}
+        <h1 class="page-header">Contact Us</h1>
+        <address>
+            <img src="{{ url_for('frontend.static', filename='images/pflogo.png') }}" height="100"><br><br>
+            401 Terry Ave N<br>
+            Seattle, WA 98109<br>
+            <abbr title="Email">E:</abbr> <a href="mailto:projectfeed1010@systemsbiology.org">projectfeed1010@systemsbiology.org</a>
+        </address>
+        <h3>Questions? Feedback?</h3>
+        <p>What do like about this site? How could we make it better? All comments and suggestions are very welcome and will be a valuable source of information for us!
+        <br><br>
+        Do you have any specific questions? Please don't hesitate to drop us a line!</p>
+{% endblock %}
+
+{% block scripts %}
+    {{ super() }}
+{% endblock %}

@@ -1,0 +1,23 @@
+{% block content %}
+    <div id="systems">
+        <h3>
+            Systems
+            <a href="{{ url_for('frontend.create_system_page') }}" class="btn btn-blue btn-xs">
+                <i class="fa fa-plus"></i>Create
+            </a>
+        </h3>
+        <ul class="nav nav-pills nav-stacked">
+            {% if admin_systems %}
+                {% for row in admin_systems %}
+                    <li>
+                        <a href="{{ url_for('frontend.sys_measurements', system_uid=row.system.system_uid) }}">{{ row.system.name }}</a>
+                    </li>
+                {% endfor %}
+            {% else %}
+                <li>
+                    None.
+                </li>
+            {% endif %}
+        </ul>
+    </div>
+{% endblock %}

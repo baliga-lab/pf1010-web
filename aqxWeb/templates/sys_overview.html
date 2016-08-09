@@ -1,0 +1,116 @@
+{% extends "base.html" %}
+
+{% block styles %}
+    {{ super() }}
+    <link rel="stylesheet" type="text/css" href="{{ url_for('frontend.static', filename='css/system.css') }}">
+{% endblock %}
+
+{% block title %}{{ metadata.name }} Overview{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <div class="row">
+            <div class="col-md-2">
+                <ul class="nav nav-stacked">
+                    <li id="overview-li">
+                        <a href="{{ url_for("frontend.sys_overview", system_uid=metadata.UID) }}"
+                           title="Overview">Overview</a>
+                    </li>
+                    {% if metadata.user == session['uid'] %}
+                        <li id="measurement-li" class="active">
+                            <a href="{{ url_for("frontend.sys_measurements", system_uid=metadata.UID) }}"
+                               title="Measurement">Measurements</a>
+                        </li>
+                        <li id="annotate-li">
+                            <a href="{{ url_for("frontend.sys_annotations", system_uid=metadata.UID) }}"
+                               title="Annotations">Annotations <span class="sr-only">(current)</span></a>
+                        </li>
+                        <li id="social-li"><a
+                                href="{{ url_for("social.view_system", system_uid=metadata.UID) }}" title="Social">
+                            Social</a>
+                        </li>
+                    {% endif %}
+                    <li id="analytics-li">
+                        <a href="{{ url_for('dav.system_analyze', system_uid=metadata.UID) }}" title="Analytics">Analytics</a>
+                    </li>
+                </ul>
+            </div>
+            <div class="col-md-7">
+                <h2>System Snapshot</h2>
+                <hr>
+                <h3>{{ metadata.name }}</h3>
+                <div class="row">
+                    <div class="col-xs-12">
+                        <p><strong>Date Created:</strong> {{ metadata.startDate }}</p>
+                        <p><strong>Aquaponics Technique:</strong> {{ metadata.technique }}</p>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-4">
+                        <h4 class="page-header">Growbed-Media</h4>
+                        <table class="table">
+                            <tbody>
+                            {% for media in metadata.gbMedia %}
+                                <tr>
+                                    <td class="col-xs-12">{{ media.name }}</td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="col-md-4">
+                        <h4 class="page-header">Crop(s)</h4>
+                        <table class="table">
+                            <tbody>
+                            {% for crop in metadata.crops %}
+                                <tr>
+                                    <td class="col-xs-10">{{ crop.name }}</td>
+                                    <td>{{ crop.count }}</td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="col-md-4">
+                        <h4 class="page-header">Organism(s)</h4>
+                        <table class="table">
+                            <tbody>
+                            {% for org in metadata.organisms %}
+                                <tr>
+                                    <td class="col-xs-10">{{ org.name }}</td>
+                                    <td>{{ org.count }}</td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <h4>Latest Readings</h4>
+                <hr>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Type</th>
+                            <th>Value</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for reading in readings %}
+                            <tr>
+                                <td>{{ reading.name }}</td>
+                                <td>{{ reading.value }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
+
+{% block scripts %}
+    {{ super() }}
+{% endblock scripts %}

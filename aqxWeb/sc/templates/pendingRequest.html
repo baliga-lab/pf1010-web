@@ -5,20 +5,19 @@
 {% block content %}
 
     <div class="container">
-        <h1 class="page-header">Friends</h1>
+        <h3 class="page-header"><i class="fa fa-users" aria-hidden="true"></i>&nbsp; Friends</h3>
         <ul class="nav nav-tabs">
-            <li><a href="{{ url_for('social.friends') }}">MyFriends</a></li>
-            <li><a href="{{ url_for('social.searchFriends') }}">Search Friends</a></li>
-            <li class="active"><a href="pendingRequest.html">Pending Requests</a></li>
-            <li><a href="{{ url_for('social.recofriends') }}">Recommended Friends</a></li>
+            <li><a href="{{ url_for('social.friends') }}"><span class="glyphicon glyphicon-user" aria-hidden="true"></span>&nbsp;MyFriends</a></li>
+            <li><a href="{{ url_for('social.searchFriends') }}"><span class="glyphicon glyphicon-search" aria-hidden="true"></span>&nbsp;Search Friends</a></li>
+            <li class="active"><a href="{{ url_for('social.pendingRequest') }}"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span>&nbsp;Pending Requests</a></li>
+            <li><a href="{{ url_for('social.recofriends') }}"><span class="glyphicon glyphicon-star" aria-hidden="true"></span>&nbsp;Recommended Friends</a></li>
         </ul>
 
         <table class="table">
 
             <!-- Search Results Div -->
             <div class="row">
-                <h4>Pending Friend Requests:</h4>
-                <hr>
+                <br>
                 {% if pendingRequests %}
                     <thead>
                     <tr>
@@ -30,15 +29,15 @@
                     <tbody>
                     {% for row in pendingRequests %}
                         <tr>
-                            <td><img src="{{ url_for('frontend.static', filename='images/users/vileplume.png') }}"></td>
-                            <td>{{ row.n.displayName }}</td>
+                            <td><img src="{{ row.n.image_url }}" class="img-circle" alt="User Image" width="60" height="60"></td>
+                            <td><a href="profile/{{ row.n.google_id }}">{{ row.n.displayName }}</a></td>
                             <td>
                                 <a type="button"
-                                   href={{ url_for('social.accept_friend_request', u_sql_id=row.n.sql_id) }}  class="btn
-                                   btn-primary">Confirm</button>
+                                   href="{{ url_for('social.accept_friend_request', u_sql_id=row.n.sql_id) }}"  class="btn
+                                   btn-grey">Confirm</a>
                                 <a type="button"
-                                   href={{ url_for('social.decline_friend_request', u_sql_id=row.n.sql_id) }} class="btn
-                                   btn-primary">Delete</button>
+                                   href="{{ url_for('social.decline_friend_request', u_sql_id=row.n.sql_id) }}" class="btn
+                                   btn-grey">Delete</a>
                             </td>
                         </tr>
 
@@ -48,14 +47,14 @@
                 {% else %}
                     <div class="row">
                         <ul class="pull-left">
-                            <img src="{{ url_for('social.static', filename='images/sad_smiley.png') }}"
-                                 alt="FriendRequest"
-                                 height="32"
-                                 width="32">
+                            <span class="fa-stack fa-2x">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa fa-meh-o fa-stack-1x fa-inverse"></i>
+                            </span>
                         </ul>
                         <br/>
                         <ul>
-                            Oops! No Pending Friend Requests!
+                            Oops! You have no Pending Friend Requests!
                         </ul>
                     </div>
                 {% endif %}

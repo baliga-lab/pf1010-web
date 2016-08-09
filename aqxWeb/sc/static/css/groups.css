@@ -1,0 +1,16 @@
+
+.recommendedGroups {
+    overflow-y: auto;
+    overflow-x: hidden;
+    height: 250px;
+}
+
+/* Horizontal Rule Styling */
+hr {
+    display: block;
+    border-width: 1px;
+    border-top: 1px solid #001a00;
+}
+
+
+

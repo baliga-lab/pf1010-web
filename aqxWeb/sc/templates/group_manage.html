@@ -1,0 +1,324 @@
+{% extends "base.html" %}
+
+{% block title %}Manage Groups{% endblock %}
+
+{% block styles %}
+    {{ super() }}
+    <link rel="stylesheet" href="{{ url_for('social.static', filename='css/group_manage.css') }}">
+{% endblock %}
+
+{% block content %}
+
+    <!-- Entire Page Div Container -->
+    <div class="container" id="manageGroupsTab">
+        <span>
+            <h3 class="page-header"><i class="fa fa-cog" aria-hidden="true"></i> Manage Group</h3>
+        </span>
+        <ul class="nav nav-tabs" id="tab-headers">
+            <li><a href="#groupInfoTab">Group Info</a></li>
+            <li><a href="#pendingMembersTab">Pending Member(s)</a></li>
+            <li><a href="#adminTab">Admin(s)</a></li>
+            <li><a href="#membersTab">Member(s)</a></li>
+        </ul>
+        <br>
+
+        <!-- groupInfoTab Div -->
+        <div class="container" id="groupInfoTab">
+
+            <form action="{{ url_for('social.update_group_info') }}" method="post"> 
+
+                <input type="hidden" name="group_uid"
+                       value="{{ group_neo4j[0][0]["group_uid"] }}">
+
+                <div class="form-group">
+                      <label for="txtGroupName">Name:</label> 
+                    <input type="text"
+                           class="form-control"
+                           name="name"
+                           id="txtGroupName"  
+                           pattern=".{1,}"
+                           required 
+                           title="Group Name Cannot Be Empty"
+                           value="{{ group_neo4j[0][0]['name'] }}" > </input>
+                </div>
+                 
+                <div class="form-group">
+                      <label for="txtGroupDescription">Description:</label> 
+                    <input type="text"
+                           class="form-control"
+                           name="description"
+                           id="txtGroupDescription"  
+                           pattern=".{1,}"
+                           required 
+                           title="Group Description Cannot Be Empty"
+                           value="{{ group_neo4j[0][0]['description'] }}"> </input>
+                </div>
+                 
+                <div class="form-group"> 
+                    <b>Private Group: &nbsp;</b> 
+                    <label class="radio-inline"> 
+                        <input type="radio"
+                               name="is_private_group"
+                               id="rbYes"
+                               value=true
+                               {% if group_neo4j[0][0]['is_private_group'] is not none
+                                and group_neo4j[0][0]['is_private_group'] == "true" %} 
+                               checked
+                               {% endif %}/>
+                        Yes 
+                    </label> 
+                    <label class="radio-inline"> 
+                        <input type="radio" name="is_private_group" id="rbNo" value=false  
+                               {% if group_neo4j[0][0]['is_private_group'] is not none
+                                and group_neo4j[0][0]['is_private_group'] == "false" %} 
+                               checked {% endif %}/>
+                        No 
+                    </label> 
+                </div>
+                <button type="submit" class="btn btn-primary form-control" value="Save">Save</button>
+            </form>
+        </div>
+        <!-- End of groupInfoTab Div -->
+
+
+        <!-- pendingMembersTab Div -->
+        <div class="container" id="pendingMembersTab">
+
+            <!-- PendingMembersTab Results Div -->
+            <div class="row pendingMemberResults">
+                <!-- Iterate Over The List Of Pending Members -->
+                {% if members_pending_approval %}
+                    <table class="table">
+                        <thead>
+                        <tr class="pendingMembersTableHeader">
+                            <th>Profile Picture</th>
+                            <th>Display Name</th>
+                            <th>Option(s)</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for pending_member in members_pending_approval %}
+                            <tr>
+                                <td>
+                                    <a href="{{ url_for('social.profile', google_id=pending_member[0]["google_id"]) }}">
+                                        <img class="pendingMemberImage img-circle"
+                                             src="{{ pending_member[0]["image_url"] }}">
+                                    </a>
+                                </td>
+                                <td>
+                                    <a href="{{ url_for('social.profile', google_id=pending_member[0]["google_id"]) }}">
+                                        {% if pending_member[0]["displayName"] is not none %}
+                                            {{ pending_member[0]["displayName"] }}
+                                        {% else %}
+                                            No Display Name
+                                        {% endif %}
+                                    </a>
+                                </td>
+                                <td>
+                                    <!-- Form Post To Approve/Reject Pending Member(s) For The Group -->
+                                    <form action="{{ url_for('social.approve_reject_group_member') }}"
+                                          method="post">
+                                        <input type="hidden" name="google_id"
+                                               value="{{ pending_member[0]["google_id"] }}">
+                                        <input type="hidden" name="group_uid"
+                                               value="{{ group_neo4j[0][0]["group_uid"] }}">
+                                        <button type="submit" class="btn btn-success" name="submit"
+                                                value="Approve" onclick="return getUserConsent()">Approve
+                                        </button>
+                                        <button type="submit" class="btn btn-danger" name="submit"
+                                                value="Reject" onclick="return getUserConsent()">Reject
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                    <!-- Sad Smiley When There Exists No Pending Members For The System -->
+                {% else %}
+                    <div class="row">
+                        <ul class="pull-left">
+                            <img src="{{ url_for('social.static', filename='images/sad_smiley.png') }}" alt="System"
+                                 height="32"
+                                 width="32">
+                        </ul>
+                        <br/>
+                        <ul>
+                            Sorry, there are no Pending Member(s) for this group.
+                        </ul>
+                    </div>
+                {% endif %}
+            </div>
+            <!-- End of PendingMembersTab Results Div -->
+
+        </div>
+        <!-- End of pendingMembersTab Div -->
+
+
+        <!-- Manage Admin Div -->
+        <div class="container" id="adminTab">
+
+            <!-- Admin Results Div -->
+            <div class="row adminResults">
+                <!-- Iterate Over The List Of Admins -->
+                {% if group_admins %}
+                    <table class="table">
+                        <thead>
+                        <tr class="adminTableHeader">
+                            <th>Profile Picture</th>
+                            <th>Display Name</th>
+                            <th>Option(s)</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for admin in group_admins %}
+                            <tr>
+                                <td>
+                                    <a href="{{ url_for('social.profile', google_id=admin[0]["google_id"]) }}">
+                                        <img class="adminImage img-circle" src="{{ admin[0]["image_url"] }}">
+                                    </a>
+                                </td>
+                                <td>
+                                    <a href="{{ url_for('social.profile', google_id=admin[0]["google_id"]) }}">
+                                        {% if admin[0]["displayName"] is not none %}
+                                            {{ admin[0]["displayName"] }}
+                                        {% else %}
+                                            No Display Name
+                                        {% endif %}
+                                    </a>
+                                </td>
+                                <td>
+                                    <!-- Form Post For Delete Of Admin(s) or Make Him/Her Just Member For The Group -->
+                                    <form action="{{ url_for('social.delete_group_admin_or_make_member') }}" method="post">
+                                        <input type="hidden" name="google_id"
+                                               value="{{ admin[0]["google_id"] }}">
+                                        <input type="hidden" name="group_uid"
+                                               value="{{ group_neo4j[0][0]["group_uid"] }}">
+                                        <!-- Self Removing Admin Privileges Is Prevented -->
+                                        {% if admin[0]["sql_id"] != logged_in_user["sql_id"] %}
+                                            <button type="submit" class="btn btn-success" name="submit"
+                                                    value="MakeMember" onclick="return getUserConsent()">Make Member
+                                            </button>
+                                            <button type="submit" class="btn btn-danger" name="submit"
+                                                    value="DeleteAdmin" onclick="return getUserConsent()">Delete
+                                            </button>
+                                        {% endif %}
+                                    </form>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                    <!-- Sad Smiley When There Exists No Admin For The System -->
+                {% else %}
+                    <div class="row">
+                        <ul class="pull-left">
+                            <img src="{{ url_for('social.static', filename='images/sad_smiley.png') }}" alt="System"
+                                 height="32"
+                                 width="32">
+                        </ul>
+                        <br/>
+                        <ul>
+                            Sorry, there are no Admin(s) for this group.
+                        </ul>
+                    </div>
+                {% endif %}
+            </div>
+            <!-- End Of Admin Results Div -->
+
+        </div>
+        <!-- End Of Manage Admin Div -->
+
+
+        <!-- Manage Members Div -->
+        <div class="container" id="membersTab">
+
+            <!-- Members Result Div -->
+            <div class="row memberResults">
+                <!-- Iterate Over The List Of Participants -->
+                {% if group_members %}
+                    <table class="table">
+                        <thead>
+                        <tr class="memberTableHeader">
+                            <th>Profile Picture</th>
+                            <th>Display Name</th>
+                            <th>Option(s)</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for member in group_members %}
+                            <tr>
+                                <td>
+                                    <a href="{{ url_for('social.profile', google_id=member[0]["google_id"]) }}">
+                                        <img class="memberImage img-circle"
+                                             src="{{ member[0]["image_url"] }}">
+                                    </a>
+                                </td>
+                                <td>
+                                    <a href="{{ url_for('social.profile', google_id=member[0]["google_id"]) }}">
+                                        {% if member[0]["displayName"] is not none %}
+                                            {{ member[0]["displayName"] }}
+                                        {% else %}
+                                            No Display Name
+                                        {% endif %}
+                                    </a>
+                                </td>
+                                <td>
+                                    <!-- Form Post For Delete Of Member(s) or Make Admin For The Group -->
+                                    <form action="{{ url_for('social.delete_group_member_or_make_admin') }}"
+                                          method="post">
+                                        <input type="hidden" name="google_id"
+                                               value="{{ member[0]["google_id"] }}">
+                                        <input type="hidden" name="group_uid"
+                                               value="{{ group_neo4j[0][0]["group_uid"] }}">
+                                        <button type="submit" class="btn btn-success" name="submit"
+                                                value="MakeAdmin" onclick="return getUserConsent()">Make Admin
+                                        </button>
+                                        <button type="submit" class="btn btn-danger" name="submit"
+                                                value="DeleteMember" onclick="return getUserConsent()">Delete
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                    <!-- Sad Smiley When There Exists No Participants For The System -->
+                {% else %}
+                    <div class="row">
+                        <ul class="pull-left">
+                            <img src="{{ url_for('social.static', filename='images/sad_smiley.png') }}" alt="System"
+                                 height="32"
+                                 width="32">
+                        </ul>
+                        <br/>
+                        <ul>
+                            Sorry, there are no Member(s) for this group.
+                        </ul>
+                    </div>
+                {% endif %}
+            </div>
+            <!-- End Of Members Result Div -->
+
+
+        </div>
+        <!-- End Of Manage Members Div -->
+
+        <!-- Span For Go Back To Group Page Button -->
+        <span>
+            <a href="{{ url_for('social.view_group', group_uid= group_neo4j[0][0]["group_uid"]) }}">
+                <h4 class="page-header"><i class="fa fa-chevron-left" aria-hidden="true"></i> Back To Group</h4>
+            </a>
+        </span>
+        <!-- End Of Span For Go Back To Group Page Button -->
+    </div>
+    <!-- End of Entire Page Div Container -->
+
+    <br/><br/>
+{% endblock %}
+
+{% block scripts %}
+    {{ super() }}
+    <!-- jQuery Script For DOM Manipulation In Manage Group Page -->
+    <script type="text/javascript" src="{{ url_for('social.static', filename='js/group_manage.js') }}"></script>
+{% endblock %}

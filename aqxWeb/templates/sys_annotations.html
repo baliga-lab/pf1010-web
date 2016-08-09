@@ -1,0 +1,208 @@
+{% extends "base.html" %}
+
+{% block styles %}
+    {{ super() }}
+    <link rel="stylesheet" type="text/css" href="{{ url_for('frontend.static', filename='css/system.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('frontend.static', filename='css/annotations.css') }}">
+{% endblock %}
+
+{% block title %}{{ metadata.name }} Annotations{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <div class="row">
+            {% if metadata.user == session['uid'] %}
+                <div class="col-md-2">
+                    <ul class="nav nav-stacked">
+                        <li id="overview-li">
+                            <a href="{{ url_for("frontend.sys_overview", system_uid=metadata.UID) }}"
+                               title="Overview">Overview</a>
+                        </li>
+                        <li id="measurement-li" class="active">
+                            <a href="{{ url_for("frontend.sys_measurements", system_uid=metadata.UID) }}"
+                               title="Measurement">Measurements</a>
+                        </li>
+                        <li id="annotate-li">
+                            <a href="{{ url_for("frontend.sys_annotations", system_uid=metadata.UID) }}"
+                               title="Annotations">Annotations <span class="sr-only">(current)</span></a>
+                        </li>
+                        <li id="social-li"><a
+                                href="{{ url_for("social.view_system", system_uid=metadata.UID) }}" title="Social">
+                            Social</a>
+                        </li>
+                        <li id="analytics-li">
+                            <a href="{{ url_for('dav.system_analyze', system_uid=metadata.UID) }}" title="Analytics">Analytics</a>
+                        </li>
+                    </ul>
+                </div>
+                <div class="col-md-10" ng-controller="AnnotationController">
+                    <h2>Add Annotations</h2>
+                    <hr>
+                    <form id="myForm" class="appnitro" method="post" action="">
+                        <ul>
+                            <li id="li_1">
+                                <label class="description" for="mySelect">Select the details</label>
+                                <div>
+                                    <span class="hidden" id="ID">{{ metadata.ID }}</span>
+                                    <select name="mySelect" id="mySelect" class="form-control">
+                                        <option value="Choose">Choose Annotation</option>
+                                        <option value="ph">pH</option>
+                                        <option value="harvest">Harvest</option>
+                                        <option value="fish">Fish</option>
+                                        <option value="plant">Plant</option>
+                                        <option value="bacteria">Bacteria</option>
+                                        <option value="cleantank">Clean Tank</option>
+                                        <option value="reproduction">Reproduction</option>
+                                    </select>
+                                </div>
+                            </li>
+                            <br/>
+                            <li>
+                                <div id="otherType1" style="display:none;">
+                    <span class="segmented">
+                        <label style="display: inline; font-size: 100%;font-weight: 200;">
+                            <input type="radio"
+                                   name="seg1"
+                                   value="Add"/><span class="label" id="changeAdd">Add</span>
+                        </label>
+                        <label style="display: inline;font-size: 100%;font-weight: 200;">
+                            <input type="radio" name="seg1" value="Remove"/><span class="label"
+                                                                                  id="changeRemove">Remove</span>
+                        </label>
+                    </span>
+                                </div>
+                                <div id="otherType2" style="display:none;">
+                    <span class="segmented" style="font-size:90%;">
+                        <label style="display: inline;font-size: 100%;font-weight: 200;">
+                            <input type="radio" name="seg2"
+                                   value="High"/><span class="label">Added Base</span>
+                        </label>
+                        <label style="display: inline;font-size: 100%;font-weight: 200;">
+                            <input type="radio" name="seg2"
+                                   value="Low"/><span class="label">Added Acid</span>
+                        </label>
+                    </span>
+                                </div>
+                                <div id="otherType3" style="display:none;">
+                    <span class="segmented">
+                        <label style="display: inline;font-size: 100%;font-weight: 200;">
+                            <input type="radio" name="seg3"
+                                   value="Yes"/><span class="label"
+                                                      style="border-radius: 10px 10px 10px 10px !important;"
+                                                      id="changeYes">Yes</span>
+                        </label>
+                    </span>
+                                </div>
+                                <div id="otherType4" style="display:none;">
+                    <span class="segmented">
+                        <label style="display: inline;font-size: 100%;font-weight: 200;">
+                            <input type="radio" name="seg4"
+                                   value="harvestPlant"/><span class="label">Plant Harvested</span>
+                        </label>
+                        <label style="display: inline;font-size: 100%;font-weight: 200;">
+                            <input type="radio" name="seg4"
+                                   value="harvestFish"/><span class="label">Fish Harvested</span>
+                        </label>
+                    </span>
+                                </div>
+                                <div id="otherType5" style="display:none;">
+                    <span class="segmented">
+                        <label style="display: inline;font-size: 100%;font-weight: 200;">
+                            <input type="radio" name="seg5"
+                                   value="justAdd"/><span class="label"
+                                                          style="border-radius: 10px 10px 10px 10px !important;"
+                                                          id="changeJustAdd">Add</span>
+                        </label>
+                    </span>
+                                </div>
+
+                                <div id="harvestPlantInfo" class="collapse">
+                                    <br/>
+                                    You have removed a portion of one or more
+                                    plants without fully removing the entire plant and roots. If you have removed one or
+                                    more entire plants (including roots) from your system, select "Plant" and then the
+                                    "Remove plant" annotation.
+                                </div>
+                                <div id="harvestFishInfo" class="collapse">
+                                    <br/>
+                                    You have removed one or more healthy fish for
+                                    consumption or to reduce nutrients in your system.
+                                </div>
+                                <div id="fishAddInfo" class="collapse">
+                                    <br/>
+                                    You have added one or more healthy fish to your
+                                    system.
+                                </div>
+                                <div id="fishRemoveInfo" class="collapse">
+                                    <br/>
+                                    You have removed one or more fish to terminate
+                                    your system or take out sick fish.
+                                </div>
+                                <div id="plantAddInfo" class="collapse">
+                                    <br/>
+                                    You have added one or more plants to your system.
+                                </div>
+                                <div id="plantRemoveInfo" class="collapse">
+                                    <br/>
+                                    You have removed one or more entire plants (including roots) from your system. If
+                                    you have simply removed part of the plant growth for consumption, select Harvest and
+                                    then the Plant harvested annotation.
+                                </div>
+                                <div id="phHighInfo">
+                                    <br/>
+                                    You have determined your system is too acidic and
+                                    you have added base to increase the pH.
+                                </div>
+                                <div id="phLowInfo">
+                                    <br/>
+                                    You have determined your system is too basic and
+                                    you have added acid to decrease the pH.
+                                </div>
+                                <div id="bacteriaAddInfo" class="collapse">
+                                    <br/>
+                                    You have decided to add bacteria to your
+                                    system to aid in the nitrification process.
+                                </div>
+                                <div id="cleanTankYesInfo" class="collapse">
+                                    <br/>
+                                    You have performed an activity to clean the tank.
+                                </div>
+                                <div id="reproductionYesInfo" class="collapse">
+                                    <br/>
+                                    You have determined that one or more of your fish has reproduced.
+                                </div>
+                            </li>
+
+                            <br/>
+                            <br/>
+                            <li>
+                                <div>
+                                    <label for="recordedDateAndTime"><b>Record Time*</b> </label><br/>
+                                    <input type="datetime-local" name="recordedDateAndTime" id="recordedDateAndTime"
+                                           style="margin-left: 1px;" required/>
+                                </div>
+                            </li>
+                            <br/>
+                            <br/>
+                            <li>
+                                <input type="text" name="number" id="number"/>
+                            </li>
+                        </ul>
+                        <br/>
+                        <button class="btn btn-green" type="button" ng-click="dataSubmit()">Submit</button>
+                    </form>
+
+                </div>
+                </div>
+            {% else %}
+                <h3>Oops! Looks like this isn't your system.</h3>
+                <p>Please hit the 'Back' key or go to 'Home'</p>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}
+
+{% block scripts %}
+    {{ super() }}
+    <script src="{{ url_for('frontend.static', filename='js/annotation.js') }}"></script>
+{% endblock scripts %}

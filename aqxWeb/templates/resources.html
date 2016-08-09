@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+
+{% block title %}Resources{% endblock %}
+
+
+{% block content %}
+    <h1 class="page-header">Resources</h1>
+    <div class="row">
+        <div class="col-sm-12">
+            <p>Click on any of the links below to start downloading!</p>
+            <h4>General</h4>
+            <ul class="list">
+                <li>
+                    <a href="{{ url_for("frontend.static", filename='docs/Funding.xlsx') }}">Funding Options</a>
+                </li>
+                <li>
+                    <a href="{{ url_for("frontend.static", filename='docs/Links_Contacts.doc') }}">Helpful Websites and Contacts</a>
+                </li>
+            </ul>
+            <h4>Building Aquaponics Systems</h4>
+            <strong>2' x 4' Systems</strong>
+            <ul class="list">
+                <li>
+                    <a href="{{ url_for("frontend.static", filename='docs/4x4drawings.pdf') }}">2' x 4' Design Drawings</a>
+                </li>
+                <li>
+                    <a href="{{ url_for("frontend.static", filename='docs/2x4materials.xlsx') }}">2' x 4' Design Materials List</a>
+                </li>
+                <li>
+                    <a href="{{ url_for("frontend.static", filename='docs/2x4donor.xlsx') }}">2' x 4' Design Materials List per DonorsChoose</a>
+                </li>
+                <li>
+                    <a href="{{ url_for("frontend.static", filename='docs/2x4manual.docx') }}">2' x 4' Design Table Instructions</a>
+                </li>
+            </ul>
+            <strong>4' x 4' Systems</strong>
+            <ul class="list">
+                <li>
+                    <a href="{{ url_for("frontend.static", filename='docs/4x4drawings.pdf') }}">4' x 4' Design Drawings</a>
+                </li>
+                <li>
+                    <a href="{{ url_for("frontend.static", filename='docs/4x4materials.xlsx') }}">4' x 4' Design Materials List</a>
+                </li>
+                <li>
+                    <a href="{{ url_for("frontend.static", filename='docs/4x4donor.xlsx') }}">4' x 4' Design Materials List per DonorsChoose</a>
+                </li>
+                <li>
+                    <a href="{{ url_for("frontend.static", filename='docs/4x4manual.docx') }}">4' x 4' Design Table Instructions</a>
+                </li>
+            </ul>
+            <h4>Lessons Planning</h4>
+            <ul>
+                <li>
+                    <a href="{{ url_for('frontend.static', filename='docs/lesson_plan.docx') }}">Lesson Plan/Activity Outline</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+{% endblock %}
+
+{% block scripts %}
+    {{ super() }}
+{% endblock %}

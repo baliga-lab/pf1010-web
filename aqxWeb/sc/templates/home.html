@@ -10,37 +10,26 @@
 
 {% block content %}
     {% if session.uid %}
-    <div class="row">
-        {# SIDEBAR #}
-        <div class="col-sm-3">
-            <h3 style="margin-top: 0">Weather
-                <button class="js-geolocation btn btn-blue btn-xs">Use Your Location</button>
-            </h3>
-            <div id="weather"></div>
-            <div id="systems">
-                <h3>Update Systems</h3>
-                <ul class="nav nav-pills nav-stacked">
-                    <li><a href="{{ url_for('frontend.system') }}">System A</a></li>
-                    <li><a href="{{ url_for('frontend.add_system') }}">+ Add system...</a></li>
-
-                </ul>
-                <a href="{{ url_for('frontend.coming') }}" class="pull-right">See all systems</a>
+        <div class="row">
+            {# SIDEBAR #}
+            <div class="col-sm-3 hidden-sm hidden-xs">
+                <h3>
+                Weather
+                </h3>
+                <div id="weather"></div>
+                <hr>
+                {% include "sidebar.html" %}
             </div>
-            <div id="badges">
-                <h3>Badges</h3>
-                <p>Sorry, looks like you haven't earned any badges yet!</p>
+
+            {# NEWSFEED #}
+            <div class="col-sm-9">
+                {% include "post_form.html" %}
+
+                <h3>Recent Posts</h3>
+                {% include "display_posts.html" %}
             </div>
-        </div>
-
-        {# NEWSFEED #}
-        <div class="main col-sm-9">
-            {% include "post_form.html" %}
-
-            <h3>Recent Posts</h3>
-            {% include "display_posts.html" %}
         </div>
     {% endif %}
-    </div>
 
 {% endblock %}
 
@@ -48,18 +37,6 @@
     {{ super() }}
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.simpleWeather/3.1.0/jquery.simpleWeather.min.js"></script>
     <script src="{{ url_for('frontend.static', filename='js/weather.js') }}"></script>
-    <script src="{{ url_for('frontend.static', filename='js/newsfeed.js') }}"></script>
-    <script>
-        $("#addUrl").click(function () {
-            var link = $("#new_link").val();
-            if (link.length > 0) {
-                $(".links").empty();
-                $(".links").append("<a href='" + link + "'>" + link + "</a>");
-                $(".links").append("<input type='hidden' name='link' value='" + link + "'/><br/>");
-                $("#add_link").attr("disabled", "disabled");
-            }
-        });
-    </script>
     <!-- jQuery Script To Display Logged In User Profile Details -->
     <script type="text/javascript" src="{{ url_for('social.static', filename='js/home.js') }}"></script>
 {% endblock %}

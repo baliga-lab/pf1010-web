@@ -1,12 +1,13 @@
 # DAO for systems table
-
-
+import MySQLdb
 class SystemsDAO:
 
-    # constructor
-    def __init__(self, conn):
-        self.conn = conn
+    def __init__(self, app):
+        self.app = app
 
+    def getDBConn(self):
+        return MySQLdb.connect(host=self.app.config['HOST'], user=self.app.config['USER'],
+                               passwd=self.app.config['PASS'], db=self.app.config['DB'])
     ###############################################################################
     # get_system_name(system_uid) - It takes in the system_uid as the input
     #                            parameter and returns the metadata for the
@@ -14,15 +15,19 @@ class SystemsDAO:
     #                            the name of the system.
     # param system_uid : system's UID
     def get_system_name(self, system_uid):
-        cursor = self.conn.cursor()
+        conn = self.getDBConn()
+        cursor = conn.cursor()
         query = "SELECT name FROM systems WHERE system_uid = %s"
 
         try:
             cursor.execute(query, (system_uid,))
             result, = cursor.fetchall()
-
+        except Exception as e:
+            error = {'error': e.message}
+            return error
         finally:
             cursor.close()
+            conn.close()
 
         return result[0]
 
@@ -30,8 +35,10 @@ class SystemsDAO:
     # get_all_systems_info() - It returns the system information as a JSON
     #                          object.
     def get_all_systems_info(self):
-        cursor = self.conn.cursor()
+        conn = self.getDBConn()
+        cursor = conn.cursor()
         query = ("SELECT s.system_uid, s.user_id, s.name, s.start_date, s.location_lat, location_lng, "
+                 "s.status,"
                  "aqt.name as 'aqx_technique', "
                  "gm.name as 'growbed_media', "
                  "cr.name as 'crop_name', "
@@ -53,10 +60,6 @@ class SystemsDAO:
 
         finally:
             cursor.close()
-            self.conn.close()
+            conn.close()
 
         return rows
-
-    # Destructor to close the self connection
-    def __del__(self):
-        self.conn.close()

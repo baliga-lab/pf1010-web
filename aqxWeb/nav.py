@@ -1,4 +1,4 @@
-from flask import session
+from flask import session, url_for
 from flask_nav import Nav
 from flask_nav.elements import Navbar, View, Subgroup, Link, Text, Separator, RawTag
 from flask_bootstrap.nav import BootstrapRenderer
@@ -39,20 +39,20 @@ class SidedLink(Link):
         self.dest = dest
         self.left = left
 
-class SidedSearchBox(RawTag):
-    def __init__(self, left):
-        self.content = 'searchBox'
-        self.left = left
-
 
 @nav.navigation('guest')
 def guest():
     return Navbar(
         SidedViewImage('https://aquaponics.systemsbiology.net/static/images/pflogo2.png', 'Project Feed 1010', True, 'frontend.index'),
-        SidedLink('Login with Google+', 'social/Home', False),
+        SidedLink('Login with Google+', '/social/Home', False),
         View('Home', 'frontend.index'),
         View('About', 'frontend.about'),
-        View('Explore', 'dav.explore')
+        View('Explore', 'dav.explore'),
+        Subgroup('Education',
+            View('Curriculum', 'frontend.curriculum'),
+            View('Resources', 'frontend.resources')
+        ),
+        View('Questions?', 'frontend.contact'),
     )
 
 
@@ -66,14 +66,15 @@ def member():
         Subgroup('Collaborate',
             View('Friends', 'social.friends'),
             View('Systems', 'social.search_systems'),
-            View('Groups', 'frontend.coming'),
-            View('Challenges', 'frontend.coming'),
-            View('Documents', 'frontend.coming')
+            View('Groups', 'social.groups')
         ),
-        SidedSearchBox(False),
+        Subgroup('Education',
+            View('Curriculum', 'frontend.curriculum'),
+            View('Resources', 'frontend.resources')
+        ),
+        View('Questions?', 'frontend.contact'),
         SidedSubgroup(session['displayName'], False,
             View('Edit Profile', 'social.editprofile'),
-            View('Settings', 'frontend.settings'),
             Separator(),
             View('Logout', 'social.logout'),
         )
@@ -85,6 +86,7 @@ class NavRenderer(BootstrapRenderer):
     def visit_Navbar(self, node):
 
         root = tags.div()
+        root['class'] = 'navbar-fixed-top'
 
         node_id = self.id or sha1(str(id(node)).encode()).hexdigest()
 
@@ -140,12 +142,3 @@ class NavRenderer(BootstrapRenderer):
                 bar_left.add(self.visit(item))
 
         return root
-
-    def visit_RawTag(self, node):
-        if node.content == 'searchBox':
-            item = tags.li(_class='navbar-form')
-            inputGroup = item.add(tags.div(_class='input-group'))
-            searchBox = inputGroup.add(tags.input(id='searchBox', _type='text', placeholder='Search', _class='form-control'))
-            searchButton = inputGroup.add(tags.a(_class='input-group-addon', style='padding: 4px 12px;'))
-            searchButton.add(tags.i(_class='fa fa-search'))
-            return item

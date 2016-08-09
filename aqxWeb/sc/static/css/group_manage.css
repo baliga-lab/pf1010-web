@@ -1,0 +1,12 @@
+.pendingMemberImage, .adminImage, .memberImage {
+    height: 40px;
+    width: 40px;
+}
+
+.pendingMemberResults, .adminResults, .memberResults {
+    overflow-y: auto;
+    overflow-x: hidden;
+    height: 300px;
+}
+
+

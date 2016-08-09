@@ -29,3 +29,112 @@
 .graph-caption {
     text-align: center;
 }
+
+/* pH */
+.ph-strip {
+    background: linear-gradient(to right, #faac59, #ee8243, #e35744, #e93e4d, #ea185e);
+    width: 200px;
+    height:28px;
+    position: relative;
+}
+.ph-preview {
+    border: 1px solid black;
+    width: 80px;
+    height:80px;
+    position: relative;
+}
+
+/* Ammonium */
+.nh4-strip {
+    background: linear-gradient(to right, #ffe26d, #dde093, #c7dd8a, #9dd29c, #88b789);
+    width: 200px;
+    height:28px;
+    position: relative;
+}
+.nh4-preview {
+    border: 1px solid black;
+    width: 80px;
+    height:80px;
+    position: relative;
+}
+
+/* Nitrate */
+.no3-strip {
+    background: linear-gradient(to right, #fffaed, #f9abcc, #f581b2, #e92b93, #de0084, #d50078);
+    width: 200px;
+    height:28px;
+    position: relative;
+}
+.no3-preview {
+    border: 1px solid black;
+    width: 80px;
+    height:80px;
+    position: relative;
+}
+
+/* Nitrite */
+.no2-strip {
+    background: linear-gradient(to right, #fefcf0, #fdf6f1, #fcecec, #fdb8d4, #f6a1c0, #fa91b3);
+    width: 200px;
+    height:28px;
+    position: relative;
+}
+.no2-preview {
+    border: 1px solid black;
+    width: 80px;
+    height:80px;
+    position: relative;
+}
+
+/* Chlorine */
+.cl-strip {
+    background: linear-gradient(to right, #ffffff, #faf7ea, #f2e6f0, #f4ccda, #f7b5d6, #f6acce);
+    width: 200px;
+    height:28px;
+    position: relative;
+}
+.cl-preview {
+    border: 1px solid black;
+    width: 80px;
+    height:80px;
+    position: relative;
+}
+
+/* Hardness */
+.hard-strip {
+    background: linear-gradient(to right, #737255, #7e7358, #906048, #a55942, #d66f52);
+    width: 200px;
+    height:28px;
+    position: relative;
+}
+.hard-preview {
+    border: 1px solid black;
+    width: 80px;
+    height:80px;
+    position: relative;
+}
+
+/* Alkalinity */
+.alk-strip {
+    background: linear-gradient(to right, #eac766, #b7b278, #a1a97e, #748c7b, #6a8079, #5f6773);
+    width: 200px;
+    height:28px;
+    position: relative;
+}
+.alk-preview {
+    border: 1px solid black;
+    width: 80px;
+    height:80px;
+    position: relative;
+}
+
+
+.strip-picker {
+    background: white;
+    border: 1px solid black;
+    height: 30px;
+    width: 4px;
+    top: -1px;
+    display: block;
+    position: absolute;
+}

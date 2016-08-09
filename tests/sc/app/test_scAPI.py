@@ -48,6 +48,8 @@ class ScAPITest(unittest.TestCase):
         "system_uid": system_uid,
         "name": "Test SC API System",
         "description": "Test SC API System Description",
+        "location_lat": 42.33866,
+        "location_lng": -71.092186,
         "status": 0
     }
     systemJSONObject = json.dumps({'user': sql_id, 'system': system_json})
@@ -66,35 +68,64 @@ class ScAPITest(unittest.TestCase):
         with app.test_client() as client:
             with client.session_transaction() as session:
                 session['siteadmin'] = "true"
-            response = client.delete('/social/aqxapi/delete/user/' + str(sql_id))
+            response = client.delete('/social/aqxapi/v1/user?sql_id=' + str(sql_id))
+            result = json.loads(response.data)
+            # Failure Case
+            self.assert_('error' not in result.keys(),
+                         "Deletion of User Failed." + str(result))
+            # Success Case
+            self.assert_('success' in result.keys(),
+                         "Deletion of User Failed." + str(result))
 
     # Ensure /social/aqxapi/delete/system/<system_id> works as expected
     def test_07_delete_system(self):
         with app.test_client() as client:
             with client.session_transaction() as session:
                 session['siteadmin'] = "true"
-            response = client.delete('/social/aqxapi/delete/system/' + str(system_id))
+            response = client.delete('/social/aqxapi/v1/system?system_id=' + str(system_id))
+            result = json.loads(response.data)
+            # Failure Case
+            self.assert_('error' not in result.keys(),
+                         "Deletion of System Failed." + str(result))
+            # Success Case
+            self.assert_('success' in result.keys(),
+                         "Deletion of System Failed." + str(result))
 
     # Ensure /social/aqxapi/post/system works as expected
     def test_06_update_system(self):
         with app.test_client() as client:
-            response = client.post('/social/aqxapi/post/system', data=update_systemJSONObject, content_type='application/json')
+            response = client.put('/social/aqxapi/v1/system', data=update_systemJSONObject,
+                                   content_type='application/json')
+            result = json.loads(response.data)
+            # Failure Case
+            self.assert_('error' not in result.keys(),
+                         "Update of System Failed." + str(update_systemJSONObject))
+            # Success Case
+            self.assert_('success' in result.keys(),
+                         "Update of System Failed." + str(update_systemJSONObject))
 
     # Ensure /social/aqxapi/put/system works as expected
     def test_05_create_system(self):
         with app.test_client() as client:
-            response = client.post('/social/aqxapi/put/system', data=systemJSONObject, content_type='application/json')
+            response = client.post('/social/aqxapi/v1/system', data=systemJSONObject, content_type='application/json')
+            result = json.loads(response.data)
+            # Failure Case
+            self.assert_('error' not in result.keys(),
+                         "Creation of System Failed." + str(systemJSONObject))
+            # Success Case
+            self.assert_('success' in result.keys(),
+                         "Creation of System Succeeded." + str(systemJSONObject))
 
     # Ensure /social/aqxapi/get/user/by_google_id/<sql_id> works as expected
     def test_04_get_user_by_sql_id(self):
         with app.test_client() as client:
-            response = client.get('/social/aqxapi/get/user/by_sql_id/123pxewbcd')
+            response = client.get('/social/aqxapi/v1/user?sql_id=123pxewbcd')
             # Negative Testing - Invalid sql_id
             result = json.loads(response.data)
             self.assert_('error' in result.keys(),
                          "Error JSON object should be returned indicating that the sql_id provided is not a valid format")
             # Positive Testing - Valid sql_id
-            response = client.get('/social/aqxapi/get/user/by_sql_id/' + str(sql_id))
+            response = client.get('/social/aqxapi/v1/user?sql_id=' + str(sql_id))
             result = json.loads(response.data)
             user = result.get('user')
             if user is not None:
@@ -112,7 +143,7 @@ class ScAPITest(unittest.TestCase):
     # Ensure /social/aqxapi/get/user/by_google_id/<google_id> works as expected
     def test_03_get_user_by_google_id(self):
         with app.test_client() as client:
-            response = client.get('/social/aqxapi/get/user/by_google_id/123epcbcd')
+            response = client.get("/social/aqxapi/v1/user?google_id=123epcbcd")
             # Negative Testing - Invalid google_id
             result = json.loads(response.data)
             user = result.get('user')
@@ -120,7 +151,7 @@ class ScAPITest(unittest.TestCase):
                 self.assert_('sql_id' not in user.keys(),
                              "Invalid google id should return empty user json object")
             # Positive Testing - Valid google_id
-            response = client.get('/social/aqxapi/get/user/by_google_id/' + google_id)
+            response = client.get('/social/aqxapi/v1/user?google_id=' + str(google_id))
             result = json.loads(response.data)
             user = result.get('user')
             if user is not None:
@@ -138,7 +169,7 @@ class ScAPITest(unittest.TestCase):
     # Ensure /social/aqxapi/get/user/logged_in_user/ works as expected
     def test_02_get_logged_in_user(self):
         with app.test_client() as client:
-            response = client.get('/social/aqxapi/get/user/logged_in_user/')
+            response = client.get('/social/aqxapi/v1/user/current')
             # Negative Testing - Not Logged In User Trying To Get Their User Details
             result = json.loads(response.data)
             user = result.get('user')
@@ -148,7 +179,7 @@ class ScAPITest(unittest.TestCase):
             # Positive Testing - User Logged In And Trying To Get Their User Details
             with client.session_transaction() as session:
                 session['uid'] = sql_id
-            response = client.get('/social/aqxapi/get/user/logged_in_user/')
+            response = client.get('/social/aqxapi/v1/user/current')
             result = json.loads(response.data)
             user = result.get('user')
             if user is not None:
@@ -166,7 +197,14 @@ class ScAPITest(unittest.TestCase):
     # Ensure /social/aqxapi/put/user works as expected
     def test_01_create_user(self):
         with app.test_client() as client:
-            response = client.post('/social/aqxapi/put/user', data=userJSONObject, content_type='application/json')
+            response = client.post('/social/aqxapi/v1/user', data=userJSONObject, content_type='application/json')
+            result = json.loads(response.data)
+            # Failure Case
+            self.assert_('error' not in result.keys(),
+                         "Creation of User Failed." + str(result))
+            # Success Case
+            self.assert_('success' in result.keys(),
+                         "Creation of User Failed." + str(result))
 
     if __name__ == "__main__":
         unittest.main()

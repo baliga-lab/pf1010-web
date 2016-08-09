@@ -1,0 +1,305 @@
+{% block content %}
+
+    {% if posts %}
+        {% for row in posts %}
+            <br>
+            {% if   (row.post.privacy == "participants" and
+                        (user_privilege == "GROUP_ADMIN" or user_privilege == "GROUP_MEMBER" )) or
+                    (row.post.privacy == "public" and
+                         (user_privilege == "GROUP_ADMIN" or user_privilege == "GROUP_MEMBER" or user_privilege == "GROUP_PENDING_MEMBER"))
+            %}
+                <div class="post detail-box">
+                    {# USER OF POST #}
+                    <div class="media-left">
+                        {# LINK TO USER'S PROFILE #}
+                        {% if user_privilege == "GROUP_ADMIN" or user_privilege == "GROUP_MEMBER" %}
+                            <a href="{% if row.user %}{{ url_for('social.profile', google_id=row.user.google_id) }}{% endif %}">
+                                {% if row.user.image_url %}
+                                <img class="media-object" src="{{ row.user.image_url }}"
+                                     alt="{{ row.displayName }}'s Picture"
+                                     height="32" width="32">
+                                {# PLACEHOLDER IMAGE FOR USER'S PROFILE PIC #}
+                                {% else %}
+                                <img class="media-object"
+                                     src="{{ url_for('frontend.static', filename='images/users/oddish.png') }}"
+                                     alt="User has no profile picture"
+                                     height="32" width="32">
+                                {# PLACEHOLDER IMAGE FOR USER WITH NO PROFILE PICTURE #}
+                                {% endif %}
+                                {% else %}
+                                <img class="participantImage"
+                                         src="{{ url_for('frontend.static', filename='images/users/oddish.png') }}">
+
+                                {% endif %}
+                        </a>
+                    </div>
+
+                    {# POST CONTENT #}
+                    <div class="media-body">
+                        <div class="pull-right">
+                            <ul class="list-inline">
+                                {# LIKES COUNT #}
+                                <li>
+                                    {% for i in total_likes %}
+                                        {% if i.postid == row.post.id %}
+                                            <span style="color: gold"><i class="fa fa-star" aria-hidden="true"></i></span>
+                                            {{ i.likecount }}
+                                        {% endif %}
+                                    {% endfor %}
+                                </li>
+                                {# DELETE POST #}
+                                <li>
+                                    {% for po in post_owners %}
+                                        {% if po.postid == row.post.id and (po.userid == session['uid'] or user_privilege == "GROUP_ADMIN")  %}
+                                            <div class="form-controls" style=" text-align: right;">
+                                                <form action="{{ url_for('social.delete_group_post') }}" method="post">
+                                                    <input type="hidden" name="postid" value="{{ row.post.id }}">
+                                                    <input type="hidden" name="group_uid" value="{{ group_uid }}">
+                                                    <button type="submit" name="submit" class="btn btn-grey"
+                                                            aria-label="Left Align" value="deletePost">
+                                                        <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
+                                                    </button>
+                                                </form>
+                                            </div>
+                                        {% endif %}
+                                    {% endfor %}
+                                </li>
+                            </ul>
+                        </div>
+                        <h4>
+                            {% if   user_privilege == "GROUP_ADMIN" or
+                                    user_privilege == "GROUP_MEMBER" or
+                                    row.user.sql_id == session['uid']
+                            %}
+                                {{ row.displayName }}
+                            {% else %}
+                                Anonymous
+                            {% endif %}
+
+                            <span class="date sub-text">posted on {{ row.post.date }}</span>
+                            <span class="privacy sub-text">@{{ row.post.privacy }}</span>
+                        </h4>
+                        {% for po in post_owners %}
+                            {% if po.postid == row.post.id and po.userid == session['uid'] %}
+
+                            {% endif %}
+                        {% endfor %}
+                        <p>{{ row.post.text }}</p>
+
+
+                        {% if row.post.link %}
+                            {# image/gif content #}
+                            {% if ".jpg" in row.post.link or ".png" in row.post.link or ".gif" in row.post.link %}
+                                <img class="attachedImg" src="{{ row.post.link }}"
+                                     onclick="window.open('{{ row.post.link }}', '_blank');"/>
+                            {# video content #}
+                            {% elif "//www.youtube.com/" in row.post.link or "//vimeo.com" in row.post.link
+                            or "//player.vimeo.com/video" in row.post.link %}
+                                <div class="embed-responsive embed-responsive-16by9">
+                                    <iframe class="embed-responsive-item"
+                                            src="{{ row.post.link.replace("/watch?v=","/embed/")
+                                            .replace("//vimeo.com", "//player.vimeo.com/video") }}"
+                                            allowfullscreen>
+                                        [Your browser does not support frames or is currently configured not to display
+                                        frames.
+                                        Please use an up-to-date browser that is capable of displaying frames.]
+                                    </iframe>
+                                </div>
+                            {# other content #}
+                            {% else %}
+                                <div class='embed_link_preview'
+                                     onclick="window.open('{{ row.post.link }}', '_blank'); return false;">
+                                    {% if row.post.link_title %}
+                                        <h4> {{ row.post.link_title }} </h4>
+                                    {% endif %}
+                                    <div class='url'>
+                                        <em><a href="#"> {{ row.post.link }} </a></em>
+                                    </div>
+                                    {% if row.post.link_img %}
+                                        <img src='{{ row.post.link_img }}' class='thumb'/>
+                                    {% endif %}
+                                    {% if row.post.link_description %}
+                                        <p> {{ row.post.link_description }} </p>
+                                    {% endif %}
+                                </div>
+                            {% endif %}
+                        {% endif %}
+                    </div>
+
+                    {# POST OPTIONS #}
+                    <div class="options">
+                        <ul class="list-inline">
+                            <li>
+                                <form action="{{ url_for('social.like_or_unlike_group_post') }}"
+                                  method="post">
+                                    <input type="hidden" name="postid" value="{{ row.post.id }}">
+                                    <input type="hidden" name="group_uid" value="{{ group_uid }}">
+                                    <button type="submit" name="submit" class="btn btn-blue btn-sm" aria-label="Left Align"
+                                            value="likePost">
+                                        Like
+                                    </button>
+                                    {% for l in likes %}
+                                        {% if l.postid == row.post.id %}
+                                            {% if l.userid == session['uid'] %}
+                                                <button type="submit" name="submit" class="btn btn-blue btn-sm"
+                                                        aria-label="Left Align" value="unlikePost">
+                                                    Unlike
+                                                </button>
+                                            {% endif %}
+                                        {% endif %}
+                                    {% endfor %}
+                                </form>
+                            </li>
+                            {% for po in post_owners %}
+                                {% if po.postid == row.post.id and (po.userid == session['uid'] or user_privilege == "GROUP_ADMIN")  %}
+                                    <li>
+                                        <div class="form-controls" style=" text-align: right;">
+                                            <button type="submit" class="btn btn-blue btn-sm" name="submit"
+                                                    value="edit" aria-label="Left Align"
+                                                    onclick="showEditCommentDiv('{{ row.post.id }}')">
+                                                Edit
+                                            </button>
+                                            <div id="{{ row.post.id }}" class="form-controls"
+                                                 style="display:none; width: 100% ; text-align:left">
+                                                <form action="{{ url_for('social.edit_group_post') }}" method="post">
+                                                    <input type="hidden" name="postid" value="{{ row.post.id }}">
+                                                    <div class="input-group">
+                                                        <input type="hidden" name="group_uid" value="{{ group_uid }}">
+                                                        <input id="editedpost" name="editedpost" class="form-control"
+                                                               value="{{ row.post.text }}"
+                                                               placeholder="Edit Post">
+                                                        <span class="input-group-btn">
+                                                            <button type="submit" class="btn btn-green" name="submit"
+                                                                value="editComment" aria-label="right Align">
+                                                                Update
+                                                            </button>
+                                                        </span>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </li>
+                                {% endif %}
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    <strong>Comments:</strong>
+                    {# POST'S COMMENTS #}
+                    <div class="comment comment-box">
+                        <ul class="comment-list nav nav-pills nav-stacked">
+                            {% for cmt in comments %}
+                                {% if cmt.postid == row.post.id %}
+                                    <li>
+                                        <div class="media-left">
+                                            {% if user_privilege == "GROUP_ADMIN" or user_privilege == "GROUP_MEMBER" %}
+                                                <a href="{% if cmt.user and cmt.user.google_id %}
+                                                {{ url_for('social.profile', google_id=cmt.user.google_id) }}
+                                                {% else %}#{% endif %}"> {# LINK TO USER'S PROFILE #}
+                                                    {% if row.user and row.user.image_url %}
+                                                        <img class="media-object" src="{{ cmt.user.image_url }}"
+                                                            alt="{{ cmt.displayName }}'s Picture" height="32" width="32"/>
+                                                        {# PLACEHOLDER IMAGE FOR USER'S PROFILE PIC #}
+                                                    {% else %}
+                                                        <img class="media-object"
+                                                            src="{{ url_for('frontend.static', filename='images/users/gloom.png') }}"
+                                                            alt="" height="32" width="32"/>
+                                                        {# PLACEHOLDER IMAGE FOR USER'S PROFILE PIC #}
+                                                    {% endif %}
+                                                </a>
+                                            {% else %}
+                                                <img class="media-object"
+                                                        src="{{ url_for('frontend.static', filename='images/users/gloom.png') }}"
+                                                        alt="" height="32" width="32"/>
+                                            {% endif %}
+                                        </div>
+                                        <div class="media-body">
+                                            <h5>
+                                                {% if   user_privilege == "GROUP_ADMIN" or
+                                                        user_privilege == "GROUP_MEMBER" or
+                                                        cmt.comment.user_sql_id == session['uid']
+                                                %}
+                                                <b>{{ cmt.comment.user_display_name }}</b>
+                                                {% else %}
+                                                <b>Anonymous</b>
+                                                {% endif %}
+                                                <span class="date sub-text">replied with</span>
+                                            </h5>
+
+                                            <div class="input-group col-md-12">
+                                                <p>{{ cmt.comment.content }}</p>
+                                                {% if cmt.comment.user_sql_id == session['uid'] %}
+                                                    <button type="submit" class="btn btn-blue btn-xs" name="submit"
+                                                            value="edit"
+                                                            aria-label="Left Align"
+                                                            onclick="showEditCommentDiv('{{ cmt.comment.id }}')">
+                                                        Edit
+                                                    </button>
+
+                                                    <div id="{{ cmt.comment.id }}" class="form-controls"
+                                                         style="display:none; width: 100% ; text-align:left">
+                                                        <form action="{{ url_for('social.edit_or_delete_group_comment') }}"
+                                                              method="post">
+                                                            <input type="hidden" name="commentid"
+                                                                   value="{{ cmt.comment.id }}">
+                                                            <input type="hidden" name="group_uid" value="{{ group_uid }}">
+                                                            <div class="input-group input-group-sm">
+                                                                <span class="input-group-btn">
+                                                                    <button type="submit" class="btn btn-danger" name="submit"
+                                                                        value="deleteComment" aria-label="right Align">
+                                                                        Delete
+                                                                    </button>
+                                                                </span>
+                                                                <input id="editedcomment" name="editedcomment"
+                                                                       class="form-control"
+                                                                       value="{{ cmt.comment.content }}"
+                                                                       placeholder="Edit comment">
+                                                                <span class="input-group-btn">
+                                                                    <button type="submit" class="btn btn-green" name="submit"
+                                                                        value="editComment" aria-label="right Align">
+                                                                        Update
+                                                                    </button>
+                                                                </span>
+                                                            </div>
+                                                        </form>
+                                                    </div>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    </li>
+                                {% endif %}
+
+                                {# edit comment #}
+                                <br>
+                            {% endfor %}
+                        </ul>
+                    </div>
+
+                    {# ADD COMMENT #}
+                    <form action="{{ url_for('social.add_group_comment') }}" method="post">
+                        <div class="input-group col-md-12">
+                            <input type="hidden" name="postid" value="{{ row.post.id }}">
+                            <input type="hidden" name="group_uid" value="{{ group_uid }}">
+                            <input id="newcomment" name="newcomment" class="form-control" placeholder="Share comment">
+                            <span class="input-group-btn">
+                                <input type="submit" class="btn btn-green" value="Comment">
+                            </span>
+                        </div>
+                    </form>
+                </div>
+            {% endif %}
+        {% endfor %}
+    {% endif %}
+    {% if not posts %}
+        <p>There are no posts yet for this System...
+            Be the first one to post! :) </p>
+    {% endif %}
+{% endblock %}
+
+{% block scripts %}
+    <script>
+        function showEditCommentDiv(id) {
+            console.log(id)
+            document.getElementById(id).style.display = "block";
+        }
+    </script>
+{% endblock %}

@@ -1,24 +1,23 @@
 import unittest
 from aqxWeb import run
-from aqxWeb.dav import analyticsViews
+from aqxWeb.dav import analytics_views
 from aqxWeb.dav.dao.systemsDAO import SystemsDAO
-
+import MySQLdb
 # test DAO for systems table
 
 
 class SystemsDAOTest(unittest.TestCase):
 
     def setUp(self):
-        self.app = run.app.test_client()
-        analyticsViews.init_app(run.app)
-        self.conn = analyticsViews.get_conn()
+        run.app.config.from_pyfile("system_db.cfg")
+        self.app = run.app
 
     def tearDown(self):
         pass
 
     # get all system data
     def test_get_all_systems_info(self):
-        s = SystemsDAO(self.conn)
+        s = SystemsDAO(self.app)
         response = s.get_all_systems_info()
         self.assertNotEqual(len(response), 0, 'systems exist')
 
