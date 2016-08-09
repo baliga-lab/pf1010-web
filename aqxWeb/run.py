@@ -20,20 +20,20 @@ from dav.analytics_views import init_dav as init_dav_app
 from sc.models import init_sc_app
 from sc.views import social
 
-os.environ['AQUAPONICS_SETTINGS'] = "system_db.cfg"
 # To hold db connection pool
 app = Flask(__name__)
-# Secret key for the Session
-app.secret_key = os.urandom(24)
+
+app.config.from_envvar('AQUAPONICS_SETTINGS')
+init_ui_app2(app)
+init_dav_app(app)
+init_sc_app(app)
+nav.init_app(app)
+
 app.register_blueprint(dav, url_prefix='/dav')
 app.register_blueprint(social, url_prefix='/social')
 app.register_blueprint(ui, url_prefix='')
 pool = None
-# Social Component DB Configuration Settings
-app.config.from_pyfile("sc/settings.cfg")
 
-#OAuth Configuration Settings
-app.config.from_pyfile("OAuth_Settings.cfg")
 
 Bootstrap(app)
 
@@ -104,7 +104,7 @@ def Home():
                   None, headers)
     try:
         res = urlopen(req)
-    except URLError, e:
+    except URLError as e:
         if e.code == 401:
             # Unauthorized - bad token
             session.pop('access_token', None)
@@ -115,9 +115,5 @@ def Home():
 # Common init method for application
 if __name__ == "__main__":
     app.debug = True
-    app.config.from_envvar('AQUAPONICS_SETTINGS')
-    init_ui_app2(app)
-    init_dav_app(app)
-    init_sc_app(app)
-    nav.init_app(app)
-    app.run(debug=True)
+    app.run(host='0.0.0.0', debug=True)
+

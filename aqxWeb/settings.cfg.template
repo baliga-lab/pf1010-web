@@ -1,0 +1,17 @@
+SECRET_KEY='somesuperlongsecretkeystring'
+
+# MySql connection settings for testing
+HOST='localhost'
+USER='aquaponics'
+PASS='aquaponics'
+DB='aquaponics'
+
+# Neo4J connection settings for testing
+NEO4J_CONNECTION_URI = "http://localhost:7474/db/data/"
+NEO4J_HOST = "localhost:7474"
+NEO4J_USER = "neo4j"
+NEO4J_PASS = "neo4j"
+
+CONSUMER_KEY = "<your consumer key>"
+CONSUMER_SECRET = "<your consumer secret>"
+
