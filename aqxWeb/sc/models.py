@@ -28,6 +28,21 @@ def graph_query(query, **kwargs):
         cursor = graph_instance.run(query, kwargs)
         return [r for r in cursor]
 
+def graph_query_one_or_none(query, **kwargs):
+    global graph_instance
+    try:
+        result = graph_instance.cypher.execute(query, kwargs)
+        if result is not None:
+            return result.one
+    except:
+        cursor = graph_instance.run(query, kwargs)
+        result = [r for r in cursor]
+        if len(result) > 0:
+            if len(result[0]) == 1:
+                return result[0][0]
+            return result
+    return None
+
 
 def init_sc_app(app):
     try:
@@ -103,10 +118,11 @@ class User:
         )
         rel_post = Relationship(user, "POSTED", post)
 
+        social_graph().create(rel_post)
+
         # if it is published in someone else's profile page
         if profile:
             rel_posted_to = Relationship(post, "POSTED_TO", profile)
-            social_graph().create(rel_post)
             social_graph().create(rel_posted_to)
 
     def add_post_to(self, user_id, posted_to_user_id):
@@ -419,7 +435,7 @@ class User:
             WHERE user.google_id = {google_id}
             RETURN user
         """
-        return graph_query(query, google_id=google_id)
+        return graph_query_one_or_none(query, google_id=google_id)
 
 
 ########### END OF USER class #############
@@ -526,7 +542,7 @@ def get_sql_id(google_id):
         WHERE user.google_id = {google_id}
         RETURN user.sql_id as sql_id
     """
-    return graph_query(query, google_id=google_id)
+    return graph_query_one_or_none(query, google_id=google_id)
 
 
 def get_address_from_lat_lng(latitude, longitude):

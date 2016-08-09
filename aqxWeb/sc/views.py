@@ -9,7 +9,8 @@ from py2neo import cypher
 from app.scAPI import ScAPI
 from flask_login import login_required
 from flask_googlelogin import LoginManager, make_secure_token, GoogleLogin
-from models import convert_milliseconds_to_normal_date, get_sql_id, get_address_from_lat_lng
+from models import convert_milliseconds_to_normal_date, get_address_from_lat_lng
+import models
 import mysql.connector
 import requests
 import aqxdb
@@ -249,11 +250,10 @@ def profile(google_id):
             sql_id = session['uid']
             status = "Me"
         else:
-            result = get_sql_id(google_id)
-            if not (result and result.one):
+            sql_id = models.get_sql_id(google_id)
+            if sql_id is None:
                 return redirect(url_for('social/Home'))
             else:
-                sql_id = result.one
                 status = User(session['uid']).check_status(session['uid'], sql_id)
 
         admin_systems = System().get_admin_systems(sql_id)
@@ -1454,8 +1454,6 @@ def add_post():
     user_profile = None
     if page_type == 'profile':
         user_profile = user.get_user_by_google_id(google_id)
-    if user_profile and user_profile.one:
-        user_profile = user_profile.one
 
     link_title = request.form.get('link_title', '')
     link_img = request.form.get('link_img', '')
