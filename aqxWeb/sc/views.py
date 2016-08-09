@@ -3,7 +3,7 @@ from flask import Blueprint, request, session, redirect, url_for, render_templat
 from models import User, get_all_recent_posts, get_all_recent_comments, get_all_recent_likes
 from models import get_total_likes_for_posts, get_all_post_owners, get_system_measurements_dav_api
 from models import System, Privacy, Group
-from models import get_app_instance, get_graph_connection_uri
+from models import get_app_instance, social_graph
 from models import get_all_profile_posts
 from py2neo import cypher
 from app.scAPI import ScAPI
@@ -611,7 +611,6 @@ def view_system(system_uid):
                 created_date = convert_milliseconds_to_normal_date(system_neo4j[0][0]['creation_time'])
                 system_location = get_address_from_lat_lng(system_neo4j[0][0]['location_lat'],
                                                            system_neo4j[0][0]['location_lng'])
-                # system_mysql = System().get_mysql_system_by_uid(system_uid)
                 system_mysql = system_neo4j
                 user_privilege = system.get_user_privilege_for_system(sql_id, system_uid)
                 system_admins = system.get_system_admins(system_uid)
@@ -1969,9 +1968,9 @@ def get_user_by_sql_or_google_id():
     google_id = request.args.get('google_id')
     result = None
     if sql_id is not None:
-        result = ScAPI(get_graph_connection_uri()).get_user_by_sql_id(sql_id)
+        result = ScAPI(social_graph()).get_user_by_sql_id(sql_id)
     elif google_id is not None:
-        result = ScAPI(get_graph_connection_uri()).get_user_by_google_id(google_id)
+        result = ScAPI(social_graph()).get_user_by_google_id(google_id)
     # API Status Code For The Results
     if result is None:
         error_msg = json.dumps({'error': 'Invalid request parameters. Required sql_id or google_id'})
@@ -1989,7 +1988,7 @@ def get_user_by_sql_or_google_id():
 
 @social.route('/aqxapi/v1/user/current', methods=['GET'])
 def get_logged_in_user():
-    result = ScAPI(get_graph_connection_uri()).get_logged_in_user()
+    result = ScAPI(social_graph()).get_logged_in_user()
     if 'error' in result:
         return result, 400
     else:
@@ -2002,7 +2001,7 @@ def get_logged_in_user():
 @social.route('/aqxapi/v1/user', methods=['POST'])
 def create_user():
     jsonObject = request.get_json()
-    result = ScAPI(get_graph_connection_uri()).create_user(jsonObject)
+    result = ScAPI(social_graph()).create_user(jsonObject)
     if 'error' in result:
         return result, 400
     else:
@@ -2016,7 +2015,7 @@ def create_user():
 def delete_user_by_sql_id():
     sql_id = request.args.get('sql_id')
     if session.get('siteadmin') is not None and sql_id is not None:
-        result = ScAPI(get_graph_connection_uri()).delete_user_by_sql_id(sql_id)
+        result = ScAPI(social_graph()).delete_user_by_sql_id(sql_id)
         if 'error' in result:
             return result, 400
         else:
@@ -2032,7 +2031,7 @@ def delete_user_by_sql_id():
 @social.route('/aqxapi/v1/system', methods=['POST'])
 def create_system():
     jsonObject = request.get_json()
-    result = ScAPI(get_graph_connection_uri()).create_system(jsonObject)
+    result = ScAPI(social_graph()).create_system(jsonObject)
     if 'error' in result:
         return result, 400
     else:
@@ -2045,7 +2044,7 @@ def create_system():
 @social.route('/aqxapi/v1/system', methods=['PUT'])
 def update_system():
     jsonObject = request.get_json()
-    result = ScAPI(get_graph_connection_uri()).update_system_with_system_uid(jsonObject)
+    result = ScAPI(social_graph()).update_system_with_system_uid(jsonObject)
     if 'error' in result:
         return result, 400
     else:
@@ -2059,7 +2058,7 @@ def update_system():
 def delete_system_by_system_id():
     system_id = request.args.get('system_id')
     if session.get('siteadmin') is not None and system_id is not None:
-        result = ScAPI(get_graph_connection_uri()).delete_system_by_system_id(system_id)
+        result = ScAPI(social_graph()).delete_system_by_system_id(system_id)
         if 'error' in result:
             return result, 400
         else:
@@ -2076,7 +2075,7 @@ def delete_system_by_system_id():
 def get_system_for_user():
     sql_id = request.args.get('sql_id')
     if sql_id is not None:
-        result = ScAPI(get_graph_connection_uri()).get_system_for_user(sql_id)
+        result = ScAPI(social_graph()).get_system_for_user(sql_id)
         if 'error' in result:
             return result, 400
         else:

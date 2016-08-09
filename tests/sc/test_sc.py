@@ -234,7 +234,7 @@ class FlaskTestCase(unittest.TestCase):
         # --------------------------------------------------------------------------------------
 
         global graph
-        graph = models.get_graph_connection_uri()
+        graph = models.social_graph()
 
     # --------------------------------------------------------------------------------------
     # Login / Logout Page Tests
