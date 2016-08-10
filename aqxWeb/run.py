@@ -1,26 +1,24 @@
 import os
+import logging
+
 from mysql.connector.pooling import MySQLConnectionPool
 from flask import url_for
 from flask import Flask, render_template,redirect
 from flask import session
 from flask_oauth import OAuth
 
-# UI imports
 from flask_bootstrap import Bootstrap
 from frontend import frontend as ui
 from servicesV2 import init_app as init_ui_app2
 from nav import nav
 import views
 
-# DAV imports
 from dav.analytics_views import dav
 from dav.analytics_views import init_dav as init_dav_app
 
-# Social imports
 from sc.models import init_sc_app
 from sc.views import social
 
-# To hold db connection pool
 app = Flask(__name__)
 
 app.config.from_envvar('AQUAPONICS_SETTINGS')
@@ -42,9 +40,6 @@ def index():
     return render_template('index.html')
 
 
-######################################################################
-# render error page
-######################################################################
 @app.errorhandler(500)
 def page_not_found(e):
     return render_template('error.html'), 500
@@ -66,8 +61,8 @@ google = oauth.remote_app('google',
                           consumer_key=app.config['CONSUMER_KEY'],
                           consumer_secret=app.config['CONSUMER_SECRET'])
 
-@app.route('/getToken')
-def getToken():
+@app.route('/get-token')
+def get_token():
     callback = url_for('authorized', _external=True)
     return google.authorize(callback=callback)
 
@@ -76,25 +71,18 @@ def getToken():
 @google.authorized_handler
 def authorized(resp):
     access_token = resp['access_token']
-    # print(access_token)
     session['access_token'] = access_token, ''
     session['token'] = access_token
-    return redirect(url_for('Home'))
+    return redirect(url_for('home'))
 
 
 @app.route('/dav/social/Home')
 @app.route('/social/Home')
 @app.route('/Home')
-#######################################################################################
-# function : home
-# purpose : renders userData.html
-# parameters : None
-# returns: userData.html page
-#######################################################################################
-def Home():
+def home():
     access_token = session.get('access_token')
     if access_token is None:
-        return redirect(url_for('getToken'))
+        return redirect(url_for('get_token'))
 
     access_token = access_token[0]
     from urllib2 import Request, urlopen, URLError
@@ -108,12 +96,14 @@ def Home():
         if e.code == 401:
             # Unauthorized - bad token
             session.pop('access_token', None)
-            return redirect(url_for('getToken'))
+            return redirect(url_for('get_token'))
     return redirect(url_for('social.signin'))
 
 
-# Common init method for application
 if __name__ == "__main__":
-    app.debug = True
-    app.run(host='0.0.0.0', debug=True)
+    handler = logging.StreamHandler()
+    handler.setLevel(logging.INFO)
 
+    app.debug = True
+    app.logger.addHandler(handler)
+    app.run(host='0.0.0.0')

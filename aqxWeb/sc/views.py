@@ -1,4 +1,4 @@
-from flask import Blueprint, request, session, redirect, url_for, render_template, flash, Response, jsonify, json
+from flask import Blueprint, request, session, redirect, url_for, render_template, flash, Response, jsonify, json, current_app
 
 from models import User, get_all_recent_posts, get_all_recent_comments, get_all_recent_likes
 from models import get_total_likes_for_posts, get_all_post_owners, get_system_measurements_dav_api
@@ -14,19 +14,12 @@ import models
 import mysql.connector
 import requests
 import aqxdb
-import logging
 from flask_oauth import OAuth
 import json
 
 social = Blueprint('social', __name__, template_folder='templates', static_folder="static")
 
 
-#######################################################################################
-# function : dbconn
-# purpose : Connect with DB
-# parameters : None
-# returns: DB connection
-#######################################################################################
 def dbconn():
     return mysql.connector.connect(user=get_app_instance().config['USER'],
                                    password=get_app_instance().config['PASS'],
@@ -35,12 +28,6 @@ def dbconn():
 
 
 @social.route('/index')
-#######################################################################################
-# function : index
-# purpose : renders home page with populated posts and comments
-# parameters : None
-# returns: home.html, posts and comments
-#######################################################################################
 def index():
     if session.get('uid') is None:
         return redirect(url_for('index'))  # if no session, return to login
@@ -60,24 +47,13 @@ def index():
 
 
 @social.route('/signin')
-#######################################################################################
-# function : signin
-# purpose : signs in with POST and takes data from the request
-# parameters : None
-# returns: response
-# Exception : app.logger.exception
-#######################################################################################
 def signin():
     try:
         access_token = session.get('access_token')
         access_token = access_token[0]
         r = requests.get('https://www.googleapis.com/plus/v1/people/me?access_token=' + access_token)
-        # content=r.content
-        # print(r.content)
         google_api_response = json.loads(r.content)
-        # googleAPIResponsev=json.loads(google_api_response)
-        # print(google_api_response)
-        logging.debug("signed in: %s", str(google_api_response))
+        current_app.logger.debug("signed in: %s", str(google_api_response))
         google_id = google_api_response['id']
         if 'image' in google_api_response:
             image = google_api_response['image']
@@ -88,22 +64,13 @@ def signin():
         user_id = get_user(google_id, google_api_response)
         emails = google_api_response['emails']
         email = emails[0]['value']
-        logging.debug("user: %s img: %s", user_id, imgurl)
+        current_app.logger.debug("user: %s img: %s", user_id, imgurl)
         return redirect(url_for('social.index'))
     except:
-        logging.exception("Got an exception")
+        current_app.logger.exception("Got an exception")
         raise
 
 
-#######################################################################################
-# function : get_user
-# purpose :
-#           google_id : google id fetched from google+ login
-#           googleAPIResponse : JSON response from the google API
-# parameters : None
-# returns: returns userId
-# Exception : ?
-#######################################################################################
 def get_user(google_id, google_api_response):
     conn = dbconn()
     cursor = conn.cursor()
@@ -114,14 +81,6 @@ def get_user(google_id, google_api_response):
         conn.close()
 
 
-#######################################################################################
-# function : get_google_profile
-# purpose : returns user profile data using Google API
-# parameters:
-#           google_id : google id for google+ login
-# returns: google API response
-# Exception : ?
-#######################################################################################
 def get_google_profile(google_id, user_profile=None):
     try:
         access_token = session.get('access_token')
@@ -134,7 +93,7 @@ def get_google_profile(google_id, user_profile=None):
 
         google_response = json.loads(r.content)
         if google_response and not google_response.get('error'):
-            logging.debug("profile of: %s", str(google_response))
+            current_app.logger.debug("profile of: %s", str(google_response))
 
             img_url = None
             google_plus_account_url = google_response.get("url", None)
@@ -159,17 +118,9 @@ def get_google_profile(google_id, user_profile=None):
 
         return google_profile
     except Exception as e:
-        logging.exception("Exception at get_google_profile: " + str(e))
+        current_app.logger.exception("Exception at get_google_profile: " + str(e))
 
 
-#######################################################################################
-# function : get_alternative_google_profile
-# purpose : Get alternative Google Profile based on data in Neo4J (special for institutional accoutns)
-# parameters :
-#               user_profile : user loaded from Neo4J
-# returns: google_profile
-# Exception : ?
-#######################################################################################
 def get_alternative_google_profile(user_profile):
     if user_profile:
         display_name = user_profile['displayName']
@@ -186,30 +137,15 @@ def get_alternative_google_profile(user_profile):
 
 
 @social.route('/editprofile')
-#######################################################################################
-# function : editprofile
-# purpose : renders profile_edit.html
-# parameters : None
-# returns: profile_edit.html
-# Exception : None
-#######################################################################################
 def editprofile():
     sql_id = session.get('uid')
     if sql_id is not None:
         user = User(sql_id).find()
-        # google_profile = get_google_profile('me')
         return render_template("profile_edit.html", user=user)
     else:
         return render_template("/home.html")
 
 
-#######################################################################################
-# function : updateprofile
-# purpose : updates user profile information in db
-# parameters : None
-# returns: None
-# Exception : None
-#######################################################################################
 @social.route('/updateprofile', methods=['POST'])
 def updateprofile():
     try:
@@ -232,13 +168,6 @@ def updateprofile():
         print "Exception Occurred At updateprofile: " + str(ex.message)
 
 
-#######################################################################################
-# function : profile
-# purpose : Load the pages for user given its google id
-# parameters : google_id : google id fetched from neo4j
-# returns: profile.html
-# Exception : ?
-#######################################################################################
 @social.route('/profile/<google_id>', methods=['GET'])
 def profile(google_id):
     if session.get('uid') is None:
@@ -280,17 +209,9 @@ def profile(google_id):
                                    stop_at=stop_at)
 
     except Exception as e:
-        logging.exception("Exception at view_profile: " + str(e))
+        current_app.logger.exception("Exception at view_profile: " + str(e))
 
 
-#######################################################################################
-# function : get_user_privacy
-# purpose : Get alternative Google Profile based on data in Neo4J (special for institutional accoutns)
-# parameters :
-#               sql_id : user sql id for who privacy will apply
-# returns: privacy
-# Exception : ?
-#######################################################################################
 def get_user_privacy(sql_id):
     privacy_default = Privacy.FRIENDS
     user_relation = Privacy.PUBLIC
@@ -310,13 +231,6 @@ def get_user_privacy(sql_id):
     return privacy
 
 
-#######################################################################################
-# function : friends
-# purpose : renders friends.html to let the user perform activities related to friends
-# parameters : None
-# returns: friends.html
-# Exception : None
-###############################################################################
 # @social.route('/friends', methods=['GET'])
 # def friends():
 #    if session.get('uid') is not None:
@@ -325,13 +239,6 @@ def get_user_privacy(sql_id):
 #        return render_template("/home.html")
 
 
-#######################################################################################
-# function : accept_friend_request
-# purpose : renders pendingRequest.html to let the user accept other users friend request
-# parameters : u_sql_id
-# returns: pendingRequest.html
-# Exception : None
-###############################################################################
 @social.route('/accept_friend_request/<u_sql_id>', methods=['GET', 'POST'])
 def accept_friend_request(u_sql_id):
     accepted_sql_id = u_sql_id
@@ -341,13 +248,6 @@ def accept_friend_request(u_sql_id):
     return redirect(url_for('social.pendingRequest'))
 
 
-#######################################################################################
-# function : decline_friend_request
-# purpose : declines friend request
-# parameters : None
-# returns: pendingRequest.html
-# Exception : None
-###############################################################################
 @social.route('/decline_friend_request/<u_sql_id>', methods=['GET', 'POST'])
 def decline_friend_request(u_sql_id):
     accepted_sql_id = u_sql_id
@@ -356,13 +256,6 @@ def decline_friend_request(u_sql_id):
     return redirect(url_for('social.pendingRequest'))
 
 
-#######################################################################################
-# function : block_friend
-# purpose : blocks a friend
-# parameters : None
-# returns: friends.html
-# Exception : None
-###############################################################################
 @social.route('/block_friend/<u_sql_id>', methods=['GET', 'POST'])
 def block_friend(u_sql_id):
     blocked_sql_id = u_sql_id
@@ -371,13 +264,6 @@ def block_friend(u_sql_id):
     return redirect(url_for('social.friends'))
 
 
-#######################################################################################
-# function : unblock_friend
-# purpose : unblocks a friend
-# parameters : None
-# returns: friends.html
-# Exception : None
-###############################################################################
 @social.route('/unblock_friend/<u_sql_id>', methods=['GET', 'POST'])
 def unblock_friend(u_sql_id):
     blocked_sql_id = u_sql_id
@@ -386,13 +272,6 @@ def unblock_friend(u_sql_id):
     return redirect(url_for('social.friends'))
 
 
-#######################################################################################
-# function : delete_friend
-# purpose : deletes friend
-# parameters : None
-# returns: friends.html
-# Exception : None
-###############################################################################
 @social.route('/delete_friend/<u_sql_id>', methods=['GET', 'POST'])
 def delete_friend(u_sql_id):
     accepted_sql_id = u_sql_id
@@ -401,13 +280,6 @@ def delete_friend(u_sql_id):
     return redirect(url_for('social.friends'))
 
 
-#######################################################################################
-# function : delete_friend_timeline
-# purpose : deletes friend
-# parameters : None
-# returns: returns to the caller page
-# Exception : None
-###############################################################################
 @social.route('/delete_friend_timeline/<u_sql_id>', methods=['GET', 'POST'])
 def delete_friend_timeline(u_sql_id):
     accepted_sql_id = u_sql_id
@@ -416,13 +288,6 @@ def delete_friend_timeline(u_sql_id):
     return redirect(User(session['uid']).redirect_url())
 
 
-#######################################################################################
-# function : myFriends
-# purpose : renders Friends of the logged in user
-# parameters : None
-# returns: friends.html
-# Exception : None
-#######################################################################################
 @social.route('/friends', methods=['GET', 'POST'])
 def friends():
     if session.get('uid') is None:
@@ -434,13 +299,6 @@ def friends():
         return render_template("/friends.html", Friends=Friends, UnblockedFriend=UnblockedFriend)
 
 
-#######################################################################################
-# function : pendingRequest
-# purpose : renders pendingRequests of the logged in user
-# parameters : None
-# returns: pendingRequest.html
-# Exception : None
-#######################################################################################
 @social.route('/pendingRequest', methods=['GET', 'POST'])
 def pendingRequest():
     if request.method == 'GET':
@@ -453,14 +311,6 @@ def pendingRequest():
         return render_template("/home.html")
 
 
-#######################################################################################
-# function : recofriends
-# purpose : display the logged in user's recommended friends list
-# parameters : None
-# returns: recofriends.html in case the user is logged in
-#          or home.html in case the user is not logged in
-# Exception : None
-#######################################################################################
 @social.route('/recofriends')
 def recofriends():
     if session.get('uid') is not None:
@@ -477,14 +327,6 @@ def recofriends():
         return render_template("/home.html")
 
 
-#######################################################################################
-# function : searchFriends
-# purpose : lets the user search for friends and add them if necessary
-# parameters : None
-# returns: searchFriends.html in case the user is logged in
-#          or home.html in case the user is not logged in
-# Exception : None
-#######################################################################################
 @social.route('/searchFriends', methods=['GET'])
 def searchFriends():
     if session.get('uid') is not None:
@@ -493,13 +335,6 @@ def searchFriends():
         return render_template("/home.html")
 
 
-#######################################################################################
-# function : send_friend_request
-# purpose : send a friend request to a user clicked on the UI
-# parameters : None
-# returns: calls index function
-# Exception : None
-#######################################################################################
 @social.route('/send_friend_request/<u_sql_id>', methods=['POST'])
 def send_friend_request(u_sql_id):
     receiver_sql_id = u_sql_id
@@ -507,13 +342,6 @@ def send_friend_request(u_sql_id):
     return redirect(url_for('social.friends'))
 
 
-#######################################################################################
-# function : send_friend_request_timeline
-# purpose : send a friend request to a user clicked on the UI
-# parameters : None
-# returns: returns to the caller page
-# Exception : None
-#######################################################################################
 @social.route('/send_friend_request_timeline/<u_sql_id>', methods=['GET', 'POST'])
 def send_friend_request_timeline(u_sql_id):
     receiver_sql_id = u_sql_id
@@ -521,13 +349,6 @@ def send_friend_request_timeline(u_sql_id):
     return redirect(User(session['uid']).redirect_url())
 
 
-#######################################################################################
-# function : search_systems
-# purpose : renders system_search.html
-# parameters : None
-# returns: system_search.html
-# Exception : None
-#######################################################################################
 @social.route('/systems', methods=['GET', 'POST'])
 @social.route('/systems/', methods=['GET', 'POST'])
 def search_systems():
@@ -544,13 +365,6 @@ def search_systems():
             return render_template("system_search.html")
 
 
-#######################################################################################
-# function : system_self
-# purpose : renders system_self.html
-# parameters : None
-# returns: system_self.html
-# Exception : None
-#######################################################################################
 @social.route('/systems/self', methods=['GET'])
 def self_systems():
     sql_id = session.get('uid')
@@ -567,13 +381,6 @@ def self_systems():
                                    recommended_systems=recommended_systems)
 
 
-#######################################################################################
-# function : system_all
-# purpose : renders system_all.html
-# parameters : None
-# returns: system_all.html
-# Exception : None
-#######################################################################################
 @social.route('/systems/all', methods=['GET'])
 def all_systems_neo4j():
     sql_id = session.get('uid')
@@ -584,14 +391,6 @@ def all_systems_neo4j():
             all_systems = System().get_all_systems()
             return render_template("system_all.html", all_systems=all_systems)
 
-
-#######################################################################################
-# function : view_system
-# purpose : renders system_social.html
-# parameters : system_uid
-# returns: system_social.html
-# Exception : General Exception
-#######################################################################################
 
 @social.route('/systems/<system_uid>', methods=['GET', 'POST'])
 def view_system(system_uid):
@@ -647,16 +446,10 @@ def view_system(system_uid):
                                        posts=posts, comments=comments, likes=likes,
                                        totalLikes=total_likes, postOwners=post_owners, measurements=measurements)
     except Exception as e:
-        logging.exception("Exception at view_system: " + str(e))
+        current_app.logger.exception("Exception at view_system: " + str(e))
 
 
-#######################################################################################
 @social.route('/systems/approve_reject_participant', methods=['POST'])
-# function : approve_reject_participant for a system
-# purpose : approve/reject the participant request made for the particular system
-# parameters : None
-# Exception : None
-#######################################################################################
 def approve_reject_system_participant():
     if request.method == 'POST':
         system_uid = request.form["system_uid"]
@@ -676,13 +469,7 @@ def approve_reject_system_participant():
         return redirect(url_for('social.search_systems'))
 
 
-#######################################################################################
 @social.route('/systems/participate_subscribe_leave', methods=['POST'])
-# function : join_system
-# purpose : Subscribe/Request To Join the system by an User for the particular system
-# parameters : None
-# Exception : None
-#######################################################################################
 def participate_subscribe_leave_system():
     if request.method == 'POST':
         system_uid = request.form["system_uid"]
@@ -707,13 +494,6 @@ def participate_subscribe_leave_system():
         return redirect(url_for('social.search_systems'))
 
 
-#######################################################################################
-# function : manage_system
-# purpose : renders system_manage.html
-# parameters : None
-# returns: system_manage.html
-# Exception : None
-#######################################################################################
 @social.route('/manage/systems/<system_uid>', methods=['GET', 'POST'])
 def manage_system(system_uid):
     sql_id = session.get('uid')
@@ -742,13 +522,7 @@ def manage_system(system_uid):
         return render_template("system_manage.html")
 
 
-#######################################################################################
 @social.route('/manage/systems/delete_system_participant_or_make_admin', methods=['POST'])
-# function : delete_or_make_admin_system_participant
-# purpose : Delete the participant from the system or make him/her as admin of the system
-# parameters : None
-# Exception : None
-#######################################################################################
 def delete_system_participant_or_make_admin():
     if request.method == 'POST':
         system_uid = request.form["system_uid"]
@@ -769,13 +543,7 @@ def delete_system_participant_or_make_admin():
         return redirect(url_for('social.search_systems'))
 
 
-#######################################################################################
 @social.route('/manage/systems/delete_admin', methods=['POST'])
-# function : make_or_delete_system_admin
-# purpose : Makes the participant admin for the system
-# parameters : None
-# Exception : None
-#######################################################################################
 def delete_system_admin():
     if request.method == 'POST':
         system_uid = request.form["system_uid"]
@@ -792,13 +560,7 @@ def delete_system_admin():
         return redirect(url_for('social.search_systems'))
 
 
-#######################################################################################
 @social.route('/manage/systems/delete_system_subscriber_or_make_admin', methods=['POST'])
-# function : delete_system_subscriber_or_make_admin
-# purpose : Delete the Subscriber from the System or make him/her as admin of the System
-# parameters : None
-# Exception : None
-#######################################################################################
 def delete_system_subscriber_or_make_admin():
     if request.method == 'POST':
         system_uid = request.form["system_uid"]
@@ -819,13 +581,6 @@ def delete_system_subscriber_or_make_admin():
         return redirect(url_for('social.search_systems'))
 
 
-#######################################################################################
-# function : groups
-# purpose : renders groups.html
-# parameters : None
-# returns: groups.html
-# Exception : None
-#######################################################################################
 @social.route('/groups', methods=['GET'])
 @social.route('/groups/', methods=['GET'])
 def groups():
@@ -838,13 +593,6 @@ def groups():
             return render_template("groups.html")
 
 
-#######################################################################################
-# function : self_groups
-# purpose : renders group_self.html
-# parameters : None
-# returns: group_self.html
-# Exception : None
-#######################################################################################
 @social.route('/groups/self', methods=['GET'])
 def self_groups():
     sql_id = session.get('uid')
@@ -858,13 +606,6 @@ def self_groups():
             return render_template("group_self.html", admin_groups=admin_groups, member_groups=member_groups)
 
 
-#######################################################################################
-# function : search_groups
-# purpose : renders group_search.html
-# parameters : None
-# returns: group_search.html
-# Exception : None
-#######################################################################################
 @social.route('/groups/search', methods=['GET'])
 def search_groups():
     sql_id = session.get('uid')
@@ -876,13 +617,6 @@ def search_groups():
             return render_template("group_search.html")
 
 
-#######################################################################################
-# function : recommended_groups
-# purpose : renders group_recommended.html
-# parameters : None
-# returns: group_recommended.html
-# Exception : None
-#######################################################################################
 @social.route('/groups/recommended', methods=['GET'])
 def recommended_groups():
     sql_id = session.get('uid')
@@ -895,13 +629,6 @@ def recommended_groups():
             return render_template("group_recommended.html", recommended_groups=recommended_groups)
 
 
-#######################################################################################
-# function : search_groups
-# purpose : to let the user search for groups in the neo4j database
-# parameters : None
-# returns: json data of all groups in neo4j database
-# Exception : None
-#######################################################################################
 @social.route('/get_groups', methods=['GET'])
 def get_groups():
     groups = Group().get_groups()
@@ -917,14 +644,6 @@ def get_groups():
         grp_list.append(individual_grp)
     return jsonify(json_list=grp_list)
 
-
-#######################################################################################
-# function : view_group
-# purpose : renders group_social.html
-# parameters : group_uid
-# returns: group_social.html
-# Exception : General Exception
-#######################################################################################
 
 @social.route('/groups/<group_uid>', methods=['GET', 'POST'])
 def view_group(group_uid):
@@ -964,15 +683,9 @@ def view_group(group_uid):
                                        privacy_info=privacy, posts=posts, comments=comments, likes=likes,
                                        total_likes=total_likes, post_owners=post_owners, group_uid=group_uid)
     except Exception as e:
-        logging.exception("Exception at view_group: " + str(e))
+        current_app.logger.exception("Exception at view_group: " + str(e))
 
 
-#######################################################################################
-# function : get_users_to_invite_groups
-# purpose : Fetch the users from database who are not related to the specific groups
-# parameters : None
-# returns: json data of existing user's name and organization
-#######################################################################################
 @social.route('/groups/get_users_to_invite_groups/<group_uid>', methods=['GET'])
 def get_users_to_invite_groups(group_uid):
     try:
@@ -1017,13 +730,6 @@ def get_users_to_invite_groups(group_uid):
         return jsonify(user_json_list=user_list)
 
 
-#######################################################################################
-# function : manage_group
-# purpose : renders group_manage.html
-# parameters : None
-# returns: group_manage.html
-# Exception : None
-#######################################################################################
 @social.route('/manage/groups/<group_uid>', methods=['GET', 'POST'])
 def manage_group(group_uid):
     sql_id = session.get('uid')
@@ -1050,13 +756,6 @@ def manage_group(group_uid):
         return render_template("group_manage.html")
 
 
-#######################################################################################
-# function : update_group_info
-# purpose : updates the group information in Neo4J DB
-# parameters : None
-# returns: None
-# Exception : None
-#######################################################################################
 @social.route('/manage/groups/update_group_info', methods=['POST'])
 def update_group_info():
     try:
@@ -1079,15 +778,7 @@ def update_group_info():
         print "Exception Occurred at update_group_info: " + str(ex.message)
 
 
-#######################################################################################
 @social.route('/manage/groups/create_group', methods=['POST'])
-#######################################################################################
-# function : create_group
-# purpose : creates group
-# parameters : None
-# returns: calls index function
-# Exception : None
-#######################################################################################
 def create_group():
     sql_id = session.get('uid')
     if sql_id is None:
@@ -1112,13 +803,7 @@ def create_group():
     return redirect(url_for('social.groups'))
 
 
-#######################################################################################
 @social.route('/manage/groups/approve_reject_member', methods=['POST'])
-# function : approve_reject_group_member
-# purpose : approve/reject the member request made for the particular group
-# parameters : None
-# Exception : None
-#######################################################################################
 def approve_reject_group_member():
     if request.method == 'POST':
         google_id = request.form["google_id"]
@@ -1137,13 +822,7 @@ def approve_reject_group_member():
         return redirect(url_for('social.groups'))
 
 
-#######################################################################################
 @social.route('/manage/groups/invite_group_member', methods=['POST'])
-# function : invite_group_member
-# purpose : make the user as group member
-# parameters : None
-# Exception : General Exception
-#######################################################################################
 def invite_group_member():
     try:
         if request.method == 'POST':
@@ -1162,13 +841,7 @@ def invite_group_member():
         print "Exception at invite_group_member: " + str(ex.message)
         return redirect(url_for('social.groups'))
 
-#######################################################################################
 @social.route('/manage/groups/delete_group_admin_or_make_member', methods=['POST'])
-# function : delete_group_admin_or_make_member
-# purpose : Delete the specified admin for the group or remove the priviliges and make him/her member
-# parameters : None
-# Exception : General Exception
-#######################################################################################
 def delete_group_admin_or_make_member():
     try:
         if request.method == 'POST':
@@ -1190,13 +863,7 @@ def delete_group_admin_or_make_member():
         print "Exception at delete_group_admin_or_make_member: " + str(ex.message)
 
 
-#######################################################################################
 @social.route('/manage/groups/delete_member_or_make_admin', methods=['POST'])
-# function : delete_group_member_or_make_admin
-# purpose : Delete the member from the group or make him/her as admin of the group
-# parameters : None
-# Exception : None
-#######################################################################################
 def delete_group_member_or_make_admin():
     if request.method == 'POST':
         google_id = request.form["google_id"]
@@ -1215,13 +882,7 @@ def delete_group_member_or_make_admin():
         return redirect(url_for('social.groups'))
 
 
-#######################################################################################
 @social.route('/manage/groups/join_leave', methods=['POST'])
-# function : join_group
-# purpose : Subscribe/Request To Join the group by an User for the particular group
-# parameters : None
-# Exception : None
-#######################################################################################
 def join_leave_group():
     if request.method == 'POST':
         group_uid = request.form["group_uid"]
@@ -1246,15 +907,7 @@ def join_leave_group():
         return redirect(User(session['uid']).redirect_url())
 
 
-#######################################################################################
 @social.route('/add_comment', methods=['POST'])
-#######################################################################################
-# function : add_comment
-# purpose : adds comments to the post
-# parameters : None
-# returns: calls index function
-# Exception : None
-#######################################################################################
 def add_comment():
     comment = request.form['newcomment']
     postid = request.form['postid']
@@ -1272,13 +925,6 @@ def add_comment():
 
 
 @social.route('/edit_or_delete_comment', methods=['POST'])
-#######################################################################################
-# function : edit_or_delete_comment
-# purpose : edits or delete existing comments using unique comment id
-# parameters : None
-# returns: calls index function
-# Exception : None
-#######################################################################################
 def edit_or_delete_comment():
     if session.get('uid') is not None:
         commentid = request.form['commentid']
@@ -1300,13 +946,6 @@ def edit_or_delete_comment():
 
 
 @social.route('/edit_or_delete_system_comment', methods=['POST'])
-#######################################################################################
-# function : edit_or_delete_system_comment
-# purpose : edits or delete existing comments using unique comment id
-# parameters : None
-# returns: calls index function
-# Exception : None
-#######################################################################################
 def edit_or_delete_system_comment():
     if session.get('uid') is not None:
         comment_id = request.form['commentid']
@@ -1329,13 +968,6 @@ def edit_or_delete_system_comment():
 
 
 @social.route('/edit_or_delete_group_comment', methods=['POST'])
-#######################################################################################
-# function : edit_or_delete_group_comment
-# purpose : edits or delete existing comments using unique comment id
-# parameters : None
-# returns: calls index function
-# Exception : None
-#######################################################################################
 def edit_or_delete_group_comment():
     if session.get('uid') is not None:
         comment_id = request.form['commentid']
@@ -1358,15 +990,6 @@ def edit_or_delete_group_comment():
 
 
 social.route('/edit_comment', methods=['POST'])
-
-
-#######################################################################################
-# function : edit_comment
-# purpose : edits comments using unique comment id
-# parameters : None
-# returns: calls index function
-# Exception : None
-#######################################################################################
 def edit_comment():
     if session.get('uid') is not None:
         comment_id = request.form['commentid']
@@ -1383,13 +1006,6 @@ def edit_comment():
 
 
 @social.route('/edit_post', methods=['POST'])
-#######################################################################################
-# function : edit_post
-# purpose : edits existing comments using unique comment id
-# parameters : None
-# returns: calls index function
-# Exception : None
-#######################################################################################
 def edit_post():
     new_post = request.form['editedpost']
     post_id = request.form['postid']
@@ -1405,13 +1021,6 @@ def edit_post():
 
 
 @social.route('/delete_comment', methods=['POST'])
-#######################################################################################
-# function : delete_comment
-# purpose : edits existing comments using unique comment id
-# parameters : None
-# returns: calls index function
-# Exception : None
-#######################################################################################
 def delete_comment():
     comment_id = request.form['commentid']
     if comment_id == "" or comment_id is None:
@@ -1423,13 +1032,6 @@ def delete_comment():
     return redirect(url_for('social.index'))
 
 
-#######################################################################################
-# function : add_post
-# purpose : adds posts newly created by user
-# parameters : None
-# returns: calls index function
-# Exception : None
-#######################################################################################
 @social.route('/add_post', methods=['POST'])
 def add_post():
     if session.get('uid') is None:
@@ -1465,13 +1067,6 @@ def add_post():
     return redirect_to_page(page_type, google_id)
 
 
-#######################################################################################
-# function : redirect_to_page
-# purpose : returns the redirection url for the given parameters
-# parameters : page, argument
-# returns: response object (a WSGI application)
-# Exception : None
-#######################################################################################
 def redirect_to_page(page, argument=""):
     if page == "home":
         return redirect(url_for('social.index'))
@@ -1479,13 +1074,6 @@ def redirect_to_page(page, argument=""):
         return redirect(url_for('social.profile', google_id=argument))
 
 
-#######################################################################################
-# function : add_system_post
-# purpose : renders system_social.html
-# parameters : system_uid
-# returns: system_social.html
-# Exception : General Exception
-#######################################################################################
 @social.route('/systems/add_system_post', methods=['POST'])
 def add_system_post():
     user_sql_id = session.get('uid')
@@ -1518,13 +1106,6 @@ def add_system_post():
     return redirect(url_for('social.view_system', system_uid=system_uid))
 
 
-#######################################################################################
-# function : add_group_post
-# purpose : renders group_social.html
-# parameters : group_uid
-# returns: group_social.html
-# Exception : General Exception
-#######################################################################################
 @social.route('/groups/add_group_post', methods=['POST'])
 def add_group_post():
     user_sql_id = session.get('uid')
@@ -1557,13 +1138,6 @@ def add_group_post():
     return redirect(url_for('social.view_group', group_uid=group_uid))
 
 
-#######################################################################################
-# function : delete_group_post
-# purpose : deletes existing group post using unique post id
-# parameters : None
-# returns: to group timeline page
-# Exception : None
-#######################################################################################
 @social.route('/delete_group_post', methods=['POST'])
 def delete_group_post():
     post_id = request.form['postid']
@@ -1576,13 +1150,6 @@ def delete_group_post():
     return redirect(url_for('social.view_group', group_uid=group_uid))
 
 
-#######################################################################################
-# function : edit_group_post
-# purpose : edits existing group comments using unique comment id
-# parameters : None
-# returns: calls index function
-# Exception : None
-#######################################################################################
 @social.route('/edit_group_post', methods=['POST'])
 def edit_group_post():
     new_post = request.form['editedpost']
@@ -1599,13 +1166,6 @@ def edit_group_post():
     return redirect(url_for('social.view_group', group_uid=group_uid))
 
 
-#######################################################################################
-# function : like_or_unlike_post
-# purpose : like or unlike existing post using unique post id
-# parameters : None
-# returns: calls index function
-# Exception : None
-#######################################################################################
 @social.route('/like_or_unlike_post', methods=['POST'])
 def like_or_unlike_post():
     if request.method == 'POST':
@@ -1625,13 +1185,6 @@ def like_or_unlike_post():
 
 
 @social.route('/delete_post', methods=['POST'])
-#######################################################################################
-# function : delete_post
-# purpose : removes post and it's related realtionships and comments
-# parameters : None
-# returns: calls index function
-# Exception : None
-#######################################################################################
 def delete_post():
     if session.get('uid') is not None:
         post_id = request.form['postid']
@@ -1644,13 +1197,6 @@ def delete_post():
 
 
 @social.route('/add_system_comment', methods=['POST'])
-#######################################################################################
-# function : add_system_comment
-# purpose : adds comments to the post
-# parameters : None
-# returns: calls index function
-# Exception : None
-#######################################################################################
 def add_system_comment():
     comment = request.form['newcomment']
     postid = request.form['postid']
@@ -1669,13 +1215,6 @@ def add_system_comment():
 
 
 @social.route('/add_group_comment', methods=['POST'])
-#######################################################################################
-# function : add_group_comment
-# purpose : adds comments to the post
-# parameters : None
-# returns: calls index function
-# Exception : None
-#######################################################################################
 def add_group_comment():
     comment = request.form['newcomment']
     postid = request.form['postid']
@@ -1694,13 +1233,6 @@ def add_group_comment():
 
 
 @social.route('/edit_system_post', methods=['POST'])
-#######################################################################################
-# function : edit_system_post
-# purpose : edits existing system comments using unique comment id
-# parameters : None
-# returns: calls index function
-# Exception : None
-#######################################################################################
 def edit_system_post():
     newpost = request.form['editedpost']
     postid = request.form['postid']
@@ -1719,13 +1251,6 @@ def edit_system_post():
 
 
 @social.route('/delete_system_post', methods=['POST'])
-#######################################################################################
-# function : delete_system_post
-# purpose : deletes existing system post using unique post id
-# parameters : None
-# returns: to system timeline page
-# Exception : None
-#######################################################################################
 def delete_system_post():
     postid = request.form['postid']
     system_uid = request.form['system_uid']
@@ -1739,13 +1264,6 @@ def delete_system_post():
 
 
 @social.route('/like_or_unlike_system_post', methods=['POST'])
-#######################################################################################
-# function : like_or_unlike_system_post
-# purpose : like or unlike existing post using unique post id
-# parameters : None
-# returns: to system timeline page
-# Exception : None
-#######################################################################################
 def like_or_unlike_system_post():
     if request.method == 'POST':
         if session.get('uid') is not None:
@@ -1765,13 +1283,6 @@ def like_or_unlike_system_post():
     return redirect(url_for('social.view_system', system_uid=system_uid))
 
 
-#######################################################################################
-# function : like_or_unlike_group_post
-# purpose : like or unlike existing post using unique post id
-# parameters : None
-# returns: to system timeline page
-# Exception : None
-#######################################################################################
 @social.route('/like_or_unlike_group_post', methods=['POST'])
 def like_or_unlike_group_post():
     if request.method == 'POST':
@@ -1793,13 +1304,6 @@ def like_or_unlike_group_post():
 
 
 @social.route('/like_system_post', methods=['POST'])
-#######################################################################################
-# function : like_system_post
-# purpose : like system posts previously created by user
-# parameters : None
-# returns: to system timeline page if operation is successful else home page
-# Exception : None
-#######################################################################################
 def like_system_post():
     if session.get('uid') is not None:
         userid = session.get('uid')
@@ -1813,13 +1317,6 @@ def like_system_post():
 
 
 @social.route('/like_post', methods=['POST'])
-#######################################################################################
-# function : like_post
-# purpose : like posts previously created by user
-# parameters : None
-# returns: calls index function
-# Exception : None
-#######################################################################################
 def like_post():
     if session.get('uid') is not None:
         postid = request.form['postid']
@@ -1831,13 +1328,6 @@ def like_post():
 
 
 @social.route('/unlike_post', methods=['POST'])
-#######################################################################################
-# function : unlike_post
-# purpose : unlike post previously liked by user
-# parameters : None
-# returns: calls index function
-# Exception : None
-#######################################################################################
 def unlike_post():
     if session.get('uid') is not None:
         postid = request.form['postid']
@@ -1848,13 +1338,6 @@ def unlike_post():
         return render_template("/home.html")
 
 
-#######################################################################################
-# function : getfriends
-# purpose : used in search friends to return a node in case a match is obtained corresponding
-#           to the name that the logged in user has typed
-# parameters : None
-# returns: json data of existing user's name, organization and friend status
-#######################################################################################
 @social.route('/getfriends', methods=['GET'])
 def getfriends():
     users = User(session['uid']).get_search_friends()
@@ -1892,12 +1375,6 @@ def getfriends():
     return jsonify(json_list=user_list)
 
 
-#######################################################################################
-# function : get_friend_status
-# purpose : used in search friends to return the status of a friend request
-# parameters : user_sql_id, sentreq_res, receivedreq_res, frnds_res
-# returns: the friend status between passed user and logged in user
-#######################################################################################
 def get_friend_status(user_sql_id, sentreq_res, receivedreq_res, frnds_res):
     friend_status = "Add Friend"
     for sf in sentreq_res:
@@ -1918,13 +1395,6 @@ def get_friend_status(user_sql_id, sentreq_res, receivedreq_res, frnds_res):
 
 
 @social.route('/logout')
-#######################################################################################
-# function : logout
-# purpose : logout of current session
-# parameters : None
-# returns: calls index function
-# Exception : None
-#######################################################################################
 def logout():
     session.pop('access_token', None)
     session.pop('token', None)
@@ -1936,13 +1406,6 @@ def logout():
 
 
 @social.route('/testSignin', methods=['POST'])
-#######################################################################################
-# function : Test Insertion and deletion of the user in Neo4j and mySql
-# purpose : signs in with POST and takes data from the request
-# parameters : None
-# returns: response
-# Exception : app.logger.exception
-#######################################################################################
 def testSignin():
     try:
         GivenName = request.form['givenName']
@@ -1952,7 +1415,7 @@ def testSignin():
         user_id = get_user(user_id, email, GivenName, familyName)
         return Response("ok", mimetype='text/plain')
     except:
-        logging.exception("Got an exception")
+        current_app.logger.exception("Got an exception")
         raise
 
 
@@ -1980,10 +1443,6 @@ def get_user_by_sql_or_google_id():
             return result
 
 
-######################################################################
-# API call to get user data for the current logged in user
-######################################################################
-
 @social.route('/aqxapi/v1/user/current', methods=['GET'])
 def get_logged_in_user():
     result = ScAPI(social_graph()).get_logged_in_user()
@@ -1993,9 +1452,6 @@ def get_logged_in_user():
         return result
 
 
-######################################################################
-# API call to put user node in the Neo4J database
-######################################################################
 @social.route('/aqxapi/v1/user', methods=['POST'])
 def create_user():
     jsonObject = request.get_json()
@@ -2006,9 +1462,6 @@ def create_user():
         return result, 201
 
 
-######################################################################
-# API call to delete user node in the Neo4J database
-######################################################################
 @social.route('/aqxapi/v1/user', methods=['DELETE'])
 def delete_user_by_sql_id():
     sql_id = request.args.get('sql_id')
@@ -2023,9 +1476,6 @@ def delete_user_by_sql_id():
         return error_msg, 400
 
 
-######################################################################
-# API call to create system node in the Neo4J database
-######################################################################
 @social.route('/aqxapi/v1/system', methods=['POST'])
 def create_system():
     jsonObject = request.get_json()
@@ -2036,9 +1486,6 @@ def create_system():
         return result, 201
 
 
-######################################################################
-# API call to update system node in the Neo4J database using system_uid
-######################################################################
 @social.route('/aqxapi/v1/system', methods=['PUT'])
 def update_system():
     jsonObject = request.get_json()
@@ -2049,9 +1496,6 @@ def update_system():
         return result
 
 
-######################################################################
-# API call to delete system node in the Neo4J database
-######################################################################
 @social.route('/aqxapi/v1/system', methods=['DELETE'])
 def delete_system_by_system_id():
     system_id = request.args.get('system_id')
@@ -2066,9 +1510,6 @@ def delete_system_by_system_id():
         return error_msg, 400
 
 
-######################################################################
-# API call to get the system(s) node for the user related to from the Neo4J database
-######################################################################
 @social.route('/aqxapi/v1/system', methods=['GET'])
 def get_system_for_user():
     sql_id = request.args.get('sql_id')
@@ -2083,16 +1524,7 @@ def get_system_for_user():
         return error_msg, 400
 
 
-#######################################################################################
-
 @social.route('/test_add_post', methods=['POST'])
-#######################################################################################
-# function : test_add_post
-# purpose : tests adds posts newly created by user
-# parameters : None
-# returns: calls index function
-# Exception : None
-#######################################################################################
 def test_add_post():
     if session.get('uid') is not None:
         privacy = request.form['privacy']
@@ -2107,13 +1539,6 @@ def test_add_post():
 
 
 @social.route('/test_add_comment', methods=['POST'])
-#######################################################################################
-# function : test_add_comment
-# purpose : tests adds comments to the post
-# parameters : None
-# returns: calls index function
-# Exception : None
-#######################################################################################
 def test_add_comment():
     comment = request.form['newcomment']
     post_id = request.form['postid']

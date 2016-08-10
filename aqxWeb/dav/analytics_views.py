@@ -1,6 +1,6 @@
 import json
 import traceback
-from flask import Blueprint, render_template, request, redirect, url_for, abort
+from flask import Blueprint, render_template, request, redirect, url_for, abort, current_app
 
 from app.dav_api import DavAPI
 from aqxWeb.app.APIv2 import API as UIAPI
@@ -14,9 +14,6 @@ ESTABLISHED = 200
 DEFAULT_MEASUREMENTS_LIST = [6, 7, 2, 1, 9, 8, 10]
 
 
-######################################################################
-# Displays an error page when an error occurs
-######################################################################
 @dav.route('/error')
 def error():
     return render_template("error.html")
@@ -27,9 +24,6 @@ def init_dav(flask_app):
     app = flask_app
 
 
-######################################################################
-# Interactive map of all systems
-######################################################################
 @dav.route('/explore')
 def explore():
     try:
@@ -56,20 +50,10 @@ def explore():
         return render_template("error.html"), 400
 
 
-#######################################################################################
-# function : index
-# purpose : placeholder for dav.index
-# parameters : None
-# returns: Index string... no purpose
-#######################################################################################
 @dav.route('/')
 def index():
     return 'Index'
 
-
-######################################################################
-# Interactive graph analysis of system measurements
-######################################################################
 
 @dav.route('/analyzeGraph', methods=['POST'])
 def analyze_graph():
@@ -137,11 +121,6 @@ def analyze_graph():
         return render_template("error.html"), 400
 
 
-######################################################################
-# Interactive graph analysis of a given system measurements
-# takes a system_uid as parameter
-# displays a graph for the system whose system_uid is given
-######################################################################
 @dav.route('/analyzeGraph/system/<system_uid>', methods=['GET'])
 def system_analyze(system_uid):
     try:
@@ -205,34 +184,16 @@ def system_analyze(system_uid):
         return render_template("error.html"), 400
 
 
-######################################################################
-# API call to get metadata of all the systems
-######################################################################
-
-# get_all_systems_info() - It returns the system information as a JSON
-#                          object.
 def get_all_systems_info():
+    """returns system inforamtion as JSON"""
     dav_api = DavAPI(app)
     return dav_api.get_all_systems_info()
 
 
-######################################################################
-# API call to get filtering criteria
-######################################################################
-
-# get_all_aqx_metadata - It returns all the metadata that are needed
-#                        to filter the displayed systems.
 def get_all_aqx_metadata():
     dav_api = DavAPI(app)
     return dav_api.get_all_filters_metadata()
 
-
-######################################################################
-# API call to get latest recorded values of all measurements of a
-# given system (when only system_uid is given)
-# API call to get latest record of a given measurement of a given
-# system (when both system_uid and measurement_id is given)
-######################################################################
 
 @dav.route('/aqxapi/v1/measurements', methods=['GET'])
 def get_system_measurement():
@@ -255,10 +216,6 @@ def get_system_measurement():
     else:
         return result
 
-
-######################################################################
-# API call to put a record of a given measurement of a given system
-######################################################################
 
 @dav.route('/aqxapi/v1/measurements', methods=['PUT'])
 def put_system_measurement():
@@ -293,20 +250,11 @@ def put_system_measurement():
         return result, 201
 
 
-######################################################################
-# API to get the readings of the time series plot
-# the measurements should be sorted in order of the date (ascending)
-######################################################################
-
 def get_readings_for_tsplot(system_uid_list, msr_id_list,status_id):
     dav_api = DavAPI(app)
     return dav_api.get_readings_for_plot(system_uid_list, msr_id_list,status_id)
 
 
-######################################################################
-# API to get the readings of the time series plot
-# the measurements should be sorted in order of the date (ascending)
-######################################################################
 @dav.route('/aqxapi/v1/measurements/plot', methods=['POST'])
 def get_readings_for_plot():
     dav_api = DavAPI(app)
@@ -316,28 +264,15 @@ def get_readings_for_plot():
     return dav_api.get_readings_for_plot(systems_uid, measurements,status_id)
 
 
-######################################################################
-# API to get all measurements for picking axis in graph
-######################################################################
-
 def get_all_measurement_names():
     dav_api = DavAPI(app)
     return dav_api.get_all_measurement_names()
 
 
-######################################################################
-# API to get all measurements' information: id, name, units, min and
-# max
-######################################################################
-
 def get_all_measurement_info():
     dav_api = DavAPI(app)
     return dav_api.get_all_measurement_info()
 
-
-######################################################################
-# Helper functions to parse JSON properly into dicts (with byte Strings)
-######################################################################
 
 def json_loads_byteified(json_text):
     return _byteify(
