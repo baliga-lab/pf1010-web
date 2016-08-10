@@ -5,6 +5,8 @@ import random
 import re
 from collections import defaultdict
 
+from flask import current_app
+### WHY ????? TODO
 from django.core.serializers.json import DjangoJSONEncoder
 
 from aqxWeb.dav.dao.MetaDataDAO import MetadataDAO
@@ -12,31 +14,12 @@ from aqxWeb.dav.dao.measurements_dao import MeasurementsDAO
 from aqxWeb.dav.dao.systemsDAO import SystemsDAO
 
 
-# data analysis and viz data access api
-
-
 class DavAPI:
-    ###############################################################################
-    # get_system_metadata
-    ###############################################################################
-    # param conn : db connection
-    # param system_id : system id
-    # get_system_metadata(system_uid) - It takes in the system_uid as the input
-    #                                   parameter and returns the metadata for the
-    #                                   given system. Currently, it returns only
-    #                                   the name of the system.
 
     def __init__(self, app):
         self.sys = SystemsDAO(app)
         self.met = MetadataDAO(app)
         self.mea = MeasurementsDAO(app)
-
-    ###############################################################################
-    # get_all_systems_info
-    ###############################################################################
-    # param conn : db connection
-    # get_all_systems_info() - It returns the system information as a JSON
-    #                          object.
 
     def get_all_systems_info(self):
         systems = self.sys.get_all_systems_info()
@@ -64,13 +47,6 @@ class DavAPI:
 
         return json.dumps({'systems': systems_list})
 
-    ###############################################################################
-    # fetches all filter criteria
-    ###############################################################################
-    # param conn : db connection
-    # get_all_filters_`data - It returns all the metadata that are needed
-    #                            to filter the displayed systems.
-
     def get_all_filters_metadata(self):
         results = self.met.get_all_filters()
         if 'error' in results:
@@ -81,14 +57,6 @@ class DavAPI:
             value = result[1]
             values[measurement_type].append(value)
         return json.dumps({'filters': values})
-
-    ###############################################################################
-    # fetch latest recorded values of measurements for a given system
-    ###############################################################################
-    # param conn : db connection
-    # param system_uid : system's unique ID
-    # get_system_measurements - It returns the latest recorded values of the
-    #                           given system.
 
     def get_system_measurements(self, system_uid):
         # Fetch names of all the measurements
@@ -141,36 +109,15 @@ class DavAPI:
         }
         return json.dumps(obj)
 
-    ###############################################################################
-    # Get name of the measurement
-    ###############################################################################
-    # Fetch the name of the measurement using regular expression
-    # param: 'name' retrieved from the measurement_types table
     @staticmethod
     def get_measurement_name(name):
             return re.findall(r"\(u'(.*?)',\)", str(name))[0]
 
-    ###############################################################################
-    # Get name of the measurement table for a given system
-    ###############################################################################
-    # As each measurement of a system has a table on it's own,
-    # we need to create the name of each table.
-    # Each measurement table is: aqxs_measurementName_systemUID
-    # param: measurement_name: name of the measurement
-    # param: system_uid: system's unique ID
     @staticmethod
     def get_measurement_table_name(measurement_name, system_uid):
         table_name = "aqxs_" + measurement_name + "_" + system_uid
         return table_name
 
-    ###############################################################################
-    # fetch latest recorded values of given measurement for a given system
-    ###############################################################################
-    # param conn : db connection
-    # param system_uid : system's unique ID
-    # param measurement_id: ID of a measurement
-    # get_system_measurement - It returns the latest recorded values of the
-    #                           given system.
     def get_system_measurement(self, system_uid, measurement_id):
         # Encode the measurement_id
         measurement_id_encoded = measurement_id.encode('utf-8')
@@ -232,14 +179,6 @@ class DavAPI:
         }
         return json.dumps(obj)
 
-    ###############################################################################
-    # Insert records values of given measurement for a given system
-    ###############################################################################
-    # param conn : db connection
-    # param system_uid : system's unique ID
-    # param measurement_id: ID of a measurement
-    # get_system_measurement - It returns the latest recorded values of the
-    #                           given system.
     def put_system_measurement(self, system_uid, measurement_id, time, value):
         measurement = self.mea.get_measurement_name(measurement_id)
         if 'error' in measurement:
@@ -255,13 +194,6 @@ class DavAPI:
         }
         return json.dumps({'status': message})
 
-    ###############################################################################
-    # Retrieve the readings for input system and type of measurements
-    ###############################################################################
-    # param system_uid_list : List of system unique IDs
-    # param measurement_id_list: List of measurement_IDs
-    # get_readings_for_plot - It returns the readings of all the input system uids
-    #                         for all input measurement ids
     def get_readings_for_plot(self, system_uid_list, measurement_id_list,status_id):
         # Form a list of names from the list of ids
         measurement_type_list = self.mea.get_measurement_name_list(measurement_id_list)
@@ -303,15 +235,6 @@ class DavAPI:
 
         return json.dumps({"response": system_measurement_list})
 
-    ###############################################################################
-    # Form the system's measurement reading json
-    ###############################################################################
-    # param system_uid  : Unique id of system
-    # param readings    : all readings for the input system_uid
-    # param measurement_type_list : list of measurement types in the request
-    # form_system_measurement_json  - It returns the json for all information needed
-    # for the plot for the input system_uid
-    #
     def form_system_measurement_json(self, system_uid, readings,annotations, measurement_type_list,status):
         measurement_list = []
 
@@ -348,16 +271,16 @@ class DavAPI:
 
         return system_measurement
 
-    ###############################################################################
-    # Form the list of values
-    ###############################################################################
-    # param measurement_type : name of the type of measurement
-    # param all_readings : readings associated with input measurement_type
-    # form_values_list   : It returns the list of readings formed from input
-    # readings. ALl the readings that fall in 1-hour bucket from time of first reading
-    # are averaged and readings is timestamped with latest timestamp in the bucket.
     @staticmethod
     def form_values_list(self, measurement_type, all_readings):
+        """
+        Form the list of values
+        Parameters:
+          - measurement_type : name of the type of measurement
+          - all_readings : readings associated with input measurement_type
+        returns the list of readings formed from input readings. ALl the readings that
+        fall in 1-hour bucket from time of first reading  are averaged and readings
+        is timestamped with latest timestamp in the bucket."""
         value_list = []
 
         # Initialize the variables
@@ -420,20 +343,13 @@ class DavAPI:
                         prev_reading = reading
                     # Skip the reading if the readings are not in order. This is unlikely to occur.
                     else:
-                        print("Skipped Value for ", measurement_type, cur_date)
+                        current_app.logger.info("Skipped Value for %s, %s", str(measurement_type), str(cur_date))
 
             except ValueError as err:
                 raise ValueError('Error in preparing values list', measurement_type, reading)
 
         return value_list
 
-    #####################################################################################
-    # Build the values object
-    ####################################################################################
-    # param x             : x value of reading
-    # param y             : y value of reading
-    # param reading_date  : date of reading
-    # build_values        : It returns the values object formed from x,y and reading date
     @staticmethod
     def build_values(x, y, reading_date):
         values = {
@@ -445,18 +361,14 @@ class DavAPI:
         }
         return values
 
-    ###############################################################################
-    # Update value list to add annotations and convert date to string
-    ###############################################################################
-    # param value_list  : list of all reading values
-    # param annotations : list of associated annotations
-    # update_value_list : It returns the updated value list after adding any eligible .
-    #                     annotation and converting the date to string format.
-    #                     Annotation is added to the closest reading available after
-    #                     the annotation timestamp. So there can be multiple
-    #                     annotations associated with one reading.
-
     def update_value_list(self,value_list,annotations):
+        """Update value list to add annotations and convert date to string
+        Parameters:
+          - value_list  : list of all reading values
+          - annotations : list of associated annotations
+        Returns: updated value list after adding any eligible annotation and converting
+        the date to string format. Annotation is added to the closest reading available after
+        the annotation timestamp. So there can be multiple annotations associated with one reading."""
         index=0
         updated_value_list = []
 
@@ -502,16 +414,16 @@ class DavAPI:
 
         return obj
 
-    ###############################################################################
-    # Update the values object
-    ###############################################################################
-    # param value       : value to be updated
-    # param annotations : annotations associated with the values
-    # update_values     : It returns the updated values object. Values are modified to
-    #                     to include any associated annotations and date in string format
     @staticmethod
     def update_values(value,annotations):
-        if(annotations is None):
+        """Update the values object
+        Parameters:
+          - value: value to be updated
+          - annotations: annotations associated with the values
+        Returns:
+        the updated values object. Values are modified to include any associated
+        annotations and date in string format"""
+        if annotations is None:
             values = {
                 "x": value["x"],
                 "y": value["y"],
@@ -535,24 +447,11 @@ class DavAPI:
 
         return values
 
-    ###############################################################################
-    # Get the system name
-    ###############################################################################
-    # param conn       : db connection
-    # param  system_id : Unique id of the system
-    # get_system_name  : It returns the name of the system
-    #
     @staticmethod
     def get_system_name(conn, system_id):
         s = SystemsDAO(conn)
         return s.get_system_name(system_id)
 
-    ###############################################################################
-    # Calculate the difference in hours
-    ###############################################################################
-    # param curDate    : date of current reading
-    # param  startDate : date of first reading
-    # calc_diff_hours  : It returns the difference in hours between two input dates
     @staticmethod
     def calc_diff_hours(cur_date, start_date):
         if cur_date < start_date:
@@ -560,11 +459,6 @@ class DavAPI:
         else:
             diff = cur_date - start_date
             return diff.days * 24 + diff.seconds / 3600
-
-    ###############################################################################
-    # get all measurement types
-    ###############################################################################
-    # returns all types that can be chosen for the axes of the graph
 
     def get_all_measurement_names(self):
         meas = self.mea.get_all_measurement_names()
@@ -576,16 +470,14 @@ class DavAPI:
         mlist.append('time')
         return json.dumps({"types": mlist})
 
-    ################################################################################
-    # method to generate test data
-    # param conn - connection to db
-    # param min_range - minimum value u want to insert
-    # param max_range - maximum value u want to insert
-    # systems - list of systems
-    # meas - list of measurements
-    ################################################################################
-
     def generate_data(self, min_range, max_range, systems, meas):
+        """generate test data
+        Parameters:
+          - conn: connection to db
+          - min_range: minimum value u want to insert
+          - max_range: maximum value u want to insert
+          - systems: list of systems
+          - meas: list of measurements"""
         for s in systems:
             for i in range(1, 6, 1):
                 for j in range(0, 24, 1):
@@ -595,11 +487,6 @@ class DavAPI:
                         time = d.strftime('%Y-%m-%d %H:%M:%S')
                         val = random.uniform(min_range, max_range)
                         self.mea.put_system_measurement(table_name, time, val)
-
-    ###############################################################################
-    # get all measurement information: id, name, units, min, max
-    ###############################################################################
-    # returns all types
 
     def get_all_measurement_info(self):
         meas = self.mea.get_all_measurement_info()

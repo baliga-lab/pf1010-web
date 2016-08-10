@@ -165,7 +165,7 @@ def updateprofile():
         flash("User Profile Updated successfully!")
         return editprofile()
     except Exception as ex:
-        print "Exception Occurred At updateprofile: " + str(ex.message)
+        current_app.logger.exception("Exception Occurred At updateprofile: ", ex)
 
 
 @social.route('/profile/<google_id>', methods=['GET'])
@@ -725,7 +725,7 @@ def get_users_to_invite_groups(group_uid):
             user_list.append(individual_user)
         return jsonify(user_json_list=user_list)
     except Exception as ex:
-        print "Exception at get_users_to_invite_groups: " + str(ex.message)
+        current_app.logger.exception("Exception at get_users_to_invite_groups: ", ex)
         user_list = []
         return jsonify(user_json_list=user_list)
 
@@ -775,7 +775,7 @@ def update_group_info():
         else:
             return redirect(url_for('social.groups'))
     except Exception as ex:
-        print "Exception Occurred at update_group_info: " + str(ex.message)
+        current_app.logger.exception("Exception Occurred at update_group_info: ", ex)
 
 
 @social.route('/manage/groups/create_group', methods=['POST'])
@@ -838,7 +838,7 @@ def invite_group_member():
         else:
             return redirect(url_for('social.groups'))
     except Exception as ex:
-        print "Exception at invite_group_member: " + str(ex.message)
+        current_app.logger.exception("Exception at invite_group_member: ", ex)
         return redirect(url_for('social.groups'))
 
 @social.route('/manage/groups/delete_group_admin_or_make_member', methods=['POST'])
@@ -860,7 +860,7 @@ def delete_group_admin_or_make_member():
         else:
             return redirect(url_for('social.groups'))
     except Exception as ex:
-        print "Exception at delete_group_admin_or_make_member: " + str(ex.message)
+        current_app.logger.exception("Exception at delete_group_admin_or_make_member: ", ex)
 
 
 @social.route('/manage/groups/delete_member_or_make_admin', methods=['POST'])
@@ -1171,7 +1171,6 @@ def like_or_unlike_post():
     if request.method == 'POST':
         if session.get('uid') is not None:
             post_id = request.form['postid']
-            print(request.form['submit'])
             if post_id == "":
                 flash('Can not find the post to delete.')
             else:
@@ -1270,7 +1269,6 @@ def like_or_unlike_system_post():
             postid = request.form['postid']
             userid = session['uid']
             system_uid = request.form['system_uid']
-            print(request.form['submit'])
             if postid == "":
                 flash('Can not find the post to delete.')
             else:
@@ -1290,7 +1288,6 @@ def like_or_unlike_group_post():
             post_id = request.form['postid']
             user_id = session['uid']
             group_uid = request.form['group_uid']
-            print(request.form['submit'])
             if post_id == "":
                 flash('Can not find the post to delete.')
             else:

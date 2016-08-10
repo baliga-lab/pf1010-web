@@ -10,8 +10,6 @@ class subscriptionDAO:
 
     def subscribe(self, email):
         conn = self.getDBConn()
-        print('here')
-        print(email)
         cursor = conn.cursor()
 
         query = ('INSERT INTO subscriptions (email) VALUES (%s)')

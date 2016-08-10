@@ -55,7 +55,6 @@ def get_or_create_user(conn, cursor, google_id, googleAPIResponse):
     else:
         result = row[0]
         user = User(result).find()
-        print(user)
         # There might be cases where the Neo4J does not have the corressponding User node
         if user is None:
             missing_user_neo4j = Node("User", sql_id=result, google_id=google_id, email=email, givenName=givenName, familyName=familyName, displayName=displayName, user_type="subscriber", organization=organization, creation_time=timestamp(), modified_time=timestamp(), dob="", gender=gender,image_url=imgurl, status=0)

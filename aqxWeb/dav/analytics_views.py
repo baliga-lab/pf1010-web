@@ -22,16 +22,16 @@ def explore():
     try:
         systems_and_info_json = get_all_systems_info()
         if 'error' in systems_and_info_json:
-            print systems_and_info_json['error']
-            print("Error processing API call for aquaponic systems data.")
+            current_app.logger.info(systems_and_info_json['error'])
+            current_app.logger.info("Error processing API call for aquaponic systems data.")
             return render_template("error.html"), 400
 
         systems = json_loads_byteified(systems_and_info_json)['systems']
 
         metadata_json = get_all_aqx_metadata()
         if 'error' in metadata_json:
-            print metadata_json['error']
-            print("Error processing API call for system metadata.")
+            current_app.logger.info(metadata_json['error'])
+            current_app.logger.info("Error processing API call for system metadata.")
             return render_template("error.html"), 400
 
         metadata_dict = json_loads_byteified(metadata_json)['filters']
@@ -58,8 +58,8 @@ def analyze_graph():
         # This will be piped into Javascript as a JS Object accessible in that scope
         measurement_types_and_info = get_all_measurement_info()
         if 'error' in measurement_types_and_info:
-            print measurement_types_and_info['error']
-            print("Error processing API call for measurement types.")
+            current_app.logger(measurement_types_and_info['error'])
+            current_app.logger("Error processing API call for measurement types.")
             return render_template("error.html"), 400
 
         # Load JSON into Python dict with only Byte values, for use in populating dropdowns
@@ -74,8 +74,8 @@ def analyze_graph():
         except:
             traceback.print_exc()
             if not selected_systemID_list:
-                print("System ID list or Status is undefined.")
-                print("Error processing selected systems form.")
+                current_app.logger.info("System ID list or Status is undefined.")
+                current_app.logger.info("Error processing selected systems form.")
                 return render_template("error.html"), 400
 
         systems_and_measurements_json_pre_est = json_loads_byteified(get_readings_for_tsplot(selected_systemID_list,
@@ -87,8 +87,8 @@ def analyze_graph():
                 measurement['status'] = '100'
 
         if 'error' in systems_and_measurements_json_pre_est:
-            print systems_and_measurements_json_pre_est['error']
-            print("Error processing API call for measurement readings.")
+            current_app.logger.info(systems_and_measurements_json_pre_est['error'])
+            current_app.logger.info("Error processing API call for measurement readings.")
             return render_template("error.html"), 400
 
         systems_and_measurements_json = json_loads_byteified(get_readings_for_tsplot(selected_systemID_list,
@@ -100,8 +100,8 @@ def analyze_graph():
                 measurement['status'] = '200'
 
         if 'error' in systems_and_measurements_json:
-            print systems_and_measurements_json['error']
-            print("Error processing API call for measurement readings.")
+            current_app.logger.info(systems_and_measurements_json['error'])
+            current_app.logger.info("Error processing API call for measurement readings.")
             return render_template("error.html"), 400
 
         # appends measurements of both types to the system_and_measurement_json
@@ -125,8 +125,8 @@ def system_analyze(system_uid):
         # This will be piped into Javascript as a JS Object accessible in that scope
         measurement_types_and_info = get_all_measurement_info()
         if 'error' in measurement_types_and_info:
-            print measurement_types_and_info['error']
-            print ("Error processing API call for measurement types.")
+            current_app.logger.info(measurement_types_and_info['error'])
+            current_app.logger.info("Error processing API call for measurement types.")
             return render_template("error.html"), 400
 
         # Load JSON into Python dict with only Byte values, for use in populating dropdowns
@@ -140,7 +140,7 @@ def system_analyze(system_uid):
         except:
             traceback.print_exc()
             if not selected_systemID_list or len(selected_systemID_list) > 1:
-                print("Incorrect system ID sent.")
+                current_app.logger.info("Incorrect system ID sent.")
                 return render_template("error.html"), 400
 
         systems_and_measurements_json_pre_est = json_loads_byteified(get_readings_for_tsplot(selected_systemID_list,
@@ -151,7 +151,7 @@ def system_analyze(system_uid):
             for measurement in system['measurement']:
                 measurement['status'] = '100'
         if 'error' in systems_and_measurements_json_pre_est:
-            print systems_and_measurements_json_pre_est['error']
+            current_app.logger.info(systems_and_measurements_json_pre_est['error'])
             return render_template("error.html"), 400
 
         systems_and_measurements_json = json_loads_byteified(get_readings_for_tsplot(selected_systemID_list,
@@ -163,7 +163,7 @@ def system_analyze(system_uid):
                 measurement['status'] = '200'
 
         if 'error' in systems_and_measurements_json:
-            print systems_and_measurements_json['error']
+            current_app.logger.info(systems_and_measurements_json['error'])
             return render_template("error.html"), 400
 
         # appends measurements of both types to the system_and_measurement_json

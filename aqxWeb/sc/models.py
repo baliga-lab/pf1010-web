@@ -243,7 +243,6 @@ class User:
 
     def delete_comment(self, comment_id):
         user = self.find()
-        # print("Comment id" + str(comment_id))
         query = """
         MATCH (comment:Comment)
         WHERE comment.id = {comment_id}
@@ -301,8 +300,6 @@ class User:
     def accept_friend_request(self, sender_sql_id):
         my_user_node = self.find()
         friend_user_node = User(int(sender_sql_id)).find()
-        # print(date());
-        # print("In accept_friend_request")
         query = """
             MATCH (n:User),(n1:User)
             Where n.sql_id = {acceptor_sid} AND n1.sql_id = {accepted_sid}
@@ -340,7 +337,6 @@ class User:
     def delete_friend_request(self, receiver_sql_id):
         my_user_node = self.find()
         receiver_user_node = User(int(receiver_sql_id)).find()
-        # print("In delete_friend_request")
         query = """
             MATCH  (n:User) - [r:SentRequest] - (n1:User)
             Where n.sql_id = {acceptor_sid} AND n1.sql_id = {accepted_sid}
@@ -449,8 +445,7 @@ def get_system_measurements_dav_api(system_uid):
             response = client.get(dav_system_measurement_url, query_string=query_param)
             return response.data
     except Exception as ex:
-        print "Exception in get_system_measurements_dav_api"
-        print str(ex)
+        current_app.logger.exception("Exception in get_system_measurements_dav_api", ex)
 
 
 def get_all_recent_posts(user_id):
