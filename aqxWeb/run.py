@@ -14,13 +14,14 @@ import views
 
 from dav.analytics_views import dav
 
-from sc.models import init_sc_app
+#from sc.models import init_sc_app
 from sc.views import social
 
 app = Flask(__name__)
 
 app.config.from_envvar('AQUAPONICS_SETTINGS')
-init_sc_app(app)
+
+#init_sc_app(app)
 nav.init_app(app)
 
 app.register_blueprint(dav, url_prefix='/dav')

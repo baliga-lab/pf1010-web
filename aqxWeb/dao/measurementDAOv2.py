@@ -1,4 +1,4 @@
-from systemDAOv2 import getTableName
+from dao.systemDAOv2 import getTableName
 import MySQLdb
 
 class measurementDAO:

@@ -1,21 +1,19 @@
 from flask import Blueprint, request, session, redirect, url_for, render_template, flash, Response, jsonify, json, current_app
-
-from models import User, get_all_recent_posts, get_all_recent_comments, get_all_recent_likes
-from models import get_total_likes_for_posts, get_all_post_owners, get_system_measurements_dav_api
-from models import System, Privacy, Group
-from models import social_graph
-from models import get_all_profile_posts
-from py2neo import cypher
-from app.scAPI import ScAPI
 from flask_login import login_required
-from flask_googlelogin import LoginManager, make_secure_token, GoogleLogin
-from models import convert_milliseconds_to_normal_date, get_address_from_lat_lng
-import models
 import mysql.connector
 import requests
-import aqxdb
 from flask_oauth import OAuth
 import json
+
+from aqxWeb.sc.models import User, get_all_recent_posts, get_all_recent_comments, get_all_recent_likes
+from aqxWeb.sc.models import get_total_likes_for_posts, get_all_post_owners, get_system_measurements_dav_api
+from aqxWeb.sc.models import System, Privacy, Group
+from aqxWeb.sc.models import social_graph
+from aqxWeb.sc.models import get_all_profile_posts
+from aqxWeb.sc.scAPI import ScAPI
+from aqxWeb.sc.models import convert_milliseconds_to_normal_date, get_address_from_lat_lng
+import aqxWeb.sc.models
+import aqxWeb.sc.aqxdb
 
 social = Blueprint('social', __name__, template_folder='templates', static_folder="static")
 

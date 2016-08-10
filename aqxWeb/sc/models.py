@@ -1,6 +1,10 @@
 import py2neo
 from flask import request, current_app
-from urlparse import urlparse
+try:
+    from urlparse import urlparse
+except:
+    from urllib.parse import urlparse
+
 import time
 import datetime
 import uuid
@@ -12,30 +16,27 @@ from flask import url_for
 def graph_update(query, **kwargs):
     """py2neo has significant changes in the API between V2 and V3,
     this function tries to be compatible to both APIs"""
-    global graph_instance
     try:
-        return graph_instance.cypher.execute(query, kwargs)
+        return social_graph().cypher.execute(query, kwargs)
     except Exception as e:
-        cursor = graph_instance.run(query, kwargs)
+        cursor = social_graph().run(query, kwargs)
         return [r for r in cursor]
 
 
 def graph_query(query, **kwargs):
-    global graph_instance
     try:
-        return graph_instance.cypher.execute(query, kwargs)
+        return social_graph().cypher.execute(query, kwargs)
     except:
-        cursor = graph_instance.run(query, kwargs)
+        cursor = social_graph().run(query, kwargs)
         return [r for r in cursor]
 
 def graph_query_one_or_none(query, **kwargs):
-    global graph_instance
     try:
-        result = graph_instance.cypher.execute(query, kwargs)
+        result = social_graph().cypher.execute(query, kwargs)
         if result is not None:
             return result.one
     except:
-        cursor = graph_instance.run(query, kwargs)
+        cursor = social_graph().run(query, kwargs)
         result = [r for r in cursor]
         if len(result) > 0:
             if len(result[0]) == 1:
@@ -44,21 +45,15 @@ def graph_query_one_or_none(query, **kwargs):
     return None
 
 
-def init_sc_app(app):
-    """connect to the social graph here and store a global reference"""
-    try:
-        global graph_instance
-        py2neo.authenticate(app.config['NEO4J_HOST'],
-                            app.config['NEO4J_USER'],
-                            app.config['NEO4J_PASS'])
-        graph_instance = py2neo.Graph(app.config['NEO4J_CONNECTION_URI'])
-    except Exception as ex:
-        app.logger.exception("Exception At init_sc_app: " + str(ex.message))
-        raise
-
-
 def social_graph():
-    return graph_instance
+    try:
+        py2neo.authenticate(current_app.config['NEO4J_HOST'],
+                            current_app.config['NEO4J_USER'],
+                            current_app.config['NEO4J_PASS'])
+        return py2neo.Graph(current_app.config['NEO4J_CONNECTION_URI'])
+    except Exception as ex:
+        current_app.logger.exception("Exception At init_sc_app: ", ex)
+        raise
 
 
 class User:

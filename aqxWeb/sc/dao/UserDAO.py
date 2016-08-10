@@ -116,8 +116,6 @@ class UserDAO:
             error_msg = json.dumps({'error': 'Exception Occurred At delete_user_by_sql_id: ' + str(ex.message)})
             return error_msg
 
-    ###############################################################################
-
     # function : get_unblocked_friends_by_sql_id
     # purpose : function used to find unblocked friends based on sql_id of the user
     # params : self, sql_id
@@ -131,16 +129,7 @@ class UserDAO:
             return n
             ORDER BY n.givenName
         """
-
-        try:
-            friendlist = self.graph.cypher.execute(query, sql_id=my_sql_id, blocker_id="");
-            return friendlist
-        except cypher.CypherError, cypher.CypherTransactionError:
-            raise "Exception occured in function get_unblocked_friends_by_sql_id"
-
-            ###############################################################################
-
-            ###############################################################################
+        return self.graph.cypher.execute(query, sql_id=my_sql_id, blocker_id="");
 
     # function : get_blocked_friends_by_sql_id
     # purpose : function used to find blocked friends based on sql_id of the user
@@ -156,11 +145,4 @@ class UserDAO:
             return n
             ORDER BY n.givenName
         """
-
-        try:
-            friendlist = self.graph.cypher.execute(query, sql_id=my_sql_id, blocker_id=my_sql_id);
-            return friendlist
-        except cypher.CypherError, cypher.CypherTransactionError:
-            raise "Exception occured in function get_blocked_friends_by_sql_id"
-
-            ###############################################################################
+        return self.graph.cypher.execute(query, sql_id=my_sql_id, blocker_id=my_sql_id);

@@ -2,7 +2,7 @@ import json
 import traceback
 from flask import Blueprint, render_template, request, redirect, url_for, abort, current_app
 
-from app.dav_api import DavAPI
+from aqxWeb.dav.dav_api import DavAPI
 from aqxWeb.app.APIv2 import API as UIAPI
 
 dav = Blueprint('dav', __name__, template_folder='templates', static_folder='static')

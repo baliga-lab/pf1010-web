@@ -3,7 +3,7 @@ from datetime import datetime
 
 from aqxWeb import run
 from aqxWeb.dav import analytics_views
-from aqxWeb.dav.app.dav_api import DavAPI
+from aqxWeb.dav.dav_api import DavAPI
 
 import json
 import MySQLdb

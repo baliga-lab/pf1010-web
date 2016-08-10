@@ -6,8 +6,6 @@ import re
 from collections import defaultdict
 
 from flask import current_app
-### WHY ????? TODO
-from django.core.serializers.json import DjangoJSONEncoder
 
 from aqxWeb.dav.dao.MetaDataDAO import MetadataDAO
 from aqxWeb.dav.dao.measurements_dao import MeasurementsDAO
@@ -499,4 +497,4 @@ class DavAPI:
             measurement_names[m[1]]["unit"] = (m[2])
             measurement_names[m[1]]["min"] = (m[3])
             measurement_names[m[1]]["max"] = (m[4])
-        return json.dumps({"measurement_info": measurement_names}, cls=DjangoJSONEncoder)
+        return json.dumps({"measurement_info": measurement_names})

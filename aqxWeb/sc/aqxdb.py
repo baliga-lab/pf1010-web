@@ -1,10 +1,11 @@
-#The access to the MySQL & Neo4J database is done from here
+"""The access to the MySQL & Neo4J database is done from here"""
 
 from flask import session
 from datetime import datetime
 from py2neo import Node
-from models import social_graph, timestamp, User, update_profile_image_url
 import uuid
+
+from aqxWeb.sc.models import social_graph, timestamp, User, update_profile_image_url
 
 def get_or_create_user(conn, cursor, google_id, googleAPIResponse):
 
