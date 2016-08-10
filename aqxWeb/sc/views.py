@@ -3,7 +3,7 @@ from flask import Blueprint, request, session, redirect, url_for, render_templat
 from models import User, get_all_recent_posts, get_all_recent_comments, get_all_recent_likes
 from models import get_total_likes_for_posts, get_all_post_owners, get_system_measurements_dav_api
 from models import System, Privacy, Group
-from models import get_app_instance, social_graph
+from models import social_graph
 from models import get_all_profile_posts
 from py2neo import cypher
 from app.scAPI import ScAPI
@@ -21,10 +21,10 @@ social = Blueprint('social', __name__, template_folder='templates', static_folde
 
 
 def dbconn():
-    return mysql.connector.connect(user=get_app_instance().config['USER'],
-                                   password=get_app_instance().config['PASS'],
-                                   host=get_app_instance().config['HOST'],
-                                   database=get_app_instance().config['DB'])
+    return mysql.connector.connect(user=current_app.config['USER'],
+                                   password=current_app.config['PASS'],
+                                   host=current_app.config['HOST'],
+                                   database=current_app.config['DB'])
 
 
 @social.route('/index')

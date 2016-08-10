@@ -9,12 +9,10 @@ from flask_oauth import OAuth
 
 from flask_bootstrap import Bootstrap
 from frontend import frontend as ui
-from servicesV2 import init_app as init_ui_app2
 from nav import nav
 import views
 
 from dav.analytics_views import dav
-from dav.analytics_views import init_dav as init_dav_app
 
 from sc.models import init_sc_app
 from sc.views import social
@@ -22,8 +20,6 @@ from sc.views import social
 app = Flask(__name__)
 
 app.config.from_envvar('AQUAPONICS_SETTINGS')
-init_ui_app2(app)
-init_dav_app(app)
 init_sc_app(app)
 nav.init_app(app)
 

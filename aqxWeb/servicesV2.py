@@ -1,16 +1,12 @@
-from flask import request, session
+from flask import request, session, current_app
 from frontend import frontend
 from app.APIv2 import API
 import MySQLdb
 
-def init_app(flask_app):
-    global app
-    app = flask_app
-
 
 def get_conn():
-    return MySQLdb.connect(host=app.config['HOST'], user=app.config['USER'],
-                           passwd=app.config['PASS'], db=app.config['DB'])
+    return MySQLdb.connect(host=current_app.config['HOST'], user=current_app.config['USER'],
+                           passwd=current_app.config['PASS'], db=current_app.config['DB'])
 
 
 ######################################################################
@@ -20,14 +16,14 @@ def get_conn():
 # Get userID given googleID
 @frontend.route('/aqxapi/v2/user/<googleID>', methods=['GET'])
 def getUserID(googleID):
-    api = API(app)
+    api = API(current_app)
     return api.getUserID(googleID)
 
 
 # Check if user with given googleID exists
 @frontend.route('/aqxapi/v2/user/<googleID>/exists', methods=['GET'])
 def hasUser(googleID):
-    api = API(app)
+    api = API(current_app)
     return api.hasUser(googleID)
 
 
@@ -35,21 +31,21 @@ def hasUser(googleID):
 @frontend.route('/aqxapi/v2/user', methods=['POST'])
 def createUser():
     googleProfile = request.get_json()
-    api = API(app)
+    api = API(current_app)
     return api.createUser(googleProfile)
 
 
 # Get all systems administrated by user with given userID
 @frontend.route('/aqxapi/v2/user/<userID>/system', methods=['GET'])
 def getSystemsForUser(userID):
-    api = API(app)
+    api = API(current_app)
     return api.getSystemsForUser(userID)
 
 
 # Delete user with given userID
 @frontend.route('/aqxapi/v2/user/<userID>', methods=['DELETE'])
 def deleteUser(userID):
-    api = API(app)
+    api = API(current_app)
     return api.deleteUser(userID)
 
 
@@ -60,14 +56,14 @@ def deleteUser(userID):
 # Get metadata info for a system with given systemUID
 @frontend.route('/aqxapi/v2/system/<systemUID>', methods=['GET'])
 def getSystem(systemUID):
-    api = API(app)
+    api = API(current_app)
     return api.getSystem(systemUID)
 
 
 # Create a new system whose administrator is the current logged in user
 @frontend.route('/aqxapi/v2/system', methods=['POST'])
 def createSystem():
-    api = API(app)
+    api = API(current_app)
     system = request.get_json()
     system['userID'] = session['uid']
     return api.createSystem(system)
@@ -76,21 +72,21 @@ def createSystem():
 # Delete a system with the given systemUID
 @frontend.route('/aqxapi/v2/system/<systemUID>', methods=['DELETE'])
 def deleteSystem(systemUID):
-    api = API(app)
+    api = API(current_app)
     return api.deleteSystem(systemUID)
 
 
 # Get annotations for a system with given systemID
 @frontend.route('/aqxapi/v2/system/<systemID>/annotation', methods=['GET'])
 def getAnnotationsForSystem(systemID):
-    api = API(app)
+    api = API(current_app)
     return api.getAnnotationsForSystem(systemID)
 
 
 # Add an annotation for system with given systemID
 @frontend.route('/aqxapi/v2/system/<systemID>/annotation', methods=['POST'])
 def addAnnotation(systemID):
-    api = API(app)
+    api = API(current_app)
     annotation = request.get_json()
     annotation['systemID'] = systemID
     return api.addAnnotation(annotation)
@@ -99,14 +95,14 @@ def addAnnotation(systemID):
 # Get latest reading of a system with given systemUID for each measurement type
 @frontend.route('/aqxapi/v2/system/<systemUID>/reading', methods=['GET'])
 def getLatestReadingsForSystem(systemUID):
-    api = API(app)
+    api = API(current_app)
     return api.getLatestReadingsForSystem(systemUID)
 
 
 # Submit reading for given measurementType for system with given systemUID
 @frontend.route('/aqxapi/v2/system/<systemUID>/reading/<measurementType>', methods=['POST'])
 def submitReading(systemUID, measurementType):
-    api = API(app)
+    api = API(current_app)
     reading = request.get_json()
     return api.submitReading(measurementType, systemUID, reading)
 
@@ -118,7 +114,7 @@ def submitReading(systemUID, measurementType):
 # Get enums which might be useful for populating options
 @frontend.route('/aqxapi/v2/enums', methods=['GET'])
 def getEnums():
-    api = API(app)
+    api = API(current_app)
     return api.getEnums()
 
 
@@ -129,7 +125,7 @@ def getEnums():
 # Subscribe the given email to the mailing list
 @frontend.route('/aqxapi/v2/mailing', methods=['POST'])
 def subscribe():
-    api = API(app)
+    api = API(current_app)
     email = request.get_json()['email']
     return api.subscribe(email)
 
@@ -141,12 +137,12 @@ def subscribe():
 # Get (somewhat) readable annotation given annotationID
 @frontend.route('/aqxapi/v2/annotation/<annotationID>', methods=['GET'])
 def getReadableAnnotation(annotationID):
-    api = API(app)
+    api = API(current_app)
     return api.getReadableAnnotation(annotationID)
 
 
 # Get (somewhat) readable annotations map
 @frontend.route('/aqxapi/v2/annotation', methods=['GET'])
 def getReadableAnnotations():
-    api = API(app)
+    api = API(current_app)
     return api.getReadableAnnotations()

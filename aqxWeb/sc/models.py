@@ -1,5 +1,5 @@
-from py2neo import authenticate, Graph, Node, Relationship, cypher
-from flask import request
+import py2neo
+from flask import request, current_app
 from urlparse import urlparse
 import time
 import datetime
@@ -45,21 +45,16 @@ def graph_query_one_or_none(query, **kwargs):
 
 
 def init_sc_app(app):
+    """connect to the social graph here and store a global reference"""
     try:
-        global app_instance
-        app_instance = app
         global graph_instance
-        authenticate(get_app_instance().config['NEO4J_HOST'],
-                     get_app_instance().config['NEO4J_USER'],
-                     get_app_instance().config['NEO4J_PASS'])
-        graph_instance = Graph(get_app_instance().config['NEO4J_CONNECTION_URI'])
+        py2neo.authenticate(app.config['NEO4J_HOST'],
+                            app.config['NEO4J_USER'],
+                            app.config['NEO4J_PASS'])
+        graph_instance = py2neo.Graph(app.config['NEO4J_CONNECTION_URI'])
     except Exception as ex:
-        print "Exception At init_sc_app: " + str(ex.message)
+        app.logger.exception("Exception At init_sc_app: " + str(ex.message))
         raise
-
-
-def get_app_instance():
-    return app_instance
 
 
 def social_graph():
@@ -103,7 +98,7 @@ class User:
 
     def add_post(self, text, privacy, link, profile=None, title="", img="", description=""):
         user = self.find()
-        post = Node(
+        post = py2neo.Node(
             "Post",
             id=str(uuid.uuid4()),
             text=text,
@@ -116,13 +111,13 @@ class User:
             link_img=img,
             link_description=description
         )
-        rel_post = Relationship(user, "POSTED", post)
+        rel_post = py2neo.Relationship(user, "POSTED", post)
 
         social_graph().create(rel_post)
 
         # if it is published in someone else's profile page
         if profile:
-            rel_posted_to = Relationship(post, "POSTED_TO", profile)
+            rel_posted_to = py2neo.Relationship(post, "POSTED_TO", profile)
             social_graph().create(rel_posted_to)
 
     def add_post_to(self, user_id, posted_to_user_id):
@@ -141,7 +136,7 @@ class User:
 
     def test_add_post(self, text, privacy, link):
         user = self.find()
-        post = Node(
+        post = py2neo.Node(
             "Post",
             id=str(1),
             text=text,
@@ -151,7 +146,7 @@ class User:
             modified_time=timestamp(),
             date=date()
         )
-        rel = Relationship(user, "POSTED", post)
+        rel = py2neo.Relationship(user, "POSTED", post)
         social_graph().create(rel)
 
     def check_status(self, sessionID, user_sql_id):
@@ -208,7 +203,7 @@ class User:
 
     def add_comment(self, new_comment, post_id):
         user = self.find()
-        comment = Node(
+        comment = py2neo.Node(
             "Comment",
             id=str(uuid.uuid4()),
             content=new_comment,
@@ -218,13 +213,12 @@ class User:
             modified_time=timestamp())
 
         post = social_graph().find_one("Post", "id", post_id)
-        rel = Relationship(post, 'HAS', comment)
+        rel = py2neo.Relationship(post, 'HAS', comment)
         social_graph().create(rel)
 
     def test_add_comment(self, new_comment, post_id):
         user = self.find()
-        # print(user)
-        comment = Node(
+        comment = py2neo.Node(
             "Comment",
             id=str(1),
             content=new_comment,
@@ -233,7 +227,7 @@ class User:
             creation_time=timestamp(),
             modified_time=timestamp())
         post = social_graph().find_one("Post", "id", post_id)
-        rel = Relationship(post, 'HAS', comment)
+        rel = py2neo.Relationship(post, 'HAS', comment)
         social_graph().create(rel)
 
     def edit_comment(self, new_comment, comment_id):
@@ -260,7 +254,7 @@ class User:
     def like_post(self, post_id):
         user = self.find()
         post = social_graph().find_one("Post", "id", post_id)
-        rel = Relationship(user, 'LIKED', post)
+        rel = py2neo.Relationship(user, 'LIKED', post)
         social_graph().create_unique(rel)
 
     def unlike_post(self, post_id):
@@ -450,8 +444,7 @@ def get_system_measurements_dav_api(system_uid):
     try:
         base_url = urlparse(request.url).netloc
         dav_system_measurement_url = "http://" + str(base_url) + "/dav/aqxapi/v1/measurements"
-        app = get_app_instance()
-        with app.test_client() as client:
+        with current_app.test_client() as client:
             query_param = {'system_uid': system_uid}
             response = client.get(dav_system_measurement_url, query_string=query_param)
             return response.data
@@ -908,7 +901,7 @@ class System:
     def add_system_post(self, system_uid, user_sql_id, text, privacy, link, title="", img="", description=""):
         new_system = System().find(system_uid)
         user = User(user_sql_id).find()
-        post = Node(
+        post = py2neo.Node(
             "SystemPost",
             id=str(uuid.uuid4()),
             text=text,
@@ -975,13 +968,13 @@ class System:
     def like_system_post(self, user_sql_id, system_postid):
         user = User(user_sql_id).find()
         post = social_graph().find_one("SystemPost", "id", system_postid)
-        rel = Relationship(user, 'SYS_LIKED', post)
+        rel = py2neio.Relationship(user, 'SYS_LIKED', post)
         social_graph().create_unique(rel)
 
     def add_system_comment(self, user_sql_id, new_comment, system_postid):
         user = User(user_sql_id).find()
         post = social_graph().find_one("SystemPost", "id", system_postid)
-        comment = Node(
+        comment = py2neo.Node(
             "SystemComment",
             id=str(uuid.uuid4()),
             content=new_comment,
@@ -989,7 +982,7 @@ class System:
             user_display_name=user['displayName'],
             creation_time=timestamp(),
             modified_time=timestamp())
-        rel = Relationship(post, 'HAS', comment)
+        rel = py2neo.Relationship(post, 'HAS', comment)
         social_graph().create(rel)
 
     def unlike_system_post(self, user_sql_id, system_postid):
@@ -1077,7 +1070,7 @@ class Group:
     def create_group(self, user_sql_id, group_name, group_description, is_private):
         group_uid = str(uuid.uuid4())
         user = User(user_sql_id).find()
-        group = Node(
+        group = py2neo.Node(
             "Group",
             group_uid=group_uid,
             name=group_name,
@@ -1088,7 +1081,7 @@ class Group:
             status=0,
 
         )
-        user_groupadmin_relationship = Relationship(user, "GROUP_ADMIN", group)
+        user_groupadmin_relationship = py2neo.Relationship(user, "GROUP_ADMIN", group)
         social_graph().create(group)
         social_graph().create(user_groupadmin_relationship)
         return group_uid
@@ -1107,7 +1100,7 @@ class Group:
     def add_group_post(self, group_uid, user_sql_id, text, privacy, link, title="", img="", description=""):
         group = Group().find(group_uid)
         user = User(user_sql_id).find()
-        post = Node(
+        post = py2neo.Node(
             "GroupPost",
             id=str(uuid.uuid4()),
             text=text,
@@ -1121,8 +1114,8 @@ class Group:
             link_img=img,
             link_description=description
         )
-        group_post_relationship = Relationship(group, "GROUP_POSTED", post)
-        user_group_post_relationship = Relationship(user, "USER_POSTED", post)
+        group_post_relationship = py2neo.Relationship(group, "GROUP_POSTED", post)
+        user_group_post_relationship = py2neo.Relationship(user, "USER_POSTED", post)
         social_graph().create(group_post_relationship)
         social_graph().create(user_group_post_relationship)
 
@@ -1156,7 +1149,7 @@ class Group:
     def like_group_post(self, user_sql_id, group_postid):
         user = User(user_sql_id).find()
         post = social_graph().find_one("GroupPost", "id", group_postid)
-        rel = Relationship(user, 'GROUP_LIKED', post)
+        rel = py2neo.Relationship(user, 'GROUP_LIKED', post)
         social_graph().create_unique(rel)
 
     def unlike_group_post(self, user_sql_id, group_postid):
@@ -1172,7 +1165,7 @@ class Group:
     def add_group_comment(self, user_sql_id, new_comment, group_postid):
         user = User(user_sql_id).find()
         post = social_graph().find_one("GroupPost", "id", group_postid)
-        comment = Node(
+        comment = py2neo.Node(
             "GroupComment",
             id=str(uuid.uuid4()),
             content=new_comment,
@@ -1180,7 +1173,7 @@ class Group:
             user_display_name=user['displayName'],
             creation_time=timestamp(),
             modified_time=timestamp())
-        rel = Relationship(post, 'HAS', comment)
+        rel = py2neo.Relationship(post, 'HAS', comment)
         social_graph().create(rel)
 
     def edit_group_comment(self, new_comment, comment_id):

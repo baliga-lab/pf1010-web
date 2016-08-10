@@ -7,8 +7,6 @@ from aqxWeb.app.APIv2 import API as UIAPI
 
 dav = Blueprint('dav', __name__, template_folder='templates', static_folder='static')
 
-app = None
-
 PRE_ESTABLISHED = 100
 ESTABLISHED = 200
 DEFAULT_MEASUREMENTS_LIST = [6, 7, 2, 1, 9, 8, 10]
@@ -17,11 +15,6 @@ DEFAULT_MEASUREMENTS_LIST = [6, 7, 2, 1, 9, 8, 10]
 @dav.route('/error')
 def error():
     return render_template("error.html")
-
-
-def init_dav(flask_app):
-    global app
-    app = flask_app
 
 
 @dav.route('/explore')
@@ -58,7 +51,7 @@ def index():
 @dav.route('/analyzeGraph', methods=['POST'])
 def analyze_graph():
     try:
-        ui_api = UIAPI(app)
+        ui_api = UIAPI(current_app)
         annotations_map = ui_api.getReadableAnnotations()
 
         # Load JSON formatted String from API.
@@ -124,7 +117,7 @@ def analyze_graph():
 @dav.route('/analyzeGraph/system/<system_uid>', methods=['GET'])
 def system_analyze(system_uid):
     try:
-        ui_api = UIAPI(app)
+        ui_api = UIAPI(current_app)
         annotations_map = ui_api.getReadableAnnotations()
         metadata = json.loads(ui_api.getSystem(system_uid))
 
@@ -186,12 +179,12 @@ def system_analyze(system_uid):
 
 def get_all_systems_info():
     """returns system inforamtion as JSON"""
-    dav_api = DavAPI(app)
+    dav_api = DavAPI(current_app)
     return dav_api.get_all_systems_info()
 
 
 def get_all_aqx_metadata():
-    dav_api = DavAPI(app)
+    dav_api = DavAPI(current_app)
     return dav_api.get_all_filters_metadata()
 
 
@@ -203,13 +196,13 @@ def get_system_measurement():
         return error_msg_system, 400
     measurement_id = request.args.get('measurement_id')
     if measurement_id is None:
-        dav_api = DavAPI(app)
+        dav_api = DavAPI(current_app)
         result = dav_api.get_system_measurements(system_uid)
     elif len(measurement_id) <= 0:
         error_msg_measurement = json.dumps({'error': 'Invalid measurement id'})
         return error_msg_measurement, 400
     else:
-        dav_api = DavAPI(app)
+        dav_api = DavAPI(current_app)
         result = dav_api.get_system_measurement(system_uid, measurement_id)
     if 'error' in result:
         return result, 400
@@ -219,7 +212,7 @@ def get_system_measurement():
 
 @dav.route('/aqxapi/v1/measurements', methods=['PUT'])
 def put_system_measurement():
-    dav_api = DavAPI(app)
+    dav_api = DavAPI(current_app)
     data = request.get_json()
     system_uid = data.get('system_uid')
     if system_uid is None or len(system_uid) <= 0:
@@ -251,13 +244,13 @@ def put_system_measurement():
 
 
 def get_readings_for_tsplot(system_uid_list, msr_id_list,status_id):
-    dav_api = DavAPI(app)
+    dav_api = DavAPI(current_app)
     return dav_api.get_readings_for_plot(system_uid_list, msr_id_list,status_id)
 
 
 @dav.route('/aqxapi/v1/measurements/plot', methods=['POST'])
 def get_readings_for_plot():
-    dav_api = DavAPI(app)
+    dav_api = DavAPI(current_app)
     measurements = request.json['measurements']
     systems_uid = request.json['systems']
     status_id = request.json['status']
@@ -265,12 +258,12 @@ def get_readings_for_plot():
 
 
 def get_all_measurement_names():
-    dav_api = DavAPI(app)
+    dav_api = DavAPI(current_app)
     return dav_api.get_all_measurement_names()
 
 
 def get_all_measurement_info():
-    dav_api = DavAPI(app)
+    dav_api = DavAPI(current_app)
     return dav_api.get_all_measurement_info()
 
 
