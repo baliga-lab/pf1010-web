@@ -1,6 +1,6 @@
 from flask import request, session, current_app
 from frontend import frontend
-from app.APIv2 import API
+from api import API
 import MySQLdb
 
 

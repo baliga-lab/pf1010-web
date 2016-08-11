@@ -1,7 +1,7 @@
 from flask import render_template
 from frontend import frontend
 
-from servicesV2 import getEnums, getSystem, getLatestReadingsForSystem
+from services import getEnums, getSystem, getLatestReadingsForSystem
 
 import json
 
