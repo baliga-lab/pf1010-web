@@ -11,8 +11,8 @@ from frontend import frontend as ui
 from nav import nav
 import views
 
-from dav.views import dav
-from sc.views import social
+from analytics.views import dav
+from social.views import social
 
 app = Flask(__name__)
 

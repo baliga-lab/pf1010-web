@@ -1,12 +1,16 @@
 import json
+import time
 from py2neo import Node, cypher
 from flask import session
-from aqxWeb.sc.models import timestamp
 
 
-# DAO for User Node in the Neo4J database
+def timestamp():
+    """copied from models, to break cyclic dependency"""
+    return int(round(time.time() * 1000))
+
+
 class UserDAO:
-    # constructor to set connection
+
     def __init__(self, graph):
         self.graph = graph
 

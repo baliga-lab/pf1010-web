@@ -5,16 +5,16 @@ import requests
 from flask_oauth import OAuth
 import json
 
-from aqxWeb.sc.models import User, get_all_recent_posts, get_all_recent_comments, get_all_recent_likes
-from aqxWeb.sc.models import get_total_likes_for_posts, get_all_post_owners, get_system_measurements_dav_api
-from aqxWeb.sc.models import System, Privacy, Group
-from aqxWeb.sc.models import social_graph
-from aqxWeb.sc.models import get_all_profile_posts
-from aqxWeb.sc.models import convert_milliseconds_to_normal_date, get_address_from_lat_lng
+from aqxWeb.social.models import User, get_all_recent_posts, get_all_recent_comments, get_all_recent_likes
+from aqxWeb.social.models import get_total_likes_for_posts, get_all_post_owners, get_system_measurements_dav_api
+from aqxWeb.social.models import System, Privacy, Group
+from aqxWeb.social.models import social_graph
+from aqxWeb.social.models import get_all_profile_posts
+from aqxWeb.social.models import convert_milliseconds_to_normal_date, get_address_from_lat_lng
 
-from aqxWeb.sc.api import ScAPI
-import aqxWeb.sc.models as models
-import aqxWeb.sc.aqxdb as aqxdb
+from aqxWeb.social.api import ScAPI
+import aqxWeb.social.models as models
+import aqxWeb.social.aqxdb as aqxdb
 
 social = Blueprint('social', __name__, template_folder='templates', static_folder="static")
 

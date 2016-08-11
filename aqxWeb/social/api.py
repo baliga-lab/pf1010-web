@@ -1,5 +1,5 @@
-from aqxWeb.sc.dao.UserDAO import UserDAO
-from aqxWeb.sc.dao.SystemDAO import SystemDAO
+from aqxWeb.social.dao.UserDAO import UserDAO
+from aqxWeb.social.dao.SystemDAO import SystemDAO
 import json
 
 

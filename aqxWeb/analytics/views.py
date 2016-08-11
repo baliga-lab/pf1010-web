@@ -2,7 +2,9 @@ import json
 import traceback
 from flask import Blueprint, render_template, request, current_app
 
-from aqxWeb.dav.api import DavAPI
+from aqxWeb.analytics.api import DavAPI
+
+# TODO: seems like a cyclic module dependency to me, can we break it ?
 from aqxWeb.api import API as UIAPI
 
 dav = Blueprint('dav', __name__, template_folder='templates', static_folder='static')

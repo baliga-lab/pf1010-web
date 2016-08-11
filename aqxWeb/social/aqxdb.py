@@ -5,7 +5,7 @@ from datetime import datetime
 from py2neo import Node
 import uuid
 
-from aqxWeb.sc.models import social_graph, timestamp, User, update_profile_image_url
+from aqxWeb.social.models import social_graph, timestamp, User, update_profile_image_url
 
 def get_or_create_user(conn, cursor, google_id, googleAPIResponse):
 

@@ -7,9 +7,9 @@ from collections import defaultdict
 
 from flask import current_app
 
-from aqxWeb.dav.dao.MetaDataDAO import MetadataDAO
-from aqxWeb.dav.dao.measurements_dao import MeasurementsDAO
-from aqxWeb.dav.dao.systemsDAO import SystemsDAO
+from aqxWeb.analytics.dao.MetaDataDAO import MetadataDAO
+from aqxWeb.analytics.dao.measurements_dao import MeasurementsDAO
+from aqxWeb.analytics.dao.systemsDAO import SystemsDAO
 
 
 class DavAPI:

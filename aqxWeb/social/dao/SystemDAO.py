@@ -1,6 +1,12 @@
 import json
+import time
+
 from py2neo import Node, Relationship
-from aqxWeb.sc.models import timestamp
+
+
+def timestamp():
+    """copied from models, to break cyclic dependency"""
+    return int(round(time.time() * 1000))
 
 
 # DAO for System Node in the Neo4J database
