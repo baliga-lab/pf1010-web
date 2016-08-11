@@ -16,7 +16,6 @@ def get_or_create_user(conn, cursor, google_id, googleAPIResponse):
         if url is None:
             imgurl = None
         else:
-            #https://lh3.googleusercontent.com/-2jp5fJmzfj4/AAAAAAAAAAI/AAAAAAAAESs/ULgi0QWqsaQ/photo.jpg?sz=200
             indexVal =  url.find("?sz")
             if indexVal != -1:
                 imgurl = url[0:indexVal]

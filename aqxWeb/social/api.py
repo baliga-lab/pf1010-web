@@ -1,5 +1,5 @@
-from aqxWeb.social.dao.UserDAO import UserDAO
-from aqxWeb.social.dao.SystemDAO import SystemDAO
+from aqxWeb.social.dao.users import UserDAO
+from aqxWeb.social.dao.systems import SystemDAO
 import json
 
 
@@ -7,7 +7,7 @@ import json
 # Social Component Data Access API
 ###############################################################################
 
-class ScAPI:
+class SocialAPI:
     # constructor to get connection
     def __init__(self, graph):
         self.graph = graph

@@ -2,7 +2,7 @@ import json
 import traceback
 from flask import Blueprint, render_template, request, current_app
 
-from aqxWeb.analytics.api import DavAPI
+from aqxWeb.analytics.api import AnalyticsAPI
 
 # TODO: seems like a cyclic module dependency to me, can we break it ?
 from aqxWeb.api import API as UIAPI
@@ -181,12 +181,12 @@ def system_analyze(system_uid):
 
 def get_all_systems_info():
     """returns system inforamtion as JSON"""
-    dav_api = DavAPI(current_app)
+    dav_api = AnalyticsAPI(current_app)
     return dav_api.get_all_systems_info()
 
 
 def get_all_aqx_metadata():
-    dav_api = DavAPI(current_app)
+    dav_api = AnalyticsAPI(current_app)
     return dav_api.get_all_filters_metadata()
 
 
@@ -198,13 +198,13 @@ def get_system_measurement():
         return error_msg_system, 400
     measurement_id = request.args.get('measurement_id')
     if measurement_id is None:
-        dav_api = DavAPI(current_app)
+        dav_api = AnalyticsAPI(current_app)
         result = dav_api.get_system_measurements(system_uid)
     elif len(measurement_id) <= 0:
         error_msg_measurement = json.dumps({'error': 'Invalid measurement id'})
         return error_msg_measurement, 400
     else:
-        dav_api = DavAPI(current_app)
+        dav_api = AnalyticsAPI(current_app)
         result = dav_api.get_system_measurement(system_uid, measurement_id)
     if 'error' in result:
         return result, 400
@@ -214,7 +214,7 @@ def get_system_measurement():
 
 @dav.route('/aqxapi/v1/measurements', methods=['PUT'])
 def put_system_measurement():
-    dav_api = DavAPI(current_app)
+    dav_api = AnalyticsAPI(current_app)
     data = request.get_json()
     system_uid = data.get('system_uid')
     if system_uid is None or len(system_uid) <= 0:
@@ -246,13 +246,13 @@ def put_system_measurement():
 
 
 def get_readings_for_tsplot(system_uid_list, msr_id_list,status_id):
-    dav_api = DavAPI(current_app)
+    dav_api = AnalyticsAPI(current_app)
     return dav_api.get_readings_for_plot(system_uid_list, msr_id_list,status_id)
 
 
 @dav.route('/aqxapi/v1/measurements/plot', methods=['POST'])
 def get_readings_for_plot():
-    dav_api = DavAPI(current_app)
+    dav_api = AnalyticsAPI(current_app)
     measurements = request.json['measurements']
     systems_uid = request.json['systems']
     status_id = request.json['status']
@@ -260,35 +260,34 @@ def get_readings_for_plot():
 
 
 def get_all_measurement_names():
-    dav_api = DavAPI(current_app)
+    dav_api = AnalyticsAPI(current_app)
     return dav_api.get_all_measurement_names()
 
 
 def get_all_measurement_info():
-    dav_api = DavAPI(current_app)
+    dav_api = AnalyticsAPI(current_app)
     return dav_api.get_all_measurement_info()
 
 
 def json_loads_byteified(json_text):
-    return _byteify(
-        json.loads(json_text, object_hook=_byteify),
-        ignore_dicts=True
-    )
+    return _byteify(json.loads(json_text, object_hook=_byteify),
+                    ignore_dicts=True)
 
 
 def _byteify(data, ignore_dicts=False):
     # if this is a unicode string, return its string representation
     if isinstance(data, unicode):
         return data.encode('utf-8')
+
     # if this is a list of values, return list of byteified values
     if isinstance(data, list):
         return [_byteify(item, ignore_dicts=True) for item in data]
+
     # if this is a dictionary, return dictionary of byteified keys and values
     # but only if we haven't already byteified it
     if isinstance(data, dict) and not ignore_dicts:
-        return {
-            _byteify(key, ignore_dicts=True): _byteify(value, ignore_dicts=True)
-            for key, value in data.iteritems()
-            }
+        return { _byteify(key, ignore_dicts=True): _byteify(value, ignore_dicts=True)
+                 for key, value in data.iteritems() }
+
     # if it's anything else, return it in its original form
     return data

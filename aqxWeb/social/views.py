@@ -12,7 +12,7 @@ from aqxWeb.social.models import social_graph
 from aqxWeb.social.models import get_all_profile_posts
 from aqxWeb.social.models import convert_milliseconds_to_normal_date, get_address_from_lat_lng
 
-from aqxWeb.social.api import ScAPI
+from aqxWeb.social.api import SocialAPI
 import aqxWeb.social.models as models
 import aqxWeb.social.aqxdb as aqxdb
 
@@ -1425,9 +1425,9 @@ def get_user_by_sql_or_google_id():
     google_id = request.args.get('google_id')
     result = None
     if sql_id is not None:
-        result = ScAPI(social_graph()).get_user_by_sql_id(sql_id)
+        result = SocialAPI(social_graph()).get_user_by_sql_id(sql_id)
     elif google_id is not None:
-        result = ScAPI(social_graph()).get_user_by_google_id(google_id)
+        result = SocialAPI(social_graph()).get_user_by_google_id(google_id)
     # API Status Code For The Results
     if result is None:
         error_msg = json.dumps({'error': 'Invalid request parameters. Required sql_id or google_id'})
@@ -1441,7 +1441,7 @@ def get_user_by_sql_or_google_id():
 
 @social.route('/aqxapi/v1/user/current', methods=['GET'])
 def get_logged_in_user():
-    result = ScAPI(social_graph()).get_logged_in_user()
+    result = SocialAPI(social_graph()).get_logged_in_user()
     if 'error' in result:
         return result, 400
     else:
@@ -1451,7 +1451,7 @@ def get_logged_in_user():
 @social.route('/aqxapi/v1/user', methods=['POST'])
 def create_user():
     jsonObject = request.get_json()
-    result = ScAPI(social_graph()).create_user(jsonObject)
+    result = SocialAPI(social_graph()).create_user(jsonObject)
     if 'error' in result:
         return result, 400
     else:
@@ -1462,7 +1462,7 @@ def create_user():
 def delete_user_by_sql_id():
     sql_id = request.args.get('sql_id')
     if session.get('siteadmin') is not None and sql_id is not None:
-        result = ScAPI(social_graph()).delete_user_by_sql_id(sql_id)
+        result = SocialAPI(social_graph()).delete_user_by_sql_id(sql_id)
         if 'error' in result:
             return result, 400
         else:
@@ -1475,7 +1475,7 @@ def delete_user_by_sql_id():
 @social.route('/aqxapi/v1/system', methods=['POST'])
 def sgraph_create_system():
     jsonObject = request.get_json()
-    result = ScAPI(social_graph()).create_system(jsonObject)
+    result = SocialAPI(social_graph()).create_system(jsonObject)
     if 'error' in result:
         return result, 400
     else:
@@ -1485,7 +1485,7 @@ def sgraph_create_system():
 @social.route('/aqxapi/v1/system', methods=['PUT'])
 def update_system():
     jsonObject = request.get_json()
-    result = ScAPI(social_graph()).update_system_with_system_uid(jsonObject)
+    result = SocialAPI(social_graph()).update_system_with_system_uid(jsonObject)
     if 'error' in result:
         return result, 400
     else:
@@ -1496,7 +1496,7 @@ def update_system():
 def delete_system_by_system_id():
     system_id = request.args.get('system_id')
     if session.get('siteadmin') is not None and system_id is not None:
-        result = ScAPI(social_graph()).delete_system_by_system_id(system_id)
+        result = SocialAPI(social_graph()).delete_system_by_system_id(system_id)
         if 'error' in result:
             return result, 400
         else:
@@ -1510,7 +1510,7 @@ def delete_system_by_system_id():
 def get_system_for_user():
     sql_id = request.args.get('sql_id')
     if sql_id is not None:
-        result = ScAPI(social_graph()).get_system_for_user(sql_id)
+        result = SocialAPI(social_graph()).get_system_for_user(sql_id)
         if 'error' in result:
             return result, 400
         else:
