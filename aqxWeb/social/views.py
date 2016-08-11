@@ -1473,7 +1473,7 @@ def delete_user_by_sql_id():
 
 
 @social.route('/aqxapi/v1/system', methods=['POST'])
-def create_system():
+def sgraph_create_system():
     jsonObject = request.get_json()
     result = ScAPI(social_graph()).create_system(jsonObject)
     if 'error' in result:

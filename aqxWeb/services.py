@@ -62,11 +62,11 @@ def getSystem(systemUID):
 
 # Create a new system whose administrator is the current logged in user
 @frontend.route('/aqxapi/v2/system', methods=['POST'])
-def createSystem():
+def api_create_system():
     api = API(current_app)
     system = request.get_json()
     system['userID'] = session['uid']
-    return api.createSystem(system)
+    return api.create_system(system)
 
 
 # Delete a system with the given systemUID

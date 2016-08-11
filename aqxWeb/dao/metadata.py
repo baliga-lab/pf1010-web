@@ -1,6 +1,6 @@
 import MySQLdb
 
-class metadataDAO:
+class MetadataDAO:
     def __init__(self, app):
         self.app = app
 

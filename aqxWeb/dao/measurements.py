@@ -1,7 +1,7 @@
-from dao.systemDAOv2 import getTableName
+from aqxWeb.dao.systems import table_name as sys_table_name
 import MySQLdb
 
-class measurementDAO:
+class MeasurementDAO:
     def __init__(self, app):
         self.app = app
 
@@ -25,7 +25,7 @@ class measurementDAO:
         try:
             readings = []
             for measurement in measurements:
-                table = getTableName(measurement, systemUID)
+                table = sys_table_name(measurement, systemUID)
                 cursor.execute(query % table)
                 reading = cursor.fetchone()
                 if reading:
@@ -49,7 +49,7 @@ class measurementDAO:
         value = reading['value']
         timestamp = reading['timestamp']
 
-        table = getTableName(measurementType, systemUID)
+        table = sys_table_name(measurementType, systemUID)
 
         query = ('INSERT INTO ' + table + ' (value, time) '
                  'VALUES (%s, %s)')

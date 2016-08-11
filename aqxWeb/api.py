@@ -1,9 +1,9 @@
-from aqxWeb.dao.userDAOv2 import userDAO
-from aqxWeb.dao.systemDAOv2 import systemDAO
-from aqxWeb.dao.metadataDAOv2 import metadataDAO
-from aqxWeb.dao.annotationDAOv2 import annotationDAO
-from aqxWeb.dao.subscriptionDAO import subscriptionDAO
-from aqxWeb.dao.measurementDAOv2 import measurementDAO
+from aqxWeb.dao.users import UserDAO
+from aqxWeb.dao.systems import SystemDAO
+from aqxWeb.dao.metadata import MetadataDAO
+from aqxWeb.dao.annotations import AnnotationDAO
+from aqxWeb.dao.subscriptions import SubscriptionDAO
+from aqxWeb.dao.measurements import MeasurementDAO
 
 from collections import defaultdict
 
@@ -13,12 +13,12 @@ import json
 class API:
 
     def __init__(self, app):
-        self.systemDAO = systemDAO(app)
-        self.userDAO = userDAO(app)
-        self.metadataDAO = metadataDAO(app)
-        self.subscriptionDAO = subscriptionDAO(app)
-        self.annotationDAO = annotationDAO(app)
-        self.measurementDAO = measurementDAO(app)
+        self.systemDAO = SystemDAO(app)
+        self.userDAO = UserDAO(app)
+        self.metadataDAO = MetadataDAO(app)
+        self.subscriptionDAO = SubscriptionDAO(app)
+        self.annotationDAO = AnnotationDAO(app)
+        self.measurementDAO = MeasurementDAO(app)
 
     ###########################################################################
     # SystemAPI
@@ -82,8 +82,8 @@ class API:
             })
         return json.dumps(systems)
 
-    def createSystem(self, system):
-        systemInfo = self.systemDAO.createSystem(system)
+    def create_system(self, system):
+        systemInfo = self.systemDAO.create_system(system)
         return json.dumps(systemInfo)
 
     def deleteSystem(self, systemUID):

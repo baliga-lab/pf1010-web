@@ -1,6 +1,6 @@
 import MySQLdb
 
-class annotationDAO:
+class AnnotationDAO:
     def __init__(self, app):
         self.app = app
 

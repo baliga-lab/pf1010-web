@@ -1,6 +1,6 @@
 import MySQLdb
 
-class userDAO:
+class UserDAO:
     def __init__(self, app):
         self.app = app
 
