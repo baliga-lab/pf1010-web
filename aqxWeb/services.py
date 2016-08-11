@@ -1,13 +1,18 @@
 from flask import request, session, current_app
 from frontend import frontend
 from api import API
-import MySQLdb
+import datetime
 
 
-def get_conn():
-    return MySQLdb.connect(host=current_app.config['HOST'], user=current_app.config['USER'],
-                           passwd=current_app.config['PASS'], db=current_app.config['DB'])
+# Expected format to arrive from the client
+API_TIME_FORMAT = '%Y-%m-%dT%H:%M:%SZ'
 
+def parse_timestamp(s):
+    try:
+        return datetime.fromtimestamp(time.mktime(time.strptime(s, API_TIME_FORMAT)))
+    except:
+        current_app.logger.warn("problem using API default format, none returned")
+        return None
 
 ######################################################################
 # User Services
@@ -60,12 +65,13 @@ def getSystem(systemUID):
     return api.getSystem(systemUID)
 
 
-# Create a new system whose administrator is the current logged in user
 @frontend.route('/aqxapi/v2/system', methods=['POST'])
 def api_create_system():
+    """Create a new system whose administrator is the current logged in user"""
     api = API(current_app)
     system = request.get_json()
     system['userID'] = session['uid']
+    system['startDate'] = parse_timestamp(system['startDate'])
     return api.create_system(system)
 
 

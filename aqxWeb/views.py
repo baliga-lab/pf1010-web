@@ -55,8 +55,8 @@ def sys_annotations(system_uid):
     return render_template('sys_annotations.html', **locals())
 
 
-@frontend.route('/create_system')
-def create_system():
+@frontend.route('/new_system')
+def new_system():
     enums = json.loads(getEnums())
     return render_template('create_system.html', **locals())
 
