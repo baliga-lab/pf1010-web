@@ -31,9 +31,6 @@ class SystemsDAO:
 
         return result[0]
 
-    ###############################################################################
-    # get_all_systems_info() - It returns the system information as a JSON
-    #                          object.
     def get_all_systems_info(self):
         conn = self.getDBConn()
         cursor = conn.cursor()

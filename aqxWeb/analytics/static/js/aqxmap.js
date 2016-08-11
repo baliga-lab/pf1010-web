@@ -112,8 +112,10 @@ function reset() {
     clearAnalyzeDropdown();
 
      _.each(system_and_info_object, function(system) {
-        system.marker.setVisible(true);
-        system.marker.setIcon(DEFAULT_ICON);
+        if (system.marker !== null) {
+            system.marker.setVisible(true);
+            system.marker.setIcon(DEFAULT_ICON);
+        }
      });
     // Repaint the clusters on reset
     MC.repaint();
@@ -161,8 +163,11 @@ function main(system_and_info_object) {
      * respectively
      */
     function addMarker(system) {
-
         // Set the marker's location and infoWindow content
+        if (system.lat == 'None' || system.lng == 'None') {
+            system.marker = null;
+            return;
+        }
         var latLng = new google.maps.LatLng(system.lat, system.lng);
         var content = buildContentString(system);
         var marker = new google.maps.Marker({
@@ -323,15 +328,19 @@ function filterSystemsBasedOnDropdownValues() {
             selectedSystemIds = _.reject(selectedSystemIds, function (id) {
                 return _.isEqual(id, system.system_uid);
             });
-            system.marker.setVisible(false);
+            if (system.marker !== null) {
+                system.marker.setVisible(false);
+            }
         } else {
-            MAP.panTo(system.marker.position);
-            system.marker.setVisible(true);
-            filteredSystemsCount++;
-            if(_.isEqual(system.user_id, session_userId)) {
-                mySystems.push(system);
-            } else {
-                otherUserSystems.push(system)
+            if (system.marker !== null) {
+                MAP.panTo(system.marker.position);
+                system.marker.setVisible(true);
+                filteredSystemsCount++;
+                if(_.isEqual(system.user_id, session_userId)) {
+                    mySystems.push(system);
+                } else {
+                    otherUserSystems.push(system)
+                }
             }
         }
     });

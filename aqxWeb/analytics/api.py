@@ -40,7 +40,6 @@ class AnalyticsAPI:
                    'crop_count': system[10],
                    'organism_name': system[11],
                    'organism_count': system[12]}
-
             systems_list.append(obj)
 
         return json.dumps({'systems': systems_list})
