@@ -10,10 +10,11 @@ from aqxWeb.sc.models import get_total_likes_for_posts, get_all_post_owners, get
 from aqxWeb.sc.models import System, Privacy, Group
 from aqxWeb.sc.models import social_graph
 from aqxWeb.sc.models import get_all_profile_posts
-from aqxWeb.sc.scAPI import ScAPI
 from aqxWeb.sc.models import convert_milliseconds_to_normal_date, get_address_from_lat_lng
-import aqxWeb.sc.models
-import aqxWeb.sc.aqxdb
+
+from aqxWeb.sc.api import ScAPI
+import aqxWeb.sc.models as models
+import aqxWeb.sc.aqxdb as aqxdb
 
 social = Blueprint('social', __name__, template_folder='templates', static_folder="static")
 

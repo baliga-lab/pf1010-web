@@ -1,9 +1,8 @@
 import os
 import logging
 
-from mysql.connector.pooling import MySQLConnectionPool
 from flask import url_for
-from flask import Flask, render_template,redirect
+from flask import Flask, render_template, redirect
 from flask import session
 from flask_oauth import OAuth
 
@@ -12,7 +11,7 @@ from frontend import frontend as ui
 from nav import nav
 import views
 
-from dav.analytics_views import dav
+from dav.views import dav
 from sc.views import social
 
 app = Flask(__name__)
