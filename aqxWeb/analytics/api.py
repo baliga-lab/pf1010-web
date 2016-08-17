@@ -12,6 +12,12 @@ from aqxWeb.analytics.dao.measurements import MeasurementsDAO
 from aqxWeb.analytics.dao.systems import SystemsDAO
 
 
+def to_float(value):
+    if value is not None:
+        return float(value)
+    else:
+        return 0.0
+
 class AnalyticsAPI:
 
     def __init__(self, app):
@@ -494,6 +500,6 @@ class AnalyticsAPI:
             measurement_names[m[1]] = {}
             measurement_names[m[1]]["id"] = (m[0])
             measurement_names[m[1]]["unit"] = (m[2])
-            measurement_names[m[1]]["min"] = (m[3])
-            measurement_names[m[1]]["max"] = (m[4])
+            measurement_names[m[1]]["min"] = to_float(m[3])
+            measurement_names[m[1]]["max"] = to_float(m[4])
         return json.dumps({"measurement_info": measurement_names})

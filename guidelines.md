@@ -26,3 +26,10 @@
     change and adapt to different environments
   - check for null or undefined, not doing so can lead to weird website
     behavior
+
+## Data
+
+  - avoid redundancy at all costs
+  - think long about which information to store in the graph and which in the
+    relational database, don't store it in the graph just because you can, but
+    for the cases when it is the more effective model for the data
