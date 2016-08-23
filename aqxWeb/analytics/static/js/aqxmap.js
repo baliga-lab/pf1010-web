@@ -433,12 +433,14 @@ function updateMarkerIconForSelectedSystemsOnMap() {
     // For each System, if its ID is in the selectedSystemId list, give it the star Icon
     // otherwise ensure it has the default Icon
     _.each(system_and_info_object, function (system) {
-        if (_.contains(selectedSystemIds, system.system_uid)) {
-            system.marker.setIcon(SELECTED_ICON);
-            system.marker.setZIndex(google.maps.Marker.MAX_ZINDEX + 1);
-        } else {
-            system.marker.setIcon(DEFAULT_ICON);
-            system.marker.setZIndex(google.maps.Marker.MIN_ZINDEX - 1);
+        if (system.marker !== null) {
+            if (_.contains(selectedSystemIds, system.system_uid)) {
+                system.marker.setIcon(SELECTED_ICON);
+                system.marker.setZIndex(google.maps.Marker.MAX_ZINDEX + 1);
+            } else {
+                system.marker.setIcon(DEFAULT_ICON);
+                system.marker.setZIndex(google.maps.Marker.MIN_ZINDEX - 1);
+            }
         }
     });
 }
