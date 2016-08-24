@@ -1,18 +1,24 @@
 from flask import request, session, current_app
 from frontend import frontend
 from api import API
-import datetime
+from datetime import datetime
+import time
 
 
 # Expected format to arrive from the client
-API_TIME_FORMAT = '%Y-%m-%dT%H:%M:%SZ'
-
+# the second format handles milliseconds
+API_TIME_FORMAT1 = '%Y-%m-%dT%H:%M:%SZ'
+API_TIME_FORMAT2 = '%Y-%m-%dT%H:%M:%S.%fZ'
+"""2016-07-15T00:00:00.000Z"""
 def parse_timestamp(s):
     try:
-        return datetime.fromtimestamp(time.mktime(time.strptime(s, API_TIME_FORMAT)))
+        return datetime.fromtimestamp(time.mktime(time.strptime(s, API_TIME_FORMAT1)))
     except:
-        current_app.logger.warn("problem using API default format, none returned")
-        return None
+        try:
+            return datetime.fromtimestamp(time.mktime(time.strptime(s, API_TIME_FORMAT2)))
+        except:
+            current_app.logger.warn("problem using API default format, none returned, input was: %s" % s)
+            return None
 
 ######################################################################
 # User Services
