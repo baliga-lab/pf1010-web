@@ -76,7 +76,7 @@
             </div>
             <div class="form-group">
                 <input class="btn btn-green" type="submit" id="submitbtn" name="mysubmit" value="Submit"
-                       onclick="filterSystemsBasedOnDropdownValues()"/>
+                       onclick="aqxmap.filterSystemsBasedOnDropdownValues()"/>
                 <input class="btn btn-grey" type="button" id="resetbtn" name="reset" value="Reset" onclick="reset()"/>
             </div>
             <div class="form-group">
@@ -113,6 +113,7 @@
             session_userId = {{ session.uid }}
         {% endif %}
         system_and_info_object = system_and_info_object.systems;
-        $(document).ready(main(system_and_info_object));
+        console.debug('systems_and_info_object: ' + system_and_info_object.length);
+        $(document).ready(aqxmap.main(system_and_info_object));
     </script>
 {% endblock %}
