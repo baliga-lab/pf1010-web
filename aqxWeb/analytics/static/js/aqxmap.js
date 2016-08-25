@@ -447,6 +447,7 @@ if (!aqxmap) {
       * before submitting the action
       */
      $('#analyzeOptions').on('submit', function() {
+                                 console.debug('analyzeOptions()');
                                  var systemsSelectedToAnalyze = getSelectedSystemIds();
                                  if(systemsSelectedToAnalyze.length <= 0) {
                                      $('#alert_placeholder').html(getAlertHTMLString("Please select systems from checkbox to analyze.", 'danger'));
@@ -455,6 +456,6 @@ if (!aqxmap) {
                                  var selectedSystems = systemsSelectedToAnalyze.join(",");
                                  document.getElementById("selectedSystems").value = JSON.stringify(selectedSystems);
                                  document.getElementById("systemStatus").value = document.getElementById(SELECT_SYSTEM_STATUS).value;
-                                 return false;
+                                 return true;
                              });
 }());
