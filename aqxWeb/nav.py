@@ -61,7 +61,11 @@ def member():
     return Navbar(
         SidedViewImage('https://aquaponics.systemsbiology.net/static/images/pflogo2.png', 'Project Feed 1010', True, 'social.index'),
         View('Home', 'social.index'),
-        View('Profile', 'social.profile', google_id = 'me'),
+        Subgroup('System',
+            View('Create', 'frontend.new_system'),
+            View('My Systems', 'social.self_systems')
+            # View('Search Systems', 'social.search_systems')
+        ),
         View('Explore', 'dav.explore'),
         Subgroup('Collaborate',
             View('Friends', 'social.friends'),
@@ -74,6 +78,8 @@ def member():
         ),
         View('Questions?', 'frontend.contact'),
         SidedSubgroup(session['displayName'], False,
+            View('View Profile', 'social.profile', google_id = 'me'),
+            Separator(),
             View('Edit Profile', 'social.editprofile'),
             Separator(),
             View('Logout', 'social.logout'),
