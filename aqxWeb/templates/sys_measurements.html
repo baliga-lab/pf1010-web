@@ -42,6 +42,7 @@
                         <div class="form-group">
                             <label for="measure-id">Measurement Type:</label>
                             <select class="form-control id" ng-model="measure.measurement_id" id="measure-id" ng-click="clearMessage()" required>
+                                {# TODO Hard-coded values here. NO BUENO!#}
                                 <option value="1">Alkalinity</option>
                                 <option value="2">Ammonium</option>
                                 <option value="3">Chlorine</option>
@@ -52,6 +53,7 @@
                                 <option value="8">Dis. Oxygen</option>
                                 <option value="9">pH</option>
                                 <option value="10">Temperature</option>
+                                <option value="12">Leaf Count</option>
                             </select>
                             <hr>
                         </div>
@@ -168,6 +170,7 @@
                                     <span ng-switch-when="5" id="addon" class="input-group-addon">lux</span>
                                     <span ng-switch-when="9" id="addon" class="input-group-addon">&nbsp;</span>
                                     <span ng-switch-when="10" id="addon" class="input-group-addon">&deg;C</span>
+                                    <span ng-switch-when="12" id="addon" class="input-group-addon"></span>
                                     <span ng-switch-default id="addon" class="input-group-addon">mg/L</span>
                                 </div>
                             </div>

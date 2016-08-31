@@ -13,7 +13,7 @@ class MeasurementDAO:
         conn = self.getDBConn()
         cursor = conn.cursor()
 
-        measurements = ['ammonium', 'o2', 'ph', 'nitrate', 'light', 'temp', 'nitrite', 'chlorine', 'hardness', 'alkalinity']
+        measurements = ['ammonium', 'o2', 'ph', 'nitrate', 'light', 'temp', 'nitrite', 'chlorine', 'hardness', 'alkalinity', 'leaf_count']
 
         readings = {}
 

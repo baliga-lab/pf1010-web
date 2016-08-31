@@ -2,6 +2,27 @@
 import MySQLdb
 import traceback
 from flask import current_app
+import time, datetime
+
+# Expected format to arrive from the client
+# the second format handles milliseconds
+API_TIME_FORMAT1 = '%Y-%m-%dT%H:%M:%SZ'
+API_TIME_FORMAT2 = '%Y-%m-%dT%H:%M:%S.%fZ'
+"""2016-07-15T00:00:00.000Z"""
+def parse_timestamp(s):
+    try:
+        print "parsing timestamp"
+        print time.strptime(s, API_TIME_FORMAT1)
+        return time.mktime(time.strptime(s, API_TIME_FORMAT1))
+        # return datetime.fromtimestamp(time.mktime(time.strptime(s, API_TIME_FORMAT1)))
+    except:
+        try:
+            return time.mktime(time.strptime(s, API_TIME_FORMAT2))
+            # return datetime.fromtimestamp(time.mktime(time.strptime(s, API_TIME_FORMAT2)))
+        except:
+            print("problem using API default format, none returned, input was: %s" % s)
+            return None
+
 
 class MeasurementsDAO:
 
@@ -91,6 +112,8 @@ class MeasurementsDAO:
     #   (b) Else: returns the time
     def get_recorded_time(self, table_name, time):
         conn = self.getDBConn()
+        # print time
+        time = parse_timestamp(time)
         cursor = conn.cursor()
         query_time = "SELECT time " \
                      "FROM %s " \
