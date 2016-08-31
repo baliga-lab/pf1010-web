@@ -1,5 +1,7 @@
 # DAO for fetching all the data related to the measurements of the systems
 import MySQLdb
+import traceback
+from flask import current_app
 
 class MeasurementsDAO:
 
@@ -182,6 +184,7 @@ class MeasurementsDAO:
                     payload[system] = ()
 
         except Exception as e:
+            traceback.print_exc()
             return {'error': e.args[1] + "system: :" + str(systems) + "  measurements: " + str(measurements)}
         finally:
             cursor.close()

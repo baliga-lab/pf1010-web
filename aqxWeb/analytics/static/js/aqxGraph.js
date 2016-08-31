@@ -228,7 +228,7 @@ function addNewMeasurementData(data, statusID){
     _.each(systems, function(system){
         var systemMeasurements = system.measurement;
         _.each(systemMeasurements, function(measurement){
-            measurement.status = statusID.toString()
+            measurement.status = statusID.toString();
         });
         _.each(systems_and_measurements, function(existingSystem){
             // Match systems in the new data by id, and then add the new measurements
@@ -278,7 +278,7 @@ function callAPIForNewData(measurementIDList, statusID){
         data: JSON.stringify({systems: selectedSystemIDs, measurements: measurementIDList, status: statusID}, null, '\t'),
         // Process API response if AJAX succesfully accessed the server
         success: function(data){
-            processAJAXResponse(data, statusID)
+            processAJAXResponse(data, statusID);
         },
         // Report any AJAX-related errors
         error: ajaxError
@@ -720,7 +720,7 @@ function tooltipFormatter(){
         _.each(this.point.annotations, function (event) {
             console.log(event);
             var event_datetime = new Date(event.date + SPACE + GMT);
-            eventString = eventString + '<br><p>' + annotationsMap[event.id]+ " at " + event_datetime.toString() + '<p>'
+            eventString = eventString + '<br><p>' + annotationsMap[event.id]+ " at " + event_datetime.toString() + '<p>';
         });
     }
 

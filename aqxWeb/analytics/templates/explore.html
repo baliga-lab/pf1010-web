@@ -65,12 +65,9 @@
                 <!-- whose value is a list of strings. These strings are of the form -->
                 <!-- 'status_id:status_name' -->
                 <select class="explore-dropdown" id="selectStatus">
+                    <option value="" selected="selected">Choose a system status</option>
                     {% for status in metadata_dict['status_types'] %}
-                        {%  if status.split(':')[0] == '200' %}
-                            <option value="{{status.split(':')[0]}}" selected="selected">{{ status.split(':')[1] |title}}</option>
-                        {% else %}
-                            <option value="{{status.split(':')[0]}}">{{ status.split(':')[1] |title}}</option>
-                        {% endif %}
+                    <option value="{{status.split(':')[0]}}">{{ status.split(':')[1] |title}}</option>
                     {% endfor %}
                 </select>
             </div>
@@ -113,7 +110,6 @@
             session_userId = {{ session.uid }}
         {% endif %}
         system_and_info_object = system_and_info_object.systems;
-        console.debug('systems_and_info_object: ' + system_and_info_object.length);
         $(document).ready(aqxmap.main(system_and_info_object));
     </script>
 {% endblock %}
