@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+
+{% block styles %}
+    {{ super() }}
+    <link rel="stylesheet" type="text/css" href="{{ url_for('frontend.static', filename='css/system.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('frontend.static', filename='css/annotations.css') }}">
+{% endblock %}
+
+{% block title %}Data{% endblock %}
+
+{% block content %}
+    <div ng-controller="viewDataController">
+        <table class="table table-striped table-condensed table-hover">
+            <thead>
+            <tr>
+                <th class="id" custom-sort order="'id'" sort="sort">Id&nbsp;</th>
+                <th class="name" custom-sort order="'name'" sort="sort">Name&nbsp;</th>
+                <th class="description" custom-sort order="'description'" sort="sort">Description&nbsp;</th>
+            </tr>
+            </thead>
+            <tfoot>
+            <td colspan="6">
+                <ul class="pagination">
+                    <li ng-class="{disabled: currentPage == 0}">
+                        <a href ng-click="prevPage()">« Prev</a>
+                    </li>
+                    <li ng-repeat="n in range(pagedItems.length, currentPage, currentPage + gap) "
+                        ng-class="{active: n == currentPage}"
+                        ng-click="setPage()">
+                        <a href ng-bind="n + 1">1</a>
+                    </li>
+                    <li ng-class="{disabled: (currentPage) == pagedItems.length - 1}">
+                        <a href ng-click="nextPage()">Next »</a>
+                    </li>
+                </ul>
+            </td>
+            </tfoot>
+            <pre>pagedItems.length: {a pagedItems.length|json  a}</pre>
+            <pre>currentPage: {a currentPage|json  a}</pre>
+            <pre>currentPage: {a sort|json  a}</pre>
+            <tbody>
+            <tr ng-repeat="item in pagedItems[currentPage] | orderBy:sort.sortingOrder:sort.reverse">
+                <td>{a item.id a}</td>
+                <td>{a item.name a}</td>
+                <td>{a item.description a}</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+{% endblock %}
+
+{% block scripts %}
+    {{ super() }}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui-touch-punch/0.2.3/jquery.ui.touch-punch.min.js"></script>
+    <script src="{{ url_for('frontend.static', filename='js/viewDataCtrl.js') }}"></script>
+{% endblock scripts %}

@@ -2,9 +2,9 @@
 import MySQLdb
 import traceback
 from flask import current_app
+from math import floor
 
 class MeasurementsDAO:
-
 
     def __init__(self, app):
         self.app = app
@@ -12,6 +12,8 @@ class MeasurementsDAO:
     def getDBConn(self):
         return MySQLdb.connect(host=self.app.config['HOST'], user=self.app.config['USER'],
                                passwd=self.app.config['PASS'], db=self.app.config['DB'])
+
+
     ###############################################################################
     # get_all_measurement_names: method to fetch the names of all the measurements
     # return: names of all the measurements
@@ -29,6 +31,7 @@ class MeasurementsDAO:
             cursor.close()
             conn.close()
         return measurement_names
+
 
     ###############################################################################
     # get_latest_value: get latest value from the given table
@@ -50,6 +53,7 @@ class MeasurementsDAO:
             cursor.close()
             conn.close()
         return value
+
 
     ###############################################################################
     # insert measurement value
@@ -82,6 +86,7 @@ class MeasurementsDAO:
             conn.close()
         return "Record successfully inserted"
 
+
     ###############################################################################
     # check if measurement exists
     # param - table_name: name of the table
@@ -104,6 +109,7 @@ class MeasurementsDAO:
             cursor.close()
             conn.close()
         return recorded_time
+
 
     ###############################################################################
     # get_all_measurement_names: method to fetch the names of all the measurements
@@ -137,8 +143,8 @@ class MeasurementsDAO:
             conn.close()
         return measurement_names
 
-    ###############################################################################
 
+    ###############################################################################
     # get_measurement_name: method to fetch the name of the measurements of the
     # param - given measurement_id: id of a measurement
     # returns: name of the measurement for the given id
@@ -158,8 +164,8 @@ class MeasurementsDAO:
             conn.close()
         return measurement_name
 
-    ###############################################################################
 
+    ###############################################################################
     # get_measurements: method to fetch measurements for multiple systems
     # param system list of system_id
     # param measurements list of measurements
@@ -211,16 +217,22 @@ class MeasurementsDAO:
         return payload
 
 
-    def get_data_count(self, systemUid, measurement):
+    ###############################################################################
+    # return the count of all measurement records for the given system and measurement
+    # param - system_uid: UID identifying an aquaponic system
+    # param - measurement: Name of the measurement for which data is requested
+    # returns: A dict {'count': <count of all rows>} that contains the total number of records
+    #          for the given system and measurement
+    def get_data_count(self, system_uid, measurement):
         conn = self.getDBConn()
         cursor = conn.cursor()
+        table_name = 'aqxs_' + measurement + '_' + system_uid
         payload = {}
         try:
-            table_name = 'aqxs_' + measurement + '_' + systemUid
-            query = "SELECT COUNT(*) FROM ?"
-            cursor.execute(query, (table_name,))
+            query = "SELECT COUNT(*) FROM %s" % table_name
+            cursor.execute(query)
             result = cursor.fetchone()
-            payload['total_pages'] = result
+            payload['count'] = result[0]
         except Exception as e:
             return {'error': e.args[1]}
         finally:
@@ -231,28 +243,31 @@ class MeasurementsDAO:
 
     ###############################################################################
     # return all measurement data for a given system and measurement
-    # param - table_name: name of the table
-    # param - time
-    # returns:
-    #   (a) If given time already present in the given table: Error
-    #   (b) Else: returns the time
-    def get_all_measurements(self, systemUid, measurement, page):
+    # param - system_uid: UID identifying an aquaponic system
+    # param - measurement: Name of the measurement for which data is requested
+    # param - page: the page for which data is requested. Pages are based on items_per_page
+    # returns: A dict of the given page of data for the given system and measurement
+    #          the returned dict contains 'data' which is the list of measurements
+    #          and 'total_pages' which is the total page count for this system/measurement
+    def get_all_measurements(self, system_uid, measurement, page):
         conn = self.getDBConn()
         cursor = conn.cursor()
+
+        # Prep some values for the query
         items_per_page = 20
+        page = int(page)
+        start = items_per_page * (page - 1)
+        table_name = 'aqxs_' + measurement + '_' + system_uid
+
+        # Declare and initialize the payload
         payload = {}
         try:
-            start = items_per_page * (page - 1)
-            end = items_per_page * page
-            table_name = 'aqxs_' + measurement + '_' + systemUid
-            query = "SELECT * FROM ? limit ?, ?"
-            cursor.execute(query, (table_name, start, end))
+            query = "SELECT * FROM %s LIMIT %%s OFFSET %%s" % table_name
+            cursor.execute(query, (items_per_page, start))
             result = list(cursor.fetchall())
-            total_pages = self.get_data_count(systemUid, measurement)
-
+            total_count = self.get_data_count(system_uid, measurement)
             payload['data'] = result
-            payload['total_pages'] = total_pages
-
+            payload['total_pages'] = int(floor(total_count['count'] / items_per_page) + 1)
         except Exception as e:
             return {'error': e.args[1]}
         finally:
@@ -341,6 +356,7 @@ class MeasurementsDAO:
             conn.close()
         return status_type
 
+
     ###############################################################################
     # get_all_measurement_info: method to fetch the id, name, units, min and max
     #                           of all the measurements
@@ -360,6 +376,7 @@ class MeasurementsDAO:
             cursor.close()
             conn.close()
         return measurement_info
+
 
     ###############################################################################
     # get_annotations: method to fetch annotations for multiple systems
@@ -396,6 +413,7 @@ class MeasurementsDAO:
         finally:
             cursor.close()
             conn.close()
+
 
     ###############################################################################
     # form_in_list: method to form the the "in" string from given list
