@@ -276,7 +276,7 @@ function callAPIForNewData(measurementIDList, statusID){
         async: false,
         url: '/dav/aqxapi/v1/measurements/plot',
         data: JSON.stringify({systems: selectedSystemIDs, measurements: measurementIDList, status: statusID}, null, '\t'),
-        // Process API response if AJAX succesfully accessed the server
+        // Process API response if AJAX successfully accessed the server
         success: function(data){
             processAJAXResponse(data, statusID);
         },

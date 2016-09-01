@@ -54,123 +54,38 @@
                                 <option value="9">pH</option>
                                 <option value="10">Temperature</option>
                                 <option value="12">Leaf Count</option>
+                                <option value="13">Height</option>
+
                             </select>
                             <hr>
                         </div>
-                        <form ng-show="measure.measurement_id" ng-switch on="measure.measurement_id">
+                        <form ng-show="measure.measurement_id" ng-switch on="measure.measurement_id" name="boardForm">
                             <span class="hidden" id="UID">{{ metadata.UID }}</span>
                             <div class="form-group">
                                 <label for="measure-datetime">Date & Time</label>
                                 <p>Enter in the date and time of when you collected the measurement.</p>
-                                <input class="form-control dt" type="datetime-local" id="measure-datetime"
-                                       name="measure-datetime"
-                                       ng-model="measure.datetime" required>
+                                <input class="form-control dt" type="datetime-local"
+                                       id="measure-datetime" name="measureDateTime" date-time ng-model="inputdate" required />
                             </div>
-
-                            {# SLIDERS CURRENTLY NOT WORKING
-                            <div ng-switch-when="1">
-                                <div class="form-group">
-                                    <label for="alk-strip">Strip Color</label>
-                                    <div id="alk-strip" class="form-control alk-strip">
-                                        <div id="alk-picker" class="strip-picker" style="left: 100px;"></div>
-                                    </div>
-                                </div>
-                                <div class="form-group">
-                                    <label for="alk-preview">Preview</label>
-                                    <div id="alk-preview" class="form-control alk-preview"></div>
-                                </div>
-                            </div>
-
-                            <div ng-switch-when="2">
-                                <div class="form-group">
-                                    <label for="nh4-strip">Strip Color</label>
-                                    <div id="nh4-strip" class="form-control nh4-strip">
-                                        <div id="nh4-picker" class="strip-picker" style="left: 100px;"></div>
-                                    </div>
-                                </div>
-                                <div class="form-group">
-                                    <label for="nh4-preview">Preview</label>
-                                    <div id="nh4-preview" class="form-control nh4-preview"></div>
-                                </div>
-                            </div>
-
-                            <div ng-switch-when="3">
-                                <div class="form-group">
-                                    <label for="cl-strip">Strip Color</label>
-                                    <div id="cl-strip" class="form-control cl-strip">
-                                        <div id="cl-picker" class="strip-picker" style="left: 100px;"></div>
-                                    </div>
-                                </div>
-                                <div class="form-group">
-                                    <label for="cl-preview">Preview</label>
-                                    <div id="cl-preview" class="form-control cl-preview"></div>
-                                </div>
-                            </div>
-
-                            <div ng-switch-when="4">
-                                <div class="form-group">
-                                    <label for="hard-strip">Strip Color</label>
-                                    <div id="hard-strip" class="form-control hard-strip">
-                                        <div id="hard-picker" class="strip-picker" style="left: 100px;"></div>
-                                    </div>
-                                </div>
-                                <div class="form-group">
-                                    <label for="hard-preview">Preview</label>
-                                    <div id="hard-preview" class="form-control hard-preview"></div>
-                                </div>
-                            </div>
-
-                            <div ng-switch-when="6">
-                                <div class="form-group">
-                                    <label for="no3">Strip Color</label>
-                                    <div id="no3-strip" class="form-control no3-strip">
-                                        <div id="no3-picker" class="strip-picker" style="left: 100px;"></div>
-                                    </div>
-                                </div>
-                                <div class="form-group">
-                                    <label for="no3-preview">Preview</label>
-                                    <div id="no3-preview" class="form-control no3-preview"></div>
-                                </div>
-                            </div>
-
-                            <div ng-switch-when="7">
-                                <div class="form-group">
-                                    <label for="no2-strip">Strip Color</label>
-                                    <div id="no2-strip" class="form-control no2-strip">
-                                        <div id="no2-picker" class="strip-picker" style="left: 100px;"></div>
-                                    </div>
-                                </div>
-                                <div class="form-group">
-                                    <label for="no2-preview">Preview</label>
-                                    <div id="no2-preview" class="form-control no2-preview"></div>
-                                </div>
-                            </div>
-
-                            <div ng-switch-when="9">
-                                <div class="form-group">
-                                    <label for="ph-strip">Strip Color</label>
-                                    <div id="ph-strip" class="form-control ph-strip">
-                                        <div id="ph-picker" class="strip-picker" style="left: 100px;"></div>
-                                    </div>
-                                </div>
-                                <div class="form-group">
-                                    <label for="ph-preview">Preview</label>
-                                    <div id="ph-preview" class="form-control ph-preview"></div>
-                                </div>
-                            </div>#}
-
                             <div class="form-group">
                                 <label for="measure-value">Value</label>
                                 <p>Enter in the value of the measurement.</p>
                                 <div class="input-group">
-                                    <input id="measure-value" class="form-control val" name="measure-value" type="number"
-                                           pattern="[0-9]+(.[0-9]+)?" style="text-align: right;" placeholder="0.00"
-                                           step="0.01" min="0" max="1000"
-                                           aria-describedby="addon" ng-model="measure.value" required>
+                                    <div ng-switch on="measure.measurement_id">
+                                        <input ng-switch-when="12" id="measure-value" class="form-control val" name="measure-value" type="number"
+                                               pattern="[0-9]+(.[0-9]+)?" style="text-align: right;" placeholder="0"
+                                               step="1" min="0" max="100000"
+                                               aria-describedby="addon" ng-model="measure.value" required>
+                                        <input  ng-switch-default id="measure-value" class="form-control val" name="measure-value" type="number"
+                                               pattern="[0-9]+(.[0-9]+)?" style="text-align: right;" placeholder="0.00"
+                                               step="0.01" min="0" max="1000"
+                                               aria-describedby="addon" ng-model="measure.value" required>
+                                    </div>
                                     <span ng-switch-when="5" id="addon" class="input-group-addon">lux</span>
                                     <span ng-switch-when="9" id="addon" class="input-group-addon">&nbsp;</span>
                                     <span ng-switch-when="10" id="addon" class="input-group-addon">&deg;C</span>
-                                    <span ng-switch-when="12" id="addon" class="input-group-addon"></span>
+                                    <span ng-switch-when="12" id="addon" class="input-group-addon">leaves</span>
+                                    <span ng-switch-when="13" id="addon" class="input-group-addon">cm</span>
                                     <span ng-switch-default id="addon" class="input-group-addon">mg/L</span>
                                 </div>
                             </div>
@@ -191,7 +106,7 @@
                                 <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                                     <span aria-hidden="true">&times;</span>
                                 </button>
-                                Was your measurement taken at 11:59PM? Please double-check.
+                                No measurement date was input. Please try again.
                             </div>
                             <!-- button panel -->
                             <div class="form-group">
@@ -208,18 +123,18 @@
                     <p>If you have added a measurement and it is not reflected below, try refreshing your page.</p>
                     <table class="table">
                         <thead>
-                            <tr>
-                                <th>Type</th>
-                                <th>Value</th>
-                            </tr>
+                        <tr>
+                            <th>Type</th>
+                            <th>Value</th>
+                        </tr>
                         </thead>
                         <tbody>
-                            {% for reading in readings %}
-                                <tr>
-                                    <td>{{ reading.name }}</td>
-                                    <td>{{ reading.value }}</td>
-                                </tr>
-                            {% endfor %}
+                        {% for reading in readings %}
+                            <tr>
+                                <td>{{ reading.name }}</td>
+                                <td>{{ reading.value }}</td>
+                            </tr>
+                        {% endfor %}
                         </tbody>
                     </table>
                 </div>
@@ -237,21 +152,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui-touch-punch/0.2.3/jquery.ui.touch-punch.min.js"></script>
     <script src="{{ url_for('frontend.static', filename='js/jquery.numeric.min.js') }}"></script>
     <script src="{{ url_for('frontend.static', filename='js/sys_measurements.js') }}"></script>
-    {# <script src="{{ url_for('frontend.static', filename='js/strip_colors.js') }}"></script> #}
     <script>
-        $(document).ready( function() {
-            var now = new Date();
-            var month = (now.getMonth() + 1);
-            var day = now.getDate();
-
-            if(month < 10)
-                month = "0" + month;
-            if(day < 10)
-                day = "0" + day;
-            var today = now.getFullYear() + '-' + month + '-' + day + 'T23:59';
-            $('#measure-datetime').val(today);
-        });
-
         $("select.id").change(function() {
             if ($(this).val() == "1") {
                 $("input.val").attr('min', 0.00);
@@ -283,6 +184,13 @@
             } else if ($(this).val() == "10") {
                 $("input.val").attr('min', 18.00);
                 $("input.val").attr('max', 33.00);
+            } else if ($(this).val() == "12") {
+                $("input.val").attr('min', 0);
+                $("input.val").attr('max', 1000000);
+            }
+            else if ($(this).val() == "13") {
+                $("input.val").attr('min', 0.00);
+                $("input.val").attr('max', 1000000.00);
             }
         });
 

@@ -6,6 +6,9 @@ app.controller('MeasurementController', function ($scope, $http, $timeout) {
     $scope.message = false;
     $scope.error = false;
 
+
+    // console.log($scope.boardForm.inputdate.$viewValue);
+    
     $scope.clearMessage = function() {
         $scope.message = false;
         $scope.error = false;
@@ -15,7 +18,11 @@ app.controller('MeasurementController', function ($scope, $http, $timeout) {
         measure.system_uid = angular.element('#UID').html();
         measure.min = Number(angular.element('#measure-value').attr('min'));
         measure.max = Number(angular.element('#measure-value').attr('max'));
-
+        // For angular datetime inputs, the value is kept in a different private scope
+        // Because of this, ng-bind and ng-model can't reference anything in this scope
+        // To get the datetime value, we have to go to the actual DOM element.
+        measure.datetime = $scope.boardForm.measureDateTime.$modelValue;
+        console.log(measure);
         // Convert datetime's timezone to UTC
         if (measure.datetime) {
             measure.time = new Date(Date.UTC(measure.datetime.getFullYear(),
@@ -26,8 +33,6 @@ app.controller('MeasurementController', function ($scope, $http, $timeout) {
                 measure.datetime.getSeconds()
             ));
         }
-
-        console.log(measure);
 
         function onSuccess(response) {
             console.log(response);
@@ -40,6 +45,7 @@ app.controller('MeasurementController', function ($scope, $http, $timeout) {
             }, 3500);
         }
         function onFailure(error) {
+            console.log(error);
             console.log(error.data.error);
             if (error.data.error == "Time required") {
                 $scope.error1 = false;

@@ -2,27 +2,6 @@
 import MySQLdb
 import traceback
 from flask import current_app
-import time, datetime
-
-# Expected format to arrive from the client
-# the second format handles milliseconds
-API_TIME_FORMAT1 = '%Y-%m-%dT%H:%M:%SZ'
-API_TIME_FORMAT2 = '%Y-%m-%dT%H:%M:%S.%fZ'
-"""2016-07-15T00:00:00.000Z"""
-def parse_timestamp(s):
-    try:
-        print "parsing timestamp"
-        print time.strptime(s, API_TIME_FORMAT1)
-        return time.mktime(time.strptime(s, API_TIME_FORMAT1))
-        # return datetime.fromtimestamp(time.mktime(time.strptime(s, API_TIME_FORMAT1)))
-    except:
-        try:
-            return time.mktime(time.strptime(s, API_TIME_FORMAT2))
-            # return datetime.fromtimestamp(time.mktime(time.strptime(s, API_TIME_FORMAT2)))
-        except:
-            print("problem using API default format, none returned, input was: %s" % s)
-            return None
-
 
 class MeasurementsDAO:
 
@@ -112,8 +91,6 @@ class MeasurementsDAO:
     #   (b) Else: returns the time
     def get_recorded_time(self, table_name, time):
         conn = self.getDBConn()
-        # print time
-        time = parse_timestamp(time)
         cursor = conn.cursor()
         query_time = "SELECT time " \
                      "FROM %s " \
@@ -188,14 +165,14 @@ class MeasurementsDAO:
     # param measurements list of measurements
     # return dictionary with system_id as key and list of measurements[timestamp,m1,m2,...]
     # with key as the measurement
-    def get_measurements(self, systems, measurements,status_id):
+    def get_measurements(self, systems, measurements, status_id):
         conn = self.getDBConn()
         payload = {}
         values = {}
         cursor = conn.cursor()
         try:
             for system in systems:
-                time_range_response = self.get_time_ranges_for_status(system,status_id);
+                time_range_response = self.get_time_ranges_for_status(system, status_id)
 
                 if time_range_response:
                     query = self.create_measurement_query(system, measurements,time_range_response)
@@ -231,6 +208,56 @@ class MeasurementsDAO:
 
             payload[s] = values[s]
 
+        return payload
+
+
+    def get_data_count(self, systemUid, measurement):
+        conn = self.getDBConn()
+        cursor = conn.cursor()
+        payload = {}
+        try:
+            table_name = 'aqxs_' + measurement + '_' + systemUid
+            query = "SELECT COUNT(*) FROM ?"
+            cursor.execute(query, (table_name,))
+            result = cursor.fetchone()
+            payload['total_pages'] = result
+        except Exception as e:
+            return {'error': e.args[1]}
+        finally:
+            cursor.close()
+            conn.close()
+        return payload
+
+
+    ###############################################################################
+    # return all measurement data for a given system and measurement
+    # param - table_name: name of the table
+    # param - time
+    # returns:
+    #   (a) If given time already present in the given table: Error
+    #   (b) Else: returns the time
+    def get_all_measurements(self, systemUid, measurement, page):
+        conn = self.getDBConn()
+        cursor = conn.cursor()
+        items_per_page = 20
+        payload = {}
+        try:
+            start = items_per_page * (page - 1)
+            end = items_per_page * page
+            table_name = 'aqxs_' + measurement + '_' + systemUid
+            query = "SELECT * FROM ? limit ?, ?"
+            cursor.execute(query, (table_name, start, end))
+            result = list(cursor.fetchall())
+            total_pages = self.get_data_count(systemUid, measurement)
+
+            payload['data'] = result
+            payload['total_pages'] = total_pages
+
+        except Exception as e:
+            return {'error': e.args[1]}
+        finally:
+            cursor.close()
+            conn.close()
         return payload
 
 

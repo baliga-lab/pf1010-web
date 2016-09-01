@@ -3,7 +3,7 @@ import MySQLdb
 
 
 # TODO: This seems to be unnecessarily hard-coded
-MEASUREMENTS = ['ammonium', 'o2', 'ph', 'nitrate', 'light', 'temp', 'nitrite', 'chlorine', 'hardness', 'alkalinity', 'leaf_count']
+MEASUREMENTS = ['ammonium', 'o2', 'ph', 'nitrate', 'light', 'temp', 'nitrite', 'chlorine', 'hardness', 'alkalinity', 'leaf_count', 'height']
 
 class SystemDAO:
     def __init__(self, app):

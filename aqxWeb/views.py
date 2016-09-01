@@ -1,7 +1,9 @@
 from flask import render_template
 from frontend import frontend
+from analytics import api
 
 from services import getEnums, getSystem, getLatestReadingsForSystem
+
 
 import json
 
@@ -40,6 +42,10 @@ def sys_overview(system_uid):
     metadata = json.loads(getSystem(system_uid))
     readings = json.loads(getLatestReadingsForSystem(system_uid))
     return render_template('sys_overview.html', **locals())
+
+@frontend.route('/system/<system_uid>/measurement/<measurement>/data/<page>')
+def sys_data(system_uid, measurement, page):
+    readings = json.loads(api.AnalyticsAPI.get_all_data_for_system_and_measurement(system_uid, measurement, page))
 
 
 @frontend.route('/system/<system_uid>/measurements')
