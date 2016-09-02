@@ -49,8 +49,6 @@ def sys_data(system_uid, measurement, page):
     dav_api = AnalyticsAPI(current_app)
     metadata = json.loads(getSystem(system_uid))
     readings = json.loads(dav_api.get_all_data_for_system_and_measurement(system_uid, measurement, page))
-    print metadata
-    print readings
     return render_template('sys_data.html', **locals())
 
 
