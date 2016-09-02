@@ -23,24 +23,24 @@
             <tfoot>
             <td colspan="6">
                 <ul class="pagination">
-                    <li ng-class="{disabled: currentPage == 0}">
+                    <li ng-class="{disabled: currentPage == 1}">
                         <a href ng-click="prevPage()">« Prev</a>
                     </li>
-                    <li ng-repeat="n in range(pagedItems.length, currentPage, currentPage + gap) "
+                    <li ng-repeat="n in range(2, currentPage, currentPage + gap + 1)"
                         ng-class="{active: n == currentPage}"
                         ng-click="setPage()">
-                        <a href ng-bind="n + 1">1</a>
+                        <a href ng-bind="n">1</a>
                     </li>
-                    <li ng-class="{disabled: (currentPage) == pagedItems.length - 1}">
+                    <li ng-class="{disabled: (currentPage) == totalPages}">
                         <a href ng-click="nextPage()">Next »</a>
                     </li>
                 </ul>
             </td>
             </tfoot>
             <tbody>
-            <tr ng-repeat="item in pagedItems[currentPage] | orderBy:sort.sortingOrder:sort.reverse">
+            <tr ng-repeat="item in measurements.data">
                 <td>{a item.time a}</td>
-{#                TODO: Link doesn't do exactly what we want, but this is the general idea#}
+{#                                TODO: Link doesn't do exactly what we want, but this is the general idea#}
                 <td>{a item.value a}<a href="/system/{{ system_uid }}/measurements" class="pull-right">Edit</a></td>
             </tr>
             </tbody>
@@ -52,4 +52,5 @@
     {{ super() }}
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui-touch-punch/0.2.3/jquery.ui.touch-punch.min.js"></script>
     <script src="{{ url_for('frontend.static', filename='js/viewDataCtrl.js') }}"></script>
+    <script src="{{ url_for('frontend.static', filename='js/dirPagination.js') }}"></script>
 {% endblock scripts %}

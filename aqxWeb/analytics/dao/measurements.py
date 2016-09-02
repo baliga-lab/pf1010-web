@@ -263,18 +263,27 @@ class MeasurementsDAO:
         payload = {'data': []}
 
         try:
-            query = "SELECT * FROM %s LIMIT %%s OFFSET %%s" % table_name
+            # Retrieve records in time order, descending (most recent first)
+            query = "SELECT * FROM %s ORDER BY time DESC LIMIT %%s OFFSET %%s " % table_name
             cursor.execute(query, (items_per_page, start))
             result = list(cursor.fetchall())
+
+            # Figure out total number of pages. We return this with every request
             total_count = self.get_data_count(system_uid, measurement)
             total_pages = int(floor(total_count['count'] / items_per_page) + 1)
+
+            # Error if page not in range
             if total_pages < page:
                 raise ValueError('The provided page number  ' + str(page)
                                  + ' is out of range. There allowable range is [1,%d]' % total_pages)
+
+            # Add the page count
+            payload['total_pages'] = total_pages
+
+            # Loop through the query result, coerce the result strings to datetime and float
+            # Turn the results into dicts of form {time: <datetime>, value: <float>}
             for r in result:
                 payload['data'].append({'time': r[0].strftime('%Y-%m-%d %H:%M:%S'), 'value': float(r[1])})
-            # payload['data'] = result
-            payload['total_pages'] = total_pages
         except Exception as e:
             print e
             return {'error': str(e)}
@@ -299,17 +308,17 @@ class MeasurementsDAO:
 
 
             query += "select \'" + measurements[i] + "\'," + measurements[i] + ".time as time," \
-                         + measurements[i] + ".value as value from aqxs_" + measurements[i] + "_" + system \
-                         + " " + measurements[i] + " where "
+                     + measurements[i] + ".value as value from aqxs_" + measurements[i] + "_" + system \
+                     + " " + measurements[i] + " where "
             if time_ranges:
                 for j in range(0,len(time_ranges)):
-                     start_time = "'" + str(time_ranges[j][0]) + "'"
-                     end_time = "'" + str(time_ranges[j][1]) + "'"
+                    start_time = "'" + str(time_ranges[j][0]) + "'"
+                    end_time = "'" + str(time_ranges[j][1]) + "'"
 
-                     if j == len(time_ranges) - 1:
-                         query += "( time > " + start_time + " and time < " + end_time + ")"
-                     else:
-                         query += "( time > " + start_time + " and time < " + end_time + ") or"
+                    if j == len(time_ranges) - 1:
+                        query += "( time > " + start_time + " and time < " + end_time + ")"
+                    else:
+                        query += "( time > " + start_time + " and time < " + end_time + ") or"
 
             else:
                 query += "1=1"
@@ -331,7 +340,7 @@ class MeasurementsDAO:
     def get_time_ranges_for_status(self,system_id,status_id):
         conn = self.getDBConn()
         cursor = conn.cursor()
-        query_time_ranges = ("select start_time, end_time from system_status"  \
+        query_time_ranges = ("select start_time, end_time from system_status" \
                              + " where system_uid = %s"
                              + " and sys_status_id = %s" )
         try:
@@ -396,25 +405,25 @@ class MeasurementsDAO:
         annotations = {}
         cursor = conn.cursor()
         try:
-             system_id_list_str = self.form_in_list(systems)
+            system_id_list_str = self.form_in_list(systems)
 
-             query =  "select s.system_uid, annotation_id, timestamp from system_annotations sa" + \
-                      " join systems s on" + \
-                      " s.id = sa.system_id" +\
-                      " where s.system_uid in " + system_id_list_str + \
-                      " order by s.system_uid,timestamp"
+            query =  "select s.system_uid, annotation_id, timestamp from system_annotations sa" + \
+                     " join systems s on" + \
+                     " s.id = sa.system_id" + \
+                     " where s.system_uid in " + system_id_list_str + \
+                     " order by s.system_uid,timestamp"
 
-             cursor.execute(query)
-             annotations_fetched = cursor.fetchall()
+            cursor.execute(query)
+            annotations_fetched = cursor.fetchall()
 
-             for s in systems:
-                 annotations[s] = []
+            for s in systems:
+                annotations[s] = []
 
-             for annotation in annotations_fetched:
-                 system_id = annotation[0]
-                 annotations[system_id].append(annotation)
+            for annotation in annotations_fetched:
+                system_id = annotation[0]
+                annotations[system_id].append(annotation)
 
-             return annotations
+            return annotations
 
         except Exception as e:
             return {'error': e.args[1] + "system: :" + str(systems)}

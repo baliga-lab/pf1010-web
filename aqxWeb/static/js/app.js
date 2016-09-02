@@ -1,4 +1,4 @@
-var app = angular.module('aqx', []);
+var app = angular.module('aqx', ['angularUtils.directives.dirPagination']);
 
 
 // Flask's Jinja2 template engine takes precedence over angular's expressions
