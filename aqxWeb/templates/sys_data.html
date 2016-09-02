@@ -9,13 +9,15 @@
 {% block title %}Data{% endblock %}
 
 {% block content %}
-    <div ng-controller="viewDataController">
+    <span class="hidden" id="UID">{{ system_uid }}</span>
+    <span class="hidden" id="meaurementName">{{ measurement }}</span>
+    <span class="hidden" id="page">{{ page }}</span>
+    <div ng-controller="viewDataController" class="col-md-6">
         <table class="table table-striped table-condensed table-hover">
             <thead>
             <tr>
-                <th class="id" custom-sort order="'id'" sort="sort">Id&nbsp;</th>
-                <th class="name" custom-sort order="'name'" sort="sort">Name&nbsp;</th>
-                <th class="description" custom-sort order="'description'" sort="sort">Description&nbsp;</th>
+                <th class="id" custom-sort order="'id'" sort="sort">Time&nbsp;</th>
+                <th class="name" custom-sort order="'name'" sort="sort">Value&nbsp;</th>
             </tr>
             </thead>
             <tfoot>
@@ -35,14 +37,11 @@
                 </ul>
             </td>
             </tfoot>
-            <pre>pagedItems.length: {a pagedItems.length|json a}</pre>
-            <pre>currentPage: {a currentPage|json a}</pre>
-            <pre>currentPage: {a sort|json a}</pre>
             <tbody>
             <tr ng-repeat="item in pagedItems[currentPage] | orderBy:sort.sortingOrder:sort.reverse">
-                <td>{a item.id a}</td>
-                <td>{a item.name a}</td>
-                <td>{a item.description a}</td>
+                <td>{a item.time a}</td>
+{#                TODO: Link doesn't do exactly what we want, but this is the general idea#}
+                <td>{a item.value a}<a href="/system/{{ system_uid }}/measurements" class="pull-right">Edit</a></td>
             </tr>
             </tbody>
         </table>

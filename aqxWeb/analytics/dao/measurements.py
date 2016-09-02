@@ -260,7 +260,7 @@ class MeasurementsDAO:
         table_name = 'aqxs_' + measurement + '_' + system_uid
 
         # Declare and initialize the payload
-        payload = {}
+        payload = {'data': []}
 
         try:
             query = "SELECT * FROM %s LIMIT %%s OFFSET %%s" % table_name
@@ -269,8 +269,11 @@ class MeasurementsDAO:
             total_count = self.get_data_count(system_uid, measurement)
             total_pages = int(floor(total_count['count'] / items_per_page) + 1)
             if total_pages < page:
-                raise ValueError('The provided page number is out of range. There allowable range is [1,%d]' % total_pages)
-            payload['data'] = result
+                raise ValueError('The provided page number  ' + str(page)
+                                 + ' is out of range. There allowable range is [1,%d]' % total_pages)
+            for r in result:
+                payload['data'].append({'time': r[0].strftime('%Y-%m-%d %H:%M:%S'), 'value': float(r[1])})
+            # payload['data'] = result
             payload['total_pages'] = total_pages
         except Exception as e:
             print e

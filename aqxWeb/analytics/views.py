@@ -258,13 +258,13 @@ def get_readings_for_plot():
     status_id = request.json['status']
     return dav_api.get_readings_for_plot(systems_uid, measurements,status_id)
 
-@dav.route('/aqxapi/measurements/<measurement_id>/system/<system_uid>/<page>, plot', methods=['GET'])
+@dav.route('/aqxapi/measurements/<measurement_id>/system/<system_uid>/<page>', methods=['GET'])
 def get_all_for_system_and_measurement(system_uid, measurement_id, page):
     dav_api = AnalyticsAPI(current_app)
     measurements = dav_api.get_all_data_for_system_and_measurement(system_uid, measurement_id, page)
-    if measurements['error']:
+    if 'error' in measurements:
         return measurements, 400
-    if measurements['data'].length == 0:
+    if '[]' in measurements:
         return measurements, 204
     return measurements, 200
 
