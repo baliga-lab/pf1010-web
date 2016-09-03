@@ -12,16 +12,15 @@ var app = angular.module('aqx');
         $http.get('/dav/aqxapi/measurements/' + measurementName + '/system/' + system_uid + '/' + page)
             .success(function(data){
                 $scope.measurements = data;
-                $scope.items = data['data'];
                 $scope.totalPages = data['total_pages'];
+                $scope.items = data['data'];
             });
     };
 
     var init = function(){
-        getDataForPage(1);
-        $scope.itemsPerPage = 20;
         $scope.gap = 5;
         $scope.currentPage = 1;
+        getDataForPage($scope.currentPage);
     };
 
     $scope.range = function (size, start, end) {
