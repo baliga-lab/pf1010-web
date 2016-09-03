@@ -508,6 +508,4 @@ class AnalyticsAPI:
         response = self.mea.get_all_measurements(system, measurement, page)
         if 'error' in response:
             return json.dumps(response)
-        # for i in range(len(response['data'])):
-        #     response['data'][i]['time'] = (response['data'][i]['time'].strftime('%Y-%m-%d %H:%M:%S'), float(response['data'][i]['value']))
         return json.dumps(response)
