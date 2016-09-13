@@ -21,6 +21,7 @@ import time
 import py2neo
 import argparse
 import MySQLdb
+import traceback as tb
 
 
 def timestamp():
@@ -112,9 +113,9 @@ def systems_data_for(conn, uids):
                 lat = row[4]
                 lng = row[3]
 
-        result.append({'id': row[0], 'system_uid': row[1], 'creation_time': row[2],
-                        'location_lng': lng, 'location_lat': lat, 'name': row[5],
-                        'status': row[6]})
+            result.append({'id': row[0], 'system_uid': row[1], 'creation_time': row[2],
+                            'location_lng': lng, 'location_lat': lat, 'name': row[5],
+                            'status': row[6]})
         return result
     finally:
         if cursor is not None:
@@ -134,19 +135,23 @@ def make_systems_in_graph(settings, user_id, system_data):
         return
     for entry in system_data:
         print(entry)
-        systemNode = py2neo.Node("System",
-                                 system_id=entry['id'],
-                                 system_uid=entry['system_uid'],
-                                 name=entry['name'],
-                                 description=entry['name'],
-                                 location_lat=to_float(entry['location_lat']),
-                                 location_lng=to_float(entry['location_lng']),
-                                 status=entry['status'],
-                                 creation_time=timestamp(),
-                                 modified_time=timestamp())
-        graph.create(systemNode)
-        relationship = py2neo.Relationship(system_owner, "SYS_ADMIN", systemNode)
-        graph.create(relationship)
+        try:
+            systemNode = py2neo.Node("System",
+                                         system_id=entry['id'],
+                                         system_uid=entry['system_uid'],
+                                         name=entry['name'],
+                                         description=entry['name'],
+                                         location_lat=to_float(entry['location_lat']),
+                                         location_lng=to_float(entry['location_lng']),
+                                         status=entry['status'],
+                                         creation_time=timestamp(),
+                                         modified_time=timestamp())
+            graph.create(systemNode)
+            relationship = py2neo.Relationship(system_owner, "SYS_ADMIN", systemNode)
+            graph.create(relationship)
+        except Exception as e:
+            tb.print_exc()
+            raise e
 
 def process_user(settings, conn, user_id, email):
     print("processing systems for user: %s" % email)
