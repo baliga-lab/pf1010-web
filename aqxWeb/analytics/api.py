@@ -33,12 +33,18 @@ class AnalyticsAPI:
         systems_list = []
         for system in systems:
             # For each system, create a system
+            if system[4] is None and system[5] is None:
+                lat = system[13]
+                lng = system[14]
+            else:
+                lat = system[4]
+                lng = system[5]
             obj = {'system_uid': system[0],
                    'user_id': system[1],
                    'system_name': system[2],
                    'start_date': str(system[3]),
-                   'lat': str(system[4]),
-                   'lng': str(system[5]),
+                   'lat': str(lat),
+                   'lng': str(lng),
                    'status': str(system[6]),
                    'aqx_technique_name': system[7],
                    'growbed_media': system[8],

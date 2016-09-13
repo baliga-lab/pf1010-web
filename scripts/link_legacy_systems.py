@@ -96,15 +96,26 @@ def not_in_graph(uids):
 
 def systems_data_for(conn, uids):
     """returns the data required to create a System node"""
-    query = """select id,system_uid,creation_time,location_lng,location_lat,name,status
+    query = """select id,system_uid,creation_time,location_lng,location_lat,name,status,user_id
              from systems where system_uid in %s"""
     cursor = conn.cursor()
     try:
         cursor.execute(query, [uids])
-        return [{'id': row[0], 'system_uid': row[1], 'creation_time': row[2],
-                     'location_lng': row[3], 'location_lat': row[4], 'name': row[5],
-                     'status': row[6]}
-                    for row in cursor.fetchall()]
+        result = []
+        for row in cursor.fetchall():
+            # if system has no location, retrieve from user default site
+            if row[3] is None or row[4] is None:
+                cursor2 = conn.cursor()
+                cursor2.execute('select default_site_location_lat,default_site_location_lng from users where user_id=%s', [row[7]])
+                lat, lng = cursor2.fetchone()
+            else:
+                lat = row[4]
+                lng = row[3]
+
+        result.add({'id': row[0], 'system_uid': row[1], 'creation_time': row[2],
+                     'location_lng': lng, 'location_lat': lat, 'name': row[5],
+                     'status': row[6]})
+        return result
     finally:
         if cursor is not None:
             cursor.close()

@@ -369,7 +369,7 @@ if (!aqxmap) {
                     });
              var userSystemOpt = $("<optgroup label='Other systems'></optgroup>");
              _.each(otherUserSystems, function(system) {
-                        userSystemOpt.append($("<option>").attr('value',system.system_uid).text(system.system_name));
+                        userSystemOpt.append($("<option>").attr('value',system.system_uid).text(system.system_name + " (" +  system.system_uid + ")"));
                     });
              $('#analyzeSystem').append(mySystemOpt, userSystemOpt);
          } else {
