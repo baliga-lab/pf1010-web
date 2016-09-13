@@ -509,3 +509,15 @@ class AnalyticsAPI:
         if 'error' in response:
             return json.dumps(response)
         return json.dumps(response)
+
+    def get_measurement_by_created_at(self, system, measurement, created_at):
+        response = self.mea.get_measurement(system, measurement, created_at)
+        if 'error' in response:
+            return json.dumps(response)
+        return json.dumps(response)
+
+    def edit_measurement(self, system_uid, measurement, data):
+        response = self.mea.update_existing_measurement(system_uid, measurement, data)
+        if 'error' in response:
+            return json.dumps(response)
+        return json.dumps(response)

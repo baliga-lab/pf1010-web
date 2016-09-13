@@ -91,18 +91,19 @@
                 <hr>
                 <table class="table">
                     <thead>
-                        <tr>
-                            <th>Type</th>
-                            <th>Value</th>
-                        </tr>
+                    <tr>
+                        <th>Type</th>
+                        <th>Value</th>
+                    </tr>
                     </thead>
                     <tbody>
-                        {% for reading in readings %}
-                            <tr>
-                                <td>{{ reading.name }}</td>
-                                <td>{{ reading.value }}</td>
-                            </tr>
-                        {% endfor %}
+                    {% for reading in readings %}
+                        <tr>
+                            <td>{{ reading.name }}</td>
+                            <td>{{ reading.value }}</td>
+                            <td><a href="/system/{{ metadata.UID  }}/measurements/{{ reading.name }}/data" class="pull-right">History</a></td></td>
+                        </tr>
+                    {% endfor %}
                     </tbody>
                 </table>
             </div>

@@ -21,6 +21,7 @@ var app = angular.module('aqx');
         $scope.gap = 5;
         $scope.currentPage = 1;
         getDataForPage($scope.currentPage);
+        console.log($scope.measurements);
     };
 
     $scope.range = function (size, start, end) {

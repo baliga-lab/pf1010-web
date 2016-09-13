@@ -1,6 +1,7 @@
 # DAO for fetching all the data related to the measurements of the systems
 import MySQLdb
 import traceback
+import datetime as dt
 from flask import current_app
 from math import floor
 
@@ -267,7 +268,7 @@ class MeasurementsDAO:
             query = "SELECT * FROM %s ORDER BY time DESC LIMIT %%s OFFSET %%s " % table_name
             cursor.execute(query, (items_per_page, start))
             result = list(cursor.fetchall())
-
+            print result
             # Figure out total number of pages. We return this with every request
             total_count = self.get_data_count(system_uid, measurement)
             total_pages = int(floor(total_count['count'] / items_per_page) + 1)
@@ -283,7 +284,8 @@ class MeasurementsDAO:
             # Loop through the query result, coerce the result strings to datetime and float
             # Turn the results into dicts of form {time: <datetime>, value: <float>}
             for r in result:
-                payload['data'].append({'time': r[0].strftime('%Y-%m-%d %H:%M:%S'), 'value': float(r[1])})
+                updated_at = r[2].strftime('%Y-%m-%d %H:%M:%S') if r[2] else None
+                payload['data'].append({'time': r[0].strftime('%Y-%m-%d %H:%M:%S'), 'value': float(r[1]), 'updated_at': updated_at})
         except Exception as e:
             print e
             return {'error': str(e)}
@@ -448,3 +450,62 @@ class MeasurementsDAO:
         id_list_str = ''.join(id_list_str)
         return id_list_str
 
+    ###############################################################################
+    # get_measurement: Returns a specific measurement for a system, by it's creation time
+    # param system_uid - UID of the system
+    # param measurement - Name of the measurement type
+    # param created_at - Creation time to ID the requested measurement
+    # returns the string formed from the given id_list
+
+    def get_measurement(self, system_uid, measurement, created_at):
+
+        conn = self.getDBConn()
+        cursor = conn.cursor()
+        table_name = 'aqxs_' + measurement + '_' + system_uid
+
+        # Declare and initialize the payload
+        payload = {'created_at': '', 'value': ''}
+
+        try:
+            # Retrieve records in time order, descending (most recent first)
+            query = "SELECT * FROM %s WHERE time = %%s " % table_name
+            cursor.execute(query, [created_at])
+            data = cursor.fetchone()
+
+            if not data or len(data) == 0:
+                raise ValueError("No data found for the given creation time.")
+
+            payload['created_at'] = data[0].strftime('%Y-%m-%d %H:%M:%S')
+            payload['value'] = float(data[1])
+
+        except Exception as e:
+            print e
+            return {'error': str(e)}
+        finally:
+            cursor.close()
+            conn.close()
+        return payload
+
+
+    ###############################################################################
+    # get_measurement: Returns a specific measurement for a system, by it's creation time
+    # param system_uid - UID of the system
+    # param measurement - Name of the measurement type
+    # param created_at - Creation time to ID the requested measurement
+    # returns the string formed from the given id_list
+
+    def update_existing_measurement(self, system_uid, measurement, data):
+        conn = self.getDBConn()
+        cursor = conn.cursor()
+        table_name = 'aqxs_' + measurement + '_' + system_uid
+        try:
+            query = "UPDATE %s SET time=%%s, value=%%s, updated_at=%%s WHERE time=%%s" % table_name
+            result = cursor.execute(query, (data['time'],  data['value'], data['updated_at'], data['time']))
+            conn.commit()
+        except Exception as e:
+            print e
+            return {'error': str(e)}
+        finally:
+            cursor.close()
+            conn.close()
+        return 'Successfully updated ' + str(result) + ' records(s)!'

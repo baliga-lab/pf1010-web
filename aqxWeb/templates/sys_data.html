@@ -17,6 +17,7 @@
             <thead>
             <tr>
                 <th class="id" custom-sort order="'id'" sort="sort">Time&nbsp;</th>
+                <th class="updated_at" custom-sort order="'updated_at'" sort="sort">Last Updated&nbsp;</th>
                 <th class="name" custom-sort order="'name'" sort="sort">Value&nbsp;</th>
             </tr>
             </thead>
@@ -40,8 +41,9 @@
             <tbody>
             <tr ng-repeat="item in measurements.data">
                 <td>{a item.time a}</td>
-{#                                TODO: Link doesn't do exactly what we want, but this is the general idea#}
-                <td>{a item.value a}<a href="/system/{{ system_uid }}/measurements" class="pull-right">Edit</a></td>
+                <td ng-show="item.updated_at" style="color:red">{a item.updated_at a}</td>
+                <td ng-show="!item.updated_at">-</td>
+                <td>{a item.value a}<a href="/system/{{ system_uid }}/measurements/{{ measurement }}/edit/{a item.time a}" class="pull-right">Edit</a></td>
             </tr>
             </tbody>
         </table>
@@ -52,5 +54,4 @@
     {{ super() }}
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui-touch-punch/0.2.3/jquery.ui.touch-punch.min.js"></script>
     <script src="{{ url_for('frontend.static', filename='js/viewDataCtrl.js') }}"></script>
-    <script src="{{ url_for('frontend.static', filename='js/dirPagination.js') }}"></script>
 {% endblock scripts %}

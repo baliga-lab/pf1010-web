@@ -8,7 +8,7 @@ app.controller('MeasurementController', function ($scope, $http, $timeout) {
 
 
     // console.log($scope.boardForm.inputdate.$viewValue);
-    
+
     $scope.clearMessage = function() {
         $scope.message = false;
         $scope.error = false;
@@ -25,13 +25,18 @@ app.controller('MeasurementController', function ($scope, $http, $timeout) {
         console.log(measure);
         // Convert datetime's timezone to UTC
         if (measure.datetime) {
-            measure.time = new Date(Date.UTC(measure.datetime.getFullYear(),
-                measure.datetime.getMonth(),
-                measure.datetime.getDate(),
-                measure.datetime.getHours(),
-                measure.datetime.getMinutes(),
-                measure.datetime.getSeconds()
-            ));
+            var month = measure.datetime.getMonth() + 1;
+            measure.time = measure.datetime.getFullYear() + '-' +
+                month + '-' +
+                measure.datetime.getDate() + ' ' +
+                measure.datetime.toTimeString().split(' ')[0];
+            // measure.time = new Date(Date.UTC(measure.datetime.getFullYear(),
+            //     measure.datetime.getMonth(),
+            //     measure.datetime.getDate(),
+            //     measure.datetime.getHours(),
+            //     measure.datetime.getMinutes(),
+            //     measure.datetime.getSeconds()
+            // ));
         }
 
         function onSuccess(response) {
@@ -54,7 +59,7 @@ app.controller('MeasurementController', function ($scope, $http, $timeout) {
                     $scope.error2 = false;
                 }, 3500);
             } else if (error.data.error == "Value required"
-                    || error.data.error == "Value too high or too low") {
+                || error.data.error == "Value too high or too low") {
                 $scope.error2 = false;
                 $scope.error1 = false;
             } else {

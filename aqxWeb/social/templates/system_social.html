@@ -264,11 +264,11 @@
             <h2>Summary</h2>
             {% if user_privilege == "SYS_ADMIN" %}
                 <a class="btn-blue" href="{{ url_for('frontend.sys_measurements', system_uid=system_neo4j[0][0]["system_uid"]) }}">
-                <i class="fa fa-plus"></i>Input Measurements</a> <br>
+                    <i class="fa fa-plus"></i>Input Measurements</a> <br>
                 <a class="btn-blue" href="{{ url_for('frontend.sys_annotations', system_uid=system_neo4j[0][0]["system_uid"]) }}">
-                <i class="fa fa-plus"></i>Add Annotations</a> <br>
+                    <i class="fa fa-plus"></i>Add Annotations</a> <br>
                 <a class="btn-blue" href="{{ url_for('dav.system_analyze', system_uid=system_neo4j[0][0]["system_uid"]) }}">
-                <i class="fa fa-plus"></i>Analyze Data</a>
+                    <i class="fa fa-plus"></i>Analyze Data</a>
             {% endif %}
             <div class="row">
                 <table id="placar" class="table table-responsive">
@@ -286,6 +286,8 @@
                                 <td> {{ row.name }} </td>
                                 <td> {{ row.value }} </td>
                                 <td>  {{ row.time }}  </td>
+{#                                /system/<system_uid>/measurements/<measurement>/data    #}
+                                <td>  <a href="/system/{{ system_uid }}/measurements/{{ row.name }}/data" class="pull-right">History</a></td>  </td>
                             </tr>
                         {% endfor %}
                     {% endif %}
