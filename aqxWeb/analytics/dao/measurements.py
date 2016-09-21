@@ -268,7 +268,6 @@ class MeasurementsDAO:
             query = "SELECT * FROM %s ORDER BY time DESC LIMIT %%s OFFSET %%s " % table_name
             cursor.execute(query, (items_per_page, start))
             result = list(cursor.fetchall())
-            print result
             # Figure out total number of pages. We return this with every request
             total_count = self.get_data_count(system_uid, measurement)
             total_pages = int(floor(total_count['count'] / items_per_page) + 1)
