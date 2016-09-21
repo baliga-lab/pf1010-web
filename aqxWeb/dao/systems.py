@@ -138,7 +138,7 @@ class SystemDAO:
         values5 = (systemUID, startDate)
 
         names = list(map(lambda x: 'aqxs_' + x + '_' + systemUID, MEASUREMENTS))
-        query6 = 'CREATE TABLE %s (time TIMESTAMP PRIMARY KEY NOT NULL, value DECIMAL(13,10) NOT NULL)'
+        query6 = 'CREATE TABLE %s (time TIMESTAMP PRIMARY KEY NOT NULL, value DECIMAL(13,10) NOT NULL, updated_at TIMESTAMP)'
 
         try:
             cursor.execute(query1, values1)
