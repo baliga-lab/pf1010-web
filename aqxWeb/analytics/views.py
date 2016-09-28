@@ -1,5 +1,6 @@
 import json
 import traceback
+import time
 from flask import Blueprint, render_template, request, current_app
 
 from aqxWeb.analytics.api import AnalyticsAPI
@@ -257,6 +258,28 @@ def get_readings_for_plot():
     systems_uid = request.json['systems']
     status_id = request.json['status']
     return dav_api.get_readings_for_plot(systems_uid, measurements,status_id)
+
+@dav.route('/aqxapi/measurements/<measurement_id>/system/<system_uid>/<page>', methods=['GET'])
+def get_all_for_system_and_measurement(system_uid, measurement_id, page):
+    dav_api = AnalyticsAPI(current_app)
+    measurements = dav_api.get_all_data_for_system_and_measurement(system_uid, measurement_id, page)
+    if 'error' in measurements:
+        return measurements, 400
+    if '[]' in measurements:
+        return measurements, 204
+    return measurements, 200
+
+
+@dav.route('/aqxapi/v1/measurements/update', methods=['PUT'])
+def edit_measurement_for_system():
+    dav_api = AnalyticsAPI(current_app)
+    measurement = request.json
+    if time.strptime(measurement['time'], '%Y-%m-%d %H:%M:%S') >= time.strptime(measurement['updated_at'], '%Y-%m-%d %H:%M:%S'):
+        return json.dumps({'error': 'Invalid update time. The update time must come after the original measurement time.'}), 400
+    if 'error' in dav_api.get_measurement_by_created_at(measurement['system_uid'], measurement['measurement_name'], measurement['time']):
+        error_not_found = json.dumps({'error': 'Cannot update measurement. Measurement not found.'})
+        return error_not_found, 404
+    return dav_api.edit_measurement(measurement['system_uid'], measurement['measurement_name'], measurement)
 
 
 def get_all_measurement_names():

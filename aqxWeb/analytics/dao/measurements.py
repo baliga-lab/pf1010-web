@@ -1,10 +1,11 @@
 # DAO for fetching all the data related to the measurements of the systems
 import MySQLdb
 import traceback
+import datetime as dt
 from flask import current_app
+from math import floor
 
 class MeasurementsDAO:
-
 
     def __init__(self, app):
         self.app = app
@@ -12,6 +13,8 @@ class MeasurementsDAO:
     def getDBConn(self):
         return MySQLdb.connect(host=self.app.config['HOST'], user=self.app.config['USER'],
                                passwd=self.app.config['PASS'], db=self.app.config['DB'])
+
+
     ###############################################################################
     # get_all_measurement_names: method to fetch the names of all the measurements
     # return: names of all the measurements
@@ -29,6 +32,7 @@ class MeasurementsDAO:
             cursor.close()
             conn.close()
         return measurement_names
+
 
     ###############################################################################
     # get_latest_value: get latest value from the given table
@@ -50,6 +54,7 @@ class MeasurementsDAO:
             cursor.close()
             conn.close()
         return value
+
 
     ###############################################################################
     # insert measurement value
@@ -82,6 +87,7 @@ class MeasurementsDAO:
             conn.close()
         return "Record successfully inserted"
 
+
     ###############################################################################
     # check if measurement exists
     # param - table_name: name of the table
@@ -104,6 +110,7 @@ class MeasurementsDAO:
             cursor.close()
             conn.close()
         return recorded_time
+
 
     ###############################################################################
     # get_all_measurement_names: method to fetch the names of all the measurements
@@ -137,8 +144,8 @@ class MeasurementsDAO:
             conn.close()
         return measurement_names
 
-    ###############################################################################
 
+    ###############################################################################
     # get_measurement_name: method to fetch the name of the measurements of the
     # param - given measurement_id: id of a measurement
     # returns: name of the measurement for the given id
@@ -158,21 +165,21 @@ class MeasurementsDAO:
             conn.close()
         return measurement_name
 
-    ###############################################################################
 
+    ###############################################################################
     # get_measurements: method to fetch measurements for multiple systems
     # param system list of system_id
     # param measurements list of measurements
     # return dictionary with system_id as key and list of measurements[timestamp,m1,m2,...]
     # with key as the measurement
-    def get_measurements(self, systems, measurements,status_id):
+    def get_measurements(self, systems, measurements, status_id):
         conn = self.getDBConn()
         payload = {}
         values = {}
         cursor = conn.cursor()
         try:
             for system in systems:
-                time_range_response = self.get_time_ranges_for_status(system,status_id);
+                time_range_response = self.get_time_ranges_for_status(system, status_id)
 
                 if time_range_response:
                     query = self.create_measurement_query(system, measurements,time_range_response)
@@ -212,6 +219,82 @@ class MeasurementsDAO:
 
 
     ###############################################################################
+    # return the count of all measurement records for the given system and measurement
+    # param - system_uid: UID identifying an aquaponic system
+    # param - measurement: Name of the measurement for which data is requested
+    # returns: A dict {'count': <count of all rows>} that contains the total number of records
+    #          for the given system and measurement
+    def get_data_count(self, system_uid, measurement):
+        conn = self.getDBConn()
+        cursor = conn.cursor()
+        table_name = 'aqxs_' + measurement + '_' + system_uid
+        payload = {}
+        try:
+            query = "SELECT COUNT(*) FROM %s" % table_name
+            cursor.execute(query)
+            result = cursor.fetchone()
+            payload['count'] = result[0]
+        except Exception as e:
+            return {'error': e.args[1]}
+        finally:
+            cursor.close()
+            conn.close()
+        return payload
+
+
+    ###############################################################################
+    # return all measurement data for a given system and measurement
+    # param - system_uid: UID identifying an aquaponic system
+    # param - measurement: Name of the measurement for which data is requested
+    # param - page: the page for which data is requested. Pages are based on items_per_page
+    # returns: A dict of the given page of data for the given system and measurement
+    #          the returned dict contains 'data' which is the list of measurements
+    #          and 'total_pages' which is the total page count for this system/measurement
+    def get_all_measurements(self, system_uid, measurement, page):
+        conn = self.getDBConn()
+        cursor = conn.cursor()
+
+        # Prep some values for the query
+        items_per_page = 20
+        page = int(page)
+        start = items_per_page * (page - 1)
+        table_name = 'aqxs_' + measurement + '_' + system_uid
+
+        # Declare and initialize the payload
+        payload = {'data': []}
+
+        try:
+            # Retrieve records in time order, descending (most recent first)
+            query = "SELECT * FROM %s ORDER BY time DESC LIMIT %%s OFFSET %%s " % table_name
+            cursor.execute(query, (items_per_page, start))
+            result = list(cursor.fetchall())
+            # Figure out total number of pages. We return this with every request
+            total_count = self.get_data_count(system_uid, measurement)
+            total_pages = int(floor(total_count['count'] / items_per_page) + 1)
+
+            # Error if page not in range
+            if total_pages < page:
+                raise ValueError('The provided page number  ' + str(page)
+                                 + ' is out of range. There allowable range is [1,%d]' % total_pages)
+
+            # Add the page count
+            payload['total_pages'] = total_pages
+
+            # Loop through the query result, coerce the result strings to datetime and float
+            # Turn the results into dicts of form {time: <datetime>, value: <float>}
+            for r in result:
+                updated_at = r[2].strftime('%Y-%m-%d %H:%M:%S') if r[2] else None
+                payload['data'].append({'time': r[0].strftime('%Y-%m-%d %H:%M:%S'), 'value': float(r[1]), 'updated_at': updated_at})
+        except Exception as e:
+            print e
+            return {'error': str(e)}
+        finally:
+            cursor.close()
+            conn.close()
+        return payload
+
+
+    ###############################################################################
     # create_measurement_query: method to create query to fetch measurements from a system
     # param system system_id
     # param measurements list of measurements
@@ -226,17 +309,17 @@ class MeasurementsDAO:
 
 
             query += "select \'" + measurements[i] + "\'," + measurements[i] + ".time as time," \
-                         + measurements[i] + ".value as value from aqxs_" + measurements[i] + "_" + system \
-                         + " " + measurements[i] + " where "
+                     + measurements[i] + ".value as value from aqxs_" + measurements[i] + "_" + system \
+                     + " " + measurements[i] + " where "
             if time_ranges:
                 for j in range(0,len(time_ranges)):
-                     start_time = "'" + str(time_ranges[j][0]) + "'"
-                     end_time = "'" + str(time_ranges[j][1]) + "'"
+                    start_time = "'" + str(time_ranges[j][0]) + "'"
+                    end_time = "'" + str(time_ranges[j][1]) + "'"
 
-                     if j == len(time_ranges) - 1:
-                         query += "( time > " + start_time + " and time < " + end_time + ")"
-                     else:
-                         query += "( time > " + start_time + " and time < " + end_time + ") or"
+                    if j == len(time_ranges) - 1:
+                        query += "( time > " + start_time + " and time < " + end_time + ")"
+                    else:
+                        query += "( time > " + start_time + " and time < " + end_time + ") or"
 
             else:
                 query += "1=1"
@@ -258,7 +341,7 @@ class MeasurementsDAO:
     def get_time_ranges_for_status(self,system_id,status_id):
         conn = self.getDBConn()
         cursor = conn.cursor()
-        query_time_ranges = ("select start_time, end_time from system_status"  \
+        query_time_ranges = ("select start_time, end_time from system_status" \
                              + " where system_uid = %s"
                              + " and sys_status_id = %s" )
         try:
@@ -291,6 +374,7 @@ class MeasurementsDAO:
             conn.close()
         return status_type
 
+
     ###############################################################################
     # get_all_measurement_info: method to fetch the id, name, units, min and max
     #                           of all the measurements
@@ -311,6 +395,7 @@ class MeasurementsDAO:
             conn.close()
         return measurement_info
 
+
     ###############################################################################
     # get_annotations: method to fetch annotations for multiple systems
     # param system list of system_id
@@ -321,31 +406,32 @@ class MeasurementsDAO:
         annotations = {}
         cursor = conn.cursor()
         try:
-             system_id_list_str = self.form_in_list(systems)
+            system_id_list_str = self.form_in_list(systems)
 
-             query =  "select s.system_uid, annotation_id, timestamp from system_annotations sa" + \
-                      " join systems s on" + \
-                      " s.id = sa.system_id" +\
-                      " where s.system_uid in " + system_id_list_str + \
-                      " order by s.system_uid,timestamp"
+            query =  "select s.system_uid, annotation_id, timestamp from system_annotations sa" + \
+                     " join systems s on" + \
+                     " s.id = sa.system_id" + \
+                     " where s.system_uid in " + system_id_list_str + \
+                     " order by s.system_uid,timestamp"
 
-             cursor.execute(query)
-             annotations_fetched = cursor.fetchall()
+            cursor.execute(query)
+            annotations_fetched = cursor.fetchall()
 
-             for s in systems:
-                 annotations[s] = []
+            for s in systems:
+                annotations[s] = []
 
-             for annotation in annotations_fetched:
-                 system_id = annotation[0]
-                 annotations[system_id].append(annotation)
+            for annotation in annotations_fetched:
+                system_id = annotation[0]
+                annotations[system_id].append(annotation)
 
-             return annotations
+            return annotations
 
         except Exception as e:
             return {'error': e.args[1] + "system: :" + str(systems)}
         finally:
             cursor.close()
             conn.close()
+
 
     ###############################################################################
     # form_in_list: method to form the the "in" string from given list
@@ -363,3 +449,62 @@ class MeasurementsDAO:
         id_list_str = ''.join(id_list_str)
         return id_list_str
 
+    ###############################################################################
+    # get_measurement: Returns a specific measurement for a system, by it's creation time
+    # param system_uid - UID of the system
+    # param measurement - Name of the measurement type
+    # param created_at - Creation time to ID the requested measurement
+    # returns the string formed from the given id_list
+
+    def get_measurement(self, system_uid, measurement, created_at):
+
+        conn = self.getDBConn()
+        cursor = conn.cursor()
+        table_name = 'aqxs_' + measurement + '_' + system_uid
+
+        # Declare and initialize the payload
+        payload = {'created_at': '', 'value': ''}
+
+        try:
+            # Retrieve records in time order, descending (most recent first)
+            query = "SELECT * FROM %s WHERE time = %%s " % table_name
+            cursor.execute(query, [created_at])
+            data = cursor.fetchone()
+
+            if not data or len(data) == 0:
+                raise ValueError("No data found for the given creation time.")
+
+            payload['created_at'] = data[0].strftime('%Y-%m-%d %H:%M:%S')
+            payload['value'] = float(data[1])
+
+        except Exception as e:
+            print e
+            return {'error': str(e)}
+        finally:
+            cursor.close()
+            conn.close()
+        return payload
+
+
+    ###############################################################################
+    # get_measurement: Returns a specific measurement for a system, by it's creation time
+    # param system_uid - UID of the system
+    # param measurement - Name of the measurement type
+    # param created_at - Creation time to ID the requested measurement
+    # returns the string formed from the given id_list
+
+    def update_existing_measurement(self, system_uid, measurement, data):
+        conn = self.getDBConn()
+        cursor = conn.cursor()
+        table_name = 'aqxs_' + measurement + '_' + system_uid
+        try:
+            query = "UPDATE %s SET time=%%s, value=%%s, updated_at=%%s WHERE time=%%s" % table_name
+            result = cursor.execute(query, (data['time'],  data['value'], data['updated_at'], data['time']))
+            conn.commit()
+        except Exception as e:
+            print e
+            return {'error': str(e)}
+        finally:
+            cursor.close()
+            conn.close()
+        return 'Successfully updated ' + str(result) + ' records(s)!'

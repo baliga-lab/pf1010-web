@@ -2,7 +2,8 @@ import uuid
 import MySQLdb
 
 
-MEASUREMENTS = ['ammonium', 'o2', 'ph', 'nitrate', 'light', 'temp', 'nitrite', 'chlorine', 'hardness', 'alkalinity']
+# TODO: This seems to be unnecessarily hard-coded
+MEASUREMENTS = ['ammonium', 'o2', 'ph', 'nitrate', 'light', 'temp', 'nitrite', 'chlorine', 'hardness', 'alkalinity', 'leaf_count', 'height']
 
 class SystemDAO:
     def __init__(self, app):
@@ -137,7 +138,7 @@ class SystemDAO:
         values5 = (systemUID, startDate)
 
         names = list(map(lambda x: 'aqxs_' + x + '_' + systemUID, MEASUREMENTS))
-        query6 = 'CREATE TABLE %s (time TIMESTAMP PRIMARY KEY NOT NULL, value DECIMAL(13,10) NOT NULL)'
+        query6 = 'CREATE TABLE %s (time TIMESTAMP PRIMARY KEY NOT NULL, value DECIMAL(13,10) NOT NULL, updated_at TIMESTAMP)'
 
         try:
             cursor.execute(query1, values1)

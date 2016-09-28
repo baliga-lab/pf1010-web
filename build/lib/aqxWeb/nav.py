@@ -48,7 +48,10 @@ def guest():
         View('Home', 'frontend.index'),
         View('About', 'frontend.about'),
         View('Explore', 'dav.explore'),
-        View('Resources', 'frontend.resources'),
+        Subgroup('Education',
+            View('Curriculum', 'frontend.curriculum'),
+            View('Resources', 'frontend.resources')
+        ),
         View('Questions?', 'frontend.contact'),
     )
 

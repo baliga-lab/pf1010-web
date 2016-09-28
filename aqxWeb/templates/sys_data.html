@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+
+{% block styles %}
+    {{ super() }}
+    <link rel="stylesheet" type="text/css" href="{{ url_for('frontend.static', filename='css/system.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('frontend.static', filename='css/annotations.css') }}">
+{% endblock %}
+
+{% block title %}Data{% endblock %}
+
+{% block content %}
+    <span class="hidden" id="UID">{{ system_uid }}</span>
+    <span class="hidden" id="meaurementName">{{ measurement }}</span>
+    <span class="hidden" id="page">{{ page }}</span>
+    <div ng-controller="viewDataController" class="col-md-6">
+        <table class="table table-striped table-condensed table-hover">
+            <thead>
+            <tr>
+                <th class="id" custom-sort order="'id'" sort="sort">Time&nbsp;</th>
+                <th class="updated_at" custom-sort order="'updated_at'" sort="sort">Last Updated&nbsp;</th>
+                <th class="name" custom-sort order="'name'" sort="sort">Value&nbsp;</th>
+            </tr>
+            </thead>
+            <tfoot>
+            <td colspan="6">
+                <ul class="pagination">
+                    <li ng-class="{disabled: currentPage == 1}">
+                        <a href ng-click="prevPage()">« Prev</a>
+                    </li>
+                    <li ng-repeat="n in range(totalPages, currentPage, currentPage + gap + 1)"
+                        ng-class="{active: n == currentPage}"
+                        ng-click="setPage()">
+                        <a href ng-bind="n">1</a>
+                    </li>
+                    <li ng-class="{disabled: (currentPage) == totalPages}">
+                        <a href ng-click="nextPage()">Next »</a>
+                    </li>
+                </ul>
+            </td>
+            </tfoot>
+            <tbody>
+            <tr ng-repeat="item in measurements.data">
+                <td>{a item.time a}</td>
+                <td ng-show="item.updated_at" style="color:red">{a item.updated_at a}</td>
+                <td ng-show="!item.updated_at">-</td>
+                <td>{a item.value a}<a href="/system/{{ system_uid }}/measurements/{{ measurement }}/edit/{a item.time a}" class="pull-right">Edit</a></td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+{% endblock %}
+
+{% block scripts %}
+    {{ super() }}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui-touch-punch/0.2.3/jquery.ui.touch-punch.min.js"></script>
+    <script src="{{ url_for('frontend.static', filename='js/viewDataCtrl.js') }}"></script>
+{% endblock scripts %}

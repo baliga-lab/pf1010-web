@@ -1,9 +1,7 @@
-from flask import render_template, current_app
+from flask import render_template
 from frontend import frontend
-from aqxWeb.analytics.api import AnalyticsAPI
 
 from services import getEnums, getSystem, getLatestReadingsForSystem
-
 
 import json
 
@@ -42,23 +40,6 @@ def sys_overview(system_uid):
     metadata = json.loads(getSystem(system_uid))
     readings = json.loads(getLatestReadingsForSystem(system_uid))
     return render_template('sys_overview.html', **locals())
-
-
-@frontend.route('/system/<system_uid>/measurements/<measurement>/data')
-def sys_data(system_uid, measurement):
-    default_page = 1
-    dav_api = AnalyticsAPI(current_app)
-    metadata = json.loads(getSystem(system_uid))
-    readings = json.loads(dav_api.get_all_data_for_system_and_measurement(system_uid, measurement, default_page))
-    return render_template('sys_data.html', **locals())
-
-
-@frontend.route('/system/<system_uid>/measurements/<measurement>/edit/<created_at>')
-def sys_edit_data(system_uid, measurement, created_at):
-    dav_api = AnalyticsAPI(current_app)
-    metadata = json.loads(getSystem(system_uid))
-    data = json.loads(dav_api.get_measurement_by_created_at(system_uid, measurement, created_at))
-    return render_template('edit_data.html', **locals())
 
 
 @frontend.route('/system/<system_uid>/measurements')

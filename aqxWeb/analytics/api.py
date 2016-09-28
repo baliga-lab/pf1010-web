@@ -509,3 +509,21 @@ class AnalyticsAPI:
             measurement_names[m[1]]["min"] = to_float(m[3])
             measurement_names[m[1]]["max"] = to_float(m[4])
         return json.dumps({"measurement_info": measurement_names})
+
+    def get_all_data_for_system_and_measurement(self, system, measurement, page):
+        response = self.mea.get_all_measurements(system, measurement, page)
+        if 'error' in response:
+            return json.dumps(response)
+        return json.dumps(response)
+
+    def get_measurement_by_created_at(self, system, measurement, created_at):
+        response = self.mea.get_measurement(system, measurement, created_at)
+        if 'error' in response:
+            return json.dumps(response)
+        return json.dumps(response)
+
+    def edit_measurement(self, system_uid, measurement, data):
+        response = self.mea.update_existing_measurement(system_uid, measurement, data)
+        if 'error' in response:
+            return json.dumps(response)
+        return json.dumps(response)
