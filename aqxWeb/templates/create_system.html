@@ -35,7 +35,7 @@
             <div class="row">
                 <div class="form-group col-sm-4">
                     <label>Date Started</label>
-                <input type="date" class="form-control" ng-model="system.startDate" required>
+                <input id="start-date" type="date" class="form-control" ng-model="system.startDate" required>
                 </div>
                 <div class="form-group col-sm-4">
                     <label>Aquaponics Technique</label>
@@ -92,4 +92,9 @@
     {{ super() }}
     <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?signed_in=true&v=3.exp"></script>
     <script type="text/javascript" src="{{ url_for('frontend.static', filename='js/create_system.js') }}"></script>
+    <script>
+      if (!Modernizr.inputtypes.date) {
+        $('#start-date').datepicker({dateFormat: "yy-MM-dd"});
+      }
+    </script>
 {% endblock %}

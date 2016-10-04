@@ -138,7 +138,11 @@ class SystemDAO:
         values5 = (systemUID, startDate)
 
         names = list(map(lambda x: 'aqxs_' + x + '_' + systemUID, MEASUREMENTS))
-        query6 = 'CREATE TABLE %s (time TIMESTAMP PRIMARY KEY NOT NULL, value DECIMAL(13,10) NOT NULL, updated_at TIMESTAMP)'
+        # MySQL unfortunately has versions supporting different non-primary key timestamps
+        # our production system (which runs on CentOS with ancient MySQL) does not accept
+        # the default value, the newer development system requires a default value
+        create_query1 = 'CREATE TABLE %s (time TIMESTAMP PRIMARY KEY NOT NULL, value DECIMAL(13,10) NOT NULL, updated_at TIMESTAMP)'
+        create_query2 = 'CREATE TABLE %s (time TIMESTAMP PRIMARY KEY NOT NULL, value DECIMAL(13,10) NOT NULL, updated_at TIMESTAMP default current_timestamp)'
 
         try:
             cursor.execute(query1, values1)
@@ -153,8 +157,15 @@ class SystemDAO:
                 values4 = (systemID, crop['ID'], crop['count'])
                 cursor.execute(query4, values4)
             cursor.execute(query5, values5)
+
+            # make sure the query is creating the table in either production system
+            # or dev system format
             for name in names:
-                cursor.execute(query6 % name)
+                try:
+                    cursor.execute(create_query1 % name)
+                except:
+                    cursor.execute(create_query2 % name)
+
             conn.commit()
         finally:
             cursor.close()
