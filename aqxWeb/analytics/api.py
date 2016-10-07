@@ -10,6 +10,8 @@ from flask import current_app
 from aqxWeb.analytics.dao.metadata import MetadataDAO
 from aqxWeb.analytics.dao.measurements import MeasurementsDAO
 from aqxWeb.analytics.dao.systems import SystemsDAO
+from aqxWeb.social.models import social_graph
+from aqxWeb.social.dao.users import UserDAO
 
 
 def to_float(value):
@@ -24,6 +26,7 @@ class AnalyticsAPI:
         self.sys = SystemsDAO(app)
         self.met = MetadataDAO(app)
         self.mea = MeasurementsDAO(app)
+        self.user_dao = UserDAO(social_graph())
 
     def get_all_systems_info(self):
         systems = self.sys.get_all_systems_info()
@@ -39,20 +42,31 @@ class AnalyticsAPI:
             else:
                 lat = system[4]
                 lng = system[5]
-            obj = {'system_uid': system[0],
-                   'user_id': system[1],
-                   'system_name': system[2],
-                   'start_date': str(system[3]),
-                   'lat': str(lat),
-                   'lng': str(lng),
-                   'status': str(system[6]),
-                   'aqx_technique_name': system[7],
-                   'growbed_media': system[8],
-                   'crop_name': system[9],
-                   'crop_count': system[10],
-                   'organism_name': system[11],
-                   'organism_count': system[12]}
-            systems_list.append(obj)
+
+            user = self.user_dao.get_user_by_sql_id(system[1])
+            # only display users that have an available user in the graph
+            if user is not None:
+                print(user)
+                info_string = user['displayName']
+                if user['organization'] is not None:
+                    info_string += ', %s' % user['organization']
+
+                obj = {'system_uid': system[0],
+                       'user_id': system[1],
+                       'system_name': system[2],
+                       'start_date': str(system[3]),
+                       'lat': str(lat),
+                       'lng': str(lng),
+                       'status': str(system[6]),
+                       'aqx_technique_name': system[7],
+                       'growbed_media': system[8],
+                       'crop_name': system[9],
+                       'crop_count': system[10],
+                       'organism_name': system[11],
+                       'organism_count': system[12],
+                       'info': info_string
+                }
+                systems_list.append(obj)
 
         return json.dumps({'systems': systems_list})
 

@@ -369,8 +369,12 @@ if (!aqxmap) {
                     });
              var userSystemOpt = $("<optgroup label='Other systems'></optgroup>");
              _.each(otherUserSystems, function(system) {
-                        userSystemOpt.append($("<option>").attr('value',system.system_uid).text(system.system_name + " (" +  system.system_uid + ")"));
-                    });
+                 var infotext = system.system_name;
+                 if (system.info != '') {
+                     infotext += ' (' + system.info + ')';
+                 }
+                 userSystemOpt.append($("<option>").attr('value',system.system_uid).text(infotext));
+             });
              $('#analyzeSystem').append(mySystemOpt, userSystemOpt);
          } else {
              _.each(otherUserSystems, function(system) {

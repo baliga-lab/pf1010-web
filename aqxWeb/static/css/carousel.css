@@ -55,6 +55,13 @@ Carousel
     background-image: url("../images/aqx3.jpg");
 }
 
+.image4 {
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-image: url("../images/aqx4.jpg");
+}
+
 /***************
 
 Marketing Content

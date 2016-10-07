@@ -15,6 +15,7 @@
             <li data-target="#myCarousel" data-slide-to="0" class="active"></li>
             <li data-target="#myCarousel" data-slide-to="1"></li>
             <li data-target="#myCarousel" data-slide-to="2"></li>
+            <li data-target="#myCarousel" data-slide-to="3"></li>
         </ol>
         <div class="carousel-inner" role="listbox">
             <div class="item active image1">
@@ -30,21 +31,29 @@
             <div class="item image2">
                 <div class="container">
                     <div class="carousel-caption">
-                        <h1>System Spotlight</h1>
-                        <p>Check out what this system grew and the resources they saved!</p>
+                        <h1>Create your own system:</h1>
+                        <p>Start collecting data and monitoring the health of your food system</p>
                         <p><a class="btn btn-lg btn-green"
-                              href="http://www.projectfeed1010.com/blog/2016/03/06/spotlight-natallie-windsor/"
-                              role="button">See more</a></p>
+                              href="{{url_for('frontend.new_system')}}"
+                              role="button">Learn more</a></p>
                     </div>
                 </div>
             </div>
             <div class="item image3">
                 <div class="container">
                     <div class="carousel-caption">
-                        <h1>Need curriculum?</h1>
-                        <p>Take a look at our lessons and get started with your classroom!</p>
-                        <p><a class="btn btn-lg btn-green" href="{{ url_for('frontend.curriculum') }}" role="button">See
-                            curriculum</a></p>
+                        <h1>Explore Sustainable Food Systems</h1>
+                        <p>Check out the data to learn how these systems function</p>
+                        <p><a class="btn btn-lg btn-green" href="{{ url_for('dav.explore') }}" role="button">Learn more</a></p>
+                    </div>
+                </div>
+            </div>
+            <div class="item image4">
+                <div class="container">
+                    <div class="carousel-caption">
+                        <h1>Socialize with other urban farmers across the world</h1>
+                        <p>Connect with citizen scientists in your area and pick their brains !</p>
+                        <p><a class="btn btn-lg btn-green" href="{{ url_for('social.index') }}" role="button">Learn More</a></p>
                     </div>
                 </div>
             </div>
