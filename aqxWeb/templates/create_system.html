@@ -38,7 +38,7 @@
                 <input id="start-date" type="date" class="form-control" ng-model="system.startDate" required>
                 </div>
                 <div class="form-group col-sm-4">
-                    <label>Aquaponics Technique</label>
+                    <label>Aquaponics Technique <a href="http://www.projectfeed1010.com/blog/2014/07/16/comparing-the-different-methods-of-aquaponics-growing/">?</a></label>
                     <select class="form-control" ng-model="system.techniqueID" required>
                         {% for technique in enums['techniques'] %}<option value="{{ technique.ID }}">{{ technique.name }}</option>
                         {% endfor %}
