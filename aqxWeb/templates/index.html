@@ -9,7 +9,7 @@
 
 {% block feature %}
 
-    <div id="myCarousel" class="carousel slide" data-ride="carousel">
+    <div id="myCarousel" class="carousel slide" data-ride="carousel" data-interval="3000">
         <!-- Indicators -->
         <ol class="carousel-indicators">
             <li data-target="#myCarousel" data-slide-to="0" class="active"></li>
@@ -53,7 +53,7 @@
                     <div class="carousel-caption">
                         <h1>Socialize with other urban farmers across the world</h1>
                         <p>Connect with citizen scientists in your area and pick their brains !</p>
-                        <p><a class="btn btn-lg btn-green" href="{{ url_for('social.index') }}" role="button">Learn More</a></p>
+                        <p><a class="btn btn-lg btn-green" href="{{ url_for('social.profile', google_id='me') }}" role="button">Learn More</a></p>
                     </div>
                 </div>
             </div>
