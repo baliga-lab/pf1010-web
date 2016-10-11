@@ -21,7 +21,22 @@ var app = angular.module('aqx');
         $scope.gap = 5;
         $scope.currentPage = 1;
         getDataForPage($scope.currentPage);
-        console.log($scope.measurements);
+        $scope.units =  'mg/L';
+        if(measurementName === 'light'){
+            $scope.units = 'lux';
+        }
+        else if(measurementName === 'temp'){
+            $scope.units = String.fromCharCode(176) + 'C';
+        }
+        else if(measurementName === 'ph'){
+            $scope.units = '';
+        }
+        else if(measurementName === 'leaf_count'){
+            $scope.units = 'leaves';
+        }
+        else if(measurementName === 'height'){
+            $scope.units = 'cm';
+        }
     };
 
     $scope.range = function (size, start, end) {

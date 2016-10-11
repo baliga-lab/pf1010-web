@@ -30,8 +30,6 @@ app.controller('EditDataController', function ($scope, $filter, $http, $timeout)
             newDate.getDate() + ' ' +
             newDate.toTimeString().split(' ')[0];
 
-        console.log(measure);
-
         function onSuccess(response) {
             console.log(response);
             $scope.error1 = false;
