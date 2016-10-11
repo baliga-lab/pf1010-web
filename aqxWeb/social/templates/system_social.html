@@ -290,7 +290,7 @@
                                     <td>-</td>
                                 {% endif %}
                                 {% if row.updated_at %}
-                                    <td>{{ row.updated_at }}</td>
+                                    <td>{{ row.updated_at|datetime }}</td>
                                 {% else %}
                                     <td>-</td>
                                 {% endif %}

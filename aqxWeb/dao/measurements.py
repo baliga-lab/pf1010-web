@@ -33,7 +33,7 @@ class MeasurementDAO:
                     # reading = round(reading[0], 2)
                     new_reading['value'] = round(reading[0], 2) if reading[0] else None
                     new_reading['created_at'] = reading[1].strftime('%Y-%m-%d %H:%M:%S') if reading[1] else None
-                    new_reading['updated_at'] = reading[2].strftime('%m/%d/%y') if reading[2] else None
+                    new_reading['updated_at'] = reading[2].strftime('%Y-%m-%d %H:%M:%S') if reading[2] else None
                     # readings.append({
                     #     'name': measurement,
                     #     'value': round(reading[0],2) if reading[0] else None,

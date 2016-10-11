@@ -115,7 +115,7 @@ class AnalyticsAPI:
                         'name': measurement_name,
                         'time': str(value_temp[0]),
                         'value': str(normalized_measurement_value_reduced_decimal),
-                        'updated_at': value_temp[2].strftime('%m/%d/%y') if value_temp[2] else None
+                        'updated_at': value_temp[2].strftime('%Y-%m-%d %H:%M:%S') if value_temp[2] else None
                     }
                 else:
                     temp = {

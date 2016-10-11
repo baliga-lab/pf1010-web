@@ -107,7 +107,7 @@
                                 <td>-</td>
                             {% endif %}
                             {% if reading.updated_at %}
-                                <td>{{ reading.updated_at }}</td>
+                                <td>{{ reading.updated_at|datetime }}</td>
                             {% else %}
                                 <td>-</td>
                             {% endif %}

@@ -67,7 +67,6 @@ def sys_edit_data(system_uid, measurement, created_at):
 def sys_measurements(system_uid):
     metadata = json.loads(getSystem(system_uid))
     readings = json.loads(getLatestReadingsForSystem(system_uid))
-    print str(readings)
     return render_template('sys_measurements.html', **locals())
 
 
