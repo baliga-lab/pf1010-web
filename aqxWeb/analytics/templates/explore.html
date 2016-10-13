@@ -65,7 +65,7 @@
                 <!-- whose value is a list of strings. These strings are of the form -->
                 <!-- 'status_id:status_name' -->
                 <select class="explore-dropdown" id="selectStatus">
-                    <option value="" selected="selected">Choose a system status</option>
+                    <option value="" selected="selected">Any status</option>
                     {% for status in metadata_dict['status_types'] %}
                     <option value="{{status.split(':')[0]}}">{{ status.split(':')[1] |title}}</option>
                     {% endfor %}

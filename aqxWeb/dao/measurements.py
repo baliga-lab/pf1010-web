@@ -17,7 +17,7 @@ class MeasurementDAO:
 
         readings = {}
 
-        query = ('SELECT t.value '
+        query = ('SELECT t.value, t.time, t.updated_at '
                  'FROM %s t '
                  'ORDER BY t.time DESC '
                  'LIMIT 1')
@@ -28,12 +28,19 @@ class MeasurementDAO:
                 table = sys_table_name(measurement, systemUID)
                 cursor.execute(query % table)
                 reading = cursor.fetchone()
+                new_reading = {'name': measurement}
                 if reading:
-                    reading = round(reading[0], 2)
-                readings.append({
-                    'name': measurement,
-                    'value': reading
-                })
+                    # reading = round(reading[0], 2)
+                    new_reading['value'] = round(reading[0], 2) if reading[0] else None
+                    new_reading['created_at'] = reading[1].strftime('%Y-%m-%d %H:%M:%S') if reading[1] else None
+                    new_reading['updated_at'] = reading[2].strftime('%Y-%m-%d %H:%M:%S') if reading[2] else None
+                    # readings.append({
+                    #     'name': measurement,
+                    #     'value': round(reading[0],2) if reading[0] else None,
+                    #     'created_at': reading[1].strftime('%Y-%m-%d %H:%M:%S'),
+                    #     'updated_at': reading[2].strftime('%Y-%m-%d %H:%M:%S')
+                    # })
+                readings.append(new_reading)
         except:
             raise
         finally:

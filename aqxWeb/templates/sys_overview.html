@@ -8,7 +8,7 @@
 {% block title %}{{ metadata.name }} Overview{% endblock %}
 
 {% block content %}
-    <div class="container">
+    <div class="container" style="width: 100%; margin-top: 2%; margin-left: 2%">
         <div class="row">
             <div class="col-md-2">
                 <ul class="nav nav-stacked">
@@ -25,10 +25,10 @@
                             <a href="{{ url_for("frontend.sys_annotations", system_uid=metadata.UID) }}"
                                title="Annotations">Annotations <span class="sr-only">(current)</span></a>
                         </li>
-                        <li id="social-li"><a
-                                href="{{ url_for("social.view_system", system_uid=metadata.UID) }}" title="Social">
-                            Social</a>
-                        </li>
+{#                        <li id="social-li"><a#}
+{#                                href="{{ url_for("social.view_system", system_uid=metadata.UID) }}" title="Social">#}
+{#                            Social</a>#}
+{#                        </li>#}
                     {% endif %}
                     <li id="analytics-li">
                         <a href="{{ url_for('dav.system_analyze', system_uid=metadata.UID) }}" title="Analytics">Analytics</a>
@@ -87,21 +87,44 @@
                 </div>
             </div>
             <div class="col-md-3">
-                <h4>Latest Readings</h4>
+                <h4>Latest Measurements</h4>
                 <hr>
                 <table class="table">
                     <thead>
                     <tr>
                         <th>Type</th>
                         <th>Value</th>
+                        <th>Last Updated</th>
                     </tr>
                     </thead>
                     <tbody>
                     {% for reading in readings %}
                         <tr>
                             <td>{{ reading.name }}</td>
-                            <td>{{ reading.value }}</td>
-                            <td><a href="/system/{{ metadata.UID  }}/measurements/{{ reading.name }}/data" class="pull-right">History</a></td></td>
+                            {% if reading.value %}
+                                <td>{{ reading.value }}</td>
+                            {% else %}
+                                <td>-</td>
+                            {% endif %}
+                            {% if reading.updated_at %}
+                                <td>{{ reading.updated_at|datetime }}</td>
+                            {% else %}
+                                <td>-</td>
+                            {% endif %}
+                            <td>
+                                {% if reading.value %}
+                                    <a href="/system/{{ metadata.UID  }}/measurements/{{ reading.name }}/data" class="pull-right">
+                                        <span title="View history" class="glyphicon glyphicon-list-alt"></span>
+                                    </a>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if reading.value %}
+                                    <a href="/system/{{ metadata.UID  }}/measurements/{{ reading.name }}/edit/{{ reading.created_at }}" class="pull-right">
+                                        <span title="Edit this measurement" class="glyphicon glyphicon-pencil"></span>
+                                    </a>
+                                {% endif %}
+                            </td>
                         </tr>
                     {% endfor %}
                     </tbody>

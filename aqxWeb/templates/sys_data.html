@@ -12,7 +12,14 @@
     <span class="hidden" id="UID">{{ system_uid }}</span>
     <span class="hidden" id="meaurementName">{{ measurement }}</span>
     <span class="hidden" id="page">{{ page }}</span>
+
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="/system/{{ metadata.UID }}/overview">System</a></li>
+        <li class="breadcrumb-item active">Data</li>
+    </ol>
+
     <div ng-controller="viewDataController" class="col-md-6">
+        <h1 class="align-left">Data history for {{ measurement_name }}</h1>
         <table class="table table-striped table-condensed table-hover">
             <thead>
             <tr>
@@ -43,7 +50,11 @@
                 <td>{a item.time a}</td>
                 <td ng-show="item.updated_at" style="color:red">{a item.updated_at a}</td>
                 <td ng-show="!item.updated_at">-</td>
-                <td>{a item.value a}<a href="/system/{{ system_uid }}/measurements/{{ measurement }}/edit/{a item.time a}" class="pull-right">Edit</a></td>
+                <td>{a item.value a} {a units a}
+                    <a href="/system/{{ system_uid }}/measurements/{{ measurement }}/edit/{a item.time a}" class="pull-right">
+                        <span title="Edit this measurement" class="glyphicon glyphicon-pencil"></span>
+                    </a>
+                </td>
             </tr>
             </tbody>
         </table>

@@ -1,5 +1,6 @@
 import os
 import logging
+import datetime
 
 from flask import url_for
 from flask import Flask, render_template, redirect
@@ -91,6 +92,10 @@ def home():
             session.pop('access_token', None)
             return redirect(url_for('get_token'))
     return redirect(url_for('social.signin'))
+
+@app.template_filter('datetime')
+def format_datetime(value):
+    return datetime.datetime.strptime(value, '%Y-%m-%d %H:%M:%S').strftime('%m/%d/%y')
 
 
 if __name__ == "__main__":

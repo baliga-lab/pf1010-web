@@ -46,7 +46,6 @@ class AnalyticsAPI:
             user = self.user_dao.get_user_by_sql_id(system[1])
             # only display users that have an available user in the graph
             if user is not None:
-                print(user)
                 info_string = user['displayName']
                 if user['organization'] is not None:
                     info_string += ', %s' % user['organization']
@@ -115,13 +114,15 @@ class AnalyticsAPI:
                     temp = {
                         'name': measurement_name,
                         'time': str(value_temp[0]),
-                        'value': str(normalized_measurement_value_reduced_decimal)
+                        'value': str(normalized_measurement_value_reduced_decimal),
+                        'updated_at': value_temp[2].strftime('%Y-%m-%d %H:%M:%S') if value_temp[2] else None
                     }
                 else:
                     temp = {
                         'name': measurement_name,
                         'time': None,
-                        'value': None
+                        'value': None,
+                        'updated_at': None
                     }
 
                 x.append(temp)
