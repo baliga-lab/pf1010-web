@@ -3,12 +3,7 @@ api_keys.txt
 google_token.py
 .idea/*
 *.iml
-
-
 tests/ui/log.html
-
 tests/ui/output.xml
-
 tests/ui/report.html
-
 *.class
