@@ -1,3 +1,4 @@
+.cache
 *.pyc
 api_keys.txt
 google_token.py
@@ -7,3 +8,4 @@ tests/ui/log.html
 tests/ui/output.xml
 tests/ui/report.html
 *.class
+build
