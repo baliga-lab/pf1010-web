@@ -150,7 +150,7 @@ function getDataPointsForPlotHC (chart, xType, yTypeList, graphType, numberOfEnt
 
         // Loop through selected measurement types
         _.each(yTypeList, function(yType) {
-
+            var numValues = 0;
             // Find the measurement data entry that matches the given YType and Status ID
             _.each(measurements, function(measurement) {
                 if (measurement.type.toLowerCase() == yType.toLowerCase() &&
@@ -187,15 +187,18 @@ function getDataPointsForPlotHC (chart, xType, yTypeList, graphType, numberOfEnt
                         dataPointsList.push(
                             getDataPoints(system.name, dataValues, graphType, systemId, linkedTo, COLORS[yAxis], yAxis, DASHSTYLES[j], MARKERTYPES[j], yType));
                         linkedTo = true;
+                        numValues++;
                     }
 
-                    // If there is no data for the given system, measurement type, and status, we will warn the user
-                    // orr this system and variable
-                    else{
-                        missingYTypes = missingYTypes +  "<li>"+ system.name + " - " + yType + "</li>";
-                    }
                 }
             });
+
+            // If there is no data for the given system, measurement type, and status, we will warn the user
+            // for this system and measurement type
+            if (numValues == 0) {
+                missingYTypes = missingYTypes +  "<li>"+ system.name + " - " + yType + "</li>";
+            }
+
         });
     });
 
