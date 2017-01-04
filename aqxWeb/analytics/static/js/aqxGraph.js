@@ -152,9 +152,9 @@ function getDataPointsForPlotHC (chart, xType, yTypeList, graphType, numberOfEnt
         _.each(yTypeList, function(yType) {
 
             // Find the measurement data entry that matches the given YType and Status ID
-            _.each(measurements, function(measurement){
-                if (_.isEqual(measurement.type.toLowerCase(), yType.toLowerCase()) &&
-                    _.isEqual(measurement.status, status)) {
+            _.each(measurements, function(measurement) {
+                if (measurement.type.toLowerCase() == yType.toLowerCase() &&
+                    (status == '0' || measurement.status == status)) {
 
                     var systemId = system.system_uid;
 

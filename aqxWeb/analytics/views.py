@@ -53,6 +53,8 @@ def index():
 
 @dav.route('/analyzeGraph', methods=['POST'])
 def analyze_graph():
+    """This analyze page is coming from the Explore page"""
+    current_app.logger.info('analyze_graph()')
     try:
         ui_api = UIAPI(current_app)
         annotations_map = ui_api.getReadableAnnotations()
@@ -119,6 +121,7 @@ def analyze_graph():
 
 @dav.route('/analyzeGraph/system/<system_uid>', methods=['GET'])
 def system_analyze(system_uid):
+    """This route is for analyzing coming from a system's info page"""
     try:
         ui_api = UIAPI(current_app)
         annotations_map = ui_api.getReadableAnnotations()
