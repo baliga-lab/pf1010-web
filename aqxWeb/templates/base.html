@@ -1,9 +1,10 @@
 {% extends "bootstrap/base.html" %}
 {% block head %}
     {{ super() }}
-    <script src="https://apis.google.com/js/platform.js?onload=onLoad" async defer></script>
+    <script src="https://apis.google.com/js/platform.js" async defer></script>
     <script src="{{ url_for('frontend.static', filename='js/google.js') }}"></script>
     <script src="{{ url_for('frontend.static', filename='js/modernizr-custom.js') }}"></script>
+    <meta name="google-signin-client_id" content="{{config.CONSUMER_KEY}}">
     <link rel="shortcut icon" href="{{ url_for('frontend.static', filename='images/favicon.ico') }}">
 {% endblock %}
 {% block styles %}

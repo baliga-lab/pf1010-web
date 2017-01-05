@@ -77,7 +77,6 @@ def sys_annotations(system_uid):
 @frontend.route('/new_system')
 def new_system():
     enums = json.loads(getEnums())
-    api_key = current_app.config["GOOGLE_API_KEY"]
     return render_template('create_system.html', **locals())
 
 
