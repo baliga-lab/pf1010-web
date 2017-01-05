@@ -90,7 +90,10 @@
 {% endblock %}
 {% block scripts %}
     {{ super() }}
-    <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?signed_in=true&v=3.exp"></script>
+    <script>
+      function initMap() {}
+    </script>
+    <script async defer type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key={{api_key}}&callback=initMap"></script>
     <script type="text/javascript" src="{{ url_for('frontend.static', filename='js/create_system.js') }}"></script>
     <script>
       if (!Modernizr.inputtypes.date) {
