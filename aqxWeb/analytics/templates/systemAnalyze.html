@@ -109,6 +109,6 @@
         measurement_types_and_info = measurement_types_and_info.measurement_info;
         {#        var defaultStatus = {{ default_status|safe }};#}
         var annotationsMap = {{ annotations_map | safe }};
-        $(document).ready(main());
+        $(document).ready(aqxgraph.main());
     </script>
 {% endblock %}
