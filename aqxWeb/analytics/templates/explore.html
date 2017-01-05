@@ -93,7 +93,7 @@
 
 {% block scripts %}
     {{ super() }}
-    <script src="https://maps.googleapis.com/maps/api/js?v=3.exp    "></script>
+    <script src="https://maps.googleapis.com/maps/api/js?key={{config.GOOGLE_API_KEY}}"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
     <script type="text/javascript" src="{{ url_for('dav.static', filename='js/underscore-min.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('dav.static', filename='js/markerclusterer-min.js') }}"></script>
