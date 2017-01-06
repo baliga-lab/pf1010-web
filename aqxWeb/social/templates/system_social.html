@@ -429,7 +429,7 @@
 {% block scripts %}
     {{ super() }}
     <!-- Javascript Google Maps API -->
-    <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?signed_in=true&v=3.exp"></script>
+    <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key={{config.GOOGLE_API_KEY}}"></script>
     <!-- jQuery Script For DOM Manipulation In Systems Page -->
     <script type="text/javascript" src="{{ url_for('social.static', filename='js/system_social.js') }}"></script>
     <script type="text/javascript">
