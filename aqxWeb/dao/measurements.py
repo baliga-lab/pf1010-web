@@ -1,7 +1,6 @@
 from aqxWeb.dao.systems import table_name as sys_table_name
 import MySQLdb
 
-MEASUREMENTS = ['ammonium', 'o2', 'ph', 'nitrate', 'light', 'temp', 'nitrite', 'chlorine', 'hardness', 'alkalinity', 'leaf_count', 'height']
 
 class MeasurementDAO:
     def __init__(self, app):
@@ -32,12 +31,14 @@ class MeasurementDAO:
                  'LIMIT 1')
 
         try:
+            measurement_types = self.measurement_types()
             readings = []
-            for measurement in MEASUREMENTS:
+            for t in measurement_types:
+                measurement = t['name']
                 table = sys_table_name(measurement, systemUID)
                 cursor.execute(query % table)
                 reading = cursor.fetchone()
-                new_reading = {'name': measurement}
+                new_reading = {'name': t['full_name']}
                 if reading:
                     new_reading['value'] = round(reading[0], 2) if reading[0] else None
                     new_reading['created_at'] = reading[1].strftime('%Y-%m-%d %H:%M:%S') if reading[1] else None
