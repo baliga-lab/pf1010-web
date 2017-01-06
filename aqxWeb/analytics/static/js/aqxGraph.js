@@ -6,37 +6,6 @@ if (!aqxgraph) {
 }
 
 (function () {
-    /* ##################################################################################################################
-       CONSTANTS
-       ################################################################################################################### */
-
-    var XAXIS = "selectXAxis";
-    var XAXIS_TITLE = 'Hours since creation';
-    var CHART = "";
-    var GRAPH_TYPE = "selectGraphType";
-    var NUM_ENTRIES_ELEMENT_ID = 'selectNumberOfEntries';
-    var SELECTED = 'selected';
-    var DEFAULT_Y_TEXT = "Nitrate";
-    var DEFAULT_Y_VALUE = DEFAULT_Y_TEXT.toLowerCase();
-    var CHART_TITLE = "System Analyzer";
-    var HC_OPTIONS;
-    var COLORS = ["lime", "orange", '#f7262f', "lightblue"];
-    var DASHSTYLES = ['Solid', 'LongDash', 'ShortDashDot', 'ShortDot', 'LongDashDotDot'];
-    var MARKERTYPES = ["circle", "square", "diamond", "triangle", "triangle-down"];
-    var DANGER = 'danger';
-    var MAXSELECTIONS = 4;
-    var BACKGROUND = {
-        linearGradient: { x1: 0, y1: 0, x2: 1, y2: 1 },
-        stops: [
-            [0, '#2a2a2b'],
-            [1, '#3e3e40']
-        ]
-    };
-    var OVERLAY = true;
-    var PRE_ESTABLISHED = 100;
-    var ESTABLISHED = 200;
-    var SPACE = ' ';
-    var GMT = 'GMT';
 
     /* ##################################################################################################################
        MAIN CHART LOADING FUNCTIONS
@@ -46,31 +15,18 @@ if (!aqxgraph) {
      * These values are all obtained from the dropdowns.
      */
     function drawChart() {
-        var graphType = document.getElementById(GRAPH_TYPE).value;
-        var xType = document.getElementById(XAXIS).value;
+        var graphType = document.getElementById(aqxgraph.GRAPH_TYPE).value;
+        var xType = document.getElementById(aqxgraph.XAXIS).value;
         var status = document.getElementById("selectStatus").value;
 
         // Get measurement types to display on the y-axis
         var yTypes = $("#selectYAxis").val();
-        var numberOfEntries = document.getElementById(NUM_ENTRIES_ELEMENT_ID).value;
+        var numberOfEntries = document.getElementById(aqxgraph.NUM_ENTRIES_ELEMENT_ID).value;
 
         // Generate a data Series for each system and y-value type, and assign them all to the CHART
-        updateChartDataPointsHC(CHART, xType, yTypes, graphType, numberOfEntries, status).redraw();
+        updateChartDataPointsHC(aqxgraph.CHART, xType, yTypes, graphType, numberOfEntries, status).redraw();
     };
 
-    /**
-     *
-     * @param chart - A CanvasJS chart
-     * @param xType - X-axis value chosen from dropdown
-     * @param yTypeList - List of y-axis values selected from the checklist
-     * @param graphType - The graph type chosen from dropdown
-     * @param numberOfEntries - used to display data entered by user in the past
-     * @param status - The selected system status, PRE_ESTABLISHED or ESTABLISHED
-     *
-     * Given a Chart, desired X and Y values, System Status, and Number of Data Points, determine
-     * if this data is stored in the browser or needs to be retrieved from the Database using AJAX.
-     * Any requisite data is loaded from the server into the stored list, and data Series are generated
-     */
     function updateChartDataPointsHC(chart, xType, yTypeList, graphType, numberOfEntries, status) {
 
         // Clear the old chart's yAxis and dataPoints. This must be done manually.
@@ -88,13 +44,13 @@ if (!aqxgraph) {
             _.each(measurementsToFetch, function(measurement){
                 measurementIDList.push(measurement_types_and_info[measurement].id);
             });
-            callAPIForNewData(measurementIDList, PRE_ESTABLISHED);
-            callAPIForNewData(measurementIDList, ESTABLISHED);
+            callAPIForNewData(measurementIDList, aqxgraph.PRE_ESTABLISHED);
+            callAPIForNewData(measurementIDList, aqxgraph.ESTABLISHED);
         }
 
         // Label the x axis, for now just using time on the x axis
         // TODO: Expand to handle changing x axes
-        chart.xAxis[0].setTitle({ text: XAXIS_TITLE });
+        chart.xAxis[0].setTitle({ text: aqxgraph.XAXIS_TITLE });
 
         // Generate a list of data series and their configuration options. Then add each object to the Chart options.
         var newDataSeries = getDataPointsForPlotHC(chart, xType, yTypeList, graphType, numberOfEntries, status);
@@ -105,19 +61,6 @@ if (!aqxgraph) {
     }
 
     // TODO: This will need to be re-evaluated to incorporate non-time x-axis values. For now, stubbing xType for this.
-    /**
-     *
-     * @param chart - A Highcharts Chart to which data will be added
-     * @param xType - X-axis values. Ex: Time, pH, Hardness
-     * @param yTypeList - Y-axis values. Ex: [pH, Nitrate]
-     * @param graphType - Type of graph to display. Ex: line, scatter
-     * @param numberOfEntries - used to display data entered by user in the past
-     * @returns {Array} - An array of dataPoints of yType measurement data for all systems
-     *
-     * Returns a list of data series for each system, measurement type, and status combination requested.
-     * These series also contain configurations for color, dash style, graph type, and which axis the data
-     * is plotted against.
-     */
     function getDataPointsForPlotHC (chart, xType, yTypeList, graphType, numberOfEntries, status) {
 
         // DataPoints to add to chart
@@ -168,7 +111,9 @@ if (!aqxgraph) {
                             // If not, create the axis and assign to a variable. This variables isAxis is now true,
                             // an axis is assigned, and the numAxes increments
                             if (!axes[yType].isAxis) {
-                                chart.addAxis(createYAxis(yType, COLORS[numAxes], (numAxes % 2) , measurement_types_and_info[yType].unit));
+                                chart.addAxis(createYAxis(yType, aqxgraph.COLORS[numAxes],
+                                                          numAxes % 2,
+                                                          measurement_types_and_info[yType].unit));
                                 axes[yType].isAxis = true;
                                 axes[yType].axis = numAxes++;
                             }
@@ -187,8 +132,11 @@ if (!aqxgraph) {
 
                             // Generate the Object containing data and configurations for this particular series and push to
                             // th list of series to plot
-                            dataPointsList.push(
-                                getDataPoints(system.name, dataValues, graphType, systemId, linkedTo, COLORS[yAxis], yAxis, DASHSTYLES[j], MARKERTYPES[j], yType));
+                            dataPointsList.push(getDataPoints(system.name, dataValues, graphType,
+                                                              systemId, linkedTo,
+                                                              aqxgraph.COLORS[yAxis], yAxis,
+                                                              aqxgraph.DASHSTYLES[j],
+                                                              aqxgraph.MARKERTYPES[j], yType));
                             linkedTo = true;
                             numValues++;
                         }
@@ -205,7 +153,8 @@ if (!aqxgraph) {
 
         // Populate the alert message if necessary, and display it
         if (missingYTypes.length > 0){
-            $('#alert_placeholder').html(getAlertHTMLString("These system(s) do not have any data for the selected period: " + missingYTypes, DANGER));
+            $('#alert_placeholder').html(getAlertHTMLString("These system(s) do not have any data for the selected period: " + missingYTypes,
+                                                            aqxgraph.DANGER));
         }
         return dataPointsList;
     }
@@ -215,14 +164,6 @@ if (!aqxgraph) {
        AJAX CALLS TO GRAB NEW DATA
        #################################################################################################################### */
 
-
-    /**
-     * Take measurement data object from AJAX response, and add to the global systems_and_measurements data
-     *
-     * @param data - The JSON response from the server
-     * @param statusID - The statusID parameter for which data was requested. This ID is used to label
-     *                   the response on the frontend with its respective system status
-     */
     function addNewMeasurementData(data, statusID) {
         console.log('success',data);
         var systems = data.response;
@@ -243,15 +184,6 @@ if (!aqxgraph) {
         });
     }
 
-    /**
-     * Some custom error handling for the server response. If there is a non-AJAX related server error, log the
-     * corresponding error response to the console. Otherwise, proceed and add the new data to the currently stored data
-     *
-     * @param data - The JSON response from the server
-     * @param statusID - The statusID parameter for which data was requested. This ID is used to label
-     *                   the response on the frontend with its respective system status
-     *
-     */
     function processAJAXResponse(data, statusID) {
         if ("error" in data) {
             console.log("Server returned an error...");
@@ -262,12 +194,6 @@ if (!aqxgraph) {
         }
     }
 
-    /**
-     * Sends an AJAX POST request to call for new, untracked measurement data for each system
-     *
-     * @param measurementIDList - List of measurement IDs for which data is being requested
-     * @param statusID - System status ID for which data is being requested
-     */
     function callAPIForNewData(measurementIDList, statusID){
         $.ajax({
             type: 'POST',
@@ -302,10 +228,6 @@ if (!aqxgraph) {
        HELPER FUNCTIONS
        #################################################################################################################### */
 
-    /**
-     * Returns a list of all y-variables currently being stored
-     * @returns {Array} - An array of all measurement types currently being stored
-     */
     function getAllActiveMeasurements() {
         // Grab all measurement types in the checklist
         var activeMeasurements = [];
@@ -316,11 +238,6 @@ if (!aqxgraph) {
         return activeMeasurements;
     }
 
-    /**
-     * Removes any data series' and y-axes from the given chart
-     * @param chart
-     * @returns {*}
-     */
     function clearOldGraphValues(chart) {
         // Clear yAxis
         while(chart.yAxis.length > 0){
@@ -333,45 +250,21 @@ if (!aqxgraph) {
         return chart;
     }
 
-    /**
-     *
-     * Returns the Y Axis text selector to default
-     */
     function setDefaultYAxis() {
         $("#selectYAxis").chosen({
-            max_selected_options: MAXSELECTIONS,
+            max_selected_options: aqxgraph.MAXSELECTIONS,
             no_results_text: "Oops, nothing found!",
             width: "100%"
         });
         $('#selectYAxis').val('');
-        $('#selectYAxis option[value='+DEFAULT_Y_VALUE+']').prop('selected', true);
+        $('#selectYAxis option[value=' + aqxgraph.DEFAULT_Y_VALUE + ']').prop('selected', true);
         $('#selectYAxis').trigger("chosen:updated");
     }
 
-    /**
-     *
-     * @param alertText
-     * @param type
-     * @returns {string}
-     */
     function getAlertHTMLString(alertText, type){
         return '<div class="alert alert-' + type + '"><a class="close" data-dismiss="alert">×</a><span>' +alertText + '</span></div>';
     }
 
-    /**
-     * Create a series for the given dataPoints
-     * NOTE: turboThreshold is 1000 by default, and 0 disables it.
-     *       please refer to http://api.highcharts.com/highcharts#plotOptions.series.turboThreshold
-     * @param systemName - name of system
-     * @param dataPoints - array of values for graph; [{x:"", y: "", date: "", marker: ""}]
-     * @param graphType
-     * @param id
-     * @param linkedTo - used to group series to a system
-     * @param i - The iterator for a measurement
-     * @param j - The iterator for a system
-     * @param yType - The measurement type name
-     * @returns {{name: string, type: *, data: *, color: string, id: *, yAxis: *, dashStyle: string, marker: {symbol: string}}|*}
-     */
     function getDataPoints(systemName, dataPoints, graphType, id, linkedTo, color, yAxis, dashStyle, markerType, yType) {
         var series = { name: systemName + ',' + yType,
                        type: graphType,
@@ -379,7 +272,6 @@ if (!aqxgraph) {
                        color: color,
                        id: id,
                        yAxis: yAxis,
-                       //dashStyle: DASHSTYLES[j],
                        dashStyle: dashStyle,
                        turboThreshold:0,
                        marker: {symbol: markerType}
@@ -390,14 +282,6 @@ if (!aqxgraph) {
         return series;
     }
 
-    /**
-     *
-     * @param yType - Y Value, used to label this axis
-     * @param color - Color used to identify axis, and relate it to the color of the plotted data
-     * @param opposite - Boolean, Determines which side of the chart the axis should be plotted on
-     * @param units - Units for the given measurement type
-     * @returns {{title: {text: *}, labels: {format: string, style: {color: *}}, opposite: boolean}}
-     */
     function createYAxis(yType, color, opposite, units) {
         var unitLabel;
 
@@ -430,11 +314,6 @@ if (!aqxgraph) {
         };
     }
 
-    /**
-     * Generates a list of Y Axes, copied from the overlay graph.
-     * @param yAxes - List of selected y-axis values
-     * @returns {Array}
-     */
     function copyYAxes(yAxes){
         var axesToAdd = [];
         _.each(yAxes, function(axis){
@@ -447,13 +326,6 @@ if (!aqxgraph) {
         return axesToAdd;
     }
 
-    /**
-     * Generate a list of the data series copied from the overlay graph
-     *
-     * @param series - The list of series stored in the overlay graph
-     * @param systemID - System ID for which data is being copied
-     * @returns {Array}
-     */
     function copySeries(series, systemID){
         var seriesToAdd = [];
         _.each(series, function (seriesItem) {
@@ -477,11 +349,6 @@ if (!aqxgraph) {
         return seriesToAdd;
     }
 
-    /**
-     * Toggles between the overlay and split modes.
-     * The Split mode essentially copies over the series data for each system from the original overlay
-     * chart to a number of new individual charts. One new chart per system.
-     */
     function toggleSplitMode(){
         // Can only split with 2+ systems
         if (selectedSystemIDs.length > 1) {
@@ -490,12 +357,12 @@ if (!aqxgraph) {
             var splitCharts = [];
 
             // Grab series and yAxes from the overlay chart
-            var yAxes = CHART.yAxis;
-            var series = CHART.series;
+            var yAxes = aqxgraph.CHART.yAxis;
+            var series = aqxgraph.CHART.series;
 
             _.each(selectedSystemIDs, function(systemID, k) {
                 // Copy over formatting options from overlay chart
-                var new_opts = HC_OPTIONS;
+                var new_opts = aqxgraph.HC_OPTIONS;
 
                 new_opts.title.text = "NO DATA FOR THIS SYSTEM";
                 new_opts.chart.renderTo = "chart-" + k;
@@ -504,8 +371,8 @@ if (!aqxgraph) {
 
                 // Loop through series to extract system names and assign as titles. If there is no data
                 // for a system, then the series will not exist and the name remains "NO DATA FOR THIS SYSTEM"
-                for (var i=0; (i<series.length); i++){
-                    if(_.isEqual(systemID, series[i].userOptions.id)){
+                for (var i = 0; i < series.length; i++) {
+                    if (_.isEqual(systemID, series[i].userOptions.id)) {
                         new_opts.title.text = series[i].name.split(",")[0].trim();
                     }
                 }
@@ -524,9 +391,6 @@ if (!aqxgraph) {
        PAGE-DRIVING FUNCTIONS
        ################################################################################################################### */
 
-    /**
-     *  main - Sets behaviors for Submit and Reset buttons, populates y-axis dropdown, and checks nitrate as default y-axis
-     */
     aqxgraph.main = function() {
 
         // Select the default y-axis value
@@ -569,20 +433,20 @@ if (!aqxgraph) {
         $('#resetbtn').on('click', function(){
 
             // Reset X Axis selection to default
-            $('#selectXAxis option').prop(SELECTED, function() {
+            $('#selectXAxis option').prop(aqxgraph.SELECTED, function() {
                 return this.defaultSelected;
             });
 
             // Reset Graph Type selection to default
-            $('#selectGraphType option').prop(SELECTED, function() {
+            $('#selectGraphType option').prop(aqxgraph.SELECTED, function() {
                 return this.defaultSelected;
             });
 
-            $('#selectStatus option').prop(SELECTED, function() {
+            $('#selectStatus option').prop(aqxgraph.SELECTED, function() {
                 return this.defaultSelected;
             });
 
-            $('#'+NUM_ENTRIES_ELEMENT_ID+' option').prop(SELECTED, function() {
+            $('#' + aqxgraph.NUM_ENTRIES_ELEMENT_ID + ' option').prop(aqxgraph.SELECTED, function() {
                 return this.defaultSelected;
             });
 
@@ -599,23 +463,23 @@ if (!aqxgraph) {
         });
 
         $('#selectYAxis').bind("chosen:maxselected", function () {
-            $('#alert_placeholder').html(getAlertHTMLString("You can select up to " + MAXSELECTIONS + " systems", 'danger'));
+            $('#alert_placeholder').html(getAlertHTMLString("You can select up to " + aqxgraph.MAXSELECTIONS + " systems", 'danger'));
         });
     };
 
     // loadChart - On window load, populates the Chart
     window.onload = function() {
 
-        HC_OPTIONS = {
+        aqxgraph.HC_OPTIONS = {
             chart: {
                 renderTo: 'analyzeContainer',
                 type: 'line',
                 zoomType: 'xy',
-                backgroundColor: BACKGROUND,
+                backgroundColor: aqxgraph.BACKGROUND,
                 plotBorderColor: '#606063'
             },
             title: {
-                text: CHART_TITLE,
+                text: aqxgraph.CHART_TITLE,
                 style: {
                     color: '#E0E0E3'
                 }
@@ -644,13 +508,13 @@ if (!aqxgraph) {
                 maxPadding: 0.05,
                 title:
                 {
-                    text: XAXIS_TITLE,
+                    text: aqxgraph.XAXIS_TITLE,
                     style: {color: 'white   '}
                 }
             },
             exporting: {
                 csv: {
-                    columnHeaderFormatter: function(series){
+                    columnHeaderFormatter: function(series) {
                         var name_and_variable = series.name.split(",");
                         return name_and_variable[0] + '-' + name_and_variable[1];
                     }
@@ -660,7 +524,7 @@ if (!aqxgraph) {
             series: []
         };
         try {
-            CHART = new Highcharts.Chart(HC_OPTIONS);
+            aqxgraph.CHART = new Highcharts.Chart(aqxgraph.HC_OPTIONS);
         } catch(err) {
             console.log("Unable to initialize Highcharts Chart object!");
             console.log(err.stack);
@@ -689,7 +553,7 @@ if (!aqxgraph) {
         yVal = yVal.charAt(0).toUpperCase() + yVal.slice(1);
 
         // Get local time and get the day, month, year, and time
-        var datestr = this.point.date + SPACE + GMT;
+        var datestr = this.point.date + aqxgraph.SPACE + aqxgraph.GMT;
         var datetime = new Date(datestr);
         var time = datetime.toTimeString();
         var day   = datetime.getDate(),
@@ -703,7 +567,7 @@ if (!aqxgraph) {
             eventString = "<br><p>Most recent event(s): </p>";
             _.each(this.point.annotations, function (event) {
                 console.log(event);
-                var event_datetime = new Date(event.date + SPACE + GMT);
+                var event_datetime = new Date(event.date + aqxgraph.SPACE + aqxgraph.GMT);
                 eventString = eventString + '<br><p>' + annotationsMap[event.id]+ " at " + event_datetime.toString() + '<p>';
             });
         }

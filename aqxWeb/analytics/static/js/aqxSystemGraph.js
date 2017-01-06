@@ -6,68 +6,24 @@ if (!aqxgraph) {
 }
 
 (function () {
-    /* ##################################################################################################################
-       CONSTANTS
-       ################################################################################################################### */
-
-    var XAXIS = "selectXAxis";
-    var XAXIS_TITLE = 'Hours since creation';
-    var CHART = "";
-    var GRAPH_TYPE = "selectGraphType";
-    /*
-      Used to display data that was entered by user in the past
-      "" - Used to display all the data that user has recorded
-      30 - Displays all the data recorded in the past 30 days
-      60 - Displays all the data recorded in the past 60 days
-      90 - Displays all the data recorded in the past 90 days
-    */
-    var NUMBER_OF_ENTRIES = 'selectNumberOfEntries';
-    var SELECTED = 'selected';
-    var DEFAULT_Y_TEXT = "Nitrate";
-    var DEFAULT_Y_VALUE = DEFAULT_Y_TEXT.toLowerCase();
-    var CHART_TITLE = "System Analyzer";
-    var HC_OPTIONS;
-    var COLORS = ["lime", "orange", '#f7262f', "lightblue"];
-    var DASHSTYLES = ['Solid', 'LongDash', 'ShortDashDot', 'ShortDot', 'LongDashDotDot'];
-    var MARKERTYPES = ["circle", "square", "diamond", "triangle", "triangle-down"];
-    var DANGER = 'danger';
-    var MAXSELECTIONS = 4;
-    var BACKGROUND = {
-        linearGradient: { x1: 0, y1: 0, x2: 1, y2: 1 },
-        stops: [
-            [0, '#2a2a2b'],
-            [1, '#3e3e40']
-        ]
-    };
 
     /* ##################################################################################################################
        MAIN CHART LOADING FUNCTIONS
        #################################################################################################################### */
 
-    /**
-     * Draws a graph, given a graph type, x-axis values, and y-axis values
-     */
     function drawChart(){
-        var graphType = document.getElementById(GRAPH_TYPE).value;
+        var graphType = document.getElementById(aqxgraph.GRAPH_TYPE).value;
         var xType = "Time";
         var status = document.getElementById("selectStatus").value;
 
         // Get measurement types to display on the y-axis
         var yTypes = $("#selectYAxis").val();
-        var numberOfEntries = document.getElementById(NUMBER_OF_ENTRIES).value;
+        var numberOfEntries = document.getElementById(aqxgraph.NUM_ENTRIES_ELEMENT_ID).value;
 
         // Generate a data Series for each y-value type, and assign them all to the CHART
-        updateChartDataPointsHC(CHART, xType, yTypes, graphType, numberOfEntries, status).redraw();
+        updateChartDataPointsHC(aqxgraph.CHART, xType, yTypes, graphType, numberOfEntries, status).redraw();
     }
 
-    /**
-     *
-     * @param chart - A CanvasJS chart
-     * @param xType - X-axis value chosen from dropdown
-     * @param yTypeList - List of y-axis values selected from the checklist
-     * @param graphType - The graph type chosen from dropdown
-     * @param numberOfEntries - used to display data entered by user in the past
-     */
     function updateChartDataPointsHC(chart, xType, yTypeList, graphType, numberOfEntries, status){
 
         // Clear the old chart's yAxis and dataPoints. Unfortunately this must be done manually.
@@ -90,7 +46,7 @@ if (!aqxgraph) {
 
         // Handle the x axis, for now just using time
         // TODO: Expand to handle changing x axes
-        chart.xAxis[0].setTitle({ text: XAXIS_TITLE });
+        chart.xAxis[0].setTitle({ text: aqxgraph.XAXIS_TITLE });
 
         // Get dataPoints and their configs for the chart, using systems_and_measurements and add them
         var newDataSeries = getDataPointsForPlotHC(chart, xType, yTypeList, graphType, numberOfEntries, status);
@@ -101,15 +57,6 @@ if (!aqxgraph) {
     }
 
     // TODO: This will need to be re-evaluated to incorporate non-time x-axis values. For now, stubbing xType for this.
-    /**
-     *
-     * @param chart - A Highcharts Chart to which data will be added
-     * @param xType - X-axis values. Ex: Time, pH, Hardness
-     * @param yTypeList - Y-axis values. Ex: [pH, Nitrate]
-     * @param graphType - Type of graph to display. Ex: line, scatter
-     * @param numberOfEntries - used to display data entered by user in the past
-     * @returns {Array} - An array of dataPoints of yType measurement data for all systems
-     */
     function getDataPointsForPlotHC(chart, xType, yTypeList, graphType, numberOfEntries, status) {
 
         // DataPoints to add to chart
@@ -151,7 +98,7 @@ if (!aqxgraph) {
                             // If not, create the axis and assign to a variable. This variables isAxis is now true,
                             // an axis is assigned, and the numAxes increments
                             if (!axes[yType].isAxis) {
-                                chart.addAxis(createYAxis(yType, COLORS[numAxes], (numAxes % 2) , measurement_types_and_info[yType].unit));
+                                chart.addAxis(createYAxis(yType, aqxgraph.COLORS[numAxes], (numAxes % 2) , measurement_types_and_info[yType].unit));
                                 axes[yType].isAxis = true;
                                 axes[yType].axis = numAxes++;
                             }
@@ -163,7 +110,10 @@ if (!aqxgraph) {
                             }
                             // Push valid dataPoints and their configs to the list of dataPoints to plot
                             dataPointsList.push(
-                                getDataPoints(system.name, dataValues, graphType, systemId, linkedTo, COLORS[yAxis], yAxis, DASHSTYLES[j], MARKERTYPES[j], yType));
+                                getDataPoints(system.name, dataValues, graphType, systemId, linkedTo,
+                                              aqxgraph.COLORS[yAxis], yAxis,
+                                              aqxgraph.DASHSTYLES[j],
+                                              aqxgraph.MARKERTYPES[j], yType));
                             linkedTo = true;
                         }
 
@@ -178,7 +128,7 @@ if (!aqxgraph) {
 
         // Warn the user about missing data
         if (missingYTypes.length > 0){
-            $('#alert_placeholder').html(getAlertHTMLString("Missing values for: " + missingYTypes.toString(), DANGER));
+            $('#alert_placeholder').html(getAlertHTMLString("Missing values for: " + missingYTypes.toString(), aqxgraph.DANGER));
         }
         return dataPointsList;
     }
@@ -291,43 +241,21 @@ if (!aqxgraph) {
         return chart;
     }
 
-    /**
-     *
-     * Returns the Y Axis text selector to default
-     */
     function setDefaultYAxis() {
         $("#selectYAxis").chosen({
-            max_selected_options: MAXSELECTIONS,
+            max_selected_options: aqxgraph.MAXSELECTIONS,
             no_results_text: "Oops, nothing found!",
             width: "100%"
         });
         $('#selectYAxis').val('');
-        $('#selectYAxis option[value='+DEFAULT_Y_VALUE+']').prop('selected', true);
+        $('#selectYAxis option[value=' + aqxgraph.DEFAULT_Y_VALUE + ']').prop('selected', true);
         $('#selectYAxis').trigger("chosen:updated");
     }
 
-    /**
-     *
-     * @param alertText
-     * @param type
-     * @returns {string}
-     */
     function getAlertHTMLString(alertText, type){
         return '<div class="alert alert-' + type + '"><a class="close" data-dismiss="alert">×</a><span>' +alertText + '</span></div>';
     }
 
-    /**
-     *
-     * @param systemName - name of system
-     * @param dataPoints - array of values for graph; [{x:"", y: "", date: "", marker: ""}]
-     * @param graphType
-     * @param id
-     * @param linkedTo - used to group series to a system
-     * @param i - The iterator for a measurement
-     * @param j - The iterator for a system
-     * @param yType - The measurement type name
-     * @returns {{name: string, type: *, data: *, color: string, id: *, yAxis: *, dashStyle: string, marker: {symbol: string}}|*}
-     */
     function getDataPoints(systemName, dataPoints, graphType, id, linkedTo, color, yAxis, dashStyle, markerType, yType) {
         var series = { name: systemName + ',' + yType,
                        type: graphType,
@@ -335,7 +263,6 @@ if (!aqxgraph) {
                        color: color,
                        id: id,
                        yAxis: yAxis,
-                       //dashStyle: DASHSTYLES[j],
                        dashStyle: dashStyle,
                        marker: {symbol: markerType}
                      };
@@ -345,13 +272,6 @@ if (!aqxgraph) {
         return series;
     }
 
-    /**
-     *
-     * @param yType
-     * @param axisNum
-     * @param units
-     * @returns {{title: {text: *}, labels: {format: string, style: {color: *}}, opposite: boolean}}
-     */
     function createYAxis(yType, color, opposite, units){
         var unitLabel;
         if (units) {
@@ -359,7 +279,6 @@ if (!aqxgraph) {
         } else {
             unitLabel = "";
         }
-        //var color = COLORS[axisNum];
         return { // Primary yAxis
             title:
             {
@@ -407,16 +326,16 @@ if (!aqxgraph) {
         $('#resetbtn').on('click', function(){
 
             // Reset X Axis selection to default
-            $('#selectXAxis option').prop(SELECTED, function() {
+            $('#selectXAxis option').prop(aqxgraph.SELECTED, function() {
                 return this.defaultSelected;
             });
 
             // Reset Graph Type selection to default
-            $('#selectGraphType option').prop(SELECTED, function() {
+            $('#selectGraphType option').prop(aqxgraph.SELECTED, function() {
                 return this.defaultSelected;
             });
 
-            $('#'+NUMBER_OF_ENTRIES+' option').prop(SELECTED, function() {
+            $('#' + aqxgraph.NUMBER_OF_ENTRIES + ' option').prop(aqxgraph.SELECTED, function() {
                 return this.defaultSelected;
             });
             $('#alert_placeholder').empty();
@@ -428,7 +347,7 @@ if (!aqxgraph) {
         });
 
         $('#selectYAxis').bind("chosen:maxselected", function () {
-            $('#alert_placeholder').html(getAlertHTMLString("You can select up to " + MAXSELECTIONS + " systems", 'danger'));
+            $('#alert_placeholder').html(getAlertHTMLString("You can select up to " + aqxgraph.MAXSELECTIONS + " systems", 'danger'));
         });
     };
 
@@ -436,16 +355,16 @@ if (!aqxgraph) {
      * loadChart - On window load, populates the Chart
      */
     window.onload = function() {
-        HC_OPTIONS = {
+        aqxgraph.HC_OPTIONS = {
             chart: {
                 renderTo: 'analyzeContainer',
                 type: 'line',
                 zoomType: 'xy',
-                backgroundColor: BACKGROUND,
+                backgroundColor: aqxgraph.BACKGROUND,
                 plotBorderColor: '#606063'
             },
             title: {
-                text: CHART_TITLE,
+                text: aqxgraph.CHART_TITLE,
                 style: {
                     color: '#E0E0E3'
                 }
@@ -474,7 +393,7 @@ if (!aqxgraph) {
                 maxPadding: 0.05,
                 title:
                 {
-                    text: XAXIS_TITLE,
+                    text: aqxgraph.XAXIS_TITLE,
                     style: {color: 'white   '}
                 }
             },
@@ -490,7 +409,7 @@ if (!aqxgraph) {
             series: []
         };
         try {
-            CHART = new Highcharts.Chart(HC_OPTIONS);
+            aqxgraph.CHART = new Highcharts.Chart(aqxgraph.HC_OPTIONS);
         } catch(err){
             console.log("Unable to initialize Highcharts Chart object!");
             console.log(err.stack);

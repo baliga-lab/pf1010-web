@@ -21,7 +21,9 @@
 
             <!-- Div for System Description (Name, Creation Time, Location and Description -->
             <div class="row systemDescription">
-                <h4 class="systemName">  {{ system_neo4j[0][0]['name'] }} </h4>
+              <h4 class="systemName">  {{ system_neo4j[0][0]['name'] }}
+                {# <a href="" class="pull-right"><span title="Edit system data" class="glyphicon glyphicon-pencil"></span></a> #}
+              </h4>
                 <h5 class="systemCreated" id="systemCreatedTime"><b>Created On: </b>
                     {{ created_date }}
                 </h5>

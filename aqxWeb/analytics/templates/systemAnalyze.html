@@ -29,10 +29,6 @@
                             <a href="{{ url_for("frontend.sys_annotations", system_uid=metadata.UID) }}"
                                title="Annotations">Annotations <span class="sr-only">(current)</span></a>
                         </li>
-{#                        <li id="social-li"><a#}
-{#                            href="{{ url_for("social.view_system", system_uid=metadata.UID) }}" title="Social">#}
-{#                        Social</a>#}
-{#                        </li>#}
                     {% endif %}
                     <li id="analytics-li">
                         <a href="{{ url_for('dav.system_analyze', system_uid=metadata.UID) }}" title="Analytics">Analytics</a>
@@ -100,14 +96,13 @@
     <script type="text/javascript" src="{{ url_for('dav.static', filename='js/underscore-min.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('dav.static', filename='js/chosen.jquery.min.js') }}"></script>
     <script src="{{ url_for('dav.static', filename='js/highChartsTheme.js') }}"></script>
+    <script src="{{ url_for('dav.static', filename='js/aqxgraph_common.js') }}"></script>
     <script src="{{ url_for('dav.static', filename='js/aqxSystemGraph.js') }}"></script>
     <script>
         var systems_and_measurements = {{ systems_and_measurements_json | safe }};
-        {#        systems_and_measurements = systems_and_measurements.response;#}
         var selectedSystemIDs = {{ selected_systemID_list|safe }};
         var measurement_types_and_info = {{ measurement_types_and_info | safe }};
         measurement_types_and_info = measurement_types_and_info.measurement_info;
-        {#        var defaultStatus = {{ default_status|safe }};#}
         var annotationsMap = {{ annotations_map | safe }};
         $(document).ready(aqxgraph.main());
     </script>
