@@ -169,10 +169,13 @@ class API:
     # MeasurementAPI
     ###########################################################################
 
-    def getLatestReadingsForSystem(self, systemUID):
-        readings = self.measurementDAO.getLatestReadingsForSystem(systemUID)
+    def latest_readings_for_system(self, systemUID):
+        readings = self.measurementDAO.latest_readings_for_system(systemUID)
         return json.dumps(readings)
 
-    def submitReading(self, measurementType, systemUID, reading):
-        rowID = self.measurementDAO.submitReading(measurementType, systemUID, reading)
+    def submit_reading(self, measurementType, systemUID, reading):
+        rowID = self.measurementDAO.submit_reading(measurementType, systemUID, reading)
         return json.dumps({rowID: rowID})
+
+    def measurement_types(self):
+        return json.dumps(self.measurementDAO.measurement_types())

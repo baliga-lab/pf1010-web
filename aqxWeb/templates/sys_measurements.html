@@ -26,10 +26,6 @@
                             <a href="{{ url_for("frontend.sys_annotations", system_uid=metadata.UID) }}"
                                title="Annotations">Annotations <span class="sr-only">(current)</span></a>
                         </li>
-{#                        <li id="social-li"><a#}
-{#                                href="{{ url_for("social.view_system", system_uid=metadata.UID) }}" title="Social">#}
-{#                            Social</a>#}
-{#                        </li>#}
                         <li id="analytics-li">
                             <a href="{{ url_for('dav.system_analyze', system_uid=metadata.UID) }}" title="Analytics">Analytics</a>
                         </li>
@@ -42,19 +38,9 @@
                         <div class="form-group">
                             <label for="measure-id">Measurement Type:</label>
                             <select class="form-control id" ng-model="measure.measurement_id" id="measure-id" ng-click="clearMessage()" required>
-                                {# TODO Hard-coded values here. NO BUENO!#}
-                                <option value="1">Alkalinity</option>
-                                <option value="2">Ammonium</option>
-                                <option value="3">Chlorine</option>
-                                <option value="4">Hardness</option>
-                                <option value="5">Light</option>
-                                <option value="6">Nitrate</option>
-                                <option value="7">Nitrite</option>
-                                <option value="8">Dis. Oxygen</option>
-                                <option value="9">pH</option>
-                                <option value="10">Temperature</option>
-                                <option value="12">Leaf Count</option>
-                                <option value="13">Height</option>
+                              {% for t in measurement_types %}
+                                <option value="{{t.id}}">{{t.full_name}}</option>
+                              {% endfor %}
                             </select>
                             <hr>
                         </div>
