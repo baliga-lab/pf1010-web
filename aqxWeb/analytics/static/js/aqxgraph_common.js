@@ -113,4 +113,76 @@ if (!aqxgraph) {
         return activeMeasurements;
     }
 
+    function addNewMeasurementData(data, statusID){
+        var systems = data.response;
+
+        _.each(systems, function(system) {
+            var systemMeasurements = system.measurement;
+            _.each(systemMeasurements, function(measurement) {
+                measurement.status = statusID.toString()
+            });
+            _.each(systems_and_measurements, function(existingSystem){
+                // Match systems in the new data by id, and then add the new measurements
+                // to the list of existing measurements
+                if (_.isEqual(existingSystem.system_uid, system.system_uid)){
+                    existingSystem.measurement = existingSystem.measurement.concat(systemMeasurements);
+                }
+            });
+        });
+    }
+
+    function processAJAXResponse(data, status){
+        if("error" in data){
+            console.log(data);
+            throw "AJAX request reached the server but returned an error!";
+        } else {
+            console.log("here");
+            addNewMeasurementData(data, status);
+        }
+    }
+
+    function callAPIForNewData(measurementIDList, statusID){
+        $.ajax({
+            type: 'POST',
+            contentType: 'application/json;charset=UTF-8',
+            dataType: 'json',
+            async: false,
+            url: '/dav/aqxapi/v1/measurements/plot',
+            data: JSON.stringify({systems: selectedSystemIDs, measurements: measurementIDList, status: statusID}, null, '\t'),
+            // Process API response
+            success: function(data){
+                processAJAXResponse(data, statusID)
+            },
+            // Report any AJAX errors
+            error: ajaxError
+        });
+    }
+
+    function ajaxError(jqXHR, textStatus, errorThrown){
+        var redirectLink = 'error';
+        alert('Unable to access the server... Look at the console (F12) for more information!');
+        console.log('jqXHR:');
+        console.log(jqXHR);
+        console.log('textStatus:');
+        console.log(textStatus);
+        console.log('errorThrown:');
+        console.log(errorThrown);
+        window.location.href = redirectLink;
+    }
+
+    aqxgraph.setDefaultYAxis = function() {
+        $("#selectYAxis").chosen({
+            max_selected_options: aqxgraph.MAXSELECTIONS,
+            no_results_text: "Oops, nothing found!",
+            width: "100%"
+        });
+        $('#selectYAxis').val('');
+        $('#selectYAxis option[value=' + aqxgraph.DEFAULT_Y_VALUE + ']').prop('selected', true);
+        $('#selectYAxis').trigger("chosen:updated");
+    }
+
+    aqxgraph.getAlertHTMLString = function(alertText, type) {
+        return '<div class="alert alert-' + type + '"><a class="close" data-dismiss="alert">×</a><span>' +alertText + '</span></div>';
+    }
+
 }());

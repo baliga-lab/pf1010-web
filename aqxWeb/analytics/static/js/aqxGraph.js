@@ -99,86 +99,13 @@ if (!aqxgraph) {
 
         // Populate the alert message if necessary, and display it
         if (missingYTypes.length > 0){
-            $('#alert_placeholder').html(getAlertHTMLString("These system(s) do not have any data for the selected period: " + missingYTypes,
+            $('#alert_placeholder').html(aqxgraph.getAlertHTMLString("These system(s) do not have any data for the selected period: " + missingYTypes,
                                                             aqxgraph.DANGER));
         }
         return dataPointsList;
     }
 
-    function addNewMeasurementData(data, statusID) {
-        console.log('success',data);
-        var systems = data.response;
-
-        // Loop through existing systems in the systems_and_measurements object
-        _.each(systems, function(system) {
-            var systemMeasurements = system.measurement;
-            _.each(systemMeasurements, function(measurement) {
-                measurement.status = statusID.toString();
-            });
-            _.each(systems_and_measurements, function(existingSystem) {
-                // Match systems in the new data by id, and then add the new measurements
-                // to the list of existing measurements
-                if (_.isEqual(existingSystem.system_uid, system.system_uid)) {
-                    existingSystem.measurement = existingSystem.measurement.concat(systemMeasurements);
-                }
-            });
-        });
-    }
-
-    function processAJAXResponse(data, statusID) {
-        if ("error" in data) {
-            console.log("Server returned an error...");
-            console.log(data);
-            throw "AJAX request reached the server but returned an error!";
-        } else {
-            addNewMeasurementData(data, statusID);
-        }
-    }
-
-    function callAPIForNewData(measurementIDList, statusID){
-        $.ajax({
-            type: 'POST',
-            contentType: 'application/json;charset=UTF-8',
-            dataType: 'json',
-            async: false,
-            url: '/dav/aqxapi/v1/measurements/plot',
-            data: JSON.stringify({systems: selectedSystemIDs, measurements: measurementIDList, status: statusID}, null, '\t'),
-            // Process API response if AJAX successfully accessed the server
-            success: function(data){
-                processAJAXResponse(data, statusID);
-            },
-            // Report any AJAX-related errors
-            error: ajaxError
-        });
-    }
-
     // Report any and all AJAX-related errors to the console.
-    function ajaxError(jqXHR, textStatus, errorThrown){
-        var redirectLink = 'error';
-        alert('Unable to access the server... Look at the console (F12) for more information!');
-        console.log('jqXHR:');
-        console.log(jqXHR);
-        console.log('textStatus:');
-        console.log(textStatus);
-        console.log('errorThrown:');
-        console.log(errorThrown);
-        window.location.href = redirectLink;
-    }
-
-    function setDefaultYAxis() {
-        $("#selectYAxis").chosen({
-            max_selected_options: aqxgraph.MAXSELECTIONS,
-            no_results_text: "Oops, nothing found!",
-            width: "100%"
-        });
-        $('#selectYAxis').val('');
-        $('#selectYAxis option[value=' + aqxgraph.DEFAULT_Y_VALUE + ']').prop('selected', true);
-        $('#selectYAxis').trigger("chosen:updated");
-    }
-
-    function getAlertHTMLString(alertText, type){
-        return '<div class="alert alert-' + type + '"><a class="close" data-dismiss="alert">×</a><span>' +alertText + '</span></div>';
-    }
 
     function getDataPoints(systemName, dataPoints, graphType, id, linkedTo, color, yAxis, dashStyle, markerType, yType) {
         var series = { name: systemName + ',' + yType,
@@ -305,7 +232,7 @@ if (!aqxgraph) {
     aqxgraph.main = function() {
 
         // Select the default y-axis value
-        setDefaultYAxis();
+        aqxgraph.setDefaultYAxis();
 
         // Setup overlay/split toggle
         $('.toggle').toggles({text:{on:'OVERLAY',off:'SPLIT'}, on:true});
@@ -368,13 +295,12 @@ if (!aqxgraph) {
             $('.toggle').data('toggles').toggle(true, false, true);
 
             // Select the default y-axis value
-            setDefaultYAxis();
-
+            aqxgraph.setDefaultYAxis();
             aqxgraph.drawChart(getDataPointsForPlotHC);
         });
 
         $('#selectYAxis').bind("chosen:maxselected", function () {
-            $('#alert_placeholder').html(getAlertHTMLString("You can select up to " + aqxgraph.MAXSELECTIONS + " systems", 'danger'));
+            $('#alert_placeholder').html(aqxgraph.getAlertHTMLString("You can select up to " + aqxgraph.MAXSELECTIONS + " systems", 'danger'));
         });
     };
 
