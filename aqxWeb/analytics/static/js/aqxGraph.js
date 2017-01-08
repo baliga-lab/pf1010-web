@@ -57,9 +57,9 @@ if (!aqxgraph) {
                             // If not, create the axis and assign to a variable. This variables isAxis is now true,
                             // an axis is assigned, and the numAxes increments
                             if (!axes[yType].isAxis) {
-                                chart.addAxis(createYAxis(yType, aqxgraph.COLORS[numAxes],
-                                                          numAxes % 2,
-                                                          measurement_types_and_info[yType].unit));
+                                chart.addAxis(aqxgraph.createYAxis(yType, aqxgraph.COLORS[numAxes],
+                                                                   numAxes % 2,
+                                                                   measurement_types_and_info[yType].unit));
                                 axes[yType].isAxis = true;
                                 axes[yType].axis = numAxes++;
                             }
@@ -78,11 +78,11 @@ if (!aqxgraph) {
 
                             // Generate the Object containing data and configurations for this particular series and push to
                             // th list of series to plot
-                            dataPointsList.push(getDataPoints(system.name, dataValues, graphType,
-                                                              systemId, linkedTo,
-                                                              aqxgraph.COLORS[yAxis], yAxis,
-                                                              aqxgraph.DASHSTYLES[j],
-                                                              aqxgraph.MARKERTYPES[j], yType));
+                            dataPointsList.push(aqxgraph.getDataPoints(system.name, dataValues, graphType,
+                                                                       systemId, linkedTo,
+                                                                       aqxgraph.COLORS[yAxis], yAxis,
+                                                                       aqxgraph.DASHSTYLES[j],
+                                                                       aqxgraph.MARKERTYPES[j], yType));
                             linkedTo = true;
                             numValues++;
                         }
@@ -105,62 +105,12 @@ if (!aqxgraph) {
         return dataPointsList;
     }
 
-    // Report any and all AJAX-related errors to the console.
-
-    function getDataPoints(systemName, dataPoints, graphType, id, linkedTo, color, yAxis, dashStyle, markerType, yType) {
-        var series = { name: systemName + ',' + yType,
-                       type: graphType,
-                       data: dataPoints,
-                       color: color,
-                       id: id,
-                       yAxis: yAxis,
-                       dashStyle: dashStyle,
-                       turboThreshold:0,
-                       marker: {symbol: markerType}
-                     };
-        if (linkedTo) {
-            series.linkedTo = id;
-        }
-        return series;
-    }
-
-    function createYAxis(yType, color, opposite, units) {
-        var unitLabel;
-
-        // Determine how the units should be displayed for this variable
-        if (units) {
-            unitLabel = (_.isEqual(units, "celsius")) ? "°C" : units;
-        } else {
-            unitLabel = "";
-        }
-        return {
-            title:
-            {
-                text: yType,
-                style: {color: color}
-            },
-            labels:
-            {
-                format: '{value} ' + unitLabel,
-                style: {color: color}
-            },
-            showEmpty: false,
-            lineWidth: 1,
-            tickWidth: 1,
-            gridLineWidth: 1,
-            opposite: opposite,
-            gridLineColor: '#707073',
-            lineColor: '#707073',
-            minorGridLineColor: '#505053',
-            tickColor: '#707073'
-        };
-    }
 
     function copyYAxes(yAxes){
         var axesToAdd = [];
         _.each(yAxes, function(axis){
             var axisLabel = axis.userOptions.title.text;
-            axesToAdd.push(createYAxis(
+            axesToAdd.push(aqxgraph.createYAxis(
                 axisLabel,
                 axis.userOptions.title.style.color,
                 axis.opposite));
@@ -174,7 +124,7 @@ if (!aqxgraph) {
             if(_.isEqual(seriesItem.userOptions.id, systemID)){
                 var linkedTo = false;
                 if (seriesItem.userOptions.linkedTo) linkedTo = true;
-                seriesToAdd.push(getDataPoints(
+                seriesToAdd.push(aqxgraph.getDataPoints(
                     seriesItem.name,
                     seriesItem.userOptions.data,
                     seriesItem.userOptions.type,
@@ -371,22 +321,12 @@ if (!aqxgraph) {
         aqxgraph.drawChart(getDataPointsForPlotHC);
     };
 
-    /**
-     * Using the metadata for a system and its measurements, generate HTML for the
-     * Tooltips displayed at each datapoint on the plot
-     * @returns {string}
-     */
     function tooltipFormatter() {
-        // Series names are of the format "SystemName - MeasurementType" so we extract the name and type from here
         var tooltipInfo = this.series.name.split(",");
         var yVal = tooltipInfo[1];
-
-        // Represent unitless features with "". And Celsius becomes "°C"
         var units = measurement_types_and_info[yVal].unit;
         units = (units) ? units : "";
         units = (_.isEqual(units, "celsius")) ? "°C" : units;
-
-        // Capitalize measurement type
         yVal = yVal.charAt(0).toUpperCase() + yVal.slice(1);
 
         // Get local time and get the day, month, year, and time

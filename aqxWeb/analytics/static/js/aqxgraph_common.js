@@ -185,4 +185,52 @@ if (!aqxgraph) {
         return '<div class="alert alert-' + type + '"><a class="close" data-dismiss="alert">×</a><span>' +alertText + '</span></div>';
     }
 
+    aqxgraph.getDataPoints = function(systemName, dataPoints, graphType, id, linkedTo,
+                                      color, yAxis, dashStyle, markerType, yType) {
+        var series = { name: systemName + ',' + yType,
+                       type: graphType,
+                       data: dataPoints,
+                       color: color,
+                       id: id,
+                       yAxis: yAxis,
+                       dashStyle: dashStyle,
+                       turboThreshold:0,
+                       marker: {symbol: markerType}
+                     };
+        if (linkedTo) {
+            series.linkedTo = id;
+        }
+        return series;
+    }
+
+    aqxgraph.createYAxis = function(yType, color, opposite, units) {
+        var unitLabel;
+        if (units) {
+            unitLabel = (_.isEqual(units, "celsius")) ? "°C" : units;
+        } else {
+            unitLabel = "";
+        }
+        return {
+            title:
+            {
+                text: yType,
+                style: {color: color}
+            },
+            labels:
+            {
+                format: '{value} ' + unitLabel,
+                style: {color: color}
+            },
+            showEmpty: false,
+            lineWidth: 1,
+            tickWidth: 1,
+            gridLineWidth: 1,
+            opposite: opposite,
+            gridLineColor: '#707073',
+            lineColor: '#707073',
+            minorGridLineColor: '#505053',
+            tickColor: '#707073'
+        };
+    }
+
 }());

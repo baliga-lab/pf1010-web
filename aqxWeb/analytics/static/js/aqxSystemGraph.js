@@ -48,7 +48,7 @@ if (!aqxgraph) {
                             // If not, create the axis and assign to a variable. This variables isAxis is now true,
                             // an axis is assigned, and the numAxes increments
                             if (!axes[yType].isAxis) {
-                                chart.addAxis(createYAxis(yType, aqxgraph.COLORS[numAxes], (numAxes % 2) , measurement_types_and_info[yType].unit));
+                                chart.addAxis(aqxgraph.createYAxis(yType, aqxgraph.COLORS[numAxes], (numAxes % 2) , measurement_types_and_info[yType].unit));
                                 axes[yType].isAxis = true;
                                 axes[yType].axis = numAxes++;
                             }
@@ -60,10 +60,11 @@ if (!aqxgraph) {
                             }
                             // Push valid dataPoints and their configs to the list of dataPoints to plot
                             dataPointsList.push(
-                                getDataPoints(system.name, dataValues, graphType, systemId, linkedTo,
-                                              aqxgraph.COLORS[yAxis], yAxis,
-                                              aqxgraph.DASHSTYLES[j],
-                                              aqxgraph.MARKERTYPES[j], yType));
+                                aqxgraph.getDataPoints(system.name, dataValues, graphType,
+                                                       systemId, linkedTo,
+                                                       aqxgraph.COLORS[yAxis], yAxis,
+                                                       aqxgraph.DASHSTYLES[j],
+                                                       aqxgraph.MARKERTYPES[j], yType));
                             linkedTo = true;
                         }
 
@@ -81,52 +82,6 @@ if (!aqxgraph) {
             $('#alert_placeholder').html(aqxgraph.getAlertHTMLString("Missing values for: " + missingYTypes.toString(), aqxgraph.DANGER));
         }
         return dataPointsList;
-    }
-
-    function getDataPoints(systemName, dataPoints, graphType, id, linkedTo, color, yAxis, dashStyle, markerType, yType) {
-        var series = { name: systemName + ',' + yType,
-                       type: graphType,
-                       data: dataPoints,
-                       color: color,
-                       id: id,
-                       yAxis: yAxis,
-                       dashStyle: dashStyle,
-                       marker: {symbol: markerType}
-                     };
-        if (linkedTo) {
-            series.linkedTo = id;
-        }
-        return series;
-    }
-
-    function createYAxis(yType, color, opposite, units){
-        var unitLabel;
-        if (units) {
-            unitLabel = (_.isEqual(units, "celsius")) ? "°C" : units;
-        } else {
-            unitLabel = "";
-        }
-        return { // Primary yAxis
-            title:
-            {
-                text: yType,
-                style: {color: color}
-            },
-            labels:
-            {
-                format: '{value} ' + unitLabel,
-                style: {color: color}
-            },
-            showEmpty: false,
-            lineWidth: 1,
-            tickWidth: 1,
-            gridLineWidth: 1,
-            opposite: opposite,
-            gridLineColor: '#707073',
-            lineColor: '#707073',
-            minorGridLineColor: '#505053',
-            tickColor: '#707073'
-        };
     }
 
     /**
@@ -242,7 +197,7 @@ if (!aqxgraph) {
         aqxgraph.drawChart(getDataPointsForPlotHC);
     };
 
-    function tooltipFormatter(){
+    function tooltipFormatter() {
         var tooltipInfo = this.series.name.split(",");
         var yVal = tooltipInfo[1];
         var units = measurement_types_and_info[yVal].unit;
