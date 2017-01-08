@@ -254,7 +254,6 @@ if (!aqxgraph) {
         });
     };
 
-    // loadChart - On window load, populates the Chart
     window.onload = function() {
 
         aqxgraph.HC_OPTIONS = {
@@ -277,7 +276,7 @@ if (!aqxgraph) {
                 }
             },
             tooltip: {
-                formatter: tooltipFormatter,
+                formatter: aqxgraph.tooltipFormatter,
                 crosshairs: [true,true]
             },
             legend: {
@@ -320,40 +319,4 @@ if (!aqxgraph) {
         // Render chart based on default page setting. i.e. x-axis & graph-type dropdowns, and the y-axis checklist
         aqxgraph.drawChart(getDataPointsForPlotHC);
     };
-
-    function tooltipFormatter() {
-        var tooltipInfo = this.series.name.split(",");
-        var yVal = tooltipInfo[1];
-        var units = measurement_types_and_info[yVal].unit;
-        units = (units) ? units : "";
-        units = (_.isEqual(units, "celsius")) ? "°C" : units;
-        yVal = yVal.charAt(0).toUpperCase() + yVal.slice(1);
-
-        // Get local time and get the day, month, year, and time
-        var datestr = this.point.date + ' GMT';
-        var datetime = new Date(datestr);
-        var time = datetime.toTimeString();
-        var day   = datetime.getDate(),
-            month = datetime.getMonth()+1,
-            year  = datetime.getFullYear();
-
-        // Generate a readable description of any annotations for this datapoint
-        var eventString = "";
-        if (this.point.annotations) {
-            console.log('event found');
-            eventString = "<br><p>Most recent event(s): </p>";
-            _.each(this.point.annotations, function (event) {
-                console.log(event);
-                var event_datetime = new Date(event.date + ' GMT');
-                eventString = eventString + '<br><p>' + annotationsMap[event.id]+ " at " + event_datetime.toString() + '<p>';
-            });
-        }
-
-        return '<b>' + tooltipInfo[0] + '</b>' +
-            '<br><p>' + yVal + ": " + this.y + ' ' + units + '</p>' +
-            '<br><p>Hours in cycle: ' + this.x + '</p>' +
-            '<br><p>Measured on: ' + month + '/' + day + '/' + year + '</p>' +
-            '<br><p>At time: ' + time +'</p>' +
-            eventString;
-    }
 }());

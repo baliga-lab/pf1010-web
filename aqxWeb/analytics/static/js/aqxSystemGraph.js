@@ -129,9 +129,6 @@ if (!aqxgraph) {
         });
     };
 
-    /**
-     * loadChart - On window load, populates the Chart
-     */
     window.onload = function() {
         aqxgraph.HC_OPTIONS = {
             chart: {
@@ -153,7 +150,7 @@ if (!aqxgraph) {
                 }
             },
             tooltip: {
-                formatter: tooltipFormatter,
+                formatter: aqxgraph.tooltipFormatter,
                 crosshairs: [true,true]
             },
             legend: {
@@ -197,28 +194,4 @@ if (!aqxgraph) {
         aqxgraph.drawChart(getDataPointsForPlotHC);
     };
 
-    function tooltipFormatter() {
-        var tooltipInfo = this.series.name.split(",");
-        var yVal = tooltipInfo[1];
-        var units = measurement_types_and_info[yVal].unit;
-        units = (units) ? units : "";
-        units = (_.isEqual(units, "celsius")) ? "°C" : units;
-        yVal = yVal.charAt(0).toUpperCase() + yVal.slice(1);
-        var datetime = this.point.date.split(" ");
-        var eventString = "";
-        if (this.point.annotations) {
-            console.log('event found');
-            eventString = "<br><p>Most recent event(s): </p>";
-            _.each(this.point.annotations, function (event) {
-                console.log(event);
-                eventString = eventString + '<br><p>' + annotationsMap[event.id]+ " at " + event.date + '<p>'
-            });
-        }
-        return '<b>' + tooltipInfo[0] + '</b>' +
-            '<br><p>' + yVal + ": " + this.y + ' ' + units + '</p>' +
-            '<br><p>Hours in cycle: ' + this.x + '</p>' +
-            '<br><p>Measured on: ' + datetime[0] + '</p>' +
-            '<br><p>At time: ' + datetime[1] +'</p>' +
-            eventString;
-    }
 }());

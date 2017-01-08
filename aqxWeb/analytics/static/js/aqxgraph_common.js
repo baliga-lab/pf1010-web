@@ -233,4 +233,27 @@ if (!aqxgraph) {
         };
     }
 
+    aqxgraph.tooltipFormatter = function() {
+        var tooltipInfo = this.series.name.split(",");
+        var yVal = tooltipInfo[1];
+        var units = measurement_types_and_info[yVal].unit;
+        units = (units) ? units : "";
+        units = (_.isEqual(units, "celsius")) ? "°C" : units;
+        yVal = yVal.charAt(0).toUpperCase() + yVal.slice(1);
+        var datetime = this.point.date.split(" ");
+        var eventString = "";
+        if (this.point.annotations) {
+            eventString = "<br><p>Most recent event(s): </p>";
+            _.each(this.point.annotations, function (event) {
+                eventString = eventString + '<br><p>' + annotationsMap[event.id]+ " at " + event.date + '<p>'
+            });
+        }
+        return '<b>' + tooltipInfo[0] + '</b>' +
+            '<br><p>' + yVal + ": " + this.y + ' ' + units + '</p>' +
+            '<br><p>Hours in cycle: ' + this.x + '</p>' +
+            '<br><p>Measured on: ' + datetime[0] + '</p>' +
+            '<br><p>At time: ' + datetime[1] +'</p>' +
+            eventString;
+    }
+
 }());
