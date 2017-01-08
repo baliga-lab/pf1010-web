@@ -6,37 +6,6 @@ if (!aqxgraph) {
 }
 
 (function () {
-    function updateChartDataPointsHC(chart, yTypeList, graphType, numberOfEntries, status){
-
-        // Clear the old chart's yAxis and dataPoints. Unfortunately this must be done manually.
-        chart = clearOldGraphValues(chart);
-
-        // Determine if any measurements are not already tracked in systems_and_measurements
-        var activeMeasurements = getAllActiveMeasurements();
-        var measurementsToFetch = _.difference(yTypeList, activeMeasurements);
-
-        // If there are any measurements to fetch, get the ids then pass those to the API along with the system names
-        // and add the new dataPoints to the systems_and_measurements object
-        if (measurementsToFetch.length > 0) {
-            var measurementIDList = [];
-            _.each(measurementsToFetch, function(measurement){
-                measurementIDList.push(measurement_types_and_info[measurement].id);
-            });
-            callAPIForNewData(measurementIDList, 100);
-		    callAPIForNewData(measurementIDList, 200);
-        }
-
-        // Handle the x axis, for now just using time
-        // TODO: Expand to handle changing x axes
-        chart.xAxis[0].setTitle({ text: aqxgraph.XAXIS_TITLE });
-
-        // Get dataPoints and their configs for the chart, using systems_and_measurements and add them
-        var newDataSeries = getDataPointsForPlotHC(chart, yTypeList, graphType, numberOfEntries, status);
-        _.each(newDataSeries, function(series) {
-            chart.addSeries(series);
-        });
-        return chart;
-    }
 
     function getDataPointsForPlotHC(chart, yTypeList, graphType, numberOfEntries, status) {
 
@@ -114,15 +83,6 @@ if (!aqxgraph) {
         return dataPointsList;
     }
 
-    /* ##################################################################################################################
-       AJAX CALLS TO GRAB NEW DATA
-       #################################################################################################################### */
-
-    /**
-     * Take measurement data object from AJAX response, and add to the global systems_and_measurements data
-     * @param data
-     * @param statusID
-     */
     function addNewMeasurementData(data, statusID){
         console.log('success',data);
         var systems = data.response;
@@ -154,11 +114,6 @@ if (!aqxgraph) {
         }
     }
 
-    /**
-     * Sends an AJAX POST request to call for new, untracked measurement data for each system
-     * @param measurementIDList
-     * @param statusID
-     */
     function callAPIForNewData(measurementIDList, statusID){
         $.ajax({
             type: 'POST',
@@ -186,40 +141,6 @@ if (!aqxgraph) {
         console.log('errorThrown:');
         console.log(errorThrown);
         window.location.href = redirectLink;
-    }
-
-    /* ##################################################################################################################
-       HELPER FUNCTIONS
-       #################################################################################################################### */
-    /**
-     * Returns a list of all y-variables currently being stored
-     * @returns {Array} - An array of all measurement types currently being stored
-     */
-    function getAllActiveMeasurements() {
-        // Grab all measurement types in the checklist
-        var activeMeasurements = [];
-        var systemMeasurements = _.first(systems_and_measurements).measurement;
-        _.each(systemMeasurements, function(measurement) {
-            activeMeasurements.push(measurement.type.toLowerCase());
-        });
-        return activeMeasurements;
-    }
-
-    /**
-     * Removes any data series' and y-axes from the given chart
-     * @param chart
-     * @returns {*}
-     */
-    function clearOldGraphValues(chart) {
-        // Clear yAxis
-        while(chart.yAxis.length > 0) {
-            chart.yAxis[0].remove(true);
-        }
-        // Clear series data
-        while (chart.series.length > 0) {
-            chart.series[0].remove(true);
-        }
-        return chart;
     }
 
     function setDefaultYAxis() {
@@ -283,10 +204,6 @@ if (!aqxgraph) {
         };
     }
 
-    /* ##################################################################################################################
-       PAGE-DRIVING FUNCTIONS
-       ################################################################################################################### */
-
     /**
      *  main - Sets behaviors for Submit and Reset buttons, populates y-axis dropdown, and checks nitrate as default y-axis
      */
@@ -300,7 +217,7 @@ if (!aqxgraph) {
         // When the submit button is clicked, redraw the graph based on user selections
         $('#submitbtn').on('click', function() {
             $('#alert_placeholder').empty();
-            aqxgraph.drawChart(updateChartDataPointsHC);
+            aqxgraph.drawChart(getDataPointsForPlotHC);
         });
 
         // Reset button, returns dropdowns to default, clears checklist, and displays default nitrate vs time graph
@@ -324,7 +241,7 @@ if (!aqxgraph) {
 
             // Select the default y-axis value
             setDefaultYAxis();
-            aqxgraph.drawChart(updateChartDataPointsHC);
+            aqxgraph.drawChart(getDataPointsForPlotHC);
         });
 
         $('#selectYAxis').bind("chosen:maxselected", function () {
@@ -397,7 +314,7 @@ if (!aqxgraph) {
         }
         Highcharts.setOptions(Highcharts.theme);
         // Render chart based on default page setting. i.e. x-axis & graph-type dropdowns, and the y-axis checklist
-        aqxgraph.drawChart(updateChartDataPointsHC);
+        aqxgraph.drawChart(getDataPointsForPlotHC);
     };
 
     function tooltipFormatter(){

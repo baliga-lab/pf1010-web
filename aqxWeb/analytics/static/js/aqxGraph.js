@@ -7,39 +7,6 @@ if (!aqxgraph) {
 
 (function () {
 
-    function updateChartDataPointsHC(chart, yTypeList, graphType, numberOfEntries, status) {
-
-        // Clear the old chart's yAxis and dataPoints. This must be done manually.
-        chart = clearOldGraphValues(chart);
-
-        // Determine if any measurements are not already tracked in systems_and_measurements list
-        var activeMeasurements = getAllActiveMeasurements();
-        var measurementsToFetch = _.difference(yTypeList, activeMeasurements);
-
-        // If there are any measurements to fetch, get the ids then pass those to the API along with the system names
-        // and add the new dataPoints to the systems_and_measurements object
-        // Data is requested for both established and pre-established data, which is labeled as such
-        if (measurementsToFetch.length > 0) {
-            var measurementIDList = [];
-            _.each(measurementsToFetch, function(measurement){
-                measurementIDList.push(measurement_types_and_info[measurement].id);
-            });
-            callAPIForNewData(measurementIDList, aqxgraph.PRE_ESTABLISHED);
-            callAPIForNewData(measurementIDList, aqxgraph.ESTABLISHED);
-        }
-
-        // Label the x axis, for now just using time on the x axis
-        // TODO: Expand to handle changing x axes
-        chart.xAxis[0].setTitle({ text: aqxgraph.XAXIS_TITLE });
-
-        // Generate a list of data series and their configuration options. Then add each object to the Chart options.
-        var newDataSeries = getDataPointsForPlotHC(chart, yTypeList, graphType, numberOfEntries, status);
-        _.each(newDataSeries, function(series) {
-            chart.addSeries(series);
-        });
-        return chart;
-    }
-
     function getDataPointsForPlotHC(chart, yTypeList, graphType, numberOfEntries, status) {
 
         // DataPoints to add to chart
@@ -138,11 +105,6 @@ if (!aqxgraph) {
         return dataPointsList;
     }
 
-
-    /* ##################################################################################################################
-       AJAX CALLS TO GRAB NEW DATA
-       #################################################################################################################### */
-
     function addNewMeasurementData(data, statusID) {
         console.log('success',data);
         var systems = data.response;
@@ -201,32 +163,6 @@ if (!aqxgraph) {
         console.log('errorThrown:');
         console.log(errorThrown);
         window.location.href = redirectLink;
-    }
-
-    /* ##################################################################################################################
-       HELPER FUNCTIONS
-       #################################################################################################################### */
-
-    function getAllActiveMeasurements() {
-        // Grab all measurement types in the checklist
-        var activeMeasurements = [];
-        var systemMeasurements = _.first(systems_and_measurements).measurement;
-        _.each(systemMeasurements, function(measurement) {
-            activeMeasurements.push(measurement.type.toLowerCase());
-        });
-        return activeMeasurements;
-    }
-
-    function clearOldGraphValues(chart) {
-        // Clear yAxis
-        while(chart.yAxis.length > 0){
-            chart.yAxis[0].remove(true);
-        }
-        // Clear series data
-        while(chart.series.length > 0) {
-            chart.series[0].remove(true);
-        }
-        return chart;
     }
 
     function setDefaultYAxis() {
@@ -366,10 +302,6 @@ if (!aqxgraph) {
         }
     }
 
-    /* ##################################################################################################################
-       PAGE-DRIVING FUNCTIONS
-       ################################################################################################################### */
-
     aqxgraph.main = function() {
 
         // Select the default y-axis value
@@ -399,7 +331,7 @@ if (!aqxgraph) {
         // When the submit button is clicked, redraw the graph based on user selections
         $('#submitbtn').on('click', function() {
             $('#alert_placeholder').empty();
-            aqxgraph.drawChart(updateChartDataPointsHC);
+            aqxgraph.drawChart(getDataPointsForPlotHC);
 
             // Check if the toggle is active. (i.e, overlay mode enabled)
             // If in split mode, make the split graphs
@@ -438,7 +370,7 @@ if (!aqxgraph) {
             // Select the default y-axis value
             setDefaultYAxis();
 
-            aqxgraph.drawChart(updateChartDataPointsHC);
+            aqxgraph.drawChart(getDataPointsForPlotHC);
         });
 
         $('#selectYAxis').bind("chosen:maxselected", function () {
@@ -510,7 +442,7 @@ if (!aqxgraph) {
         }
         Highcharts.setOptions(Highcharts.theme);
         // Render chart based on default page setting. i.e. x-axis & graph-type dropdowns, and the y-axis checklist
-        aqxgraph.drawChart(updateChartDataPointsHC);
+        aqxgraph.drawChart(getDataPointsForPlotHC);
     };
 
     /**

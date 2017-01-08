@@ -12,9 +12,9 @@ if (!aqxgraph) {
 }
 
 (function () {
-    /* ##################################################################################################################
+    /* ###############################################################################
        CONSTANTS
-       ################################################################################################################### */
+       ############################################################################### */
 
     aqxgraph.XAXIS = "selectXAxis";
     aqxgraph.XAXIS_TITLE = 'Hours since creation';
@@ -44,12 +44,12 @@ if (!aqxgraph) {
     };
 
     // These are in aqxGraph.js but not in aqxSystemGraph.js ...
-    var OVERLAY = true;
-    var PRE_ESTABLISHED = 100;
-    var ESTABLISHED = 200;
+    //aqxgraph.OVERLAY = true;
+    aqxgraph.PRE_ESTABLISHED = 100;
+    aqxgraph.ESTABLISHED = 200;
     // ---------------------
 
-    aqxgraph.drawChart = function(updateChartDataPointsHC) {
+    aqxgraph.drawChart = function(getDataPointsForPlotHC) {
         var graphType = document.getElementById(aqxgraph.GRAPH_TYPE).value;
         var status = document.getElementById("selectStatus").value;
 
@@ -58,6 +58,59 @@ if (!aqxgraph) {
         var numberOfEntries = document.getElementById(aqxgraph.NUM_ENTRIES_ELEMENT_ID).value;
 
         // Generate a data Series for each system and y-value type, and assign them all to the CHART
-        updateChartDataPointsHC(aqxgraph.CHART, yTypes, graphType, numberOfEntries, status).redraw();
+        updateChartDataPointsHC(aqxgraph.CHART, yTypes, graphType, numberOfEntries, status,
+                                getDataPointsForPlotHC).redraw();
     };
+
+    function updateChartDataPointsHC(chart, yTypeList, graphType, numberOfEntries, status,
+                                     getDataPointsForPlotHC) {
+
+        chart = clearOldGraphValues(chart);
+
+        // Determine if any measurements are not already tracked in systems_and_measurements
+        var activeMeasurements = getAllActiveMeasurements();
+        var measurementsToFetch = _.difference(yTypeList, activeMeasurements);
+
+        // If there are any measurements to fetch, get the ids then pass those to the API
+        // along with the system names
+        // and add the new dataPoints to the systems_and_measurements object
+        // Data is requested for both established and pre-established data, which is labeled as such
+        if (measurementsToFetch.length > 0) {
+            var measurementIDList = [];
+            _.each(measurementsToFetch, function(measurement){
+                measurementIDList.push(measurement_types_and_info[measurement].id);
+            });
+            callAPIForNewData(measurementIDList, aqxgraph.PRE_ESTABLISHED);
+		    callAPIForNewData(measurementIDList, aqxgraph.ESTABLISHED);
+        }
+        chart.xAxis[0].setTitle({ text: aqxgraph.XAXIS_TITLE });
+        var newDataSeries = getDataPointsForPlotHC(chart, yTypeList, graphType, numberOfEntries, status);
+        _.each(newDataSeries, function(series) {
+            chart.addSeries(series);
+        });
+        return chart;
+    }
+
+    function clearOldGraphValues(chart) {
+        // Clear yAxis
+        while(chart.yAxis.length > 0) {
+            chart.yAxis[0].remove(true);
+        }
+        // Clear series data
+        while (chart.series.length > 0) {
+            chart.series[0].remove(true);
+        }
+        return chart;
+    }
+
+    function getAllActiveMeasurements() {
+        // Grab all measurement types in the checklist
+        var activeMeasurements = [];
+        var systemMeasurements = _.first(systems_and_measurements).measurement;
+        _.each(systemMeasurements, function(measurement) {
+            activeMeasurements.push(measurement.type.toLowerCase());
+        });
+        return activeMeasurements;
+    }
+
 }());
