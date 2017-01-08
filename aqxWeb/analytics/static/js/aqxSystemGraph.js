@@ -6,25 +6,7 @@ if (!aqxgraph) {
 }
 
 (function () {
-
-    /* ##################################################################################################################
-       MAIN CHART LOADING FUNCTIONS
-       #################################################################################################################### */
-
-    function drawChart(){
-        var graphType = document.getElementById(aqxgraph.GRAPH_TYPE).value;
-        var xType = "Time";
-        var status = document.getElementById("selectStatus").value;
-
-        // Get measurement types to display on the y-axis
-        var yTypes = $("#selectYAxis").val();
-        var numberOfEntries = document.getElementById(aqxgraph.NUM_ENTRIES_ELEMENT_ID).value;
-
-        // Generate a data Series for each y-value type, and assign them all to the CHART
-        updateChartDataPointsHC(aqxgraph.CHART, xType, yTypes, graphType, numberOfEntries, status).redraw();
-    }
-
-    function updateChartDataPointsHC(chart, xType, yTypeList, graphType, numberOfEntries, status){
+    function updateChartDataPointsHC(chart, yTypeList, graphType, numberOfEntries, status){
 
         // Clear the old chart's yAxis and dataPoints. Unfortunately this must be done manually.
         chart = clearOldGraphValues(chart);
@@ -49,15 +31,14 @@ if (!aqxgraph) {
         chart.xAxis[0].setTitle({ text: aqxgraph.XAXIS_TITLE });
 
         // Get dataPoints and their configs for the chart, using systems_and_measurements and add them
-        var newDataSeries = getDataPointsForPlotHC(chart, xType, yTypeList, graphType, numberOfEntries, status);
+        var newDataSeries = getDataPointsForPlotHC(chart, yTypeList, graphType, numberOfEntries, status);
         _.each(newDataSeries, function(series) {
             chart.addSeries(series);
         });
         return chart;
     }
 
-    // TODO: This will need to be re-evaluated to incorporate non-time x-axis values. For now, stubbing xType for this.
-    function getDataPointsForPlotHC(chart, xType, yTypeList, graphType, numberOfEntries, status) {
+    function getDataPointsForPlotHC(chart, yTypeList, graphType, numberOfEntries, status) {
 
         // DataPoints to add to chart
         var dataPointsList = [];
@@ -319,7 +300,7 @@ if (!aqxgraph) {
         // When the submit button is clicked, redraw the graph based on user selections
         $('#submitbtn').on('click', function() {
             $('#alert_placeholder').empty();
-            drawChart();
+            aqxgraph.drawChart(updateChartDataPointsHC);
         });
 
         // Reset button, returns dropdowns to default, clears checklist, and displays default nitrate vs time graph
@@ -343,7 +324,7 @@ if (!aqxgraph) {
 
             // Select the default y-axis value
             setDefaultYAxis();
-            drawChart();
+            aqxgraph.drawChart(updateChartDataPointsHC);
         });
 
         $('#selectYAxis').bind("chosen:maxselected", function () {
@@ -416,7 +397,7 @@ if (!aqxgraph) {
         }
         Highcharts.setOptions(Highcharts.theme);
         // Render chart based on default page setting. i.e. x-axis & graph-type dropdowns, and the y-axis checklist
-        drawChart();
+        aqxgraph.drawChart(updateChartDataPointsHC);
     };
 
     function tooltipFormatter(){

@@ -38,16 +38,7 @@
                 <div id="legendTypes"></div>
             </div>
             <div class="col-sm-3">
-                <div class="form-group hidden">
-                    <label class="control-label">Select X Axis</label>
-                    <select class="explore-dropdown" id="selectXAxis">
-                        <option name="xAxisTypes" value="time" selected="selected">Time</option>
-                        {# Loop through the list of measurement_types to populate X Axis Type dropdown #}
-                        {% for name in measurement_names %}
-                            <option name="xAxisTypes" value="{{ name }}">{{ name }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
+                <input type="hidden" name="xAxisTypes" value="time"></input>
                 <div class="form-group">
                     <label class="control-label">Select Y Axis</label>
                     <select class="chosen-select" multiple id="selectYAxis">

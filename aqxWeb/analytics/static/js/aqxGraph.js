@@ -7,27 +7,7 @@ if (!aqxgraph) {
 
 (function () {
 
-    /* ##################################################################################################################
-       MAIN CHART LOADING FUNCTIONS
-       #################################################################################################################### */
-    /**
-     * Draws a graph given a graph type, x-axis values, y-axis values, system status, and desired number of data points
-     * These values are all obtained from the dropdowns.
-     */
-    function drawChart() {
-        var graphType = document.getElementById(aqxgraph.GRAPH_TYPE).value;
-        var xType = document.getElementById(aqxgraph.XAXIS).value;
-        var status = document.getElementById("selectStatus").value;
-
-        // Get measurement types to display on the y-axis
-        var yTypes = $("#selectYAxis").val();
-        var numberOfEntries = document.getElementById(aqxgraph.NUM_ENTRIES_ELEMENT_ID).value;
-
-        // Generate a data Series for each system and y-value type, and assign them all to the CHART
-        updateChartDataPointsHC(aqxgraph.CHART, xType, yTypes, graphType, numberOfEntries, status).redraw();
-    };
-
-    function updateChartDataPointsHC(chart, xType, yTypeList, graphType, numberOfEntries, status) {
+    function updateChartDataPointsHC(chart, yTypeList, graphType, numberOfEntries, status) {
 
         // Clear the old chart's yAxis and dataPoints. This must be done manually.
         chart = clearOldGraphValues(chart);
@@ -53,15 +33,14 @@ if (!aqxgraph) {
         chart.xAxis[0].setTitle({ text: aqxgraph.XAXIS_TITLE });
 
         // Generate a list of data series and their configuration options. Then add each object to the Chart options.
-        var newDataSeries = getDataPointsForPlotHC(chart, xType, yTypeList, graphType, numberOfEntries, status);
+        var newDataSeries = getDataPointsForPlotHC(chart, yTypeList, graphType, numberOfEntries, status);
         _.each(newDataSeries, function(series) {
             chart.addSeries(series);
         });
         return chart;
     }
 
-    // TODO: This will need to be re-evaluated to incorporate non-time x-axis values. For now, stubbing xType for this.
-    function getDataPointsForPlotHC (chart, xType, yTypeList, graphType, numberOfEntries, status) {
+    function getDataPointsForPlotHC(chart, yTypeList, graphType, numberOfEntries, status) {
 
         // DataPoints to add to chart
         var dataPointsList = [];
@@ -420,7 +399,7 @@ if (!aqxgraph) {
         // When the submit button is clicked, redraw the graph based on user selections
         $('#submitbtn').on('click', function() {
             $('#alert_placeholder').empty();
-            drawChart();
+            aqxgraph.drawChart(updateChartDataPointsHC);
 
             // Check if the toggle is active. (i.e, overlay mode enabled)
             // If in split mode, make the split graphs
@@ -459,7 +438,7 @@ if (!aqxgraph) {
             // Select the default y-axis value
             setDefaultYAxis();
 
-            drawChart();
+            aqxgraph.drawChart(updateChartDataPointsHC);
         });
 
         $('#selectYAxis').bind("chosen:maxselected", function () {
@@ -531,7 +510,7 @@ if (!aqxgraph) {
         }
         Highcharts.setOptions(Highcharts.theme);
         // Render chart based on default page setting. i.e. x-axis & graph-type dropdowns, and the y-axis checklist
-        drawChart();
+        aqxgraph.drawChart(updateChartDataPointsHC);
     };
 
     /**
@@ -553,7 +532,7 @@ if (!aqxgraph) {
         yVal = yVal.charAt(0).toUpperCase() + yVal.slice(1);
 
         // Get local time and get the day, month, year, and time
-        var datestr = this.point.date + aqxgraph.SPACE + aqxgraph.GMT;
+        var datestr = this.point.date + ' GMT';
         var datetime = new Date(datestr);
         var time = datetime.toTimeString();
         var day   = datetime.getDate(),
@@ -567,7 +546,7 @@ if (!aqxgraph) {
             eventString = "<br><p>Most recent event(s): </p>";
             _.each(this.point.annotations, function (event) {
                 console.log(event);
-                var event_datetime = new Date(event.date + aqxgraph.SPACE + aqxgraph.GMT);
+                var event_datetime = new Date(event.date + ' GMT');
                 eventString = eventString + '<br><p>' + annotationsMap[event.id]+ " at " + event_datetime.toString() + '<p>';
             });
         }

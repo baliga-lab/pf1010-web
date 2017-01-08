@@ -47,8 +47,17 @@ if (!aqxgraph) {
     var OVERLAY = true;
     var PRE_ESTABLISHED = 100;
     var ESTABLISHED = 200;
-    var SPACE = ' ';
-    var GMT = 'GMT';
     // ---------------------
 
+    aqxgraph.drawChart = function(updateChartDataPointsHC) {
+        var graphType = document.getElementById(aqxgraph.GRAPH_TYPE).value;
+        var status = document.getElementById("selectStatus").value;
+
+        // Get measurement types to display on the y-axis
+        var yTypes = $("#selectYAxis").val();
+        var numberOfEntries = document.getElementById(aqxgraph.NUM_ENTRIES_ELEMENT_ID).value;
+
+        // Generate a data Series for each system and y-value type, and assign them all to the CHART
+        updateChartDataPointsHC(aqxgraph.CHART, yTypes, graphType, numberOfEntries, status).redraw();
+    };
 }());
