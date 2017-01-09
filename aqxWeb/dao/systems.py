@@ -130,7 +130,7 @@ class SystemDAO:
         'INSERT INTO systems (user_id, name, system_uid, start_date, aqx_technique_id, location_lat, location_lng)'
         'VALUES (%s, %s, %s, %s, %s, %s, %s)')
         values1 = (userID, name, systemUID, startDate, techniqueID, locationLat, locationLng)
-        query2 = 'INSERT INTO system_gb_media VALUES (%s, %s, %s)'
+        query2 = 'INSERT INTO system_gb_media (system_id,gb_media_id) VALUES (%s, %s)'
         query3 = 'INSERT INTO system_aquatic_organisms VALUES (%s, %s, %s)'
         query4 = 'INSERT INTO system_crops VALUES (%s, %s, %s)'
         query5 = 'INSERT INTO system_status (system_uid, start_time, end_time) VALUES (%s, %s, "2030-12-31 23:59:59")'
@@ -148,8 +148,7 @@ class SystemDAO:
             cursor.execute(query1, values1)
             systemID = cursor.lastrowid
             for medium in gbMedia:
-                values2 = (systemID, medium['ID'], medium['count'])
-                cursor.execute(query2, values2)
+                cursor.execute(query2, (systemID, medium['ID']))
             for organism in organisms:
                 values3 = (systemID, organism['ID'], organism['count'])
                 cursor.execute(query3, values3)

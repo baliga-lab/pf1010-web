@@ -1,13 +1,13 @@
 {% extends "base.html" %}
 {% block title %}Create System{% endblock %}
 {% block content %}
-    <div ng-controller="CreateSystemController">
-        <form ng-submit="create(system)">
+    <div>
+        <form id="create_form">
             <h2>Create System</h2>
             <p>*all fields are required</p>
             <div class="form-group">
                 <label>System Name</label>
-                <input type="text" class="form-control" ng-model="system.name" placeholder="System Name" required>
+                <input type="text" class="form-control" name="name" placeholder="System Name" required>
             </div>
             <div class="form-group">
                 <label>Location</label>
@@ -16,37 +16,37 @@
                     the
                     conversion for you.</p>
                 <div class="input-group">
-                    <input type="text" class="form-control" ng-model="address" placeholder="Address" required>
+                    <input type="text" class="form-control" name="address" placeholder="Address">
                 <span class="input-group-btn">
-                    <a class="btn btn-green" ng-click="geocode(address)">Get Coordinates</a>
+                    <a class="btn btn-green" href="javascript:void(0)" id="get_geocoords">Get Coordinates</a>
                 </span>
                 </div>
             </div>
             <div class="form-group">
                 <div class="row">
                     <div class="col-xs-6">
-                        <input class="form-control" ng-model="system.location.lat" placeholder="Latitude" required>
+                        <input class="form-control" name="location.lat" id="sysloclat" placeholder="Latitude" required>
                     </div>
                     <div class="col-xs-6">
-                        <input class="form-control" ng-model="system.location.lng" placeholder="Longitude" required>
+                        <input class="form-control" name="location.lng" id="sysloclng" placeholder="Longitude" required>
                     </div>
                 </div>
             </div>
             <div class="row">
                 <div class="form-group col-sm-4">
                     <label>Date Started</label>
-                <input id="start-date" type="date" class="form-control" ng-model="system.startDate" required>
+                <input id="start-date" type="date" class="form-control" name="startDate" required>
                 </div>
                 <div class="form-group col-sm-4">
                     <label>Aquaponics Technique <a href="http://www.projectfeed1010.com/blog/2014/07/16/comparing-the-different-methods-of-aquaponics-growing/" title="click here to read about each technique" target="_blank">?</a></label>
-                    <select class="form-control" ng-model="system.techniqueID" required>
+                    <select class="form-control" name="techniqueID" required>
                         {% for technique in enums['techniques'] %}<option value="{{ technique.ID }}">{{ technique.name }}</option>
                         {% endfor %}
                     </select>
                 </div>
                 <div class="form-group col-sm-4">
                     <label>Growbed Media</label>
-                    <select class="form-control" ng-model="system.gbMedia[0].ID" required>
+                    <select class="form-control" name="gbMediaID" required>
                         {% for medium in enums['growbedMedia'] %}<option value="{{ medium.ID }}">{{ medium.name }}</option>
                         {% endfor %}
                     </select>
@@ -56,14 +56,14 @@
                 <div class="row">
                     <div class="col-xs-8">
                         <label>Crop</label>
-                <select class="form-control" ng-model="system.crops[0].ID" required>
+                <select class="form-control" name="cropID" required>
                     {% for crop in enums['crops'] %}<option value="{{ crop.ID }}">{{ crop.name }}</option>
                     {% endfor %}
                 </select>
                     </div>
                     <div class="col-xs-4">
                         <label>&nbsp;</label>
-                        <input type="number" min="0" class="form-control" ng-model="system.crops[0].count" placeholder="Number of Crops" required>
+                        <input type="number" min="0" class="form-control" name="cropCount" placeholder="Number of Crops" required>
                     </div>
                 </div>
             </div>
@@ -71,14 +71,14 @@
                 <div class="row">
                     <div class="col-xs-8">
                         <label>Aquatic Organism</label>
-                <select class="form-control" ng-model="system.organisms[0].ID" required>
+                <select class="form-control" name="organismID" required>
                     {% for organism in enums['organisms'] %}<option value="{{ organism.ID }}">{{ organism.name }}</option>
                     {% endfor %}
                 </select>
                     </div>
                     <div class="col-xs-4">
                         <label>&nbsp;</label>
-                        <input type="number" min="0" class="form-control" ng-model="system.organisms[0].count" placeholder="Number of Organisms" required>
+                        <input type="number" min="0" class="form-control" name="organismCount" placeholder="Number of Organisms" required>
                     </div>
                 </div>
             </div>
