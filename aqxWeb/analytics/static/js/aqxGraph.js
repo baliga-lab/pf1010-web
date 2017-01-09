@@ -105,80 +105,6 @@ if (!aqxgraph) {
         return dataPointsList;
     }
 
-
-    function copyYAxes(yAxes){
-        var axesToAdd = [];
-        _.each(yAxes, function(axis){
-            var axisLabel = axis.userOptions.title.text;
-            axesToAdd.push(aqxgraph.createYAxis(
-                axisLabel,
-                axis.userOptions.title.style.color,
-                axis.opposite));
-        });
-        return axesToAdd;
-    }
-
-    function copySeries(series, systemID){
-        var seriesToAdd = [];
-        _.each(series, function (seriesItem) {
-            if(_.isEqual(seriesItem.userOptions.id, systemID)){
-                var linkedTo = false;
-                if (seriesItem.userOptions.linkedTo) linkedTo = true;
-                seriesToAdd.push(aqxgraph.getDataPoints(
-                    seriesItem.name,
-                    seriesItem.userOptions.data,
-                    seriesItem.userOptions.type,
-                    seriesItem.userOptions.id,
-                    linkedTo,
-                    seriesItem.color,
-                    seriesItem.userOptions.yAxis,
-                    seriesItem.userOptions.dashStyle,
-                    seriesItem.userOptions.marker.symbol,
-                    ""
-                ));
-            }
-        });
-        return seriesToAdd;
-    }
-
-    function toggleSplitMode(){
-        // Can only split with 2+ systems
-        if (selectedSystemIDs.length > 1) {
-
-            // List of new charts
-            var splitCharts = [];
-
-            // Grab series and yAxes from the overlay chart
-            var yAxes = aqxgraph.CHART.yAxis;
-            var series = aqxgraph.CHART.series;
-
-            _.each(selectedSystemIDs, function(systemID, k) {
-                // Copy over formatting options from overlay chart
-                var new_opts = aqxgraph.HC_OPTIONS;
-
-                new_opts.title.text = "NO DATA FOR THIS SYSTEM";
-                new_opts.chart.renderTo = "chart-" + k;
-                new_opts.yAxis = copyYAxes(yAxes);
-                new_opts.series = copySeries(series, systemID);
-
-                // Loop through series to extract system names and assign as titles. If there is no data
-                // for a system, then the series will not exist and the name remains "NO DATA FOR THIS SYSTEM"
-                for (var i = 0; i < series.length; i++) {
-                    if (_.isEqual(systemID, series[i].userOptions.id)) {
-                        new_opts.title.text = series[i].name.split(",")[0].trim();
-                    }
-                }
-
-                // Add new split chart to list of charts
-                var chart = new Highcharts.Chart(new_opts);
-                splitCharts.push(chart);
-            });
-
-            // Draw the split charts
-            _.each(splitCharts, function(chart){chart.redraw()});
-        }
-    }
-
     aqxgraph.main = function() {
 
         // Select the default y-axis value
@@ -201,7 +127,7 @@ if (!aqxgraph) {
             } else {
                 $('[id^=chart-]').show();
                 $('#analyzeContainer').hide();
-                toggleSplitMode();
+                aqxgraph.toggleSplitMode();
             }
         });
 
@@ -212,8 +138,8 @@ if (!aqxgraph) {
 
             // Check if the toggle is active. (i.e, overlay mode enabled)
             // If in split mode, make the split graphs
-            if(!$('.toggle').data('toggles').active){
-                toggleSplitMode();
+            if (!$('.toggle').data('toggles').active) {
+                aqxgraph.toggleSplitMode();
             }
         });
 
