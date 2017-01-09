@@ -175,11 +175,11 @@ if (!aqxgraph) {
         $('#selectYAxis').val('');
         $('#selectYAxis option[value=' + aqxgraph.DEFAULT_Y_VALUE + ']').prop('selected', true);
         $('#selectYAxis').trigger("chosen:updated");
-    }
+    };
 
     aqxgraph.getAlertHTMLString = function(alertText, type) {
         return '<div class="alert alert-' + type + '"><a class="close" data-dismiss="alert">×</a><span>' +alertText + '</span></div>';
-    }
+    };
 
     function getDataPoints(systemName, dataPoints, graphType, id, linkedTo,
                            color, yAxis, dashStyle, markerType, yType) {
@@ -229,7 +229,7 @@ if (!aqxgraph) {
         };
     }
 
-    aqxgraph.tooltipFormatter = function() {
+    function tooltipFormatter() {
         var tooltipInfo = this.series.name.split(",");
         var yVal = tooltipInfo[1];
         var units = measurement_types_and_info[yVal].unit;
@@ -322,7 +322,7 @@ if (!aqxgraph) {
             // Draw the split charts
             _.each(splitCharts, function(chart){chart.redraw()});
         }
-    }
+    };
 
     // Axis dict ensures that each variable is plotted to the same, unique axis for that variable
     // i.e. nitrate values for each system to axis 0, pH values for each system to axis 1, etc.
@@ -423,4 +423,70 @@ if (!aqxgraph) {
         displayMissingYTypesAlert(missingYTypes);
         return dataPointsList;
     }
+
+    aqxgraph.onload = function() {
+
+        aqxgraph.HC_OPTIONS = {
+            chart: {
+                renderTo: 'analyzeContainer',
+                type: 'line',
+                zoomType: 'xy',
+                backgroundColor: aqxgraph.BACKGROUND,
+                plotBorderColor: '#606063'
+            },
+            title: {
+                text: aqxgraph.CHART_TITLE,
+                style: {
+                    color: '#E0E0E3'
+                }
+            },
+            credits: {
+                style: {
+                    color: '#666'
+                }
+            },
+            tooltip: {
+                formatter: tooltipFormatter,
+                crosshairs: [true,true]
+            },
+            legend: {
+                itemStyle: {
+                    color: '#E0E0E3'
+                },
+                enabled: true,
+                labelFormatter: function() {
+                    return '<span>'+ this.name.split(",")[0] + '</span>';
+                },
+                symbolWidth: 60
+            },
+            xAxis: {
+                minPadding: 0.05,
+                maxPadding: 0.05,
+                title:
+                {
+                    text: aqxgraph.XAXIS_TITLE,
+                    style: {color: 'white   '}
+                }
+            },
+            exporting: {
+                csv: {
+                    columnHeaderFormatter: function(series) {
+                        var name_and_variable = series.name.split(",");
+                        return name_and_variable[0] + '-' + name_and_variable[1];
+                    }
+                }
+            },
+            showInLegend: true,
+            series: []
+        };
+        try {
+            aqxgraph.CHART = new Highcharts.Chart(aqxgraph.HC_OPTIONS);
+        } catch(err) {
+            console.log("Unable to initialize Highcharts Chart object!");
+            console.log(err.stack);
+        }
+        Highcharts.setOptions(Highcharts.theme);
+        // Render chart based on default page setting. i.e. x-axis & graph-type dropdowns, and the y-axis checklist
+        aqxgraph.drawChart();
+    };
 }());
