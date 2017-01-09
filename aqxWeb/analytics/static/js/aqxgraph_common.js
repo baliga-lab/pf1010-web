@@ -42,14 +42,10 @@ if (!aqxgraph) {
         linearGradient: { x1: 0, y1: 0, x2: 1, y2: 1 },
         stops: [ [0, '#2a2a2b'], [1, '#3e3e40'] ]
     };
+    var PRE_ESTABLISHED = 100;
+    var ESTABLISHED = 200;
 
-    // These are in aqxGraph.js but not in aqxSystemGraph.js ...
-    //aqxgraph.OVERLAY = true;
-    aqxgraph.PRE_ESTABLISHED = 100;
-    aqxgraph.ESTABLISHED = 200;
-    // ---------------------
-
-    aqxgraph.drawChart = function(getDataPointsForPlotHC) {
+    aqxgraph.drawChart = function() {
         var graphType = document.getElementById(aqxgraph.GRAPH_TYPE).value;
         var status = document.getElementById("selectStatus").value;
 
@@ -80,8 +76,8 @@ if (!aqxgraph) {
             _.each(measurementsToFetch, function(measurement){
                 measurementIDList.push(measurement_types_and_info[measurement].id);
             });
-            callAPIForNewData(measurementIDList, aqxgraph.PRE_ESTABLISHED);
-		    callAPIForNewData(measurementIDList, aqxgraph.ESTABLISHED);
+            callAPIForNewData(measurementIDList, PRE_ESTABLISHED);
+		    callAPIForNewData(measurementIDList, ESTABLISHED);
         }
         chart.xAxis[0].setTitle({ text: aqxgraph.XAXIS_TITLE });
         var newDataSeries = getDataPointsForPlotHC(chart, yTypeList, graphType, numberOfEntries, status);
@@ -185,8 +181,8 @@ if (!aqxgraph) {
         return '<div class="alert alert-' + type + '"><a class="close" data-dismiss="alert">×</a><span>' +alertText + '</span></div>';
     }
 
-    aqxgraph.getDataPoints = function(systemName, dataPoints, graphType, id, linkedTo,
-                                      color, yAxis, dashStyle, markerType, yType) {
+    function getDataPoints(systemName, dataPoints, graphType, id, linkedTo,
+                           color, yAxis, dashStyle, markerType, yType) {
         var series = { name: systemName + ',' + yType,
                        type: graphType,
                        data: dataPoints,
@@ -203,7 +199,7 @@ if (!aqxgraph) {
         return series;
     }
 
-    aqxgraph.createYAxis = function(yType, color, opposite, units) {
+    function createYAxis(yType, color, opposite, units) {
         var unitLabel;
         if (units) {
             unitLabel = (_.isEqual(units, "celsius")) ? "°C" : units;
@@ -260,10 +256,9 @@ if (!aqxgraph) {
         var axesToAdd = [];
         _.each(yAxes, function(axis){
             var axisLabel = axis.userOptions.title.text;
-            axesToAdd.push(aqxgraph.createYAxis(
-                axisLabel,
-                axis.userOptions.title.style.color,
-                axis.opposite));
+            axesToAdd.push(createYAxis(axisLabel,
+                                       axis.userOptions.title.style.color,
+                                       axis.opposite));
         });
         return axesToAdd;
     }
@@ -274,7 +269,7 @@ if (!aqxgraph) {
             if(_.isEqual(seriesItem.userOptions.id, systemID)){
                 var linkedTo = false;
                 if (seriesItem.userOptions.linkedTo) linkedTo = true;
-                seriesToAdd.push(aqxgraph.getDataPoints(
+                seriesToAdd.push(getDataPoints(
                     seriesItem.name,
                     seriesItem.userOptions.data,
                     seriesItem.userOptions.type,
@@ -329,4 +324,103 @@ if (!aqxgraph) {
         }
     }
 
+    // Axis dict ensures that each variable is plotted to the same, unique axis for that variable
+    // i.e. nitrate values for each system to axis 0, pH values for each system to axis 1, etc.
+    // e.g.
+    // {
+    //   'nitrate' : {isAxis : true, axis : 0},
+    //   'pH' : {isAxis : false},
+    //   'o2' : {isAxis : true, axis : 1}
+    // }
+    function initAxes(yTypeList) {
+        var axes = {};
+        _.each(yTypeList, function(axis) {
+            axes[axis] = {isAxis:false};
+        });
+        return axes;
+    }
+
+    function displayMissingYTypesAlert(missingYTypes) {
+        if (missingYTypes.length > 0) {
+            var alertString = '<div>Missing values for: </div>';
+            alertString += '<ul>';
+            for (var i = 0; i < missingYTypes.length; i++) {
+                var entry = missingYTypes[i];
+                alertString += '<li>' + entry.system + ": " + entry.ytype + '</li>';
+            }
+            alertString += '</ul>';
+            $('#alert_placeholder').html(aqxgraph.getAlertHTMLString(alertString, aqxgraph.DANGER));
+        }
+    }
+
+    function getDataPointsForPlotHC(chart, yTypeList, graphType, numberOfEntries, status) {
+
+        var dataPointsList = [];
+        var missingYTypes = [];
+        var numAxes = 0;
+        var axes = initAxes(yTypeList);
+
+        _.each(systems_and_measurements, function(system, j) {
+
+            var measurements = system.measurement;
+            // Used to group measurement types by system, by linking them to an id. This ensures that the legend only
+            // shows "SystemName", instead of "SystemName-nitrate" "SystemName-pH", etc.
+            var linkedTo = false;
+
+            _.each(yTypeList, function(yType) {
+                var numValues = 0;
+                _.each(measurements, function(measurement) {
+                    if (measurement.type.toLowerCase() == yType.toLowerCase() &&
+                        (status == '0' || measurement.status == status)) {
+                        var systemId = system.system_uid;
+
+                        // Check if there is data for this system and measurement type
+                        if (measurement.values.length > 0) {
+
+                            // Has this variable been assigned an axis yet?
+                            // If not, create the axis and assign to a variable. This variables isAxis is now true,
+                            // an axis is assigned, and the numAxes increments
+                            if (!axes[yType].isAxis) {
+                                chart.addAxis(createYAxis(yType, aqxgraph.COLORS[numAxes],
+                                                          numAxes % 2,
+                                                          measurement_types_and_info[yType].unit));
+                                axes[yType].isAxis = true;
+                                axes[yType].axis = numAxes++;
+                            }
+                            // Number of the axis this series is plotted against, this determines line color and links
+                            // a series to this axis
+                            var yAxis = axes[yType].axis;
+
+                            // IMPORTANT: MEASUREMENT VALUES should be sorted by date to display
+                            var dataValues = measurement.values;
+
+                            // Collect only the desired number of data points, this can be 30, 60, 90, or all data points.
+                            if (!_.isEmpty(numberOfEntries)) {
+                                dataValues = _.last(dataValues, numberOfEntries);
+                            }
+
+                            // Generate the Object containing data and configurations for this particular series and push to
+                            // th list of series to plot
+                            dataPointsList.push(getDataPoints(system.name, dataValues, graphType,
+                                                              systemId, linkedTo,
+                                                              aqxgraph.COLORS[yAxis], yAxis,
+                                                              aqxgraph.DASHSTYLES[j],
+                                                              aqxgraph.MARKERTYPES[j], yType));
+                            linkedTo = true;
+                            numValues++;
+                        }
+                    }
+                });
+
+                // If there is no data for the given system, measurement type, and status, we will warn the user
+                // for this system and measurement type
+                if (numValues == 0) {
+                    missingYTypes.push({'system': system.name, 'ytype': yType})
+                }
+            });
+        });
+
+        displayMissingYTypesAlert(missingYTypes);
+        return dataPointsList;
+    }
 }());
