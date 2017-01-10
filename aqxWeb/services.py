@@ -3,6 +3,11 @@ from frontend import frontend
 from api import API
 from datetime import datetime
 import time
+import json
+
+# to connect system to the social system
+from aqxWeb.social.models import social_graph
+from aqxWeb.social.api import SocialAPI
 
 
 # Expected format to arrive from the client
@@ -53,13 +58,6 @@ def getSystemsForUser(userID):
     return api.getSystemsForUser(userID)
 
 
-# Delete user with given userID
-@frontend.route('/aqxapi/v2/user/<userID>', methods=['DELETE'])
-def deleteUser(userID):
-    api = API(current_app)
-    return api.deleteUser(userID)
-
-
 ######################################################################
 # System Services
 ######################################################################
@@ -76,16 +74,35 @@ def api_create_system():
     """Create a new system whose administrator is the current logged in user"""
     api = API(current_app)
     system = request.get_json()
+    current_app.logger.info(system)
     system['userID'] = session['uid']
     system['startDate'] = parse_timestamp(system['startDate'])
-    return api.create_system(system)
+    system_id = 0
+    system_uid = ''
+    try:
+        sys_data = api.create_system(system)
+    except Exception as e:
+        current_app.logger.exception('could not create system')
+        return json.dumps({'error': 'database error while creating system'})
 
-
-# Delete a system with the given systemUID
-@frontend.route('/aqxapi/v2/system/<systemUID>', methods=['DELETE'])
-def deleteSystem(systemUID):
-    api = API(current_app)
-    return api.deleteSystem(systemUID)
+    # create social link here
+    social_obj = {
+        'user': session['uid'],
+        'system': {
+            'system_id': sys_data['systemID'],
+            'system_uid': sys_data['systemUID'],
+            'name': system['name'],
+            'description': system['name'],
+            'location_lat': system['location']['lat'],
+            'location_lng': system['location']['lng'],
+            'status': 100
+        }
+    }
+    result = SocialAPI(social_graph()).create_system(social_obj)
+    if 'success' in result:
+        return json.dumps(sys_data)
+    else:
+        return json.dumps(result)
 
 
 # Get annotations for a system with given systemID

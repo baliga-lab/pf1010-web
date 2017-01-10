@@ -154,15 +154,12 @@ class SocialAPI:
             sql_id = jsonObject.get('user')
             system = jsonObject.get('system')
             if sql_id is not None and system is not None:
-                result = SystemDAO(self.graph).create_system(jsonObject)
-                return result
+                return SystemDAO(self.graph).create_system(jsonObject)
             else:
-                error_msg = json.dumps({'error': "Invalid System JSON Object"})
+                error_msg = {'error': "Invalid System JSON Object"}
                 return error_msg
         except Exception as ex:
-            error_msg = json.dumps(
-                {'error': "Exception Occurred While Creating System Node in Neo4J Database: " + str(ex.message)})
-            return error_msg
+            return {'error': "Exception Occurred While Creating System Node in Neo4J Database: " + str(ex.message)}
 
     ###############################################################################
     # function : update_system_with_system_uid

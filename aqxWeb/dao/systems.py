@@ -204,34 +204,5 @@ class SystemDAO:
         return result
 
 
-    def deleteSystem(self, systemUID):
-        conn = self.dbconn()
-        cursor = conn.cursor()
-
-        systemID = self.getSystemID(systemUID)
-
-        query1 = 'DELETE FROM systems s WHERE s.system_uid = %s'
-        query2 = 'DELETE FROM system_gb_media sgm WHERE sgm.system_id = %s'
-        query3 = 'DELETE FROM system_aquatic_organisms sao WHERE sao.system_id = %s'
-        query4 = 'DELETE FROM system_crops_media sc WHERE sc.system_id = %s'
-
-        names = list(map(lambda x: 'aqxs_' + x + '_' + systemUID, MEASUREMENTS))
-        query5 = 'DROP TABLE IF EXISTS %s'
-
-        try:
-            cursor.execute(query1, (systemUID,))
-            cursor.execute(query2, (systemID,))
-            cursor.execute(query3, (systemID,))
-            cursor.execute(query4, (systemID,))
-            for name in names:
-                cursor.execute(query5 % name)
-            conn.commit()
-        finally:
-            cursor.close()
-            conn.close()
-
-        return True
-
-
 def table_name(measurementType, systemUID):
     return 'aqxs_' + measurementType + '_' + systemUID

@@ -9,32 +9,6 @@ if (!aqx_editsystem) {
 // Angular 1
 (function () {
 
-    function storeSocial(userID, systemID, systemUID, systemName, location, status) {
-        var socSystem = {
-            'user': userID,
-            'system': {
-                'system_id': systemID,
-                'system_uid': systemUID,
-                'name': systemName,
-                'description': systemName,
-                'location_lat': location.lat,
-                'location_lng': location.lng,
-                'status': status
-            }
-        };
-        $.ajax({
-            type: 'POST',
-            url: '/social/aqxapi/v1/system',
-            data: JSON.stringify(socSystem),
-            contentType: 'application/json;charset=utf-8',
-            success: function (data) {
-                console.log('yes, success: ' + data);
-                window.location.href = '/system/' + systemUID + '/measurements';
-            },
-            dataType: 'json'
-        });
-    }
-
     aqx_editsystem.create = function() {
         var data = $('#create_form').serializeArray();
         var submitData = { 'location': {}, 'gbMedia': [{'ID': 0}],
@@ -60,10 +34,7 @@ if (!aqx_editsystem) {
             data: JSON.stringify(submitData),
             contentType: 'application/json;charset=utf-8',
             success: function (data) {
-                console.log('yes, success: ' + data);
-                storeSocial(data.userID, data.systemID, data.systemUID,
-                            submitData['name'], submitData['location'],
-                            100);
+                window.location.href = '/system/' + data.systemUID + '/measurements';
             },
             dataType: 'json'
         });

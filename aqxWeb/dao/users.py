@@ -26,7 +26,6 @@ class UserDAO:
             conn.close()
         return result
 
-
     def getUserID(self, googleID):
         conn = self.getDBConn()
         cursor = conn.cursor()
@@ -44,7 +43,6 @@ class UserDAO:
             cursor.close()
             conn.close()
         return result
-
 
     def createUser(self, googleProfile):
         conn = self.getDBConn()
@@ -66,23 +64,3 @@ class UserDAO:
             conn.close()
 
         return cursor.lastrowid
-
-
-    def deleteUser(self, userID):
-        conn = self.getDBConn()
-        cursor = conn.cursor()
-
-        query = ('DELETE FROM users u '
-                 'WHERE u.id = %s '
-                 'LIMIT 1')
-
-        try:
-            cursor.execute(query, (userID,))
-            conn.commit()
-        except:
-            conn.rollback()
-            raise
-        finally:
-            cursor.close()
-            conn.close()
-        return True

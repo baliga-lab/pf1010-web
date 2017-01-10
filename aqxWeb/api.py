@@ -83,12 +83,9 @@ class API:
         return json.dumps(systems)
 
     def create_system(self, system):
-        systemInfo = self.systemDAO.create_system(system)
-        return json.dumps(systemInfo)
-
-    def deleteSystem(self, systemUID):
-        success = self.systemDAO.deleteSystem(systemUID)
-        return json.dumps({'success': success})
+        """this is just a delegation to the DAO, no JSON serialization
+        because it reduces reusability"""
+        return self.systemDAO.create_system(system)
 
     ###########################################################################
     # UserAPI
@@ -105,10 +102,6 @@ class API:
     def createUser(self, googleProfile):
         userID = self.userDAO.createUser(googleProfile)
         return json.dumps({'userID': userID})
-
-    def deleteUser(self, userID):
-        success = self.userDAO.deleteUser(userID)
-        return json.dumps({'success': success})
 
     ###########################################################################
     # MetadataAPI

@@ -9,18 +9,11 @@ def timestamp():
     return int(round(time.time() * 1000))
 
 
-# DAO for System Node in the Neo4J database
 class SystemDAO:
     # constructor to get connection
     def __init__(self, graph):
         self.graph = graph
 
-    ###############################################################################
-    # function : create_system
-    # purpose : function used to create System node in the Neo4J Database
-    # params : self, system JSON Object
-    # returns : None
-    # Exceptions : Exception
     def create_system(self, jsonObject):
         try:
             sql_id = jsonObject.get('user')
@@ -46,14 +39,11 @@ class SystemDAO:
                 self.graph.create(systemNode)
                 relationship = Relationship(is_existing_user, "SYS_ADMIN", systemNode)
                 self.graph.create(relationship)
-                result = json.dumps({'success': "System Node Successfully Created in Neo4J Database"})
-                return result
+                return {'success': "System Node Successfully Created in Neo4J Database"}
             else:
-                error_msg = json.dumps({'error': 'User Does Not Exists / System Already Exists'})
-                return error_msg
+                return {'error': 'User Does Not Exists / System Already Exists'}
         except Exception as ex:
-            error_msg = json.dumps({'error': 'Exception Occurred At create_system: ' + str(ex.message)})
-            return error_msg
+            return {'error': 'Exception Occurred At create_system: ' + str(ex.message)}
 
     ###############################################################################
     # function : update_system_with_system_uid
