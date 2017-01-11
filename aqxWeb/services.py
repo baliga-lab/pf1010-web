@@ -65,8 +65,7 @@ def getSystemsForUser(userID):
 # Get metadata info for a system with given systemUID
 @frontend.route('/aqxapi/v2/system/<systemUID>', methods=['GET'])
 def getSystem(systemUID):
-    api = API(current_app)
-    return api.getSystem(systemUID)
+    return json.dumps(API(current_app).getSystem(systemUID))
 
 
 @frontend.route('/aqxapi/v2/system', methods=['POST'])
@@ -139,18 +138,6 @@ def submit_reading(systemUID, measurementType):
 def measurement_types():
     api = API(current_app)
     return api.measurement_types()
-
-
-######################################################################
-# Metadata Services
-######################################################################
-
-# Get enums which might be useful for populating options
-@frontend.route('/aqxapi/v2/enums', methods=['GET'])
-def getEnums():
-    api = API(current_app)
-    return api.getEnums()
-
 
 ######################################################################
 # Subscription Services

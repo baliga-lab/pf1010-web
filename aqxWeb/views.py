@@ -1,5 +1,6 @@
 from flask import render_template, current_app
 from frontend import frontend
+from aqxWeb.api import API
 from aqxWeb.analytics.api import AnalyticsAPI
 
 import services
@@ -78,8 +79,17 @@ def sys_annotations(system_uid):
 
 @frontend.route('/new_system')
 def new_system():
-    enums = json.loads(services.getEnums())
+    api = API(current_app)
+    enums = api.catalogs()
     return render_template('create_system.html', **locals())
+
+
+@frontend.route('/edit_system/<system_uid>')
+def edit_system(system_uid):
+    api = API(current_app)
+    system_data = api.getSystem(system_uid)
+    enums = api.catalogs()
+    return render_template('edit_system.html', **locals())
 
 
 @frontend.route('/badges')

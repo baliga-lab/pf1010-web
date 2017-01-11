@@ -4,12 +4,12 @@ class MetadataDAO:
     def __init__(self, app):
         self.app = app
 
-    def getDBConn(self):
+    def dbconn(self):
         return MySQLdb.connect(host=self.app.config['HOST'], user=self.app.config['USER'],
                                passwd=self.app.config['PASS'], db=self.app.config['DB'])
 
-    def getEnums(self):
-        conn = self.getDBConn()
+    def catalogs(self):
+        conn = self.dbconn()
         cursor = conn.cursor()
 
         query = ("SELECT \'crops\', c.id, c.name FROM crops c UNION "
@@ -21,8 +21,6 @@ class MetadataDAO:
         try:
             cursor.execute(query)
             results = cursor.fetchall()
-        except:
-            raise
         finally:
             cursor.close()
             conn.close()

@@ -55,7 +55,7 @@ class API:
         # Get the status
         status = self.systemDAO.getStatusForSystem(systemUID)[0]
         # Recompile the system
-        system = {
+        return {
             'ID': result[0],
             'UID': result[1],
             'user': result[2],
@@ -69,7 +69,6 @@ class API:
             'crops': crops,
             'organisms': organisms,
         }
-        return json.dumps(system)
 
     def getSystemsForUser(self, userID):
         systems = []
@@ -107,8 +106,8 @@ class API:
     # MetadataAPI
     ###########################################################################
 
-    def getEnums(self):
-        results = self.metadataDAO.getEnums()
+    def catalogs(self):
+        results = self.metadataDAO.catalogs()
         enums = defaultdict(list)
         for result in results:
             table = result[0]
@@ -118,7 +117,7 @@ class API:
                 'ID': result[1],
                 'name': result[2]
             })
-        return json.dumps(enums)
+        return enums
 
     ###########################################################################
     # AnnotationAPI
