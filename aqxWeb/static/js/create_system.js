@@ -21,14 +21,42 @@ if (!aqx_editsystem) {
             var obj = data[i];
             if (obj.name == 'name') submitData['name'] = obj.value;
             if (obj.name == 'startDate') submitData['startDate'] = obj.value;
-            if (obj.name == 'location.lat') submitData['location']['lat'] = obj.value;
-            if (obj.name == 'location.lng') submitData['location']['lng'] = obj.value;
-            if (obj.name == 'techniqueID') submitData['techniqueID'] = obj.value;
+            if (obj.name == 'location.lat') submitData['location']['lat'] = parseFloat(obj.value);
+            if (obj.name == 'location.lng') submitData['location']['lng'] = parseFloat(obj.value);
+            if (obj.name == 'techniqueID') submitData['techniqueID'] = parseInt(obj.value);
             if (obj.name == 'gbMediaID') submitData['gbMedia'][0]['ID'] = obj.value;
-            if (obj.name == 'cropID') submitData['crops'][0]['ID'] = obj.value;
-            if (obj.name == 'cropCount') submitData['crops'][0]['count'] = obj.value;
-            if (obj.name == 'organismID') submitData['organisms'][0]['ID'] = obj.value;
-            if (obj.name == 'organismCount') submitData['organisms'][0]['count'] = obj.value;
+            if (obj.name == 'cropID') submitData['crops'][0]['ID'] = parseInt(obj.value);
+            if (obj.name == 'cropCount') submitData['crops'][0]['count'] = parseInt(obj.value);
+            if (obj.name == 'organismID') submitData['organisms'][0]['ID'] = parseInt(obj.value);
+            if (obj.name == 'organismCount') submitData['organisms'][0]['count'] = parseInt(obj.value);
+            if (obj.name.startsWith('organismID_')) {
+                var orgnum = parseInt(obj.name.substring('organismID_'.length));
+                if (typeof(submitData['organisms'][orgnum]) === 'undefined') {
+                    submitData['organisms'][orgnum] = {};
+                }
+                submitData['organisms'][orgnum]['ID'] = parseInt(obj.value);
+            }
+            if (obj.name.startsWith('organismCount_')) {
+                var orgnum = parseInt(obj.name.substring('organismCount_'.length));
+                if (typeof(submitData['organisms'][orgnum]) === 'undefined') {
+                    submitData['organisms'][orgnum] = {};
+                }
+                submitData['organisms'][orgnum]['count'] = obj.value.length > 0 ? parseInt(obj.value) : 0;
+            }
+            if (obj.name.startsWith('cropID_')) {
+                var cropnum = parseInt(obj.name.substring('cropID_'.length));
+                if (typeof(submitData['crops'][cropnum]) === 'undefined') {
+                    submitData['crops'][cropnum] = {};
+                }
+                submitData['crops'][cropnum]['ID'] = parseInt(obj.value);
+            }
+            if (obj.name.startsWith('cropCount_')) {
+                var cropnum = parseInt(obj.name.substring('cropCount_'.length));
+                if (typeof(submitData['crops'][cropnum]) === 'undefined') {
+                    submitData['crops'][cropnum] = {};
+                }
+                submitData['crops'][cropnum]['count'] = obj.value.length > 0 ? parseInt(obj.value) : 0;
+            }
         }
         $.ajax({
             type: 'POST',
@@ -39,7 +67,7 @@ if (!aqx_editsystem) {
                 window.location.href = '/system/' + data.systemUID + '/measurements';
             },
             dataType: 'json'
-        });
+            });
         return false;
     }
 
@@ -73,7 +101,7 @@ if (!aqx_editsystem) {
         var selectID = 'select_' + typeName + '_' + num;
         var input = $('<input type="number" min="0" />')
             .addClass('form-control')
-            .attr('name', typeName + 'Count')
+            .attr('name', typeName + 'Count_' + num)
             .attr('placeholder', placeholder);
         var newrow = $('<div>').addClass('form-group')
             .append($('<div>').addClass('row')

@@ -150,11 +150,11 @@ class SystemDAO:
             for medium in gbMedia:
                 cursor.execute(query2, (systemID, medium['ID']))
             for organism in organisms:
-                values3 = (systemID, organism['ID'], organism['count'])
-                cursor.execute(query3, values3)
+                if organism['ID'] > 0:
+                    cursor.execute(query3, (systemID, organism['ID'], organism['count']))
             for crop in crops:
-                values4 = (systemID, crop['ID'], crop['count'])
-                cursor.execute(query4, values4)
+                if crop['ID'] > 0:
+                    cursor.execute(query4, (systemID, crop['ID'], crop['count']))
             cursor.execute(query5, values5)
 
             # make sure the query is creating the table in either production system
