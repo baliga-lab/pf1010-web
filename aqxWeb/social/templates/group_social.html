@@ -43,12 +43,12 @@
                         <button class="btn btn-primary" name="submit" value="Join" role="button">Join</button>
                     {% elif user_privilege=="GROUP_MEMBER" or user_privilege=="GROUP_ADMIN" %}
                         <button class="btn btn-danger" name="submit" value="Leave" role="button"
-                                onclick="return getUserConsent()">Leave
+                                onclick="return aqx_social.getUserConsent()">Leave
                         </button>
 
                     {% elif user_privilege=="GROUP_PENDING_MEMBER" %}
                         <button class="btn btn-danger" name="submit" role="button" value="Leave"
-                                onclick="return getUserConsent()">Cancel Request
+                                onclick="return aqx_social.getUserConsent()">Cancel Request
                         </button>
                     {% endif %}
                 </div>
@@ -233,7 +233,7 @@
     <script type="text/javascript" src="{{ url_for('social.static', filename='js/group_social.js') }}"></script>
     <script type="text/javascript">
         $(document).ready(function () {
-            list_users_autocomplete("{{ group_neo4j[0][0]["group_uid"] }}",
+            aqx_social.listUsersAutocomplete("{{ group_neo4j[0][0]["group_uid"] }}",
                     "{{ url_for('social.get_users_to_invite_groups', group_uid=group_neo4j[0][0]["group_uid"]) }}",
                     "{{ url_for('social.invite_group_member') }}");
         });

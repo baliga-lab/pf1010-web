@@ -123,10 +123,10 @@
                                         <input type="hidden" name="group_uid"
                                                value="{{ group_neo4j[0][0]["group_uid"] }}">
                                         <button type="submit" class="btn btn-success" name="submit"
-                                                value="Approve" onclick="return getUserConsent()">Approve
+                                                value="Approve" onclick="return aqx_social.getUserConsent()">Approve
                                         </button>
                                         <button type="submit" class="btn btn-danger" name="submit"
-                                                value="Reject" onclick="return getUserConsent()">Reject
+                                                value="Reject" onclick="return aqx_social.getUserConsent()">Reject
                                         </button>
                                     </form>
                                 </td>
@@ -197,10 +197,10 @@
                                         <!-- Self Removing Admin Privileges Is Prevented -->
                                         {% if admin[0]["sql_id"] != logged_in_user["sql_id"] %}
                                             <button type="submit" class="btn btn-success" name="submit"
-                                                    value="MakeMember" onclick="return getUserConsent()">Make Member
+                                                    value="MakeMember" onclick="return aqx_social.getUserConsent()">Make Member
                                             </button>
                                             <button type="submit" class="btn btn-danger" name="submit"
-                                                    value="DeleteAdmin" onclick="return getUserConsent()">Delete
+                                                    value="DeleteAdmin" onclick="return aqx_social.getUserConsent()">Delete
                                             </button>
                                         {% endif %}
                                     </form>
@@ -272,10 +272,10 @@
                                         <input type="hidden" name="group_uid"
                                                value="{{ group_neo4j[0][0]["group_uid"] }}">
                                         <button type="submit" class="btn btn-success" name="submit"
-                                                value="MakeAdmin" onclick="return getUserConsent()">Make Admin
+                                                value="MakeAdmin" onclick="return aqx_social.getUserConsent()">Make Admin
                                         </button>
                                         <button type="submit" class="btn btn-danger" name="submit"
-                                                value="DeleteMember" onclick="return getUserConsent()">Delete
+                                                value="DeleteMember" onclick="return aqx_social.getUserConsent()">Delete
                                         </button>
                                     </form>
                                 </td>

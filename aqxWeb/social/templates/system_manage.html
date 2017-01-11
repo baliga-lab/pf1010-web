@@ -63,10 +63,10 @@
                                         <input type="hidden" name="system_uid"
                                                value="{{ system_neo4j[0][0]["system_uid"] }}">
                                         <button type="submit" class="btn btn-green" name="submit"
-                                                value="Approve" onclick="return getUserConsent()">Approve
+                                                value="Approve" onclick="return aqx_social.getUserConsent()">Approve
                                         </button>
                                         <button type="submit" class="btn btn-danger" name="submit"
-                                                value="Reject" onclick="return getUserConsent()">Reject
+                                                value="Reject" onclick="return aqx_social.getUserConsent()">Reject
                                         </button>
                                     </form>
                                 </td>
@@ -135,7 +135,7 @@
                                         <!-- Self Delete Is Prevented -->
                                         {% if admin[0]["sql_id"] != logged_in_user["sql_id"] %}
                                             <button type="submit" class="btn btn-danger" name="submit"
-                                                    value="DeleteAdmin" onclick="return getUserConsent()">Delete
+                                                    value="DeleteAdmin" onclick="return aqx_social.getUserConsent()">Delete
                                             </button>
                                         {% endif %}
                                     </form>
@@ -205,13 +205,13 @@
                                         <input type="hidden" name="system_uid"
                                                value="{{ system_neo4j[0][0]["system_uid"] }}">
                                         <button type="submit" class="btn btn-danger" name="submit"
-                                                value="DeleteParticipant" onclick="return getUserConsent()">Delete
+                                                value="DeleteParticipant" onclick="return aqx_social.getUserConsent()">Delete
                                         </button>
                                         <button type="submit" class="btn btn-green" name="submit"
-                                                value="MakeAdmin" onclick="return getUserConsent()">Make Admin
+                                                value="MakeAdmin" onclick="return aqx_social.getUserConsent()">Make Admin
                                         </button>
                                         <button type="submit" class="btn btn-green" name="submit"
-                                                value="MakeSubscriber" onclick="return getUserConsent()">Make Subscriber
+                                                value="MakeSubscriber" onclick="return aqx_social.getUserConsent()">Make Subscriber
                                         </button>
                                     </form>
                                 </td>
@@ -279,13 +279,13 @@
                                         <input type="hidden" name="system_uid"
                                                value="{{ system_neo4j[0][0]["system_uid"] }}">
                                         <button type="submit" class="btn btn-danger" name="submit"
-                                                value="DeleteSubscriber" onclick="return getUserConsent()">Delete
+                                                value="DeleteSubscriber" onclick="return aqx_social.getUserConsent()">Delete
                                         </button>
                                         <button type="submit" class="btn btn-green" name="submit"
-                                                value="MakeAdmin" onclick="return getUserConsent()">Make Admin
+                                                value="MakeAdmin" onclick="return aqx_social.getUserConsent()">Make Admin
                                         </button>
                                         <button type="submit" class="btn btn-green" name="submit"
-                                                value="MakeParticipant" onclick="return getUserConsent()">Make
+                                                value="MakeParticipant" onclick="return aqx_social.getUserConsent()">Make
                                             Participant
                                         </button>
                                     </form>

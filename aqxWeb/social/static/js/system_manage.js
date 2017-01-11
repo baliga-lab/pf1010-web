@@ -1,23 +1,16 @@
-// Waits Until DOM Is Ready
-$(document).ready(function () {
+"use strict";
 
-    $("#manageSystemsTab").tabs();
-
-});
-
-
-/* function : getUserConsent
- # purpose : When the user clicks "Delete" button in the Manage Systems page, confirmation pop up appears. Only when
- the user hits ok button, the user shall be removed from the system
- # params : None
- # returns : None
- */
-function getUserConsent() {
-    if (confirm('Are you sure?')) {
-        return true;
-    }
-    else {
-        return false;
-    }
+var aqx_social;
+if (!aqx_social) {
+    aqx_social = {};
 }
 
+(function () {
+    aqx_social.getUserConsent = function() {
+        return confirm('Are you sure?');
+    };
+
+    $(document).ready(function () {
+        $("#manageSystemsTab").tabs();
+    });
+}());

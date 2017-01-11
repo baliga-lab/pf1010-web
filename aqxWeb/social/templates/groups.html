@@ -101,10 +101,3 @@
 
     <br/><br/>
 {% endblock %}
-
-{% block scripts %}
-    {{ super() }}
-    <!-- jQuery Script For DOM Manipulation In Search Groups Page -->
-    <script type="text/javascript" src="{{ url_for('social.static', filename='js/groups.js') }}"></script>
-
-{% endblock %}
