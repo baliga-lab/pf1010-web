@@ -96,12 +96,14 @@
       var organisms = [
       {% for o in enums['organisms'] %}{ "id": {{ o.ID }}, "name": "{{ o.name }}" },{% endfor %}
       ];
+      $(document).ready(function() {
+        if (!Modernizr.inputtypes.date) {
+          $('#start-date').datepicker({dateFormat: "yy-MM-dd"});
+        }
+        aqx_editsystem.make_select('#select_crops', 'cropID', crops, false);
+        aqx_editsystem.make_select('#select_organism', 'organismID', organisms, false);
+      });
     </script>
     <script async defer type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key={{config.GOOGLE_API_KEY}}"></script>
-    <script type="text/javascript" src="{{ url_for('frontend.static', filename='js/create_system.js') }}"></script>
-    <script>
-      if (!Modernizr.inputtypes.date) {
-        $('#start-date').datepicker({dateFormat: "yy-MM-dd"});
-      }
-    </script>
+    <script type="text/javascript" src="{{ url_for('frontend.static', filename='js/edit_system.js') }}"></script>
 {% endblock %}

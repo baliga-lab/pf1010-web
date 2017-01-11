@@ -123,8 +123,6 @@ if (!aqx_editsystem) {
             address_to_geocode($("input[name='address']").val());
         });
         $('#create_form').submit(aqx_editsystem.create);
-        aqx_editsystem.make_select('#select_crops', 'cropID', crops, false);
-        aqx_editsystem.make_select('#select_organism', 'organismID', organisms, false);
         $('#addcrop').click(function () {
             if (numCropLists <= MAX_LIST_LEN) {
                 makeInputRow('newcrop', 'crop', numCropLists++, crops,
