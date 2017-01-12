@@ -11,11 +11,11 @@ if (!aqx_editsystem) {
 
 (function () {
 
-    aqx_editsystem.create = function() {
-        var data = $('#create_form').serializeArray();
+    function convertFormData(data) {
         var submitData = { 'location': {}, 'gbMedia': [{'ID': 0}],
                            'crops': [{'ID': 0, 'count': 0}],
-                           'organisms': [{'ID': 0, 'count': 0}] };
+                           'organisms': [{'ID': 0, 'count': 0}]
+                         };
         // Translate into JSON for the backend API
         for (var i = 0; i < data.length; i++) {
             var obj = data[i];
@@ -58,6 +58,24 @@ if (!aqx_editsystem) {
                 submitData['crops'][cropnum]['count'] = obj.value.length > 0 ? parseInt(obj.value) : 0;
             }
         }
+        return submitData;
+    }
+
+    aqx_editsystem.update = function(url) {
+        var data = $('#edit_form').serializeArray();
+        var submitData = convertFormData(data);
+        // This is a little tricky: JSON.stringify returns a string with double
+        // quotes. If we use value with double quotes, the first double quote
+        // will close the string in value, which does not result in what we want,
+        // therefore, value uses single quotes
+        $('<form action="' + url + '" method="POST">' +
+          '<input type="hidden" name="data" value=\'' + JSON.stringify(submitData) + '\'>' +
+          '</form>').submit();
+    };
+
+    aqx_editsystem.create = function() {
+        var data = $('#create_form').serializeArray();
+        var submitData = convertFormData(data);
         $.ajax({
             type: 'POST',
             url: '/aqxapi/v2/system',
@@ -122,7 +140,6 @@ if (!aqx_editsystem) {
         $('#get_geocoords').click(function () {
             address_to_geocode($("input[name='address']").val());
         });
-        $('#create_form').submit(aqx_editsystem.create);
         $('#addcrop').click(function () {
             if (numCropLists <= MAX_LIST_LEN) {
                 makeInputRow('newcrop', 'crop', numCropLists++, crops,

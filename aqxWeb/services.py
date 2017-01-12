@@ -1,4 +1,4 @@
-from flask import request, session, current_app
+from flask import request, session, current_app, jsonify
 from frontend import frontend
 from api import API
 from datetime import datetime
@@ -64,7 +64,7 @@ def getSystemsForUser(userID):
 
 # Get metadata info for a system with given systemUID
 @frontend.route('/aqxapi/v2/system/<systemUID>', methods=['GET'])
-def getSystem(systemUID):
+def get_system(systemUID):
     return json.dumps(API(current_app).getSystem(systemUID))
 
 

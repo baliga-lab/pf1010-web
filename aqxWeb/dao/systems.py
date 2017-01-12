@@ -203,6 +203,16 @@ class SystemDAO:
 
         return result
 
+    def update_system(self, system):
+        conn = self.dbconn()
+        cursor = conn.cursor()
+        try:
+            cursor.execute('update systems set name=%s where system_uid=%s', (system['name'], system['UID']))
+            conn.commit()
+        finally:
+            cursor.close()
+            conn.close()
+
 
 def table_name(measurementType, systemUID):
     return 'aqxs_' + measurementType + '_' + systemUID

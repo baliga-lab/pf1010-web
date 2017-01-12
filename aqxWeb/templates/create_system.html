@@ -102,6 +102,7 @@
         }
         aqx_editsystem.make_select('#select_crops', 'cropID', crops, false);
         aqx_editsystem.make_select('#select_organism', 'organismID', organisms, false);
+        $('#create_form').submit(aqx_editsystem.create);
       });
     </script>
     <script async defer type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key={{config.GOOGLE_API_KEY}}"></script>

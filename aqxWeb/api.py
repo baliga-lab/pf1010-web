@@ -86,6 +86,11 @@ class API:
         because it reduces reusability"""
         return self.systemDAO.create_system(system)
 
+    def update_system(self, system):
+        """this is just a delegation to the DAO, no JSON serialization
+        because it reduces reusability"""
+        return self.systemDAO.update_system(system)
+
     ###########################################################################
     # UserAPI
     ###########################################################################

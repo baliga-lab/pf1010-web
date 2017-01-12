@@ -1,10 +1,9 @@
-from flask import render_template, current_app
+from flask import render_template, current_app, flash, redirect, url_for, request
 from frontend import frontend
 from aqxWeb.api import API
 from aqxWeb.analytics.api import AnalyticsAPI
 
 import services
-
 import json
 
 ######################################################################
@@ -90,6 +89,17 @@ def edit_system(system_uid):
     system_data = api.getSystem(system_uid)
     enums = api.catalogs()
     return render_template('edit_system.html', **locals())
+
+@frontend.route('/update_system/<system_uid>', methods=['POST'])
+def update_system(system_uid):
+    """update_system implements a classic POST-redirect-GET pattern"""
+    api = API(current_app)
+    system = json.loads(request.form['data'])
+    system['UID'] = system_uid
+    current_app.logger.info(system)
+    api.update_system(system)
+    flash('update successful')
+    return redirect(url_for('frontend.edit_system', system_uid=system_uid))
 
 
 @frontend.route('/badges')
