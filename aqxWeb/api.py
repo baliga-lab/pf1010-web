@@ -24,9 +24,9 @@ class API:
     # SystemAPI
     ###########################################################################
 
-    def getSystem(self, systemUID):
+    def get_system(self, systemUID):
 
-        result = self.systemDAO.getSystem(systemUID)
+        result = self.systemDAO.get_system(systemUID)
         systemID = result[0]
         # Get the crops
         results = self.systemDAO.getCropsForSystem(systemID)

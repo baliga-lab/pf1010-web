@@ -265,3 +265,9 @@ Responsive CSS
     max-width: 90%;
     max-height: 300px;
 }
+
+.flash {
+    background-color: #dffdfd;
+    border-radius: 5px;
+    margin: 3pt;
+}

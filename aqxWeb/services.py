@@ -65,7 +65,7 @@ def getSystemsForUser(userID):
 # Get metadata info for a system with given systemUID
 @frontend.route('/aqxapi/v2/system/<systemUID>', methods=['GET'])
 def get_system(systemUID):
-    return json.dumps(API(current_app).getSystem(systemUID))
+    return json.dumps(API(current_app).get_system(systemUID))
 
 
 @frontend.route('/aqxapi/v2/system', methods=['POST'])

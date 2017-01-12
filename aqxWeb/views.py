@@ -2,6 +2,8 @@ from flask import render_template, current_app, flash, redirect, url_for, reques
 from frontend import frontend
 from aqxWeb.api import API
 from aqxWeb.analytics.api import AnalyticsAPI
+from aqxWeb.social.models import social_graph
+from aqxWeb.social.api import SocialAPI
 
 import services
 import json
@@ -37,7 +39,7 @@ def contact():
 
 @frontend.route('/system/<system_uid>/overview')
 def sys_overview(system_uid):
-    metadata = json.loads(services.getSystem(system_uid))
+    metadata = json.loads(services.get_system(system_uid))
     readings = json.loads(services.latest_readings_for_system(system_uid))
     return render_template('sys_overview.html', **locals())
 
@@ -46,7 +48,7 @@ def sys_overview(system_uid):
 def sys_data(system_uid, measurement):
     default_page = 1
     dav_api = AnalyticsAPI(current_app)
-    metadata = json.loads(services.getSystem(system_uid))
+    metadata = json.loads(services.get_system(system_uid))
     readings = json.loads(dav_api.get_all_data_for_system_and_measurement(system_uid, measurement, default_page))
     measurement_name = measurement.replace('_', ' ')
     return render_template('sys_data.html', **locals())
@@ -55,7 +57,7 @@ def sys_data(system_uid, measurement):
 @frontend.route('/system/<system_uid>/measurements/<measurement>/edit/<created_at>')
 def sys_edit_data(system_uid, measurement, created_at):
     dav_api = AnalyticsAPI(current_app)
-    metadata = json.loads(services.getSystem(system_uid))
+    metadata = json.loads(services.get_system(system_uid))
     data = json.loads(dav_api.get_measurement_by_created_at(system_uid, measurement, created_at))
     measurement_name = measurement.replace('_', ' ')
     return render_template('edit_data.html', **locals())
@@ -63,7 +65,7 @@ def sys_edit_data(system_uid, measurement, created_at):
 
 @frontend.route('/system/<system_uid>/measurements')
 def sys_measurements(system_uid):
-    metadata = json.loads(services.getSystem(system_uid))
+    metadata = json.loads(services.get_system(system_uid))
     readings = json.loads(services.latest_readings_for_system(system_uid))
     measurement_types = json.loads(services.measurement_types())
 
@@ -72,7 +74,7 @@ def sys_measurements(system_uid):
 
 @frontend.route('/system/<system_uid>/annotations')
 def sys_annotations(system_uid):
-    metadata = json.loads(services.getSystem(system_uid))
+    metadata = json.loads(services.get_system(system_uid))
     return render_template('sys_annotations.html', **locals())
 
 
@@ -86,7 +88,7 @@ def new_system():
 @frontend.route('/edit_system/<system_uid>')
 def edit_system(system_uid):
     api = API(current_app)
-    system_data = api.getSystem(system_uid)
+    system_data = api.get_system(system_uid)
     enums = api.catalogs()
     return render_template('edit_system.html', **locals())
 
@@ -96,9 +98,22 @@ def update_system(system_uid):
     api = API(current_app)
     system = json.loads(request.form['data'])
     system['UID'] = system_uid
-    current_app.logger.info(system)
-    api.update_system(system)
-    flash('update successful')
+    try:
+        api.update_system(system)
+        system = api.get_system(system_uid)
+        sys_obj = {'system': {
+            'system_uid': system['UID'],
+            'name': system['name'],
+            'description': system['name'],
+            'status': system['status']
+            }}
+        result = SocialAPI(social_graph()).update_system_with_system_uid(sys_obj)
+        if "error" in result:
+            flash('could not update social attributes', 'warn')
+        flash('update successful')
+    except:
+        flash('update failed', 'error')
+
     return redirect(url_for('frontend.edit_system', system_uid=system_uid))
 
 

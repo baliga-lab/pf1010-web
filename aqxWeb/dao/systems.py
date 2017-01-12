@@ -13,7 +13,7 @@ class SystemDAO:
         return MySQLdb.connect(host=self.app.config['HOST'], user=self.app.config['USER'],
                                passwd=self.app.config['PASS'], db=self.app.config['DB'])
 
-    def getSystem(self, system_uid):
+    def get_system(self, system_uid):
         conn = self.dbconn()
         cursor = conn.cursor()
 

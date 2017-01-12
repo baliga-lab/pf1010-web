@@ -23,9 +23,11 @@
 
     <!-- Error Flash Message Propagation -->
     <div class="container">
+      <div class="flash">
         {% for message in get_flashed_messages() %}<div class="flash">{{ message }}</div>
         {% endfor %}
-        {% block content %}{% endblock %}
+      </div>
+      {% block content %}{% endblock %}
     </div>
     {% block footer %}{% include "footer.html" %}{% endblock %}
     {% block scripts %}
