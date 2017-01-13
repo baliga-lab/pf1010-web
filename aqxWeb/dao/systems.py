@@ -1,5 +1,6 @@
 import uuid
 import MySQLdb
+import traceback
 
 
 # TODO: This seems to be unnecessarily hard-coded
@@ -206,8 +207,38 @@ class SystemDAO:
     def update_system(self, system):
         conn = self.dbconn()
         cursor = conn.cursor()
+        crops = system['crops']
+        organisms = system['organisms']
+        print(crops)
+        print(organisms)
         try:
+            cursor.execute('select id from systems where system_uid=%s', [system['UID']])
+            system_id = cursor.fetchone()[0]
+            cursor.execute('select organism_id,num from system_aquatic_organisms where system_id=%s',
+                           [system_id])
+            original_orgs = [(r[0], r[1]) for r in cursor.fetchall()]
+            print("orig orgs: ", original_orgs)
+            cursor.execute('select crop_id,num from system_crops where system_id=%s',
+                           [system_id])
+            original_crops = [(r[0], r[1]) for r in cursor.fetchall()]
+            print("orig crops: ", original_crops)
             cursor.execute('update systems set name=%s where system_uid=%s', (system['name'], system['UID']))
+
+            # determine whether need to change organisms or
+            # plants
+            update_organisms = True
+            update_crops = True
+
+            if update_organisms:
+                cursor.execute('delete from system_aquatic_organisms where system_id=%s', [system_id])
+                for o in organisms:
+                    cursor.execute('insert into system_aquatic_organisms (system_id,organism_id,num) values (%s,%s,%s)', [system_id, o['ID'], o['count']])
+
+            if update_crops:
+                cursor.execute('delete from system_crops where system_id=%s', [system_id])
+                for c in crops:
+                    cursor.execute('insert into system_crops (system_id,crop_id,num) values (%s,%s,%s)', [system_id, c['ID'], c['count']])
+
             conn.commit()
         finally:
             cursor.close()
