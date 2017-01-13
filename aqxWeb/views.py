@@ -1,4 +1,4 @@
-from flask import render_template, current_app, flash, redirect, url_for, request
+from flask import render_template, current_app, flash, redirect, url_for, request, session
 from frontend import frontend
 from aqxWeb.api import API
 from aqxWeb.analytics.api import AnalyticsAPI
@@ -95,22 +95,29 @@ def edit_system(system_uid):
 @frontend.route('/update_system/<system_uid>', methods=['POST'])
 def update_system(system_uid):
     """update_system implements a classic POST-redirect-GET pattern"""
+    current_app.logger.info("user id: " + str(session['uid']))
+    social_api = SocialAPI(social_graph())
     api = API(current_app)
     system = json.loads(request.form['data'])
     system['UID'] = system_uid
     try:
-        api.update_system(system)
-        system = api.get_system(system_uid)
-        sys_obj = {'system': {
-            'system_uid': system['UID'],
-            'name': system['name'],
-            'description': system['name'],
-            'status': system['status']
-            }}
-        result = SocialAPI(social_graph()).update_system_with_system_uid(sys_obj)
-        if "error" in result:
-            flash('could not update social attributes', 'warn')
-        flash('update successful')
+        priv = social_api.user_privilege_for_system(session['uid'], system_uid)
+        if priv == 'SYS_ADMIN':
+            api.update_system(system)
+            system = api.get_system(system_uid)
+            sys_obj = {'system': {
+                'system_uid': system['UID'],
+                'name': system['name'],
+                'description': system['name'],
+                'status': system['status']
+                }}
+            result = social_api.update_system_with_system_uid(sys_obj)
+            if "error" in result:
+                flash('could not update social attributes', 'warn')
+            else:
+                flash('update successful')
+        else:
+            flash('only administrators can update system attributes')
     except:
         flash('update failed', 'error')
 

@@ -1,23 +1,16 @@
+"""
+Social Component Data Access API
+"""
 from aqxWeb.social.dao.users import UserDAO
 from aqxWeb.social.dao.systems import SystemDAO
+import aqxWeb.social.models as models
 import json
-
-
-###############################################################################
-# Social Component Data Access API
-###############################################################################
 
 class SocialAPI:
     # constructor to get connection
     def __init__(self, graph):
         self.graph = graph
 
-    ###############################################################################
-    # function : get_logged_in_user
-    # purpose : function used to find user based on session(sql_id)
-    # params : self
-    # returns : User Node json object
-    ###############################################################################
     def get_logged_in_user(self):
         user = UserDAO(self.graph).get_logged_in_user()
         if user is None:
@@ -41,12 +34,9 @@ class SocialAPI:
             }
             return json.dumps({'user': result})
 
-    ###############################################################################
-    # function : get_user_by_google_id
-    # purpose : function used to find user based on google_id
-    # params : google_id
-    # returns : User Node json object
-    ###############################################################################
+    def user_privilege_for_system(self, user_sql_id, system_uid):
+        return models.System().get_user_privilege_for_system(user_sql_id, system_uid)
+
     def get_user_by_google_id(self, google_id):
         user = UserDAO(self.graph).get_user_by_google_id(google_id)
         if user is None:
@@ -70,12 +60,6 @@ class SocialAPI:
             }
             return json.dumps({'user': result})
 
-    ###############################################################################
-    # function : get_user_by_sql_id
-    # purpose : function used to find user based on sql_id
-    # params : sql_id
-    # returns : User Node json object
-    ###############################################################################
     def get_user_by_sql_id(self, sql_id):
         try:
             sql_id = int(sql_id)
@@ -104,13 +88,6 @@ class SocialAPI:
             result = {"status": "sql_id should be integer value. Provided value: " + str(sql_id)}
             return json.dumps({'error': result})
 
-    ###############################################################################
-    # function : create_user
-    # purpose : function used to create user in the Neo4J database
-    # params : User jsonObject
-    # returns : Success/Error status
-    # Exceptions : General Exception
-    ###############################################################################
     def create_user(self, jsonObject):
         try:
             user = jsonObject.get('user')
@@ -125,14 +102,6 @@ class SocialAPI:
                 {'error': "Exception Occurred While Creating User Node in Neo4J Database: " + str(ex.message)})
             return error_msg
 
-    ###############################################################################
-
-    # function : delete_user_by_sql_id
-    # purpose : function used to delete user in the Neo4J database for the specified sql_id
-    # params : sql_id
-    # returns : Success/Error status
-    # Exceptions : ValueError
-    ###############################################################################
     def delete_user_by_sql_id(self, sql_id):
         try:
             sql_id = int(sql_id)
@@ -142,13 +111,6 @@ class SocialAPI:
             error_msg = json.dumps({"error": "sql_id should be integer value. Provided value: " + str(sql_id)})
             return error_msg
 
-    ###############################################################################
-    # function : create_system
-    # purpose : function used to create system node in the Neo4J database
-    # params : User jsonObject
-    # returns : Success/Error status
-    # Exceptions : General Exception
-    ###############################################################################
     def create_system(self, jsonObject):
         try:
             sql_id = jsonObject.get('user')
@@ -161,13 +123,6 @@ class SocialAPI:
         except Exception as ex:
             return {'error': "Exception Occurred While Creating System Node in Neo4J Database: " + str(ex.message)}
 
-    ###############################################################################
-    # function : update_system_with_system_uid
-    # purpose : function used to update system node in the Neo4J database
-    # params : User jsonObject
-    # returns : Success/Error status
-    # Exceptions : General Exception
-    ###############################################################################
     def update_system_with_system_uid(self, jsonObject):
         try:
             system = jsonObject.get('system')
@@ -182,13 +137,6 @@ class SocialAPI:
                 {'error': "Exception Occurred While Updating System Node in Neo4J Database: " + str(ex.message)})
             return error_msg
 
-    ###############################################################################
-    # function : delete_system_by_system_id
-    # purpose : function used to delete system in the Neo4J database for the specified system_id
-    # params : system_id
-    # returns : Success/Error status
-    # Exceptions : ValueError
-    ###############################################################################
     def delete_system_by_system_id(self, system_id):
         try:
             system_id = int(system_id)
@@ -198,13 +146,6 @@ class SocialAPI:
             error_msg = json.dumps({"error": "system_id should be integer value. Provided value: " + str(system_id)})
             return error_msg
 
-    ###############################################################################
-    # function : get_system_for_user
-    # purpose : function to return the systems from Neo4J database where the user is related to
-    # params : self, sql_id
-    # returns : Success/Error status
-    # Exceptions : ValueError
-    ###############################################################################
     def get_system_for_user(self, sql_id):
         try:
             sql_id = int(sql_id)
@@ -233,4 +174,3 @@ class SocialAPI:
         except ValueError:
             error_msg = json.dumps({"error": "sql_id should be integer value. Provided value: " + str(sql_id)})
             return error_msg
-            ###############################################################################

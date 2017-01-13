@@ -118,6 +118,3 @@ class SystemDAO:
         except Exception as ex:
             error_msg = json.dumps({'error': 'Exception Occurred At get_system_for_user: ' + str(ex.message)})
             return error_msg
-
-
-            ###############################################################################
