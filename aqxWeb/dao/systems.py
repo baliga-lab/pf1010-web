@@ -54,11 +54,11 @@ class SystemDAO:
 
         return result
 
-    def getOrganismsForSystem(self, system_id):
+    def organisms_for_system(self, system_id):
         conn = self.dbconn()
         cursor = conn.cursor()
 
-        query = ("SELECT ao.name, sao.num as 'count' "
+        query = ("SELECT ao.id,ao.name,sao.num as 'count' "
                  "FROM system_aquatic_organisms sao "
                  "LEFT JOIN aquatic_organisms ao ON sao.organism_id = ao.id "
                  "WHERE sao.system_id = %s")
@@ -72,11 +72,11 @@ class SystemDAO:
 
         return results
 
-    def getCropsForSystem(self, system_id):
+    def crops_for_system(self, system_id):
         conn = self.dbconn()
         cursor = conn.cursor()
 
-        query = ("SELECT c.name, sc.num as 'count' "
+        query = ("SELECT c.id,c.name,sc.num as 'count' "
                  "FROM system_crops sc "
                  "LEFT JOIN crops c ON sc.crop_id = c.id "
                  "WHERE sc.system_id = %s")

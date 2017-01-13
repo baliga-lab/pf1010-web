@@ -60,7 +60,7 @@
                     </div>
                     <div class="col-xs-4">
                         <label>&nbsp;</label>
-                        <input type="number" min="0" class="form-control" name="cropCount" placeholder="Number of Crops" required>
+                        <input type="number" min="0" class="form-control" name="cropCount_0" placeholder="Number of Crops" required>
                     </div>
                 </div>
             </div>
@@ -75,7 +75,7 @@
                     </div>
                     <div class="col-xs-4">
                         <label>&nbsp;</label>
-                        <input type="number" min="0" class="form-control" name="organismCount" placeholder="Number of Organisms" required>
+                        <input type="number" min="0" class="form-control" name="organismCount_0" placeholder="Number of Organisms" required>
                     </div>
                 </div>
             </div>
@@ -100,8 +100,8 @@
         if (!Modernizr.inputtypes.date) {
           $('#start-date').datepicker({dateFormat: "yy-MM-dd"});
         }
-        aqx_editsystem.make_select('#select_crops', 'cropID', crops, false);
-        aqx_editsystem.make_select('#select_organism', 'organismID', organisms, false);
+        aqx_editsystem.makeSelect('#select_crops', 'cropID_0', crops, false);
+        aqx_editsystem.makeSelect('#select_organism', 'organismID_0', organisms, false);
         $('#create_form').submit(aqx_editsystem.create);
       });
     </script>

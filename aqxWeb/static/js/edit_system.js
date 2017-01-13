@@ -13,8 +13,8 @@ if (!aqx_editsystem) {
 
     function convertFormData(data) {
         var submitData = { 'location': {}, 'gbMedia': [{'ID': 0}],
-                           'crops': [{'ID': 0, 'count': 0}],
-                           'organisms': [{'ID': 0, 'count': 0}]
+                           'crops': [],
+                           'organisms': []
                          };
         // Translate into JSON for the backend API
         for (var i = 0; i < data.length; i++) {
@@ -24,7 +24,7 @@ if (!aqx_editsystem) {
             if (obj.name == 'location.lat') submitData['location']['lat'] = parseFloat(obj.value);
             if (obj.name == 'location.lng') submitData['location']['lng'] = parseFloat(obj.value);
             if (obj.name == 'techniqueID') submitData['techniqueID'] = parseInt(obj.value);
-            if (obj.name == 'gbMediaID') submitData['gbMedia'][0]['ID'] = obj.value;
+            if (obj.name == 'gbMediaID') submitData['gbMedia'][0]['ID'] = parseInt(obj.value);
             if (obj.name == 'cropID') submitData['crops'][0]['ID'] = parseInt(obj.value);
             if (obj.name == 'cropCount') submitData['crops'][0]['count'] = parseInt(obj.value);
             if (obj.name == 'organismID') submitData['organisms'][0]['ID'] = parseInt(obj.value);
@@ -106,21 +106,24 @@ if (!aqx_editsystem) {
      * Build select boxes dynamically, so we can allow multiple e.g. fish and plant
      * inputs in the input form
      */
-    aqx_editsystem.make_select = function(selector, name, choices, initialEmpty) {
+    aqx_editsystem.makeSelect = function(selector, name, choices, initialEmpty, selectedId) {
         var s = $('<select>').attr('name', name).addClass('form-control');
         if (initialEmpty) s.append($('<option>').attr('value', 0).text(""));
         $.each(choices, function (i, e) {
-            s.append($('<option>').attr('value', e.id).text(e.name));
+            var option = $('<option>').attr('value', e.id).text(e.name);
+            if (e.id == selectedId) option.attr('selected', 'selected');
+            s.append(option);
         });
         $(selector).replaceWith(s);
     };
 
-    function makeInputRow(divID, typeName, num, choices, placeholder) {
+    aqx_editsystem.makeInputRow = function(divID, typeName, num, choices, placeholder, selectedId, count) {
         var selectID = 'select_' + typeName + '_' + num;
         var input = $('<input type="number" min="0" />')
             .addClass('form-control')
             .attr('name', typeName + 'Count_' + num)
             .attr('placeholder', placeholder);
+        if (count) input.val(count);
         var newrow = $('<div>').addClass('form-group')
             .append($('<div>').addClass('row')
                     .append($('<div>').addClass('col-xs-8')
@@ -129,8 +132,8 @@ if (!aqx_editsystem) {
                                  .addClass('col-xs-4')
                                  .append(input))));
         $('#' + divID).replaceWith(newrow.add('<div id="' + divID + '"></div>'));
-        aqx_editsystem.make_select('#' + selectID, typeName + 'ID_' + num, choices, true);
-    }
+        aqx_editsystem.makeSelect('#' + selectID, typeName + 'ID_' + num, choices, num > 0, selectedId);
+    };
 
     var numCropLists = 1;
     var numOrganismLists = 1;
@@ -142,8 +145,8 @@ if (!aqx_editsystem) {
         });
         $('#addcrop').click(function () {
             if (numCropLists <= MAX_LIST_LEN) {
-                makeInputRow('newcrop', 'crop', numCropLists++, crops,
-                             'Number of Crops');
+                aqx_editsystem.makeInputRow('newcrop', 'crop', numCropLists++, crops,
+                                            'Number of Crops');
                 if (numCropLists == MAX_LIST_LEN) {
                     $('#addcrop').remove();
                 }
@@ -151,8 +154,8 @@ if (!aqx_editsystem) {
         });
         $('#addorganism').click(function () {
             if (numOrganismLists <= MAX_LIST_LEN) {
-                makeInputRow('neworganism', 'organism', numOrganismLists++, organisms,
-                             'Number of Organisms');
+                aqx_editsystem.makeInputRow('neworganism', 'organism', numOrganismLists++, organisms,
+                                            'Number of Organisms');
                 if (numOrganismLists == MAX_LIST_LEN) {
                     $('#addorganism').remove();
                 }

@@ -29,12 +29,13 @@ class API:
         result = self.systemDAO.get_system(systemUID)
         systemID = result[0]
         # Get the crops
-        results = self.systemDAO.getCropsForSystem(systemID)
+        results = self.systemDAO.crops_for_system(systemID)
         crops = []
         for crop in results:
             crops.append({
-                'name': crop[0],
-                'count': crop[1]
+                'id': crop[0],
+                'name': crop[1],
+                'count': crop[2]
             })
         # Get the grow bed media
         results = self.systemDAO.getGrowBedMediaForSystem(systemID)
@@ -45,12 +46,13 @@ class API:
                 'count': medium[1]
             })
         # Get the organisms
-        results = self.systemDAO.getOrganismsForSystem(systemID)
+        results = self.systemDAO.organisms_for_system(systemID)
         organisms = []
         for organism in results:
             organisms.append({
-                'name': organism[0],
-                'count': organism[1]
+                'id':    organism[0],
+                'name':  organism[1],
+                'count': organism[2]
             })
         # Get the status
         status = self.systemDAO.getStatusForSystem(systemUID)[0]
