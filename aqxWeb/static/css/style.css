@@ -271,3 +271,11 @@ Responsive CSS
     border-radius: 5px;
     margin: 3pt;
 }
+
+.notice {
+    background-color: #fff3a2;
+    border: 1px black solid;
+    border-radius: 5px;
+    padding: 10px;
+    margin-bottom: 10px;
+}

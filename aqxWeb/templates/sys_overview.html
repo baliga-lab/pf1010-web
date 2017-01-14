@@ -38,7 +38,7 @@
             <div class="col-md-7">
                 <h2>System Snapshot</h2>
                 <hr>
-                <h3>{{ metadata.name }}</h3>
+                <h3>{{ metadata.name }} <a href="{{url_for('frontend.edit_system', system_uid=system_uid )}}" class="pull-right"><span title="Edit system data" class="glyphicon glyphicon-pencil"></span></a></h3>
                 <div class="row">
                     <div class="col-xs-12">
                         <p><strong>Date Created:</strong> {{ metadata.startDate }}</p>
