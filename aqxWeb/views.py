@@ -8,13 +8,23 @@ from aqxWeb.social.api import SocialAPI
 import services
 import json
 
-######################################################################
-# Views
-######################################################################
+BROWSER_NAMES = {
+    'msie': 'Internet Explorer', 'chrome': 'Chrome', 'firefox': 'Firefox',
+    'safari': 'Safari', 'opera': 'Opera'
+}
 
 @frontend.route('/')
 def index():
-    return render_template('index.html')
+    browser = request.user_agent.browser
+    unsupported_browser = False
+    if browser in BROWSER_NAMES:
+        browser_name = '%s Version %s' % (BROWSER_NAMES[browser], request.user_agent.version)
+    else:
+        browser_name = 'Unknown Browser'
+    if browser != 'chrome' and browser != 'firefox':
+        unsupported_browser = True
+
+    return render_template('index.html', **locals())
 
 
 @frontend.route('/about')

@@ -14,7 +14,10 @@
     <link rel="stylesheet" type="text/css" href="{{ url_for('frontend.static', filename='css/style.css') }}">
 {% endblock %}
 {% block body_attribs %} ng-app="aqx"{% endblock body_attribs %}
-{% block body %}
+    {% block body %}
+    {% if unsupported_browser %}
+    <div class="navbar-fixed-top" style="padding-left: 1em; z-index: 10000; width: 100%; background-color: #ffff88" id="browserwarning">It looks like you are using {{browser_name}}. We currently only support Chrome and Firefox browsers <a id="hidebrowserwarning" href="javascript:void(0)">Hide</a></div>
+    {% endif %}
     {% block navbar %}
         {% if session.uid %}{{ nav.member.render(renderer='nav_renderer') }}
         {% else %}{{ nav.guest.render(renderer='nav_renderer') }}{% endif %}
@@ -47,6 +50,10 @@
 
           ga('create', 'UA-66204620-1', 'auto');
           ga('send', 'pageview');
+
+          $(document).ready(function() {
+            $('#hidebrowserwarning').click(function() { $('#browserwarning').fadeOut(); });
+          });
         </script>
     {% endblock scripts %}
 {% endblock %}
