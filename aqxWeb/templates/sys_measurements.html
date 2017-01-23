@@ -162,46 +162,30 @@
     <script src="{{ url_for('frontend.static', filename='js/jquery.numeric.min.js') }}"></script>
     <script src="{{ url_for('frontend.static', filename='js/sys_measurements.js') }}"></script>
     <script>
+      var LIMITS = {
+        '1': { min: 0.0, max: 300.0 },
+        '2': { min: 0.0, max: 6.0 },
+        '3': { min: 0.0, max: 1000000.0 },
+        '4': { min: 0.0, max: 300.0 },
+        '5': { min: 0.0, max: 1000000.0 },
+        '6': { min: 0.0, max: 200.0 },
+        '7': { min: 0.0, max: 10.0 },
+        '8': { min: 0.0, max: 1000000.0 },
+        '9': { min: 5.0, max: 9.0 },
+        '10': { min: 18.0, max: 33.0 },
+        '12': { min: 0.0, max: 1000000.0 },
+        '13': { min: 0.0, max: 1000000.0 }
+      };
+      $(document).ready(function() {
+        if (!Modernizr.inputtypes.datetime) {
+          $('#measure-datetime').datepicker({dateFormat: "yy-MM-dd"});
+        }
         $("select.id").change(function() {
-            if ($(this).val() == "1") {
-                $("input.val").attr('min', 0.00);
-                $("input.val").attr('max', 300.00);
-            } else if ($(this).val() == "2") {
-                $("input.val").attr('min', 0.00);
-                $("input.val").attr('max', 6.00);
-            } else if ($(this).val() == "3") {
-                $("input.val").attr('min', 0.00);
-                $("input.val").attr('max', 1000000.00);
-            } else if ($(this).val() == "4") {
-                $("input.val").attr('min', 0.00);
-                $("input.val").attr('max', 300.00);
-            } else if ($(this).val() == "5") {
-                $("input.val").attr('min', 0.00);
-                $("input.val").attr('max', 1000000.00);
-            } else if ($(this).val() == "6") {
-                $("input.val").attr('min', 0.00);
-                $("input.val").attr('max', 200.00);
-            } else if ($(this).val() == "7") {
-                $("input.val").attr('min', 0.00);
-                $("input.val").attr('max', 10.00);
-            } else if ($(this).val() == "8") {
-                $("input.val").attr('min', 0.00);
-                $("input.val").attr('max', 1000000.00);
-            } else if ($(this).val() == "9") {
-                $("input.val").attr('min', 5.00);
-                $("input.val").attr('max', 9.00);
-            } else if ($(this).val() == "10") {
-                $("input.val").attr('min', 18.00);
-                $("input.val").attr('max', 33.00);
-            } else if ($(this).val() == "12") {
-                $("input.val").attr('min', 0);
-                $("input.val").attr('max', 1000000);
-            }
-            else if ($(this).val() == "13") {
-                $("input.val").attr('min', 0.00);
-                $("input.val").attr('max', 1000000.00);
-            }
+          var limits = LIMITS[$(this).val()];
+          $("input.val").attr("min", limits.min);
+          $("input.val").attr("max", limits.max);
         });
+      });
 
         {#var isDragging = false;
         function updateNH4Values(posx) {
