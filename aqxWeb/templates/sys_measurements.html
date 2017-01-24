@@ -4,6 +4,7 @@
     {{ super() }}
     <link rel="stylesheet" type="text/css" href="{{ url_for('frontend.static', filename='css/system.css') }}">
     <link rel="stylesheet" type="text/css" href="{{ url_for('frontend.static', filename='css/annotations.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('frontend.static', filename='css/jquery.ptTimeSelect.css') }}">
 {% endblock %}
 
 {% block title %}{{ metadata.name }} Measurements{% endblock %}
@@ -36,21 +37,22 @@
                     <hr>
                     <div ng-controller="MeasurementController">
                         <div class="form-group">
-                            <label for="measure-id">Measurement Type:</label>
+                            <label for="measure-id">Measurement Type</label>
                             <select class="form-control id" ng-model="measure.measurement_id" id="measure-id" ng-click="clearMessage()" required>
-                              {% for t in measurement_types %}
-                                <option value="{{t.id}}">{{t.full_name}}</option>
-                              {% endfor %}
+                              {% for t in measurement_types %}<option value="{{t.id}}">{{t.full_name}}</option>{% endfor %}
                             </select>
-                            <hr>
                         </div>
                         <form ng-show="measure.measurement_id" ng-switch on="measure.measurement_id" name="boardForm">
                             <span class="hidden" id="UID">{{ metadata.UID }}</span>
+                          <div class="form-group">
+                                <label for="measure-date">Date</label>
+                                <input class="form-control dt" type="date" style="position: relative; z-index: 1000000"
+                                       id="measure-date" name="measureDate" required />
+                            </div>
                             <div class="form-group">
-                                <label for="measure-datetime">Date & Time</label>
-                                <p>Enter in the date and time of when you collected the measurement.</p>
-                                <input class="form-control dt" type="datetime-local"
-                                       id="measure-datetime" name="measureDateTime" date-time ng-model="inputdate" required />
+                                <label for="measure-time">Time</label>
+                                <input class="form-control dt" type="time"
+                                       id="measure-time" name="measureTime" required />
                             </div>
                             <div class="form-group">
                                 <label for="measure-value">Value</label>
@@ -117,7 +119,7 @@
                         <tbody>
                         {% for reading in readings %}
                             <tr>
-                                <td>{{ reading.name }}</td>
+                                <td>{{ reading.full_name }}</td>
                                 {% if reading.value %}
                                     <td>{{ reading.value }}</td>
                                 {% else %}
@@ -159,6 +161,7 @@
 {% block scripts %}
     {{ super() }}
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui-touch-punch/0.2.3/jquery.ui.touch-punch.min.js"></script>
+    <script src="{{ url_for('frontend.static', filename='js/jquery.ptTimeSelect.js') }}"></script>
     <script src="{{ url_for('frontend.static', filename='js/jquery.numeric.min.js') }}"></script>
     <script src="{{ url_for('frontend.static', filename='js/sys_measurements.js') }}"></script>
     <script>
@@ -177,8 +180,11 @@
         '13': { min: 0.0, max: 1000000.0 }
       };
       $(document).ready(function() {
-        if (!Modernizr.inputtypes.datetime) {
-          $('#measure-datetime').datepicker({dateFormat: "yy-MM-dd"});
+        if (!Modernizr.inputtypes.date) {
+          $('#measure-date').datepicker({dateFormat: "yy-mm-dd"});
+        }
+        if (!Modernizr.inputtypes.time) {
+          $('#measure-time').ptTimeSelect();
         }
         $("select.id").change(function() {
           var limits = LIMITS[$(this).val()];

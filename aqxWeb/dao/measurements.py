@@ -38,7 +38,7 @@ class MeasurementDAO:
                 table = sys_table_name(measurement, systemUID)
                 cursor.execute(query % table)
                 reading = cursor.fetchone()
-                new_reading = {'name': t['full_name']}
+                new_reading = {'name': t['name'], 'full_name': t['full_name']}
                 if reading:
                     new_reading['value'] = round(reading[0], 2) if reading[0] else None
                     new_reading['created_at'] = reading[1].strftime('%Y-%m-%d %H:%M:%S') if reading[1] else None
