@@ -19,13 +19,9 @@
                             <a href="{{ url_for("frontend.sys_overview", system_uid=metadata.UID) }}"
                                title="Overview">Overview</a>
                         </li>
-                        <li id="measurement-li" class="active">
-                            <a href="{{ url_for("frontend.sys_measurements", system_uid=metadata.UID) }}"
-                               title="Measurement">Measurements</a>
-                        </li>
                         <li id="annotate-li">
                             <a href="{{ url_for("frontend.sys_annotations", system_uid=metadata.UID) }}"
-                               title="Annotations">Annotations <span class="sr-only">(current)</span></a>
+                               title="Log Changes to System">Log Changes to System <span class="sr-only">(current)</span></a>
                         </li>
                         <li id="analytics-li">
                             <a href="{{ url_for('dav.system_analyze', system_uid=metadata.UID) }}" title="Analytics">Analytics</a>
@@ -107,7 +103,6 @@
                 <div class="col-sm-3 hidden-xs hidden-sm">
                     <h4>Latest Measurements</h4>
                     <hr>
-{#                    <p>If you have added a measurement and it is not reflected below, try refreshing your page.</p>#}
                     <table class="table">
                         <thead>
                         <tr>

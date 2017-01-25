@@ -22,21 +22,13 @@
                             <a href="{{ url_for("frontend.sys_measurements", system_uid=metadata.UID) }}"
                                title="Measurement">Measurements</a>
                         </li>
-                        <li id="annotate-li">
-                            <a href="{{ url_for("frontend.sys_annotations", system_uid=metadata.UID) }}"
-                               title="Annotations">Annotations <span class="sr-only">(current)</span></a>
-                        </li>
-{#                        <li id="social-li"><a#}
-{#                                href="{{ url_for("social.view_system", system_uid=metadata.UID) }}" title="Social">#}
-{#                            Social</a>#}
-{#                        </li>#}
                         <li id="analytics-li">
                             <a href="{{ url_for('dav.system_analyze', system_uid=metadata.UID) }}" title="Analytics">Analytics</a>
                         </li>
                     </ul>
                 </div>
                 <div class="col-md-10" ng-controller="AnnotationController">
-                    <h2>Add Annotations</h2>
+                    <h2>Log Changes to System</h2>
                     <hr>
                     <form id="myForm" class="appnitro" method="post" action="">
                         <ul>
@@ -45,7 +37,7 @@
                                 <div>
                                     <span class="hidden" id="ID">{{ metadata.ID }}</span>
                                     <select name="mySelect" id="mySelect" class="form-control">
-                                        <option value="Choose">Choose Annotation</option>
+                                        <option value="Choose">Choose Type of Change</option>
                                         <option value="ph">pH</option>
                                         <option value="harvest">Harvest</option>
                                         <option value="fish">Fish</option>
