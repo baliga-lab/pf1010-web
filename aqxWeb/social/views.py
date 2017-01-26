@@ -330,7 +330,7 @@ def recofriends():
 @social.route('/searchFriends', methods=['GET'])
 def searchFriends():
     if session.get('uid') is not None:
-        return render_template("SearchFriends.html")
+        return render_template("search_friends.html")
     else:
         return render_template("/home.html")
 
