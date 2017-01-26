@@ -132,8 +132,3 @@ def update_system(system_uid):
         flash('update failed', 'error')
 
     return redirect(url_for('frontend.edit_system', system_uid=system_uid))
-
-
-@frontend.route('/badges')
-def badges():
-    return render_template('badges.html')
