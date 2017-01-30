@@ -1,8 +1,10 @@
 import json
 import traceback
 import time
-from flask import Blueprint, render_template, request, current_app
+from flask import Blueprint, render_template, request, current_app, session
 
+from aqxWeb.social.models import social_graph
+from aqxWeb.social.api import SocialAPI
 from aqxWeb.analytics.api import AnalyticsAPI
 
 # TODO: seems like a cyclic module dependency to me, can we break it ?
@@ -13,6 +15,19 @@ dav = Blueprint('dav', __name__, template_folder='templates', static_folder='sta
 PRE_ESTABLISHED = 100
 ESTABLISHED = 200
 DEFAULT_MEASUREMENTS_LIST = [6, 7, 2, 1, 9, 8, 10]
+
+
+def can_user_edit_system(system_uid):
+    """
+    check user rights for this system: we need to ensure
+    that the user is either SYS_PARTICIPANT or SYS_ADMIN
+    otherwise redirect to another page.
+    """
+    if 'uid' in session:
+        social_api = SocialAPI(social_graph())
+        priv = social_api.user_privilege_for_system(session['uid'], system_uid)
+        return priv == 'SYS_ADMIN' or priv == 'SYS_PARTICIPANT'
+    return False
 
 
 @dav.route('/error')
@@ -126,6 +141,7 @@ def system_analyze(system_uid):
         ui_api = UIAPI(current_app)
         annotations_map = ui_api.getReadableAnnotations()
         metadata = ui_api.get_system(system_uid)
+        user_is_participant = can_user_edit_system(system_uid)
 
         # Load JSON formatted String from API.
         # This will be piped into Javascript as a JS Object accessible in that scope

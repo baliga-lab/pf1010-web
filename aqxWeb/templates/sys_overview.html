@@ -11,8 +11,8 @@
     <div class="container" style="width: 100%; margin-top: 2%; margin-left: 2%">
         <div class="row">
             <div class="col-md-2">
-                <ul class="nav nav-stacked">
-                    {% if metadata.user == session['uid'] %}
+              <ul class="nav nav-stacked">
+                    {% if user_is_participant %}
                         <li id="measurement-li">
                             <a href="{{ url_for("frontend.sys_measurements", system_uid=metadata.UID) }}"
                                title="Measurement">Measurements</a>

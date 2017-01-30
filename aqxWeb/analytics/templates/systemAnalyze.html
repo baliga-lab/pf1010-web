@@ -20,7 +20,7 @@
                         <a href="{{ url_for("frontend.sys_overview", system_uid=metadata.UID) }}"
                            title="Overview">Overview</a>
                     </li>
-                    {% if metadata.user == session['uid'] %}
+                    {% if user_is_participant %}
                         <li id="measurement-li" class="active">
                             <a href="{{ url_for("frontend.sys_measurements", system_uid=metadata.UID) }}"
                                title="Measurement">Measurements</a>

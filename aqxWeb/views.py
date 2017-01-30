@@ -51,6 +51,7 @@ def contact():
 def sys_overview(system_uid):
     metadata = json.loads(services.get_system(system_uid))
     readings = json.loads(services.latest_readings_for_system(system_uid))
+    user_is_participant = can_user_edit_system(system_uid)
     return render_template('sys_overview.html', **locals())
 
 
@@ -73,19 +74,37 @@ def sys_edit_data(system_uid, measurement, created_at):
     return render_template('edit_data.html', **locals())
 
 
+def can_user_edit_system(system_uid):
+    """
+    check user rights for this system: we need to ensure
+    that the user is either SYS_PARTICIPANT or SYS_ADMIN
+    otherwise redirect to another page.
+    """
+    if 'uid' in session:
+        social_api = SocialAPI(social_graph())
+        priv = social_api.user_privilege_for_system(session['uid'], system_uid)
+        return priv == 'SYS_ADMIN' or priv == 'SYS_PARTICIPANT'
+    return False
+
+
 @frontend.route('/system/<system_uid>/measurements')
 def sys_measurements(system_uid):
     metadata = json.loads(services.get_system(system_uid))
     readings = json.loads(services.latest_readings_for_system(system_uid))
     measurement_types = json.loads(services.measurement_types())
-
-    return render_template('sys_measurements.html', **locals())
+    if can_user_edit_system(system_uid):
+        return render_template('sys_measurements.html', **locals())
+    else:
+        return render_template('no_access.html')
 
 
 @frontend.route('/system/<system_uid>/annotations')
 def sys_annotations(system_uid):
     metadata = json.loads(services.get_system(system_uid))
-    return render_template('sys_annotations.html', **locals())
+    if can_user_edit_system(system_uid):
+        return render_template('sys_annotations.html', **locals())
+    else:
+        return render_template('no_access.html')
 
 
 @frontend.route('/new_system')
