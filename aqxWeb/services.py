@@ -71,12 +71,15 @@ def api_create_system():
     """Create a new system whose administrator is the current logged in user"""
     api = API(current_app)
     system = request.get_json()
-    current_app.logger.info(system)
     system['userID'] = session['uid']
     system['startDate'] = parse_date(system['startDate'])
     system['status'] = SYSTEM_INITIAL_STATUS
     system_id = 0
     system_uid = ''
+
+    if system['startDate'] is None:
+        return json.dumps({'error': 'error in start date format'})
+
     try:
         sys_data = api.create_system(system)
     except Exception as e:
