@@ -11,19 +11,14 @@ from aqxWeb.social.api import SocialAPI
 
 
 # Expected format to arrive from the client
-# the second format handles milliseconds
-API_TIME_FORMAT1 = '%Y-%m-%dT%H:%M:%SZ'
-API_TIME_FORMAT2 = '%Y-%m-%dT%H:%M:%S.%fZ'
-"""2016-07-15T00:00:00.000Z"""
-def parse_timestamp(s):
+UI_DATE_FORMAT = '%Y-%m-%d'
+
+def parse_date(s):
     try:
-        return datetime.fromtimestamp(time.mktime(time.strptime(s, API_TIME_FORMAT1)))
+        return datetime.fromtimestamp(time.mktime(time.strptime(s, UI_DATE_FORMAT)))
     except:
-        try:
-            return datetime.fromtimestamp(time.mktime(time.strptime(s, API_TIME_FORMAT2)))
-        except:
-            current_app.logger.warn("problem using API default format, none returned, input was: %s" % s)
-            return None
+        current_app.logger.warn("problem using default date format, none returned, input was: %s" % s)
+        return None
 
 ######################################################################
 # User Services
@@ -78,7 +73,7 @@ def api_create_system():
     system = request.get_json()
     current_app.logger.info(system)
     system['userID'] = session['uid']
-    system['startDate'] = parse_timestamp(system['startDate'])
+    system['startDate'] = parse_date(system['startDate'])
     system['status'] = SYSTEM_INITIAL_STATUS
     system_id = 0
     system_uid = ''

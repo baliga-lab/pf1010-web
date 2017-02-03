@@ -125,7 +125,6 @@ class SystemDAO:
         crops = system['crops']
         organisms = system['organisms']
         status = system['status']
-
         systemID = 0
 
         query1 = (
@@ -135,6 +134,7 @@ class SystemDAO:
         query2 = 'INSERT INTO system_gb_media (system_id,gb_media_id) VALUES (%s, %s)'
         query3 = 'INSERT INTO system_aquatic_organisms VALUES (%s, %s, %s)'
         query4 = 'INSERT INTO system_crops VALUES (%s, %s, %s)'
+        # note: database table column sys_status_id  is set to 100 on default
         query5 = 'INSERT INTO system_status (system_uid, start_time, end_time) VALUES (%s, %s, "2030-12-31 23:59:59")'
 
         values5 = (systemUID, startDate)

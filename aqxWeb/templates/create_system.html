@@ -98,7 +98,7 @@
       ];
       $(document).ready(function() {
         if (!Modernizr.inputtypes.date) {
-          $('#start-date').datepicker({dateFormat: "yy-MM-dd"});
+          $('#start-date').datepicker({dateFormat: 'yy-mm-dd'});
         }
         aqx_editsystem.makeSelect('#select_crops', 'cropID_0', crops, false);
         aqx_editsystem.makeSelect('#select_organism', 'organismID_0', organisms, false);
