@@ -68,6 +68,9 @@ def get_system(systemUID):
     return json.dumps(API(current_app).get_system(systemUID))
 
 
+SYSTEM_INITIAL_STATUS = 100
+
+
 @frontend.route('/aqxapi/v2/system', methods=['POST'])
 def api_create_system():
     """Create a new system whose administrator is the current logged in user"""
@@ -76,6 +79,7 @@ def api_create_system():
     current_app.logger.info(system)
     system['userID'] = session['uid']
     system['startDate'] = parse_timestamp(system['startDate'])
+    system['status'] = SYSTEM_INITIAL_STATUS
     system_id = 0
     system_uid = ''
     try:
@@ -94,7 +98,7 @@ def api_create_system():
             'description': system['name'],
             'location_lat': system['location']['lat'],
             'location_lng': system['location']['lng'],
-            'status': 100
+            'status': SYSTEM_INITIAL_STATUS
         }
     }
     result = SocialAPI(social_graph()).create_system(social_obj)

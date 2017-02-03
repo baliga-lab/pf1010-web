@@ -124,13 +124,14 @@ class SystemDAO:
         gbMedia = system['gbMedia']
         crops = system['crops']
         organisms = system['organisms']
+        status = system['status']
 
         systemID = 0
 
         query1 = (
-        'INSERT INTO systems (user_id, name, system_uid, start_date, aqx_technique_id, location_lat, location_lng)'
-        'VALUES (%s, %s, %s, %s, %s, %s, %s)')
-        values1 = (userID, name, systemUID, startDate, techniqueID, locationLat, locationLng)
+            'INSERT INTO systems (user_id, name, system_uid, start_date, aqx_technique_id, location_lat, location_lng, status)'
+            'VALUES (%s, %s, %s, %s, %s, %s, %s, %s)')
+        values1 = (userID, name, systemUID, startDate, techniqueID, locationLat, locationLng, status)
         query2 = 'INSERT INTO system_gb_media (system_id,gb_media_id) VALUES (%s, %s)'
         query3 = 'INSERT INTO system_aquatic_organisms VALUES (%s, %s, %s)'
         query4 = 'INSERT INTO system_crops VALUES (%s, %s, %s)'
