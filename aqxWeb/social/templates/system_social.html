@@ -267,8 +267,10 @@
             {% if user_privilege == "SYS_ADMIN" or user_privilege == "SYS_PARTICIPANT" %}
                 <a class="btn-blue" href="{{ url_for('frontend.sys_measurements', system_uid=system_neo4j[0][0]["system_uid"]) }}">
                   Input Measurements</a> <br>
+                {#
                 <a class="btn-blue" href="{{ url_for('frontend.sys_annotations', system_uid=system_neo4j[0][0]["system_uid"]) }}">
                   Log Changes to System</a> <br>
+                #}
                 <a class="btn-blue" href="{{ url_for('dav.system_analyze', system_uid=system_neo4j[0][0]["system_uid"]) }}">
                   Analyze Data</a>
             {% endif %}

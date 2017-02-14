@@ -113,6 +113,7 @@ def getAnnotationsForSystem(systemID):
     return api.getAnnotationsForSystem(systemID)
 
 
+"""
 # Add an annotation for system with given systemID
 @frontend.route('/aqxapi/v2/system/<systemID>/annotation', methods=['POST'])
 def addAnnotation(systemID):
@@ -120,6 +121,7 @@ def addAnnotation(systemID):
     annotation = request.get_json()
     annotation['systemID'] = systemID
     return api.addAnnotation(annotation)
+"""
 
 
 # Get latest reading of a system with given systemUID for each measurement type

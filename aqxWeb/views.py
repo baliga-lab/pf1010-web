@@ -98,6 +98,7 @@ def sys_measurements(system_uid):
         return render_template('no_access.html')
 
 
+"""
 @frontend.route('/system/<system_uid>/annotations')
 def sys_annotations(system_uid):
     metadata = json.loads(services.get_system(system_uid))
@@ -105,6 +106,7 @@ def sys_annotations(system_uid):
         return render_template('sys_annotations.html', **locals())
     else:
         return render_template('no_access.html')
+"""
 
 
 @frontend.route('/new_system')

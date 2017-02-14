@@ -25,10 +25,12 @@
                             <a href="{{ url_for("frontend.sys_measurements", system_uid=metadata.UID) }}"
                                title="Measurement">Measurements</a>
                         </li>
+                        {#
                         <li id="annotate-li">
                             <a href="{{ url_for("frontend.sys_annotations", system_uid=metadata.UID) }}"
                                title="Log Changes to System">Log Changes to System <span class="sr-only">(current)</span></a>
                         </li>
+                        #}
                     {% endif %}
                 </ul>
             </div>
