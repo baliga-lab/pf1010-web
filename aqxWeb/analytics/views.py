@@ -76,14 +76,14 @@ def analyze_graph():
 
         # Load JSON formatted String from API.
         # This will be piped into Javascript as a JS Object accessible in that scope
-        measurement_types_and_info = get_all_measurement_info()
+        measurement_types_and_info = __get_all_measurement_info()
         if 'error' in measurement_types_and_info:
             current_app.logger(measurement_types_and_info['error'])
             current_app.logger("Error processing API call for measurement types.")
             return render_template("error.html"), 400
+        measurement_types_and_info_json = json.dumps(measurement_types_and_info)
 
-        # Load JSON into Python dict with only Byte values, for use in populating dropdowns
-        measurement_types = json_loads_byteified(measurement_types_and_info)['measurement_info']
+        measurement_types = measurement_types_and_info['measurement_info']
         measurement_names = measurement_types.keys()
         measurement_names.sort()
 
@@ -145,14 +145,13 @@ def system_analyze(system_uid):
 
         # Load JSON formatted String from API.
         # This will be piped into Javascript as a JS Object accessible in that scope
-        measurement_types_and_info = get_all_measurement_info()
+        measurement_types_and_info = __get_all_measurement_info()
         if 'error' in measurement_types_and_info:
             current_app.logger.info(measurement_types_and_info['error'])
             current_app.logger.info("Error processing API call for measurement types.")
             return render_template("error.html"), 400
-
-        # Load JSON into Python dict with only Byte values, for use in populating dropdowns
-        measurement_types = json_loads_byteified(measurement_types_and_info)['measurement_info']
+        measurement_types_and_info_json = json.dumps(measurement_types_and_info)
+        measurement_types = measurement_types_and_info['measurement_info']
         measurement_names = measurement_types.keys()
         measurement_names.sort()
 
@@ -306,7 +305,8 @@ def get_all_measurement_names():
     return dav_api.get_all_measurement_names()
 
 
-def get_all_measurement_info():
+def __get_all_measurement_info():
+    """returns a dictionary of the form {'measurement_info': {<measurement_name>: {<infos>}, ...}}"""
     dav_api = AnalyticsAPI(current_app)
     return dav_api.get_all_measurement_info()
 

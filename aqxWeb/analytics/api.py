@@ -514,16 +514,13 @@ class AnalyticsAPI:
 
     def get_all_measurement_info(self):
         meas = self.mea.get_all_measurement_info()
-        if 'error' in meas:
-            return json.dumps(meas)
-        measurement_names = {}
-        for m in meas:
-            measurement_names[m[1]] = {}
-            measurement_names[m[1]]["id"] = (m[0])
-            measurement_names[m[1]]["unit"] = (m[2])
-            measurement_names[m[1]]["min"] = to_float(m[3])
-            measurement_names[m[1]]["max"] = to_float(m[4])
-        return json.dumps({"measurement_info": measurement_names})
+        measurement_names = {m[1]: {
+            'id': int(m[0]),
+            'unit': m[2] if m[2] is not None else '',
+            'min': to_float(m[3]),
+            'max': to_float(m[4])
+        } for m in meas}
+        return {"measurement_info": measurement_names}
 
     def get_all_data_for_system_and_measurement(self, system, measurement, page):
         response = self.mea.get_all_measurements(system, measurement, page)

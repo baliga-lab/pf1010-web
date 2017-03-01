@@ -320,7 +320,7 @@ if (!aqxgraph) {
             });
 
             // Draw the split charts
-            _.each(splitCharts, function(chart){chart.redraw()});
+            _.each(splitCharts, function(chart) { chart.redraw(); });
         }
     };
 
