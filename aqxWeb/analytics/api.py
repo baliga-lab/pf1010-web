@@ -30,9 +30,6 @@ class AnalyticsAPI:
 
     def get_all_systems_info(self):
         systems = self.sys.get_all_systems_info()
-        if 'error' in systems:
-            return json.dumps(systems)
-        # Create a list of systems
         systems_list = []
         for system in systems:
             # For each system, create a system
@@ -67,18 +64,16 @@ class AnalyticsAPI:
                 }
                 systems_list.append(obj)
 
-        return json.dumps({'systems': systems_list})
+        return {'systems': systems_list}
 
     def get_all_filters_metadata(self):
         results = self.met.get_all_filters()
-        if 'error' in results:
-            return json.dumps(results)
         values = defaultdict(list)
         for result in results:
             measurement_type = result[0]
             value = result[1]
             values[measurement_type].append(value)
-        return json.dumps({'filters': values})
+        return {'filters': values}
 
     def get_system_measurements(self, system_uid):
         # Fetch names of all the measurements

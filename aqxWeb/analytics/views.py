@@ -38,32 +38,17 @@ def error():
 @dav.route('/explore')
 def explore():
     try:
-        systems_and_info_json = get_all_systems_info()
-        if 'error' in systems_and_info_json:
-            current_app.logger.info(systems_and_info_json['error'])
-            current_app.logger.info("Error processing API call for aquaponic systems data.")
-            return render_template("error.html"), 400
-
-        systems = json_loads_byteified(systems_and_info_json)['systems']
-
-        metadata_json = get_all_aqx_metadata()
-        if 'error' in metadata_json:
-            current_app.logger.info(metadata_json['error'])
-            current_app.logger.info("Error processing API call for system metadata.")
-            return render_template("error.html"), 400
-
-        metadata_dict = json_loads_byteified(metadata_json)['filters']
+        dav_api = AnalyticsAPI(current_app)
+        systems_and_info = dav_api.get_all_systems_info()
+        systems_and_info_json = json.dumps(systems_and_info);
+        filters_metadata = dav_api.get_all_filters_metadata()
+        metadata_dict = filters_metadata['filters']
 
         return render_template("explore.html", **locals())
 
     except:
         traceback.print_exc()
         return render_template("error.html"), 400
-
-
-@dav.route('/')
-def index():
-    return 'Index'
 
 
 @dav.route('/analyzeGraph', methods=['POST'])
@@ -79,8 +64,8 @@ def analyze_graph():
         measurement_types_and_info = __get_all_measurement_info()
         if 'error' in measurement_types_and_info:
             current_app.logger(measurement_types_and_info['error'])
-            current_app.logger("Error processing API call for measurement types.")
-            return render_template("error.html"), 400
+            raise Exception("Error processing API call for measurement types.")
+
         measurement_types_and_info_json = json.dumps(measurement_types_and_info)
         measurement_types = sorted(measurement_types_and_info['measurement_info'].keys())
         selected_systemIDs = map(lambda s: s.encode('ascii'), request.form.get('selectedSystems').strip("\"").split(','))
@@ -151,17 +136,6 @@ def system_analyze(system_uid):
     except:
         traceback.print_exc()
         return render_template("error.html"), 400
-
-
-def get_all_systems_info():
-    """returns system inforamtion as JSON"""
-    dav_api = AnalyticsAPI(current_app)
-    return dav_api.get_all_systems_info()
-
-
-def get_all_aqx_metadata():
-    dav_api = AnalyticsAPI(current_app)
-    return dav_api.get_all_filters_metadata()
 
 
 @dav.route('/aqxapi/v1/measurements', methods=['GET'])
