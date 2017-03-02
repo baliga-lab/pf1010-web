@@ -88,28 +88,29 @@ def analyze_graph():
         systems_and_measurements_json_pre_est = json_loads_byteified(get_readings_for_tsplot(selected_systemIDs,
                                                                                              DEFAULT_MEASUREMENTS_LIST,
                                                                                              PRE_ESTABLISHED))['response']
-        # adding status 100 (pre-established) in every measurement of a system
-        for system in systems_and_measurements_json_pre_est:
-            for measurement in system['measurement']:
-                measurement['status'] = '100'
 
         if 'error' in systems_and_measurements_json_pre_est:
             current_app.logger.info(systems_and_measurements_json_pre_est['error'])
             current_app.logger.info("Error processing API call for measurement readings.")
             return render_template("error.html"), 400
 
+        # adding status 100 (pre-established) in every measurement of a system
+        for system in systems_and_measurements_json_pre_est:
+            for measurement in system['measurement']:
+                measurement['status'] = '100'
+
         systems_and_measurements_json = json_loads_byteified(get_readings_for_tsplot(selected_systemIDs,
                                                                                      DEFAULT_MEASUREMENTS_LIST,
                                                                                      ESTABLISHED))['response']
-        # adding status 200 (established) in every measurement of a system
-        for system in systems_and_measurements_json:
-            for measurement in system['measurement']:
-                measurement['status'] = '200'
-
         if 'error' in systems_and_measurements_json:
             current_app.logger.info(systems_and_measurements_json['error'])
             current_app.logger.info("Error processing API call for measurement readings.")
             return render_template("error.html"), 400
+
+        # adding status 200 (established) in every measurement of a system
+        for system in systems_and_measurements_json:
+            for measurement in system['measurement']:
+                measurement['status'] = '200'
 
         # appends measurements of both types to the system_and_measurement_json
         for i in range(len(systems_and_measurements_json)):
@@ -144,25 +145,28 @@ def system_analyze(system_uid):
         systems_and_measurements_json_pre_est = json_loads_byteified(get_readings_for_tsplot([system_uid],
                                                                                              DEFAULT_MEASUREMENTS_LIST,
                                                                                              PRE_ESTABLISHED))['response']
-        # adding status 200 (established) in every measurement of a system
-        for system in systems_and_measurements_json_pre_est:
-            for measurement in system['measurement']:
-                measurement['status'] = '100'
+
         if 'error' in systems_and_measurements_json_pre_est:
             current_app.logger.info(systems_and_measurements_json_pre_est['error'])
             return render_template("error.html"), 400
 
+        # adding status 200 (established) in every measurement of a system
+        for system in systems_and_measurements_json_pre_est:
+            for measurement in system['measurement']:
+                measurement['status'] = '100'
+
         systems_and_measurements_json = json_loads_byteified(get_readings_for_tsplot([system_uid],
                                                                                      DEFAULT_MEASUREMENTS_LIST,
                                                                                      ESTABLISHED))['response']
-        # adding status 200 (established) in every measurement of a system
-        for system in systems_and_measurements_json:
-            for measurement in system['measurement']:
-                measurement['status'] = '200'
 
         if 'error' in systems_and_measurements_json:
             current_app.logger.info(systems_and_measurements_json['error'])
             return render_template("error.html"), 400
+
+        # adding status 200 (established) in every measurement of a system
+        for system in systems_and_measurements_json:
+            for measurement in system['measurement']:
+                measurement['status'] = '200'
 
         # appends measurements of both types to the system_and_measurement_json
         for i in range(len(systems_and_measurements_json)):
