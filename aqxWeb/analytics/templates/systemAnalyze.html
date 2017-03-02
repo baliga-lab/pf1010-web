@@ -100,7 +100,7 @@
     <script src="{{ url_for('dav.static', filename='js/aqxgraph_common.js') }}"></script>
     <script src="{{ url_for('dav.static', filename='js/aqxSystemGraph.js') }}"></script>
     <script>
-        var systems_and_measurements = {{ systems_and_measurements_json | safe }};
+        var systems_and_measurements = {{ systems_and_measurements | safe }};
         var selectedSystemIDs = ['{{system_uid}}'];
         var measurement_types_and_info = {{ measurement_types_and_info_json | safe }};
         measurement_types_and_info = measurement_types_and_info.measurement_info;
