@@ -111,38 +111,17 @@ class MeasurementsDAO:
             conn.close()
         return recorded_time
 
-
-    ###############################################################################
-    # get_all_measurement_names: method to fetch the names of all the measurements
-    # param - id_list: list of the measurement ids
-    # returns: list of measurement names for the given ids.
-    def get_measurement_name_list(self, id_list):
+    def get_measurement_types(self, id_list):
         conn = self.getDBConn()
         cursor = conn.cursor()
-
-        id_list_str = "("
-        for i in range(0, len(id_list)):
-            id_list_str = id_list_str + str(id_list[i]) + ","
-
-        id_list_str = list(id_list_str)
-        id_list_str[len(id_list_str) - 1] = ")"
-
-        id_list_str = ''.join(id_list_str)
-
-        query_names = ("SELECT name "
-                       "FROM measurement_types "
-                       "where id in " +
-                       id_list_str)
+        query = "SELECT name FROM measurement_types where id in (%s)" % ",".join(map(str, id_list))
 
         try:
-            cursor.execute(query_names)
-            measurement_names = cursor.fetchall()
-        except Exception as e:
-            return {'error': e.args[1]}
+            cursor.execute(query)
+            return cursor.fetchall()
         finally:
             cursor.close()
             conn.close()
-        return measurement_names
 
 
     ###############################################################################

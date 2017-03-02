@@ -213,43 +213,20 @@ class AnalyticsAPI:
         }
         return json.dumps({'status': message})
 
-    def get_readings_for_plot(self, system_uid_list, measurement_id_list,status_id):
-        # Form a list of names from the list of ids
-        measurement_type_list = self.mea.get_measurement_name_list(measurement_id_list)
-
-        # Return if there is any error in getting the measurement type names
-        if 'error' in measurement_type_list:
-            error_msg = measurement_type_list
-            return json.dumps(error_msg)
-
-        # If there is no type for given id throw an exception
-        if not measurement_type_list:
-            error_msg = "No data found for " + "measurement_id_list: " + str(measurement_id_list)
-            raise ValueError(error_msg)
-
-        # Returned list is list of tuples. Separating measurement type names from tuple
-        measurement_name_list = []
-        for name in measurement_type_list:
-            measurement_name_list.append(str(name[0]))
-
-        # Retrieve the measurements calling DAO
-        data_retrieved = self.mea.get_measurements(system_uid_list, measurement_name_list,status_id)
-
-        # Retrieve the annotations
+    def get_readings_for_plot(self, system_uid_list, measurement_id_list, status_id):
+        measurement_types = [row[0] for row in self.mea.get_measurement_types(measurement_id_list)]
+        data_retrieved = self.mea.get_measurements(system_uid_list, measurement_types, status_id)
         annotations = self.mea.get_annotations(system_uid_list)
-
         status = self.mea.get_status_type(status_id)
 
         if 'error' in data_retrieved:
             return json.dumps(data_retrieved)
 
         system_measurement_list = []
-
         for system_uid in system_uid_list:
             readings = data_retrieved[system_uid]
-
             system_measurement_json = self.form_system_measurement_json(system_uid, readings, annotations[system_uid],
-                                                                        measurement_name_list,status)
+                                                                        measurement_types, status)
             system_measurement_list.append(system_measurement_json)
 
         return json.dumps({"response": system_measurement_list})
