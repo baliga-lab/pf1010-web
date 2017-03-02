@@ -82,23 +82,10 @@ def analyze_graph():
             current_app.logger("Error processing API call for measurement types.")
             return render_template("error.html"), 400
         measurement_types_and_info_json = json.dumps(measurement_types_and_info)
+        measurement_types = sorted(measurement_types_and_info['measurement_info'].keys())
 
-        measurement_types = measurement_types_and_info['measurement_info']
-        measurement_names = measurement_types.keys()
-        measurement_names.sort()
-
-        selected_systemID_list = []
-        try:
-            selected_systemID_list = json.dumps(request.form.get('selectedSystems')).translate(None, '\"\\').split(",")
-
-        except:
-            traceback.print_exc()
-            if not selected_systemID_list:
-                current_app.logger.info("System ID list or Status is undefined.")
-                current_app.logger.info("Error processing selected systems form.")
-                return render_template("error.html"), 400
-
-        systems_and_measurements_json_pre_est = json_loads_byteified(get_readings_for_tsplot(selected_systemID_list,
+        selected_systemIDs = map(lambda s: s.encode('ascii'), request.form.get('selectedSystems').strip("\"").split(','))
+        systems_and_measurements_json_pre_est = json_loads_byteified(get_readings_for_tsplot(selected_systemIDs,
                                                                                              DEFAULT_MEASUREMENTS_LIST,
                                                                                              PRE_ESTABLISHED))['response']
         # adding status 100 (pre-established) in every measurement of a system
@@ -111,7 +98,7 @@ def analyze_graph():
             current_app.logger.info("Error processing API call for measurement readings.")
             return render_template("error.html"), 400
 
-        systems_and_measurements_json = json_loads_byteified(get_readings_for_tsplot(selected_systemID_list,
+        systems_and_measurements_json = json_loads_byteified(get_readings_for_tsplot(selected_systemIDs,
                                                                                      DEFAULT_MEASUREMENTS_LIST,
                                                                                      ESTABLISHED))['response']
         # adding status 200 (established) in every measurement of a system
@@ -134,7 +121,7 @@ def analyze_graph():
         return render_template("error.html"), 400
 
 
-@dav.route('/analyzeGraph/system/<system_uid>', methods=['GET'])
+@dav.route('/analyzeGraph/<system_uid>', methods=['GET'])
 def system_analyze(system_uid):
     """This route is for analyzing coming from a system's info page"""
     try:
@@ -151,20 +138,10 @@ def system_analyze(system_uid):
             current_app.logger.info("Error processing API call for measurement types.")
             return render_template("error.html"), 400
         measurement_types_and_info_json = json.dumps(measurement_types_and_info)
-        measurement_types = measurement_types_and_info['measurement_info']
-        measurement_names = measurement_types.keys()
-        measurement_names.sort()
+        measurement_types = sorted(measurement_types_and_info['measurement_info'].keys())
 
-        selected_systemID_list = []
-        try:
-            selected_systemID_list = json.dumps(system_uid).translate(None, '\"\\').split(",")
-        except:
-            traceback.print_exc()
-            if not selected_systemID_list or len(selected_systemID_list) > 1:
-                current_app.logger.info("Incorrect system ID sent.")
-                return render_template("error.html"), 400
-
-        systems_and_measurements_json_pre_est = json_loads_byteified(get_readings_for_tsplot(selected_systemID_list,
+        # TODO: Refactor the filtering here !!!
+        systems_and_measurements_json_pre_est = json_loads_byteified(get_readings_for_tsplot([system_uid],
                                                                                              DEFAULT_MEASUREMENTS_LIST,
                                                                                              PRE_ESTABLISHED))['response']
         # adding status 200 (established) in every measurement of a system
@@ -175,7 +152,7 @@ def system_analyze(system_uid):
             current_app.logger.info(systems_and_measurements_json_pre_est['error'])
             return render_template("error.html"), 400
 
-        systems_and_measurements_json = json_loads_byteified(get_readings_for_tsplot(selected_systemID_list,
+        systems_and_measurements_json = json_loads_byteified(get_readings_for_tsplot([system_uid],
                                                                                      DEFAULT_MEASUREMENTS_LIST,
                                                                                      ESTABLISHED))['response']
         # adding status 200 (established) in every measurement of a system

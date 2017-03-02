@@ -44,7 +44,7 @@
                     <select class="chosen-select" multiple id="selectYAxis">
                         {# Loop through the list of measurement_types to populate Y Axis Type dropdown #}
                         {# Time is excluded from this dropdown #}
-                        {% for name in measurement_names %}
+                        {% for name in measurement_types %}
                             {% if not name == 'time' %}
                                 <option value="{{ name }}">{{ name }}</option>{% endif %}
                         {% endfor %}
@@ -111,7 +111,7 @@
 
 {#      selectedSystemIDs - list(String):  #}
 {#      List of System UIDs for each system that was selected on the Explore page #}
-        var selectedSystemIDs = {{ selected_systemID_list|safe }};
+        var selectedSystemIDs = {{ selected_systemIDs | safe }};
 
 {#      measurement_types_and_info- Object:  #}
 {#      JSON response containing measurement type data. IDs, measurement names, units, and ranges. #}

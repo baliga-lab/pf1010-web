@@ -46,7 +46,7 @@
                 <div class="form-group">
                     <label class="control-label">Select Y Axis</label>
                     <select class="chosen-select" multiple id="selectYAxis">
-                        {% for name in measurement_names %}
+                        {% for name in measurement_types %}
                             {% if not name == 'time' %}
                                 <option value="{{ name }}">{{ name }}</option>{% endif %}
                         {% endfor %}
@@ -101,7 +101,7 @@
     <script src="{{ url_for('dav.static', filename='js/aqxSystemGraph.js') }}"></script>
     <script>
         var systems_and_measurements = {{ systems_and_measurements_json | safe }};
-        var selectedSystemIDs = {{ selected_systemID_list|safe }};
+        var selectedSystemIDs = ['{{system_uid}}'];
         var measurement_types_and_info = {{ measurement_types_and_info_json | safe }};
         measurement_types_and_info = measurement_types_and_info.measurement_info;
         var annotationsMap = {{ annotations_map | safe }};
