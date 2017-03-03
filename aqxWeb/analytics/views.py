@@ -69,7 +69,7 @@ def analyze_graph():
         measurement_types_and_info_json = json.dumps(measurement_types_and_info)
         measurement_types = sorted(measurement_types_and_info['measurement_info'].keys())
         selected_systemIDs = map(lambda s: s.encode('ascii'), request.form.get('selectedSystems').strip("\"").split(','))
-        systems_and_measurements = __get_systems_and_measurements(selected_systemIDs)
+        systems_and_measurements = json.dumps(__get_systems_and_measurements(selected_systemIDs))
 
         return render_template("analyze.html", **locals())
     except:
@@ -127,7 +127,7 @@ def system_analyze(system_uid):
             return render_template("error.html"), 400
         measurement_types_and_info_json = json.dumps(measurement_types_and_info)
         measurement_types = sorted(measurement_types_and_info['measurement_info'].keys())
-        systems_and_measurements = __get_systems_and_measurements([system_uid])
+        systems_and_measurements = json.dumps(__get_systems_and_measurements([system_uid]))
 
         return render_template("systemAnalyze.html", **locals())
 
@@ -193,11 +193,7 @@ def put_system_measurement():
 
 def get_readings_for_tsplot(system_uid_list, msr_id_list,status_id):
     dav_api = AnalyticsAPI(current_app)
-    result = dav_api.get_readings_for_plot(system_uid_list, msr_id_list,status_id)
-    # for some reason, unicode strings don't end up correctly in the rendering
-    for entry in result['response']:
-        entry['system_uid'] = entry['system_uid'].encode('ascii')
-    return result
+    return dav_api.get_readings_for_plot(system_uid_list, msr_id_list,status_id)
 
 
 @dav.route('/aqxapi/v1/measurements/plot', methods=['POST'])
@@ -241,27 +237,3 @@ def __get_all_measurement_info():
     """returns a dictionary of the form {'measurement_info': {<measurement_name>: {<infos>}, ...}}"""
     dav_api = AnalyticsAPI(current_app)
     return dav_api.get_all_measurement_info()
-
-
-def json_loads_byteified(json_text):
-    return _byteify(json.loads(json_text, object_hook=_byteify),
-                    ignore_dicts=True)
-
-
-def _byteify(data, ignore_dicts=False):
-    # if this is a unicode string, return its string representation
-    if isinstance(data, unicode):
-        return data.encode('utf-8')
-
-    # if this is a list of values, return list of byteified values
-    if isinstance(data, list):
-        return [_byteify(item, ignore_dicts=True) for item in data]
-
-    # if this is a dictionary, return dictionary of byteified keys and values
-    # but only if we haven't already byteified it
-    if isinstance(data, dict) and not ignore_dicts:
-        return { _byteify(key, ignore_dicts=True): _byteify(value, ignore_dicts=True)
-                 for key, value in data.iteritems() }
-
-    # if it's anything else, return it in its original form
-    return data
