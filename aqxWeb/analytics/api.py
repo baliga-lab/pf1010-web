@@ -218,10 +218,6 @@ class AnalyticsAPI:
         data_retrieved = self.mea.get_measurements(system_uid_list, measurement_types, status_id)
         annotations = self.mea.get_annotations(system_uid_list)
         status = self.mea.get_status_type(status_id)
-
-        if 'error' in data_retrieved:
-            return json.dumps(data_retrieved)
-
         system_measurement_list = []
         for system_uid in system_uid_list:
             readings = data_retrieved[system_uid]
@@ -229,7 +225,7 @@ class AnalyticsAPI:
                                                                         measurement_types, status)
             system_measurement_list.append(system_measurement_json)
 
-        return json.dumps({"response": system_measurement_list})
+        return {"response": system_measurement_list}
 
     def form_system_measurement_json(self, system_uid, readings,annotations, measurement_type_list,status):
         measurement_list = []

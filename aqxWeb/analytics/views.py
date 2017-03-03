@@ -78,9 +78,8 @@ def analyze_graph():
 
 
 def __get_systems_and_measurements(system_uids):
-    systems_and_measurements_pre_est = json_loads_byteified(get_readings_for_tsplot(system_uids,
-                                                                                    DEFAULT_MEASUREMENTS_LIST,
-                                                                                    PRE_ESTABLISHED))['response']
+    systems_and_measurements_pre_est = get_readings_for_tsplot(system_uids, DEFAULT_MEASUREMENTS_LIST,
+                                                               PRE_ESTABLISHED)['response']
 
     if 'error' in systems_and_measurements_pre_est:
         current_app.logger.info(systems_and_measurements_pre_est['error'])
@@ -91,9 +90,8 @@ def __get_systems_and_measurements(system_uids):
         for measurement in system['measurement']:
             measurement['status'] = '100'
 
-    systems_and_measurements = json_loads_byteified(get_readings_for_tsplot(system_uids,
-                                                                            DEFAULT_MEASUREMENTS_LIST,
-                                                                            ESTABLISHED))['response']
+    systems_and_measurements = get_readings_for_tsplot(system_uids, DEFAULT_MEASUREMENTS_LIST,
+                                                       ESTABLISHED)['response']
 
     if 'error' in systems_and_measurements:
         current_app.logger.info(systems_and_measurements['error'])
@@ -195,16 +193,21 @@ def put_system_measurement():
 
 def get_readings_for_tsplot(system_uid_list, msr_id_list,status_id):
     dav_api = AnalyticsAPI(current_app)
-    return dav_api.get_readings_for_plot(system_uid_list, msr_id_list,status_id)
+    result = dav_api.get_readings_for_plot(system_uid_list, msr_id_list,status_id)
+    # for some reason, unicode strings don't end up correctly in the rendering
+    for entry in result['response']:
+        entry['system_uid'] = entry['system_uid'].encode('ascii')
+    return result
 
 
 @dav.route('/aqxapi/v1/measurements/plot', methods=['POST'])
 def get_readings_for_plot():
+    """This API is called by the graph Javascript for dynamic updating"""
     dav_api = AnalyticsAPI(current_app)
     measurements = request.json['measurements']
     systems_uid = request.json['systems']
     status_id = request.json['status']
-    return dav_api.get_readings_for_plot(systems_uid, measurements,status_id)
+    return json.dumps(dav_api.get_readings_for_plot(systems_uid, measurements,status_id))
 
 @dav.route('/aqxapi/measurements/<measurement_id>/system/<system_uid>/<page>', methods=['GET'])
 def get_all_for_system_and_measurement(system_uid, measurement_id, page):

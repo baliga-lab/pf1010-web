@@ -144,17 +144,9 @@ class MeasurementsDAO:
             conn.close()
         return measurement_name
 
-
-    ###############################################################################
-    # get_measurements: method to fetch measurements for multiple systems
-    # param system list of system_id
-    # param measurements list of measurements
-    # return dictionary with system_id as key and list of measurements[timestamp,m1,m2,...]
-    # with key as the measurement
     def get_measurements(self, systems, measurements, status_id):
         conn = self.getDBConn()
         payload = {}
-        values = {}
         cursor = conn.cursor()
         try:
             for system in systems:
@@ -168,33 +160,19 @@ class MeasurementsDAO:
                     current_app.logger.warn("No status found in the system_status table for system: %s status: %s",
                                             system, str(status_id))
                     payload[system] = ()
-
-        except Exception as e:
-            traceback.print_exc()
-            return {'error': e.args[1] + "system: :" + str(systems) + "  measurements: " + str(measurements)}
         finally:
             cursor.close()
             conn.close()
 
         # create new list for each measurement
+        values = {s: {m: [] for m in measurements} for s in systems}
         for s in systems:
-            values[s] = {}
-            for mea in measurements:
-                values[s][mea] = []
-
-        # add all measurements in a dict
-        for s in systems:
-
             v = payload[s]
-
             if v:
                 for m in v:
-                    key = m[0]
-                    values[s][key].append(m)
+                    values[s][m[0]].append(m)
 
-            payload[s] = values[s]
-
-        return payload
+        return values
 
 
     ###############################################################################
