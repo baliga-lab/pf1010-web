@@ -413,6 +413,8 @@ def view_system(system_uid):
                 system_mysql = system_neo4j
                 user_privilege = system.get_user_privilege_for_system(sql_id, system_uid)
                 system_admins = system.get_system_admins(system_uid)
+                display_names = [a['user']['displayName'] for a in system_admins]
+                system_admin_str = ', '.join(display_names)
                 system_participants = system.get_system_participants(system_uid)
                 system_subscribers = system.get_system_subscribers(system_uid)
                 participants_pending_approval = system.get_participants_pending_approval(system_uid)
@@ -435,16 +437,27 @@ def view_system(system_uid):
                 measurements = None
                 if "error" not in json_output_measurement:
                     measurements = json_output_measurement['measurements']
-                return render_template("system_social.html", system_neo4j=system_neo4j, system_mysql=system_mysql,
-                                       logged_in_user=logged_in_user, created_date=created_date,
+                return render_template("system_social.html",
+                                       system_neo4j=system_neo4j,
+                                       system_mysql=system_mysql,
+                                       logged_in_user=logged_in_user,
+                                       created_date=created_date,
                                        system_location=system_location,
-                                       user_privilege=user_privilege, system_admins=system_admins,
-                                       system_participants=system_participants, system_subscribers=system_subscribers,
+                                       user_privilege=user_privilege,
+                                       system_admins=system_admins,
+                                       system_participants=system_participants,
+                                       system_subscribers=system_subscribers,
                                        participants_pending_approval=participants_pending_approval,
                                        subscribers_pending_approval=subscribers_pending_approval,
-                                       system_uid=system_uid, privacy_info=privacy,
-                                       posts=posts, comments=comments, likes=likes,
-                                       totalLikes=total_likes, postOwners=post_owners, measurements=measurements)
+                                       system_uid=system_uid,
+                                       privacy_info=privacy,
+                                       posts=posts,
+                                       comments=comments,
+                                       likes=likes,
+                                       total_likes=total_likes,
+                                       post_owners=post_owners,
+                                       measurements=measurements,
+                                       system_admin_str=system_admin_str)
     except Exception as e:
         current_app.logger.exception("Exception at view_system: " + str(e))
 

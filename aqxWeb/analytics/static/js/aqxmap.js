@@ -69,13 +69,15 @@ if (!aqxmap) {
          var organism = _.isNull(system.organism_name) ? NOT_AVAILABLE : system.organism_name;
          var growbed = _.isNull(system.growbed_media) ? NOT_AVAILABLE : system.growbed_media;
          var crop = _.isNull(system.crop_name) ? NOT_AVAILABLE : system.crop_name;
-         var redirectLink = "/system/" + system.system_uid + "/overview";
+         var user = _.isNull(system.info) ? NOT_AVAILABLE : system.info;
+         var redirectLink = "/social/systems/" + system.system_uid;
 
          return "<h2>" + name + "</h2>" +
              "<ul><li>Aquaponics Technique: " + technique + "</li>" +
              "<li>Aquatic organism: " + organism+ "</li>" +
              "<li>Growbed Medium: " + growbed + "</li>" +
              "<li>Crop: " + crop + "</li>" +
+             "<li>User: " + user + "</li>" +
              "<li><a href="+redirectLink+">System Overview</a></li></ul>";
      }
 

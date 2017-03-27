@@ -40,7 +40,7 @@
                             <ul class="list-inline">
                                 {# LIKES COUNT #}
                                 <li>
-                                    {% for i in totalLikes %}
+                                    {% for i in total_likes %}
                                         {% if i.postid == row.post.id %}
                                             <span style="color: gold"><i class="fa fa-star"
                                                                          aria-hidden="true"></i></span>
@@ -50,7 +50,7 @@
                                 </li>
                                 {# DELETE POST #}
                                 <li>
-                                    {% for po in postOwners %}
+                                    {% for po in post_owners %}
                                         {% if po.postid == row.post.id and (po.userid == session['uid'] or user_privilege == "SYS_ADMIN") %}
                                             <div class="form-controls" style=" text-align: right;">
                                                 <form action="{{ url_for('social.delete_system_post') }}" method="post">
@@ -146,7 +146,7 @@
                                 </form>
                             </li>
                             <li>
-                                {% for po in postOwners %}
+                                {% for po in post_owners %}
                                     {% if po.postid == row.post.id and (po.userid == session['uid'] or user_privilege == "SYS_ADMIN") %}
                                         <div class="form-controls" style=" text-align: right;">
                                             <button type="submit" class="btn btn-blue btn-sm" name="submit"
