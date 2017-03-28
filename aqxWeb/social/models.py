@@ -905,8 +905,8 @@ class System:
             link_img=img,
             link_description=description
         )
-        sys_post_relationship = Relationship(new_system, "SYS_POSTED", post)
-        user_post_relationship = Relationship(user, "USER_POSTED", post)
+        sys_post_relationship = py2neo.Relationship(new_system, "SYS_POSTED", post)
+        user_post_relationship = py2neo.Relationship(user, "USER_POSTED", post)
         social_graph().create(sys_post_relationship)
         social_graph().create(user_post_relationship)
 
@@ -958,7 +958,7 @@ class System:
     def like_system_post(self, user_sql_id, system_postid):
         user = User(user_sql_id).find()
         post = social_graph().find_one("SystemPost", "id", system_postid)
-        rel = py2neio.Relationship(user, 'SYS_LIKED', post)
+        rel = py2neo.Relationship(user, 'SYS_LIKED', post)
         social_graph().create_unique(rel)
 
     def add_system_comment(self, user_sql_id, new_comment, system_postid):
