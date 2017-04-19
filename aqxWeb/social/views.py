@@ -396,7 +396,8 @@ def all_systems_neo4j():
 def view_system(system_uid):
     sql_id = session.get('uid')
     if sql_id is None:
-        return redirect(url_for('social.search_systems'))
+        # not logged in -> redirect to the system overview
+        return redirect(url_for('frontend.sys_overview', system_uid=system_uid))
     try:
         system = System()
         if request.method == 'GET':

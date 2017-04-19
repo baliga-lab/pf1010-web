@@ -15,3 +15,5 @@ NEO4J_PASS = "neo4j"
 CONSUMER_KEY = "<your consumer key>"
 CONSUMER_SECRET = "<your consumer secret>"
 GOOGLE_API_KEY = "<your google api key>"
+
+CHANGES_API_URL = '<your changes API url>'

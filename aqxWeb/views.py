@@ -1,5 +1,7 @@
-from flask import render_template, current_app, flash, redirect, url_for, request, session
+from flask import render_template, current_app, flash, redirect, url_for, request, session, jsonify
 from frontend import frontend
+import requests
+
 from aqxWeb.api import API
 from aqxWeb.analytics.api import AnalyticsAPI
 from aqxWeb.social.models import social_graph
@@ -107,6 +109,13 @@ def sys_annotations(system_uid):
     else:
         return render_template('no_access.html')
 """
+
+@frontend.route('/system/<system_uid>/annotations')
+def sys_annotations(system_uid):
+    api_base_url = current_app.config['CHANGES_API_URL']
+    resp = requests.get(api_base_url + '/api/v1.0.0/system_changes/%s/add_base' % system_uid)
+    data = json.loads(resp.text)
+    return jsonify(data=data)
 
 
 @frontend.route('/new_system')
