@@ -299,12 +299,55 @@ if (!aqxgraph) {
 
             _.each(selectedSystemIDs, function(systemID, k) {
                 // Copy over formatting options from overlay chart
-                var new_opts = aqxgraph.HC_OPTIONS;
-
-                new_opts.title.text = "NO DATA FOR THIS SYSTEM";
-                new_opts.chart.renderTo = "chart-" + k;
-                new_opts.yAxis = copyYAxes(yAxes);
-                new_opts.series = copySeries(series, systemID);
+                var new_opts = {
+                    chart: {
+                        type: 'line',
+                        height: 200,
+                        renderTo: 'chart-' + k,
+                        zoomType: 'xy',
+                        backgroundColor: aqxgraph.BACKGROUND,
+                        plotBorderColor: '#606063'
+                    },
+                    title: {
+                        text: "NO DATA FOR THIS SYSTEM",
+                        style: { color: '#E0E0E3' }
+                    },
+                    credits: { style: { color: '#666' } },
+                    tooltip: {
+                        formatter: tooltipFormatter,
+                        crosshairs: [true,true]
+                    },
+                    legend: {
+                        itemStyle: {
+                            color: '#E0E0E3'
+                        },
+                        enabled: true,
+                        labelFormatter: function() {
+                            return '<span>'+ this.name.split(",")[0] + '</span>';
+                        },
+                        symbolWidth: 60
+                    },
+                    xAxis: {
+                        minPadding: 0.05,
+                        maxPadding: 0.05,
+                        title:
+                        {
+                            text: aqxgraph.XAXIS_TITLE,
+                            style: {color: 'white'}
+                        }
+                    },
+                    exporting: {
+                        csv: {
+                            columnHeaderFormatter: function(series) {
+                                var name_and_variable = series.name.split(",");
+                                return name_and_variable[0] + '-' + name_and_variable[1];
+                            }
+                        }
+                    },
+                    showInLegend: true,
+                    yAxis: copyYAxes(yAxes),
+                    series: copySeries(series, systemID)
+                };
 
                 // Loop through series to extract system names and assign as titles. If there is no data
                 // for a system, then the series will not exist and the name remains "NO DATA FOR THIS SYSTEM"
