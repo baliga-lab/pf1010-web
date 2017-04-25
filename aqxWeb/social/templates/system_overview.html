@@ -1,0 +1,51 @@
+<div class="row">
+  <div class="col-md-6">
+    <dl class="dl-horizontal" style="margin-top: 8px">
+      <dt>Name</dt>
+      <dd>{{ system_neo4j[0][0]['name'] }} <a href="{{url_for('frontend.edit_system', system_uid=system_uid )}}"><span title="Edit system data" class="glyphicon glyphicon-pencil"></span></a></dd>
+      <dt>Created On:</dt><dd>{{ created_date }}</dd>
+      <dt>Admins:</dt><dd>{{system_admin_str}}</dd>
+      <dt>Location:</dt><dd>{{ system_location }}</dd>
+      <dt>Description:</dt><dd>{{ system_neo4j[0][0]['description'] }}</dd>
+      <dt>Participants:</dt>
+      <dd>{{ system_participants | length }}
+        {% if system_participants | length > 0 %}<a href="#" role="button" data-toggle="modal" data-target="#participantModal">(See All Participants)</a>{% endif %}</dd>
+      <dt>Subscribers:</dt>
+      <dd>{{ system_subscribers | length }}
+        {% if system_subscribers | length > 0 %}<a href="#" role="button" data-toggle="modal" data-target="#subscriberModal">See All Subscribers</a>{% endif %}</dd>
+      {% if user_privilege == "SYS_ADMIN" %}
+      <dt>Participants Request:</dt>
+      <dd>{{ participants_pending_approval | length }}</dd>
+      {% endif %}
+    </dl>
+
+    {% if user_privilege == "SYS_ADMIN" %}
+    <div class="row"><a href="{{ url_for('social.manage_system', system_uid= system_neo4j[0][0]["system_uid"]) }}">
+        <img class="cogWheelIcon" src="{{ url_for('social.static', filename='images/system_settings.png') }}"> Manage System Participants</a></div>
+    {% else %}
+
+    <!-- Subscribe / Request to Join Button-->
+    <form id="participate_subscribe_leave_system_form" action="{{ url_for('social.participate_subscribe_leave_system') }}" method="post" style="margin-top: 10px">
+      <div class="row">
+        <input type="hidden" name="google_id" value="{{ logged_in_user["google_id"] }}">
+        <input type="hidden" name="system_uid" value="{{ system_neo4j[0][0]["system_uid"] }}">
+        {% if user_privilege is none %}
+        <button type="submit" name="submit" value="Subscribe" class="btn btn-success">Subscribe</button>
+        <button type="submit" name="submit" value="Participate" class="btn btn-success">Participate</button>
+        {% else %}
+        <button type="submit" name="submit" value="Leave" id="btnLeave"
+                onclick="return aqx_social.getUserConsent()" class="btn btn-danger">
+          {% if user_privilege == "SYS_PARTICIPANT" or user_privilege == "SYS_SUBSCRIBER" %}Leave System{% endif %}
+        </button>
+        {% endif %}
+      </div>
+    </form>
+    {% endif %}
+  </div>
+
+  <!-- Google Maps -->
+  <div class="col-md-6">
+    <div id="map"></div>
+    <a href="http://www.google.com/maps/place/{{ system_neo4j[0][0]['location_lat'] }},{{ system_neo4j[0][0]['location_lng'] }}" target="_blank">Click Here For Navigation</a>
+  </div>
+</div>
