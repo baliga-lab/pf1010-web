@@ -395,9 +395,11 @@ def all_systems_neo4j():
 @social.route('/systems/<system_uid>', methods=['GET'])
 def view_system(system_uid):
     user_sql_id = session.get('uid')
+    """
     if user_sql_id is None:
         # not logged in -> redirect to the system overview
         return redirect(url_for('frontend.sys_overview', system_uid=system_uid))
+    """
 
     system = System()
     system_neo4j = system.get_system_by_uid(system_uid)
@@ -425,7 +427,7 @@ def view_system(system_uid):
         privacy_options = [Privacy.PUBLIC]
         privacy_default = Privacy.PUBLIC
 
-    privacy = Privacy(privacy_options, privacy_default, 'system_social', user_sql_id)
+    privacy_info = Privacy(privacy_options, privacy_default, 'system_social', user_sql_id)
     posts = system.get_system_recent_posts(system_uid)
     comments = system.get_system_recent_comments(system_uid)
     likes = system.get_system_recent_likes(system_uid)
@@ -436,27 +438,7 @@ def view_system(system_uid):
     measurements = None
     if "error" not in json_output_measurement:
         measurements = json_output_measurement['measurements']
-    return render_template("system_social.html",
-                           system_neo4j=system_neo4j,
-                           system_mysql=system_mysql,
-                           logged_in_user=logged_in_user,
-                           created_date=created_date,
-                           system_location=system_location,
-                           user_privilege=user_privilege,
-                           system_admins=system_admins,
-                           system_participants=system_participants,
-                           system_subscribers=system_subscribers,
-                           participants_pending_approval=participants_pending_approval,
-                           subscribers_pending_approval=subscribers_pending_approval,
-                           system_uid=system_uid,
-                           privacy_info=privacy,
-                           posts=posts,
-                           comments=comments,
-                           likes=likes,
-                           total_likes=total_likes,
-                           post_owners=post_owners,
-                           measurements=measurements,
-                           system_admin_str=system_admin_str)
+    return render_template("system_social.html", **locals())
 
 
 @social.route('/systems/approve_reject_participant', methods=['POST'])

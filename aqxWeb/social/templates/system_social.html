@@ -13,13 +13,20 @@
   <ul class="nav nav-tabs">
     <li class="nav active"><a href="#overview" data-toggle="tab">Overview</a></li>
     <li class="nav"><a href="#analysis" data-toggle="tab">Measurements</a></li>
+    {% if logged_in_user %}
     <li class="nav"><a href="#social" data-toggle="tab">Social</a></li>
+    {% endif %}
   </ul>
   <div class="tab-content">
     {# Overview Tab #}
     <div class="tab-pane active" id="overview">
       {% include "system_overview.html" %}
     </div>
+    {# Analysis Tab #}
+    <div class="tab-pane" id="analysis">
+      {% include "system_measurements.html" %}
+    </div>
+    {% if logged_in_user %}
     {# Social Tab #}
     <div class="tab-pane" id="social">
       <div class="row">
@@ -28,10 +35,7 @@
         {% include "display_system_posts.html" %}
       </div>
     </div>
-    {# Analysis Tab #}
-    <div class="tab-pane" id="analysis">
-      {% include "system_measurements.html" %}
-    </div>
+    {% endif %}{# logged_in_user #}
   </div>
 </div>
 {% include "system_modals.html" %}
