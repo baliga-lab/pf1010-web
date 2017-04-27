@@ -229,8 +229,7 @@ def edit_measurement_for_system():
 
 
 def get_all_measurement_names():
-    dav_api = AnalyticsAPI(current_app)
-    return dav_api.get_all_measurement_names()
+    return AnalyticsAPI(current_app).get_all_measurement_names()
 
 
 def __get_all_measurement_info():

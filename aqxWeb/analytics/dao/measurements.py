@@ -14,24 +14,19 @@ class MeasurementsDAO:
         return MySQLdb.connect(host=self.app.config['HOST'], user=self.app.config['USER'],
                                passwd=self.app.config['PASS'], db=self.app.config['DB'])
 
-
-    ###############################################################################
-    # get_all_measurement_names: method to fetch the names of all the measurements
-    # return: names of all the measurements
     def get_all_measurement_names(self):
         conn = self.getDBConn()
         cursor = conn.cursor()
-        query_names = ("SELECT name "
+        query_names = ("SELECT name,full_name "
                        "FROM measurement_types;")
         try:
             cursor.execute(query_names)
-            measurement_names = cursor.fetchall()
+            return [(name, full_name) for name, full_name in cursor.fetchall()]
         except Exception as e:
             return {'error': e.args[1]}
         finally:
             cursor.close()
             conn.close()
-        return measurement_names
 
 
     ###############################################################################

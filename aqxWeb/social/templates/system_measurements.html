@@ -16,7 +16,7 @@
       {% if measurements is not none %}
       {% for row in measurements %}
       <tr>
-        <td>{{ row.name }}</td>
+        <td>{{ row.full_name }}</td>
         {% if row.value %}<td>{{ row.value }}</td>{% else %}<td>-</td>{% endif %}
         {% if row.updated_at %}<td>{{ row.updated_at|datetime }}</td>{% else %}<td>-</td>{% endif %}
         <td>{% if logged_in_user and row.value %}<a href="/system/{{ system_uid  }}/measurements/{{ row.name }}/data" class="pull-right"><span title="View history" class="glyphicon glyphicon-list-alt"></span></a>{% endif %}</td>

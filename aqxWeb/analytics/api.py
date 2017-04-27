@@ -78,14 +78,11 @@ class AnalyticsAPI:
     def get_system_measurements(self, system_uid):
         # Fetch names of all the measurements
         names = self.mea.get_all_measurement_names()
-        if 'error' in names:
-            return json.dumps(names)
         # Create a list to store the name, latest time and value of all the measurements
         x = []
         # For each measurement
-        for name in names:
+        for measurement_name, full_name in names:
             # Fetch the name of the measurement using regular expression
-            measurement_name = name[0]
             if measurement_name != 'time':
                 # As each measurement of a system has a table on it's own,
                 # we need to create the name of each table.
@@ -108,6 +105,7 @@ class AnalyticsAPI:
                     normalized_measurement_value_reduced_decimal = "%.2f" % normalized_measurement_value
                     temp = {
                         'name': measurement_name,
+                        'full_name': full_name,
                         'time': str(value_temp[0]),
                         'value': str(normalized_measurement_value_reduced_decimal),
                         'updated_at': value_temp[2].strftime('%Y-%m-%d %H:%M:%S') if value_temp[2] else None
@@ -115,6 +113,7 @@ class AnalyticsAPI:
                 else:
                     temp = {
                         'name': measurement_name,
+                        'full_name': full_name,
                         'time': None,
                         'value': None,
                         'updated_at': None
