@@ -11,6 +11,10 @@
       <dt>Admins:</dt><dd>{{system_admin_str}}</dd>
       <dt>Location:</dt><dd>{{ system_location }}</dd>
       <dt>Description:</dt><dd>{{ system_neo4j[0][0]['description'] }}</dd>
+      <dt>Technique:</dt><dd>{{system_metadata.technique}}</dd>
+      <dt>Growbed Media:</dt><dd>{{growbed_media_str}}</dd>
+      <dt>Crops:</dt><dd>{{crops_str}}</dd>
+      <dt>Aquatic Organisms:</dt><dd>{{aquatic_str}}</dd>
       <dt>Participants:</dt>
       <dd>{{ system_participants | length }}
         {% if logged_in_user and system_participants | length > 0 %}<a href="#" role="button" data-toggle="modal" data-target="#participantModal">(See All Participants)</a>{% endif %}</dd>

@@ -17,6 +17,8 @@ from aqxWeb.social.api import SocialAPI
 import aqxWeb.social.models as models
 import aqxWeb.social.aqxdb as aqxdb
 
+from aqxWeb.api import API as GeneralAPI
+
 social = Blueprint('social', __name__, template_folder='templates', static_folder="static")
 
 
@@ -438,6 +440,17 @@ def view_system(system_uid):
     measurements = None
     if "error" not in json_output_measurement:
         measurements = json_output_measurement['measurements']
+
+    # this is accessing the top level in order to access the system's meta information
+    # the actual solution should be to move this view into the top level to
+    # have a clear directed dependency
+    general_api = GeneralAPI(current_app)
+    system_metadata = general_api.get_system(system_uid)
+    growbed_media_str = ', '.join([m['name'] for m in  system_metadata['gbMedia']])
+    crops_str = ', '.join(['%s (%d)' % (c['name'], c['count'])
+                           for c in  system_metadata['crops']])
+    aquatic_str = ', '.join(['%s (%d)' % (c['name'], c['count'])
+                           for c in  system_metadata['organisms']])
     return render_template("system_social.html", **locals())
 
 
