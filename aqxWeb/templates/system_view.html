@@ -30,7 +30,9 @@
     {# Social Tab #}
     <div class="tab-pane" id="social">
       <div class="row">
+        {% if user_privilege == "SYS_ADMIN" %}
         {% include "post_system_form.html" %}
+        {% endif %}
         <h3>Recent Posts</h3>
         {% include "display_system_posts.html" %}
       </div>

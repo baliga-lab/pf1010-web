@@ -3,7 +3,7 @@
     <dl class="dl-horizontal" style="margin-top: 8px">
       <dt>Name</dt>
       <dd>{{ system_neo4j[0][0]['name'] }}
-        {% if logged_in_user %}
+        {% if logged_in_user and user_privilege == 'SYS_ADMIN' %}
         <a href="{{url_for('frontend.edit_system', system_uid=system_uid )}}"><span title="Edit system data" class="glyphicon glyphicon-pencil"></span></a>
         {% endif %}
       </dd>
