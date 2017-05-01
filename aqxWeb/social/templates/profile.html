@@ -48,7 +48,7 @@
                      {% for row in participated_systems %}
                          {% if loop.index < stop_at %}
                                 <li>
-                                    <a href="{{ url_for('social.view_system',system_uid=row[0]['system_uid']) }}">{{ row[0]['name'] }}</a>
+                                    <a href="{{ url_for('frontend.view_system',system_uid=row[0]['system_uid']) }}">{{ row[0]['name'] }}</a>
                                 </li>
                          {% endif %}
                             {% endfor %}
@@ -63,7 +63,7 @@
                         {% for row in subscribed_systems %}
                              {% if loop.index < stop_at %}
                                 <li>
-                                    <a href="{{ url_for('social.view_system',system_uid=row[0]['system_uid']) }}">{{ row[0]['name'] }}</a>
+                                    <a href="{{ url_for('frontend.view_system',system_uid=row[0]['system_uid']) }}">{{ row[0]['name'] }}</a>
                                 </li>
                             {% endif %}
                             {% endfor %}
@@ -79,7 +79,7 @@
                        {% for row in admin_systems %}
                     {% if loop.index < stop_at %}
                                 <li>
-                                    <a href="{{ url_for('social.view_system',system_uid=row[0]['system_uid']) }}">{{ row[0]['name'] }}</a>
+                                    <a href="{{ url_for('frontend.view_system',system_uid=row[0]['system_uid']) }}">{{ row[0]['name'] }}</a>
                                 </li>
                             {% endif %}
                             {% endfor %}
@@ -148,7 +148,7 @@
                         {% if participated_systems %}
                             {% for row in participated_systems %}
                                 <li>
-                                    <a href="{{ url_for('social.view_system',system_uid=row[0]['system_uid']) }}">{{ row[0]['name'] }}</a>
+                                    <a href="{{ url_for('frontend.view_system',system_uid=row[0]['system_uid']) }}">{{ row[0]['name'] }}</a>
                                 </li>
                             {% endfor %}
                         {% else %}
@@ -160,7 +160,7 @@
                         {% if subscribed_systems %}
                             {% for row in subscribed_systems %}
                                 <li>
-                                    <a href="{{ url_for('social.view_system',system_uid=row[0]['system_uid']) }}">{{ row[0]['name'] }}</a>
+                                    <a href="{{ url_for('frontend.view_system',system_uid=row[0]['system_uid']) }}">{{ row[0]['name'] }}</a>
                                 </li>
                             {% endfor %}
                         {% else %}
@@ -172,7 +172,7 @@
                         {% if admin_systems %}
                             {% for row in admin_systems %}
                                 <li>
-                                    <a href="{{ url_for('social.view_system',system_uid=row[0]['system_uid']) }}">{{ row[0]['name'] }}</a>
+                                    <a href="{{ url_for('frontend.view_system',system_uid=row[0]['system_uid']) }}">{{ row[0]['name'] }}</a>
                                 </li>
                             {% endfor %}
                         {% else %}

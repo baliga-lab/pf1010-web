@@ -70,7 +70,7 @@ if (!aqxmap) {
          var growbed = _.isNull(system.growbed_media) ? NOT_AVAILABLE : system.growbed_media;
          var crop = _.isNull(system.crop_name) ? NOT_AVAILABLE : system.crop_name;
          var user = _.isNull(system.info) ? NOT_AVAILABLE : system.info;
-         var redirectLink = "/social/systems/" + system.system_uid;
+         var redirectLink = "/system/" + system.system_uid;
 
          return "<h2>" + name + "</h2>" +
              "<ul><li>Aquaponics Technique: " + technique + "</li>" +

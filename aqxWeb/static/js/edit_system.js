@@ -68,9 +68,14 @@ if (!aqx_editsystem) {
         // quotes. If we use value with double quotes, the first double quote
         // will close the string in value, which does not result in what we want,
         // therefore, value uses single quotes
-        $('<form action="' + url + '" method="POST">' +
+        var form = $('<form action="' + url + '" method="POST">' +
           '<input type="hidden" name="data" value=\'' + JSON.stringify(submitData) + '\'>' +
-          '</form>').submit();
+                     '</form>');
+        // Another workaround for newer versions of Chrome: Form submission only
+        // succeeds if the form is part of the body, otherwise an error is thrown
+        // that the form is not connected
+        $(document.body).append(form);
+        form.submit();
     };
 
     aqx_editsystem.create = function() {

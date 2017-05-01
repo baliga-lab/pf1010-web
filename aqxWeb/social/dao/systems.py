@@ -67,8 +67,14 @@ class SystemDAO:
                 SET s.name = {name}, s.description = {description},
                 s.status = {status}, s.modified_time = {modified_time}
                 """
-                self.graph.cypher.execute(update_system_query, system_uid=system_uid, name=name,
-                                          description=description, status=status, modified_time=timestamp())
+                try:
+                    # py2neo 2 (current production)
+                    self.graph.cypher.execute(update_system_query, system_uid=system_uid, name=name,
+                                              description=description, status=status, modified_time=timestamp())
+                except:
+                    # py2neo 3 (development system)
+                    self.graph.run(update_system_query, system_uid=system_uid, name=name,
+                                   description=description, status=status, modified_time=timestamp())
                 result = json.dumps({'success': "System Node Successfully Updated in Neo4J Database"})
                 return result
             else:
@@ -91,7 +97,10 @@ class SystemDAO:
             WHERE s.system_id = {system_id}
             DETACH DELETE s
             """
-            self.graph.cypher.execute(delete_system_query, system_id=system_id)
+            try:
+                self.graph.cypher.execute(delete_system_query, system_id=system_id)
+            except:
+                self.graph.run(delete_system_query, system_id=system_id)
             result = json.dumps({'success': "System Node Successfully Deleted in Neo4J Database"})
             return result
         except Exception as ex:
@@ -113,8 +122,10 @@ class SystemDAO:
             RETURN s
             ORDER BY s.name
             """
-            system = self.graph.cypher.execute(query, sql_id=sql_id);
-            return system
+            try:
+                return self.graph.cypher.execute(query, sql_id=sql_id)
+            except:
+                return self.graph.run(query, sql_id=sql_id)
         except Exception as ex:
             error_msg = json.dumps({'error': 'Exception Occurred At get_system_for_user: ' + str(ex.message)})
             return error_msg

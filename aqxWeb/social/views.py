@@ -17,7 +17,6 @@ from aqxWeb.social.api import SocialAPI
 import aqxWeb.social.models as models
 import aqxWeb.social.aqxdb as aqxdb
 
-from aqxWeb.api import API as GeneralAPI
 
 social = Blueprint('social', __name__, template_folder='templates', static_folder="static")
 
@@ -394,66 +393,6 @@ def all_systems_neo4j():
             return render_template("system_all.html", all_systems=all_systems)
 
 
-@social.route('/systems/<system_uid>', methods=['GET'])
-def view_system(system_uid):
-    user_sql_id = session.get('uid')
-    """
-    if user_sql_id is None:
-        # not logged in -> redirect to the system overview
-        return redirect(url_for('frontend.sys_overview', system_uid=system_uid))
-    """
-
-    system = System()
-    system_neo4j = system.get_system_by_uid(system_uid)
-    if not system_neo4j:
-        abort(404)
-
-    # otherwise continue
-    logged_in_user = User(user_sql_id).find()
-    created_date = convert_milliseconds_to_normal_date(system_neo4j[0][0]['creation_time'])
-    system_location = get_address_from_lat_lng(system_neo4j[0][0]['location_lat'],
-                                               system_neo4j[0][0]['location_lng'])
-    system_mysql = system_neo4j
-    user_privilege = system.get_user_privilege_for_system(user_sql_id, system_uid)
-    system_admins = system.get_system_admins(system_uid)
-    display_names = [a['user']['displayName'] for a in system_admins]
-    system_admin_str = ', '.join(display_names)
-    system_participants = system.get_system_participants(system_uid)
-    system_subscribers = system.get_system_subscribers(system_uid)
-    participants_pending_approval = system.get_participants_pending_approval(system_uid)
-    subscribers_pending_approval = system.get_subscribers_pending_approval(system_uid)
-    if user_privilege == "SYS_ADMIN" or user_privilege == "SYS_PARTICIPANT":
-        privacy_options = [Privacy.PARTICIPANTS, Privacy.PUBLIC]
-        privacy_default = Privacy.PARTICIPANTS
-    else:
-        privacy_options = [Privacy.PUBLIC]
-        privacy_default = Privacy.PUBLIC
-
-    privacy_info = Privacy(privacy_options, privacy_default, 'system_social', user_sql_id)
-    posts = system.get_system_recent_posts(system_uid)
-    comments = system.get_system_recent_comments(system_uid)
-    likes = system.get_system_recent_likes(system_uid)
-    total_likes = system.get_total_likes_for_system_posts(system_uid)
-    post_owners = system.get_system_post_owners(system_uid)
-    measurements_output_dav = get_system_measurements_dav_api(system_uid)
-    json_output_measurement = json.loads(measurements_output_dav)
-    measurements = None
-    if "error" not in json_output_measurement:
-        measurements = json_output_measurement['measurements']
-
-    # this is accessing the top level in order to access the system's meta information
-    # the actual solution should be to move this view into the top level to
-    # have a clear directed dependency
-    general_api = GeneralAPI(current_app)
-    system_metadata = general_api.get_system(system_uid)
-    growbed_media_str = ', '.join([m['name'] for m in  system_metadata['gbMedia']])
-    crops_str = ', '.join(['%s (%d)' % (c['name'], c['count'])
-                           for c in  system_metadata['crops']])
-    aquatic_str = ', '.join(['%s (%d)' % (c['name'], c['count'])
-                           for c in  system_metadata['organisms']])
-    return render_template("system_social.html", **locals())
-
-
 @social.route('/systems/approve_reject_participant', methods=['POST'])
 def approve_reject_system_participant():
     if request.method == 'POST':
@@ -494,7 +433,7 @@ def participate_subscribe_leave_system():
                         or user_privilege == "SYS_PENDING_PARTICIPANT" or user_privilege == "SYS_PENDING_SUBSCRIBER":
                     if request.form['submit'] == 'Leave':
                         system.leave_system(google_id, system_uid)
-        return redirect(url_for('social.view_system', system_uid=system_uid))
+        return redirect(url_for('frontend.view_system', system_uid=system_uid))
     else:
         return redirect(url_for('social.search_systems'))
 
@@ -957,7 +896,7 @@ def edit_or_delete_system_comment():
         system_uid = request.form['system_uid']
         if comment_id == "" or comment_id is None:
             flash('Comment not found to edit')
-            return redirect(url_for('social.view_system', system_uid=system_uid))
+            return redirect(url_for('frontend.view_system', system_uid=system_uid))
         else:
             comment = request.form['editedcomment']
             if request.form['submit'] == 'deleteComment':
@@ -969,7 +908,7 @@ def edit_or_delete_system_comment():
                 else:
                     System().edit_system_comment(comment, comment_id)
                     flash('Your comment has been updated')
-    return redirect(url_for('social.view_system', system_uid=system_uid))
+    return redirect(url_for('frontend.view_system', system_uid=system_uid))
 
 
 @social.route('/edit_or_delete_group_comment', methods=['POST'])
@@ -1091,7 +1030,7 @@ def add_system_post():
         # InValid System_UID
         if not system_neo4j:
             flash('System not found in neo4j.')
-            return redirect(url_for('social.view_system', system_uid=system_uid))
+            return redirect(url_for('frontend.view_system', system_uid=system_uid))
             # Valid System_UID
         else:
             logged_in_user = User(user_sql_id).find()
@@ -1108,7 +1047,7 @@ def add_system_post():
             else:
                 System().add_system_post(system_uid, user_sql_id, text, privacy,
                                          link, link_title, link_img, link_description)
-    return redirect(url_for('social.view_system', system_uid=system_uid))
+    return redirect(url_for('frontend.view_system', system_uid=system_uid))
 
 
 @social.route('/groups/add_group_post', methods=['POST'])
@@ -1208,14 +1147,14 @@ def add_system_comment():
     system_uid = request.form['system_uid']
     if comment == "" or comment is None:
         flash('Comment can not be empty')
-        redirect(url_for('social.view_system', system_uid=system_uid))
+        redirect(url_for('frontend.view_system', system_uid=system_uid))
     elif postid == "" or postid is None:
         flash('Post not found to comment on')
-        redirect(url_for('social.view_system', system_uid=system_uid))
+        redirect(url_for('frontend.view_system', system_uid=system_uid))
     else:
         System().add_system_comment(userid, comment, postid)
         flash('Your comment has been posted')
-    return redirect(url_for('social.view_system', system_uid=system_uid))
+    return redirect(url_for('frontend.view_system', system_uid=system_uid))
 
 
 @social.route('/add_group_comment', methods=['POST'])
@@ -1244,14 +1183,14 @@ def edit_system_post():
 
     if newpost == "" or newpost is None:
         flash('New post can not be empty')
-        redirect(url_for('social.view_system', system_uid=system_uid))
+        redirect(url_for('frontend.view_system', system_uid=system_uid))
     elif postid == "" or postid is None:
         flash('Post not found to edit')
-        redirect(url_for('social.view_system', system_uid=system_uid))
+        redirect(url_for('frontend.view_system', system_uid=system_uid))
     else:
         System().edit_system_post(newpost, postid)
         flash('Your comment has been updated')
-    return redirect(url_for('social.view_system', system_uid=system_uid))
+    return redirect(url_for('frontend.view_system', system_uid=system_uid))
 
 
 @social.route('/delete_system_post', methods=['POST'])
@@ -1260,11 +1199,11 @@ def delete_system_post():
     system_uid = request.form['system_uid']
     if postid == "" or postid is None:
         flash('Post not found to delete')
-        redirect(url_for('social.view_system', system_uid=system_uid))
+        redirect(url_for('frontend.view_system', system_uid=system_uid))
     else:
         System().delete_system_post(postid)
         flash('Your comment has been updated')
-    return redirect(url_for('social.view_system', system_uid=system_uid))
+    return redirect(url_for('frontend.view_system', system_uid=system_uid))
 
 
 @social.route('/like_or_unlike_system_post', methods=['POST'])
@@ -1283,7 +1222,7 @@ def like_or_unlike_system_post():
                 elif request.form['submit'] == 'unlikePost':
                     System().unlike_system_post(userid, postid)
                     flash('You unliked the post')
-    return redirect(url_for('social.view_system', system_uid=system_uid))
+    return redirect(url_for('frontend.view_system', system_uid=system_uid))
 
 
 @social.route('/like_or_unlike_group_post', methods=['POST'])
@@ -1313,7 +1252,7 @@ def like_system_post():
         system_uid = request.form['system_uid']
         System().like_system_post(userid, postid)
         flash('You liked the post')
-        return redirect(url_for('social.view_system', system_uid=system_uid))
+        return redirect(url_for('frontend.view_system', system_uid=system_uid))
     else:
         return render_template("/home.html")
 

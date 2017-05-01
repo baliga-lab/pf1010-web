@@ -7,6 +7,10 @@ from aqxWeb.analytics.api import AnalyticsAPI
 from aqxWeb.social.models import social_graph
 from aqxWeb.social.api import SocialAPI
 
+from aqxWeb.social.models import User, System, Privacy, Group
+# put this in a general namespace not in social, damn it !!!
+from aqxWeb.social.models import convert_milliseconds_to_normal_date, get_address_from_lat_lng, get_system_measurements_dav_api
+
 import services
 import json
 
@@ -153,6 +157,7 @@ def update_system(system_uid):
                 }}
             result = social_api.update_system_with_system_uid(sys_obj)
             if "error" in result:
+                print result
                 flash('could not update social attributes', 'warn')
             else:
                 flash('update successful')
@@ -162,3 +167,57 @@ def update_system(system_uid):
         flash('update failed', 'error')
 
     return redirect(url_for('frontend.edit_system', system_uid=system_uid))
+
+
+@frontend.route('/system/<system_uid>', methods=['GET'])
+def view_system(system_uid):
+    user_sql_id = session.get('uid')
+    system = System()
+    system_neo4j = system.get_system_by_uid(system_uid)
+    if not system_neo4j:
+        abort(404)
+
+    # otherwise continue
+    logged_in_user = User(user_sql_id).find()
+    created_date = convert_milliseconds_to_normal_date(system_neo4j[0][0]['creation_time'])
+    system_location = get_address_from_lat_lng(system_neo4j[0][0]['location_lat'],
+                                               system_neo4j[0][0]['location_lng'])
+    system_mysql = system_neo4j
+    user_privilege = system.get_user_privilege_for_system(user_sql_id, system_uid)
+    system_admins = system.get_system_admins(system_uid)
+    display_names = [a['user']['displayName'] for a in system_admins]
+    system_admin_str = ', '.join(display_names)
+    system_participants = system.get_system_participants(system_uid)
+    system_subscribers = system.get_system_subscribers(system_uid)
+    participants_pending_approval = system.get_participants_pending_approval(system_uid)
+    subscribers_pending_approval = system.get_subscribers_pending_approval(system_uid)
+    if user_privilege == "SYS_ADMIN" or user_privilege == "SYS_PARTICIPANT":
+        privacy_options = [Privacy.PARTICIPANTS, Privacy.PUBLIC]
+        privacy_default = Privacy.PARTICIPANTS
+    else:
+        privacy_options = [Privacy.PUBLIC]
+        privacy_default = Privacy.PUBLIC
+
+    privacy_info = Privacy(privacy_options, privacy_default, 'system_social', user_sql_id)
+    posts = system.get_system_recent_posts(system_uid)
+    comments = system.get_system_recent_comments(system_uid)
+    likes = system.get_system_recent_likes(system_uid)
+    total_likes = system.get_total_likes_for_system_posts(system_uid)
+    post_owners = system.get_system_post_owners(system_uid)
+    measurements_output_dav = get_system_measurements_dav_api(system_uid)
+    json_output_measurement = json.loads(measurements_output_dav)
+    measurements = None
+    if "error" not in json_output_measurement:
+        measurements = json_output_measurement['measurements']
+
+    # this is accessing the top level in order to access the system's meta information
+    # the actual solution should be to move this view into the top level to
+    # have a clear directed dependency
+    general_api = API(current_app)
+    system_metadata = general_api.get_system(system_uid)
+    growbed_media_str = ', '.join([m['name'] for m in  system_metadata['gbMedia']])
+    crops_str = ', '.join(['%s (%d)' % (c['name'], c['count'])
+                           for c in  system_metadata['crops']])
+    aquatic_str = ', '.join(['%s (%d)' % (c['name'], c['count'])
+                           for c in  system_metadata['organisms']])
+    return render_template("system_view.html", **locals())
