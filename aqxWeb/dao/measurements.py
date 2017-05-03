@@ -68,3 +68,18 @@ class MeasurementDAO:
             conn.close()
 
         return cursor.lastrowid
+
+    def store_measurements(self, system_uid, timestamp, measurements):
+        """saves a list of measurements to the database"""
+        if system_uid is not None and timestamp is not None and len(measurements) > 0:
+            conn = self.dbconn()
+            cursor = conn.cursor()
+            try:
+                for m in measurements:
+                    table = sys_table_name(m[0], system_uid)
+                    query = 'insert into ' + table + ' (value, time) values (%s, %s)'
+                    cursor.execute(query, [m[1], timestamp])
+                conn.commit()
+            finally:
+                cursor.close()
+                conn.close()

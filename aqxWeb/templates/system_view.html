@@ -2,9 +2,12 @@
 {% block title %}System{% endblock %}
 {% block styles %}
 {{ super() }}
+<link rel="stylesheet" type="text/css" href="{{ url_for('frontend.static', filename='css/jquery.ptTimeSelect.css') }}">
+
 <link rel="stylesheet" href="{{ url_for('social.static', filename='css/system_social.css') }}">
 <link rel="stylesheet" type="text/css" href="{{ url_for('social.static', filename='css/layout.css') }}">
 <link rel="stylesheet" type="text/css" href="{{ url_for('social.static', filename='css/newsfeed.css') }}">
+<link rel="stylesheet" type="text/css" href="{{ url_for('frontend.static', filename='css/pf1010-ui.css') }}">
 {% endblock %}
 
 {% block content %}
@@ -12,8 +15,10 @@
 <div class="container">
   <ul class="nav nav-tabs">
     <li class="nav active"><a href="#overview" data-toggle="tab">Overview</a></li>
-    <li class="nav"><a href="#analysis" data-toggle="tab">Measurements</a></li>
     {% if logged_in_user %}
+    {% if user_privilege == "SYS_ADMIN" or user_privilege == "SYS_PARTICIPANT" %}
+    <li class="nav"><a href="#measurements" data-toggle="tab">Measurements</a></li>
+    {% endif %}
     <li class="nav"><a href="#social" data-toggle="tab">Posts</a></li>
     {% endif %}
   </ul>
@@ -22,11 +27,13 @@
     <div class="tab-pane active" id="overview">
       {% include "system_overview.html" %}
     </div>
-    {# Analysis Tab #}
-    <div class="tab-pane" id="analysis">
+    {% if logged_in_user %}
+    {# Measurements Tab #}
+    {% if user_privilege == "SYS_ADMIN" or user_privilege == "SYS_PARTICIPANT" %}
+    <div class="tab-pane" id="measurements">
       {% include "system_measurements.html" %}
     </div>
-    {% if logged_in_user %}
+    {% endif %}
     {# Social Tab #}
     <div class="tab-pane" id="social">
       <div class="row">
@@ -50,10 +57,28 @@
 <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key={{config.GOOGLE_API_KEY}}"></script>
 <!-- jQuery Script For DOM Manipulation In Systems Page -->
 <script type="text/javascript" src="{{ url_for('social.static', filename='js/system_social.js') }}"></script>
+
+{# for the colorimetric strips and time inputs #}
+<script src="{{ url_for('frontend.static', filename='js/pf1010-ui.js') }}"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui-touch-punch/0.2.3/jquery.ui.touch-punch.min.js"></script>
+<script src="{{ url_for('frontend.static', filename='js/jquery.ptTimeSelect.js') }}"></script>
+
 <script type="text/javascript">
   $(document).ready(function() {
     aqx_social.renderGoogleMaps("{{ system_neo4j[0][0]['location_lat'] }}",
-    "{{ system_neo4j[0][0]['location_lng'] }}", "{{ system_neo4j[0][0]['name'] }}");
+  "{{ system_neo4j[0][0]['location_lng'] }}", "{{ system_neo4j[0][0]['name'] }}");
+
+  {% for prefix in strip_measurement_types %}pf1010ui.connectStrip('{{prefix}}');
+  {% endfor %}
+  {% for prefix in all_measurement_types %}pf1010ui.listenToInput('{{prefix}}');
+  {% endfor %}
+
+  if (!Modernizr.inputtypes.date) {
+    $('#measure-date').datepicker({dateFormat: "yy-mm-dd"});
+  }
+  if (!Modernizr.inputtypes.time) {
+    $('#measure-time').ptTimeSelect();
+  }
   });
 </script>
 {% endblock %}

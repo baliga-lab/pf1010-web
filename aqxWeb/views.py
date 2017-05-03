@@ -1,4 +1,4 @@
-from flask import render_template, current_app, flash, redirect, url_for, request, session, jsonify
+from flask import render_template, current_app, flash, redirect, url_for, request, session, jsonify, abort
 from frontend import frontend
 import requests
 
@@ -11,8 +11,17 @@ from aqxWeb.social.models import User, System, Privacy, Group
 # put this in a general namespace not in social, damn it !!!
 from aqxWeb.social.models import convert_milliseconds_to_normal_date, get_address_from_lat_lng, get_system_measurements_dav_api
 
+
+import aqxWeb.time_utils as time_utils
+
+# this is ugly, but: this app currently has too many layers
+# of indirection which we need to eliminate for long-term benefit
+from aqxWeb.dao.measurements import MeasurementDAO
+
 import services
 import json
+import traceback
+
 
 BROWSER_NAMES = {
     'msie': 'Internet Explorer', 'chrome': 'Chrome', 'firefox': 'Firefox',
@@ -103,6 +112,28 @@ def sys_measurements(system_uid):
     else:
         return render_template('no_access.html')
 
+
+@frontend.route('/system/<system_uid>/record-measurements', methods=['POST'])
+def record_measurements(system_uid):
+    """Action connected to the measurement form"""
+    if not can_user_edit_system(system_uid):
+        return render_template('no_access.html')
+
+    sys_uid = request.form['system-uid']
+    measure_date = request.form['measure-date']
+    measure_time = request.form['measure-time']
+    mtime = time_utils.get_form_time(measure_date, measure_time)
+    measurement_dao = MeasurementDAO(current_app)
+    measurement_types = [mt['name'] for mt in measurement_dao.measurement_types()]
+    measurements = []
+    for prefix in measurement_types:
+        if prefix + '-use' in request.form:
+            value = float(request.form[prefix + '-value'])
+            measurements.append((prefix, value))
+    if measurements > 0:
+        measurement_dao.store_measurements(system_uid, mtime, measurements)
+
+    return redirect(url_for('frontend.view_system', system_uid=system_uid))
 
 """
 @frontend.route('/system/<system_uid>/annotations')
@@ -204,11 +235,12 @@ def view_system(system_uid):
     likes = system.get_system_recent_likes(system_uid)
     total_likes = system.get_total_likes_for_system_posts(system_uid)
     post_owners = system.get_system_post_owners(system_uid)
+
     measurements_output_dav = get_system_measurements_dav_api(system_uid)
     json_output_measurement = json.loads(measurements_output_dav)
-    measurements = None
+    latest_measurements = None
     if "error" not in json_output_measurement:
-        measurements = json_output_measurement['measurements']
+        latest_measurements = json_output_measurement['measurements']
 
     # this is accessing the top level in order to access the system's meta information
     # the actual solution should be to move this view into the top level to
@@ -220,4 +252,8 @@ def view_system(system_uid):
                            for c in  system_metadata['crops']])
     aquatic_str = ', '.join(['%s (%d)' % (c['name'], c['count'])
                            for c in  system_metadata['organisms']])
+
+    strip_measurement_types = ['alkalinity', 'ammonium', 'chlorine', 'hardness', 'nitrate', 'nitrite', 'ph']
+    measurement_dao = MeasurementDAO(current_app)
+    all_measurement_types = [mt['name'] for mt in measurement_dao.measurement_types()]
     return render_template("system_view.html", **locals())

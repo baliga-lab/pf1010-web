@@ -1,30 +1,94 @@
-<h2>Measurements</h2>
+<h2>Enter Measurements</h2>
 {% if user_privilege == "SYS_ADMIN" or user_privilege == "SYS_PARTICIPANT" %}
+{#
 <a class="btn-blue" href="{{ url_for('frontend.sys_measurements', system_uid=system_neo4j[0][0]["system_uid"]) }}">
-  Input Measurements</a> <br>
+  Record Measurements</a> <br>
+#}
 {#
 <a class="btn-blue" href="{{ url_for('frontend.sys_annotations', system_uid=system_neo4j[0][0]["system_uid"]) }}">
   Log Changes to System</a> <br>
 #}
-<a class="btn-blue" href="{{ url_for('dav.system_analyze', system_uid=system_neo4j[0][0]["system_uid"]) }}">
-  Analyze Data</a>
 {% endif %}
-<div class="row">
-  <table id="placar" class="table table-responsive">
-    <thead><tr><th>Name</th><th>Value</th><th>Last Updated</th></tr></thead>
-    <tbody>
-      {% if measurements is not none %}
-      {% for row in measurements %}
-      <tr>
-        <td>{{ row.full_name }}</td>
-        {% if row.value %}<td>{{ row.value }}</td>{% else %}<td>-</td>{% endif %}
-        {% if row.updated_at %}<td>{{ row.updated_at|datetime }}</td>{% else %}<td>-</td>{% endif %}
-        <td>{% if logged_in_user and row.value and user_privilege == 'SYS_ADMIN' %}<a href="/system/{{ system_uid  }}/measurements/{{ row.name }}/data" class="pull-right"><span title="View history" class="glyphicon glyphicon-list-alt"></span></a>{% endif %}</td>
-        <td>{% if logged_in_user and row.value and row.time and user_privilege == 'SYS_ADMIN' %}<a href="/system/{{ system_uid  }}/measurements/{{ row.name }}/edit/{{ row.time }}" class="pull-right"><span title="Edit this measurement" class="glyphicon glyphicon-pencil"></span></a>{% endif %}
-        </td>
-      </tr>
-      {% endfor %}
+<form action="{{url_for('frontend.record_measurements', system_uid=system_uid)}}" method="post">
+  <div class="row" style="background-color: #ddeeff; border: 1px solid #888888; border-radius: 3px; padding: 3px; margin-top: 5px; margin-bottom: 12px">
+    <div class="form-group col-md-6">
+      <input type="hidden" name="system-uid" value="{{system_uid}}">
+      <label for="measure-date">Date</label>
+      <input class="form-control" type="date" style="position: relative; z-index: 1000000"
+             id="measure-date" name="measure-date" required />
+    </div>
+    <div class="form-group col-md-6">
+      <label for="measure-time">Time</label>
+      <input class="form-control" type="time" id="measure-time" name="measure-time" required />
+    </div>
+  </div>
+
+  <div style="margin-top: 1em; margin-bottom: 2em"><b>Note:</b> We assume the <a href="http://www.tetra-fish.com/Products.aspx?c=3&s=rating_desc&f=Test%20Kits">Tetra EasyStrips kit</a> for the strip colors</div>
+
+  <div class="form-group col-sm-12">
+    <button type="submit" class="btn btn-default">Record Measurements</button>
+  </div>
+
+
+  {% if latest_measurements is not none %}
+  {% for m in latest_measurements %}
+  <div class="row">
+    <div class="form-group col-md-6">
+      <label for="{{m.name}}-value">{{m.full_name}}
+        {% if m.value %}(last: {{m.value}}, {{m.time}})
+        <a href="/system/{{system_uid}}/measurements/{{m.name}}/data"><span title="View history" class="glyphicon glyphicon-list-alt"></span></a>
+        {% endif %}
+      </label>
+      {% if m.name in ['alkalinity', 'ammonium', 'chlorine', 'hardness', 'nitrate', 'nitrite', 'o2'] %}
+      <div class="input-group">
+        <input class="form-control" type="number" name="{{m.name}}-value" id="{{m.name}}-value" pattern="[0-9]+(.[0-9]+)?" style="text-align: right;" placeholder="0.0" step="0.1"></input>
+        <span id="{{m.name}}-addon" class="input-group-addon">mg/l</span>
+      </div>
+      {% elif m.name == 'light' %}
+      <div class="input-group">
+        <input class="form-control" type="number" name="{{m.name}}-value" id="{{m.name}}-value" pattern="[0-9]+(.[0-9]+)?" style="text-align: right;" placeholder="0.0" step="0.1"></input>
+        <span id="{{m.name}}-addon" class="input-group-addon">lux</span>
+      </div>
+      {% elif m.name == 'temp' %}
+      <div class="input-group">
+        <input class="form-control" type="number" name="{{m.name}}-value" id="{{m.name}}-value" pattern="[0-9]+(.[0-9]+)?" style="text-align: right;" placeholder="0.0" step="0.1"></input>
+        <span id="{{m.name}}-addon" class="input-group-addon">&deg;C</span>
+      </div>
+      {% elif m.name == 'height' %}
+      <div class="input-group">
+        <input class="form-control" type="number" name="{{m.name}}-value" id="{{m.name}}-value" pattern="[0-9]+(.[0-9]+)?" style="text-align: right;" placeholder="0.0" step="0.1"></input>
+        <span id="{{m.name}}-addon" class="input-group-addon">cm</span>
+      </div>
+      {% elif m.name == 'ph' %}
+        <input class="form-control" type="number" name="{{m.name}}-value" id="{{m.name}}-value" pattern="[0-9]+(.[0-9]+)?" style="text-align: right;" placeholder="0.0" step="0.1"></input>
+      {% elif m.name == 'leaf_count' %}
+        <input class="form-control" type="number" name="{{m.name}}-value" id="{{m.name}}-value" pattern="[0-9]+" style="text-align: right;" placeholder="0" step="1"></input>
+        {% else %}
+        <div></div>
       {% endif %}
-    </tbody>
-  </table>
-</div>
+    </div>
+    {% if m.name in strip_measurement_types %}
+    <div class="form-group col-md-3">
+      <label for="{{m.name}}-strip">Strip Color</label>
+      <div id="{{m.name}}-strip" class="form-control {{m.name}}-strip"><div id="{{m.name}}-picker" class="strip-picker" style="left: 100px;"></div></div>
+    </div>
+    <div class="form-group col-md-2">
+      <label for="{{m.name}}-preview">Preview</label>
+      <div id="{{m.name}}-preview" class="form-control strip-preview"></div>
+    </div>
+    {% else %}
+    <div class="form-group col-md-5"></div>
+    {% endif %}
+    <div class="form-group col-md-1">
+      <label for="{{m.name}}-use">Record</label>
+      <input type="checkbox" class="checkbox" name="{{m.name}}-use" id="{{m.name}}-use"></input>
+    </div>
+  </div>
+  {% endfor %}
+  {% endif %}
+
+  <div class="form-group col-sm-12">
+    <button type="submit" class="btn btn-default">Record Measurements</button>
+  </div>
+
+</form>
