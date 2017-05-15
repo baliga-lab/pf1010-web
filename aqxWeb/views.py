@@ -68,9 +68,12 @@ def sys_data(system_uid, measurement):
     dav_api = AnalyticsAPI(current_app)
     metadata = json.loads(services.get_system(system_uid))
     readings = json.loads(dav_api.get_all_data_for_system_and_measurement(system_uid, measurement, default_page))
+    measurements = readings['data']
     measurement_dao = MeasurementDAO(current_app)
-    measurement_types = {mt['name']: mt['full_name'] for mt in measurement_dao.measurement_types()}
-    measurement_name = measurement_types[measurement]
+    measurement_types = {mt['name']: (mt['full_name'], mt['unit'])
+                         for mt in measurement_dao.measurement_types()}
+    measurement_name = measurement_types[measurement][0]
+    measurement_unit = measurement_types[measurement][1]
     return render_template('sys_data.html', **locals())
 
 
@@ -79,7 +82,11 @@ def sys_edit_data(system_uid, measurement, created_at):
     dav_api = AnalyticsAPI(current_app)
     metadata = json.loads(services.get_system(system_uid))
     data = json.loads(dav_api.get_measurement_by_created_at(system_uid, measurement, created_at))
-    measurement_name = measurement.replace('_', ' ')
+
+    measurement_dao = MeasurementDAO(current_app)
+    measurement_types = {mt['name']: (mt['full_name'], mt['unit'])
+                         for mt in measurement_dao.measurement_types()}
+    measurement_name = measurement_types[measurement][0]
     return render_template('edit_data.html', **locals())
 
 
