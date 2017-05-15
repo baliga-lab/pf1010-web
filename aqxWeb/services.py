@@ -123,14 +123,6 @@ def addAnnotation(systemID):
     return api.addAnnotation(annotation)
 """
 
-
-# Get latest reading of a system with given systemUID for each measurement type
-@frontend.route('/aqxapi/v2/system/<systemUID>/reading', methods=['GET'])
-def latest_readings_for_system(systemUID):
-    api = API(current_app)
-    return api.latest_readings_for_system(systemUID)
-
-
 # Submit reading for given measurementType for system with given systemUID
 @frontend.route('/aqxapi/v2/system/<systemUID>/reading/<measurementType>', methods=['POST'])
 def submit_reading(systemUID, measurementType):

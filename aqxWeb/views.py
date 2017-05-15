@@ -62,14 +62,6 @@ def contact():
     return render_template('contact.html')
 
 
-@frontend.route('/system/<system_uid>/overview')
-def sys_overview(system_uid):
-    metadata = json.loads(services.get_system(system_uid))
-    readings = json.loads(services.latest_readings_for_system(system_uid))
-    user_is_participant = can_user_edit_system(system_uid)
-    return render_template('sys_overview.html', **locals())
-
-
 @frontend.route('/system/<system_uid>/measurements/<measurement>/data')
 def sys_data(system_uid, measurement):
     default_page = 1
@@ -100,17 +92,6 @@ def can_user_edit_system(system_uid):
         priv = social_api.user_privilege_for_system(session['uid'], system_uid)
         return priv == 'SYS_ADMIN' or priv == 'SYS_PARTICIPANT'
     return False
-
-
-@frontend.route('/system/<system_uid>/measurements')
-def sys_measurements(system_uid):
-    metadata = json.loads(services.get_system(system_uid))
-    readings = json.loads(services.latest_readings_for_system(system_uid))
-    measurement_types = json.loads(services.measurement_types())
-    if can_user_edit_system(system_uid):
-        return render_template('sys_measurements.html', **locals())
-    else:
-        return render_template('no_access.html')
 
 
 @frontend.route('/system/<system_uid>/record-measurements', methods=['POST'])
