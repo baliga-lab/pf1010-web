@@ -68,7 +68,9 @@ def sys_data(system_uid, measurement):
     dav_api = AnalyticsAPI(current_app)
     metadata = json.loads(services.get_system(system_uid))
     readings = json.loads(dav_api.get_all_data_for_system_and_measurement(system_uid, measurement, default_page))
-    measurement_name = measurement.replace('_', ' ')
+    measurement_dao = MeasurementDAO(current_app)
+    measurement_types = {mt['name']: mt['full_name'] for mt in measurement_dao.measurement_types()}
+    measurement_name = measurement_types[measurement]
     return render_template('sys_data.html', **locals())
 
 

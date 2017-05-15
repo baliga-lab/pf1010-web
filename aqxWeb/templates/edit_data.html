@@ -11,77 +11,77 @@
 {% block content %}
 
     <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a href="/system/{{ metadata.UID }}/overview">System</a></li>
-        <li class="breadcrumb-item"><a href="/system/{{ metadata.UID }}/measurements/{{ measurement }}/data">Data</a></li>
-        <li class="breadcrumb-item active">Edit</li>
+      <li class="breadcrumb-item"><a href="{{url_for('frontend.view_system', system_uid=metadata.UID)}}">System</a></li>
+      <li class="breadcrumb-item"><a href="{{url_for('frontend.sys_data', system_uid=metadata.UID, measurement=measurement)}}">Data History</a></li>
+      <li class="breadcrumb-item active">Edit</li>
     </ol>
 
     <div class="container" ng-controller="EditDataController">
-        <span class="hidden" id="measurementName">{{ measurement }}</span>
-        <span class="hidden" id="UID">{{ metadata.UID }}</span>
-        <span class="hidden" id="createdAt">{{ created_at }}</span>
+      <span class="hidden" id="measurementName">{{ measurement }}</span>
+      <span class="hidden" id="UID">{{ metadata.UID }}</span>
+      <span class="hidden" id="createdAt">{{ created_at }}</span>
 
-        <div class="row col-md-4">
-            <form class="form-horizontal" name="editDataForm" ng-switch on="measurementName">
-                <div class="form-group">
-                    <h1 class="align-left">Update {{ measurement_name }}</h1>
-                </div>
-                <div class="form-group">
-                    <label for="measure-datetime">Original Date & Time</label>
-                    <p>This measurement was initially recorded at the following time</p>
-                    <input class="form-control dt col-sm-6" name="createdAtTime"  placeholder="{{ data.created_at }}" disabled/>
-                </div>
-                <div class="form-group">
-                    <label for="measure-current-value">Current value</label>
-                    <input class="form-control dt col-sm-6" name="currentValue"  placeholder="{{ data.value }}" disabled/>
-                </div>
-                <div class="form-group">
-                    <label for="measure-value">New Value</label>
-                    <p>Enter in the new value of the measurement.</p>
-                    <div class="input-group">
-                        <div ng-switch on="measurementName">
-                            <input ng-switch-when="leaf_count" id="measure-value" class="form-control val" name="measure-value" type="number"
-                                   pattern="[0-9]+(.[0-9]+)?" style="text-align: right;" placeholder="0"
-                                   step="1" min="0" max="100000"
-                                   aria-describedby="addon" ng-model="measure.value" required>
-                            <input  ng-switch-default id="measure-value" class="form-control val" name="measure-value" type="number"
-                                    pattern="[0-9]+(.[0-9]+)?" style="text-align: right;" placeholder="0.00"
-                                    step="0.01" min="0" max="1000"
-                                    aria-describedby="addon" ng-model="measure.value" required>
-                        </div>
-                        <span ng-switch-when="light" id="addon" class="input-group-addon">lux</span>
-                        <span ng-switch-when="chlorine" id="addon" class="input-group-addon">&nbsp;</span>
-                        <span ng-switch-when="temp" id="addon" class="input-group-addon">&deg;C</span>
-                        <span ng-switch-when="leaf_count" id="addon" class="input-group-addon">leaves</span>
-                        <span ng-switch-when="height" id="addon" class="input-group-addon">cm</span>
-                        <span ng-switch-default id="addon" class="input-group-addon">mg/L</span>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <button type="submit" class="btn btn-green" ng-click="editMeasurement(measure)">
-                        Submit
-                    </button>
-                </div>
-            </form>
-            <div ng-show="message" class="alert alert-success alert-dismissable" role="alert">
-                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-                Measurement has been updated!
+      <div class="row col-md-4">
+        <form class="form-horizontal" name="editDataForm" ng-switch on="measurementName">
+          <div class="form-group">
+            <h1 class="align-left">Update {{ measurement_name }}</h1>
+          </div>
+          <div class="form-group">
+            <label for="measure-datetime">Original Date & Time</label>
+            <p>This measurement was initially recorded at the following time</p>
+            <input class="form-control dt col-sm-6" name="createdAtTime"  placeholder="{{ data.created_at }}" disabled/>
+          </div>
+          <div class="form-group">
+            <label for="measure-current-value">Current value</label>
+            <input class="form-control dt col-sm-6" name="currentValue"  placeholder="{{ data.value }}" disabled/>
+          </div>
+          <div class="form-group">
+            <label for="measure-value">New Value</label>
+            <p>Enter in the new value of the measurement.</p>
+            <div class="input-group">
+              <div ng-switch on="measurementName">
+                <input ng-switch-when="leaf_count" id="measure-value" class="form-control val" name="measure-value" type="number"
+                       pattern="[0-9]+(.[0-9]+)?" style="text-align: right;" placeholder="0"
+                       step="1" min="0" max="100000"
+                       aria-describedby="addon" ng-model="measure.value" required>
+                <input  ng-switch-default id="measure-value" class="form-control val" name="measure-value" type="number"
+                        pattern="[0-9]+(.[0-9]+)?" style="text-align: right;" placeholder="0.00"
+                        step="0.01" min="0" max="1000"
+                        aria-describedby="addon" ng-model="measure.value" required>
+              </div>
+              <span ng-switch-when="light" id="addon" class="input-group-addon">lux</span>
+              <span ng-switch-when="chlorine" id="addon" class="input-group-addon">&nbsp;</span>
+              <span ng-switch-when="temp" id="addon" class="input-group-addon">&deg;C</span>
+              <span ng-switch-when="leaf_count" id="addon" class="input-group-addon">leaves</span>
+              <span ng-switch-when="height" id="addon" class="input-group-addon">cm</span>
+              <span ng-switch-default id="addon" class="input-group-addon">mg/L</span>
             </div>
-            <div ng-show="error1" class="alert alert-danger alert-dismissable" role="alert">
-                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-                Error! The initial creation date of this measurement is after the given update time.
-            </div>
-            <div ng-show="error2" class="alert alert-danger alert-dismissable" role="alert">
-                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-                Unexpected error!
-            </div>
+          </div>
+          <div class="form-group">
+            <button type="submit" class="btn btn-green" ng-click="editMeasurement(measure)">
+              Submit
+            </button>
+          </div>
+        </form>
+        <div ng-show="message" class="alert alert-success alert-dismissable" role="alert">
+          <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+          Measurement has been updated!
         </div>
+        <div ng-show="error1" class="alert alert-danger alert-dismissable" role="alert">
+          <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+          Error! The initial creation date of this measurement is after the given update time.
+        </div>
+        <div ng-show="error2" class="alert alert-danger alert-dismissable" role="alert">
+          <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+          Unexpected error!
+        </div>
+      </div>
     </div>
 
 {% endblock %}
