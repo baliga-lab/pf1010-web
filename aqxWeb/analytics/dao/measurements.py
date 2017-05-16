@@ -315,44 +315,6 @@ class MeasurementsDAO:
             conn.close()
         return measurement_info
 
-
-    ###############################################################################
-    # get_annotations: method to fetch annotations for multiple systems
-    # param system list of system_id
-    # returns dictionary with system_id as key and list of annotations[annotation_id,timestamp]
-
-    def get_annotations(self, systems):
-        conn = self.getDBConn()
-        annotations = {}
-        cursor = conn.cursor()
-        try:
-            system_id_list_str = self.form_in_list(systems)
-
-            query =  "select s.system_uid, annotation_id, timestamp from system_annotations sa" + \
-                     " join systems s on" + \
-                     " s.id = sa.system_id" + \
-                     " where s.system_uid in " + system_id_list_str + \
-                     " order by s.system_uid,timestamp"
-
-            cursor.execute(query)
-            annotations_fetched = cursor.fetchall()
-
-            for s in systems:
-                annotations[s] = []
-
-            for annotation in annotations_fetched:
-                system_id = annotation[0]
-                annotations[system_id].append(annotation)
-
-            return annotations
-
-        except Exception as e:
-            return {'error': e.args[1] + "system: :" + str(systems)}
-        finally:
-            cursor.close()
-            conn.close()
-
-
     ###############################################################################
     # form_in_list: method to form the the "in" string from given list
     # param id_list list of system_ids

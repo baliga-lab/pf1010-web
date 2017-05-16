@@ -84,7 +84,6 @@
         var selectedSystemIDs = ['{{system_uid}}'];
         var measurement_types_and_info = {{ measurement_types_and_info_json | safe }};
         measurement_types_and_info = measurement_types_and_info.measurement_info;
-        var annotationsMap = {{ annotations_map | safe }};
         $(document).ready(aqxgraph.main());
     </script>
 {% endblock %}

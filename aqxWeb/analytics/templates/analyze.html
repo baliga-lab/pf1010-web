@@ -105,23 +105,10 @@
     <script src="{{ url_for('dav.static', filename='js/aqxgraph_common.js') }}"></script>
     <script src="{{ url_for('dav.static', filename='js/aqxGraph.js') }}"></script>
     <script>
-{#      systems_and_measurements - list(Object):  #}
-{#      List of JS Objects, each containing systems, metadata, and measurement data for selected measurement types #}
         var systems_and_measurements = {{ systems_and_measurements | safe }};
-
-{#      selectedSystemIDs - list(String):  #}
-{#      List of System UIDs for each system that was selected on the Explore page #}
         var selectedSystemIDs = {{ selected_systemIDs | safe }};
-
-{#      measurement_types_and_info- Object:  #}
-{#      JSON response containing measurement type data. IDs, measurement names, units, and ranges. #}
         var measurement_types_and_info = {{ measurement_types_and_info | safe }};
         measurement_types_and_info = measurement_types_and_info.measurement_info;
-
-{#      measurement_types_and_info- Object:  #}
-{#      JSON response containing annotation type data. IDs, annotation types, and descriptions #}
-        var annotationsMap = {{ annotations_map | safe }};
-
         $(document).ready(aqxgraph.main());
     </script>
 {% endblock %}

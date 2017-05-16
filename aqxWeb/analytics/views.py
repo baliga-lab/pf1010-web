@@ -57,7 +57,6 @@ def analyze_graph():
     current_app.logger.info('analyze_graph()')
     try:
         ui_api = UIAPI(current_app)
-        annotations_map = ui_api.getReadableAnnotations()
 
         # Load JSON formatted String from API.
         # This will be piped into Javascript as a JS Object accessible in that scope
@@ -114,7 +113,6 @@ def system_analyze(system_uid):
     """This route is for analyzing coming from a system's info page"""
     try:
         ui_api = UIAPI(current_app)
-        annotations_map = ui_api.getReadableAnnotations()
         metadata = ui_api.get_system(system_uid)
         user_is_participant = can_user_edit_system(system_uid)
 

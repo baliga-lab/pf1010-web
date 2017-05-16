@@ -1,14 +1,4 @@
 <h2>Enter Measurements</h2>
-{% if user_privilege == "SYS_ADMIN" or user_privilege == "SYS_PARTICIPANT" %}
-{#
-<a class="btn-blue" href="{{ url_for('frontend.sys_measurements', system_uid=system_neo4j[0][0]["system_uid"]) }}">
-  Record Measurements</a> <br>
-#}
-{#
-<a class="btn-blue" href="{{ url_for('frontend.sys_annotations', system_uid=system_neo4j[0][0]["system_uid"]) }}">
-  Log Changes to System</a> <br>
-#}
-{% endif %}
 <form action="{{url_for('frontend.record_measurements', system_uid=system_uid)}}" method="post">
   <div class="row" style="background-color: #ddeeff; border: 1px solid #888888; border-radius: 3px; padding: 3px; margin-top: 5px; margin-bottom: 12px">
     <div class="form-group col-md-6">

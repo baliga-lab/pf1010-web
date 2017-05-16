@@ -238,12 +238,14 @@ if (!aqxgraph) {
         yVal = yVal.charAt(0).toUpperCase() + yVal.slice(1);
         var datetime = this.point.date.split(" ");
         var eventString = "";
+        /*
+          // currently we are replacing anntations, but they plug in here
         if (this.point.annotations) {
             eventString = "<br><p>Most recent event(s): </p>";
             _.each(this.point.annotations, function (event) {
                 eventString = eventString + '<br><p>' + annotationsMap[event.id]+ " at " + event.date + '<p>'
             });
-        }
+        }*/
         return '<b>' + tooltipInfo[0] + '</b>' +
             '<br><p>' + yVal + ": " + this.y + ' ' + units + '</p>' +
             '<br><p>Hours in cycle: ' + this.x + '</p>' +

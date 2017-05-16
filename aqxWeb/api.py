@@ -1,7 +1,6 @@
 from aqxWeb.dao.users import UserDAO
 from aqxWeb.dao.systems import SystemDAO
 from aqxWeb.dao.metadata import MetadataDAO
-from aqxWeb.dao.annotations import AnnotationDAO
 from aqxWeb.dao.subscriptions import SubscriptionDAO
 from aqxWeb.dao.measurements import MeasurementDAO
 
@@ -17,7 +16,6 @@ class API:
         self.userDAO = UserDAO(app)
         self.metadataDAO = MetadataDAO(app)
         self.subscriptionDAO = SubscriptionDAO(app)
-        self.annotationDAO = AnnotationDAO(app)
         self.measurementDAO = MeasurementDAO(app)
 
     ###########################################################################

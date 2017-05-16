@@ -20,6 +20,111 @@ def to_float(value):
     else:
         return 0.0
 
+
+def build_values(x, y, reading_date):
+    values = {
+        "x": x,
+        "y": round(y, 2),
+        "date": reading_date
+    }
+    return values
+
+
+def calc_diff_hours(cur_date, start_date):
+    if cur_date < start_date:
+        raise ValueError('Current date is lesser than previous date', cur_date, start_date)
+    else:
+        diff = cur_date - start_date
+        return diff.days * 24 + diff.seconds / 3600
+
+
+#def get_measurement_name(name):
+#        return re.findall(r"\(u'(.*?)',\)", str(name))[0]
+
+def form_values_list(measurement_type, all_readings):
+    """
+    Form the list of values
+    Parameters:
+      - measurement_type : name of the type of measurement
+      - all_readings : readings associated with input measurement_type
+    returns the list of readings formed from input readings. ALl the readings that
+    fall in 1-hour bucket from time of first reading  are averaged and readings
+    is timestamped with latest timestamp in the bucket."""
+    value_list = []
+
+    # Initialize the variables
+    start_date = all_readings[0][1]
+    prev_reading = all_readings[0]
+    prev_x = 0
+    # Required variable for averaging
+    total = 0
+    counter = 0
+
+    # Every time  'values' is formed for previous reading if it falls outside the bucket, otherwise averaging is
+    # done, over the bucket
+
+    for i in range(1, len(all_readings) + 1):
+        try:
+            # This condition takes care of the last reading, which gets left out
+            if i == len(all_readings):
+                # By incrementing x deliberately, we enforce the 'values' formation for the very last reading
+                reading = prev_reading
+                x = prev_x + 1
+            # This condition takes care of all but the last reading
+            else:
+                reading = all_readings[i]
+                cur_date = reading[1]
+                # Calculate the difference in hours from previous reading
+                x = calc_diff_hours(cur_date, start_date)
+            # If x >  prevX, build the values object and append to the values list
+            if x > prev_x:
+
+                # If counter > 0, there were readings from 1-hour bucket and values should be averaged
+                if counter > 0:
+                    total = total + prev_reading[2]
+                    counter += 1
+
+                    avg = total / counter
+                    last_val_date = prev_reading[1]
+
+                    values = build_values(prev_x, avg, last_val_date)
+
+                    # Reset Average in a 1-hour bucket params
+                    total = 0
+                    counter = 0
+                # Otherwise, simply build values from previous reading
+                else:
+                    y = prev_reading[2]
+                    values = build_values(prev_x, y, prev_reading[1])
+
+                # Append the current values to valuelist
+                value_list.append(values)
+
+                prev_reading = reading
+                prev_x = x
+
+            else:
+                # if reading falls in same bucket, accumulate the reading value to average later
+                if x == prev_x:
+                    total = total + prev_reading[2]
+                    counter += 1
+                    prev_x = x
+                    prev_reading = reading
+                # Skip the reading if the readings are not in order. This is unlikely to occur.
+                else:
+                    current_app.logger.info("Skipped Value for %s, %s", str(measurement_type), str(cur_date))
+
+        except ValueError as err:
+            raise ValueError('Error in preparing values list', measurement_type, reading)
+
+    return value_list
+
+
+def get_measurement_table_name(measurement_name, system_uid):
+    table_name = "aqxs_" + measurement_name + "_" + system_uid
+    return table_name
+
+
 class AnalyticsAPI:
 
     def __init__(self, app):
@@ -87,7 +192,7 @@ class AnalyticsAPI:
                 # As each measurement of a system has a table on it's own,
                 # we need to create the name of each table.
                 # Each measurement table is: aqxs_measurementName_systemUID
-                table_name = self.get_measurement_table_name(measurement_name, system_uid)
+                table_name = get_measurement_table_name(measurement_name, system_uid)
 
                 num_of_records = 1
                 # Get the latest value stored in the table
@@ -127,15 +232,6 @@ class AnalyticsAPI:
         }
         return json.dumps(obj)
 
-    @staticmethod
-    def get_measurement_name(name):
-            return re.findall(r"\(u'(.*?)',\)", str(name))[0]
-
-    @staticmethod
-    def get_measurement_table_name(measurement_name, system_uid):
-        table_name = "aqxs_" + measurement_name + "_" + system_uid
-        return table_name
-
     def get_system_measurement(self, system_uid, measurement_id):
         # Encode the measurement_id
         measurement_id_encoded = measurement_id.encode('utf-8')
@@ -173,7 +269,7 @@ class AnalyticsAPI:
         else:
             num_of_records = 1
         # Create the name of the table
-        table_name = self.get_measurement_table_name(measurement[0], system_uid)
+        table_name = get_measurement_table_name(measurement[0], system_uid)
         # Get the latest value recorded in that table
         result = self.mea.get_latest_value(table_name, num_of_records)
         if 'error' in result:
@@ -200,41 +296,33 @@ class AnalyticsAPI:
     def get_readings_for_plot(self, system_uid_list, measurement_id_list, status_id):
         measurement_types = [row[0] for row in self.mea.get_measurement_types(measurement_id_list)]
         data_retrieved = self.mea.get_measurements(system_uid_list, measurement_types, status_id)
-        annotations = self.mea.get_annotations(system_uid_list)
         status = self.mea.get_status_type(status_id)
         system_measurement_list = []
         for system_uid in system_uid_list:
             readings = data_retrieved[system_uid]
-            system_measurement_json = self.form_system_measurement_json(system_uid, readings, annotations[system_uid],
+            system_measurement_json = self.form_system_measurement_json(system_uid, readings,
                                                                         measurement_types, status)
             system_measurement_list.append(system_measurement_json)
 
         return {"response": system_measurement_list}
 
-    def form_system_measurement_json(self, system_uid, readings,annotations, measurement_type_list,status):
+    def form_system_measurement_json(self, system_uid, readings, measurement_type_list, status):
         measurement_list = []
-
         # For each measurement type, form the list of readings
         for measurement_type in measurement_type_list:
 
-            reading_obj = {
-                         "value_list" : [],
-                         "annotation_index_list" : []
-            }
-            if readings:
-                if readings[measurement_type]:
-                    value_list = self.form_values_list(self, measurement_type, readings[measurement_type])
-
-                    if value_list :
-                        reading_obj = self.update_value_list(value_list,annotations)
-
-
+            value_list = []
+            if readings and readings[measurement_type]:
+                value_list = form_values_list(measurement_type, readings[measurement_type])
+                for value in value_list:
+                    value["date"] = str(value["date"])
             measurement = {
                 "type": measurement_type,
-                "annotation_indices": reading_obj["annotation_index_list"],
-                "values": reading_obj["value_list"]
+                "annotation_indices": [],
+                "values": value_list
             }
             measurement_list.append(measurement)
+
         system_name = self.sys.get_system_name(system_uid)
         if 'error' in system_name:
             return system_name
@@ -246,195 +334,6 @@ class AnalyticsAPI:
         }
 
         return system_measurement
-
-    @staticmethod
-    def form_values_list(self, measurement_type, all_readings):
-        """
-        Form the list of values
-        Parameters:
-          - measurement_type : name of the type of measurement
-          - all_readings : readings associated with input measurement_type
-        returns the list of readings formed from input readings. ALl the readings that
-        fall in 1-hour bucket from time of first reading  are averaged and readings
-        is timestamped with latest timestamp in the bucket."""
-        value_list = []
-
-        # Initialize the variables
-        start_date = all_readings[0][1]
-        prev_reading = all_readings[0]
-        prev_x = 0
-        # Required variable for averaging
-        total = 0
-        counter = 0
-
-        # Every time  'values' is formed for previous reading if it falls outside the bucket, otherwise averaging is
-        # done, over the bucket
-
-        for i in range(1, len(all_readings) + 1):
-            try:
-                # This condition takes care of the last reading, which gets left out
-                if i == len(all_readings):
-                    # By incrementing x deliberately, we enforce the 'values' formation for the very last reading
-                    reading = prev_reading
-                    x = prev_x + 1
-                # This condition takes care of all but the last reading
-                else:
-                    reading = all_readings[i]
-                    cur_date = reading[1]
-                    # Calculate the difference in hours from previous reading
-                    x = self.calc_diff_hours(cur_date, start_date)
-                # If x >  prevX, build the values object and append to the values list
-                if x > prev_x:
-
-                    # If counter > 0, there were readings from 1-hour bucket and values should be averaged
-                    if counter > 0:
-                        total = total + prev_reading[2]
-                        counter += 1
-
-                        avg = total / counter
-                        last_val_date = prev_reading[1]
-
-                        values = self.build_values(prev_x, avg, last_val_date)
-
-                        # Reset Average in a 1-hour bucket params
-                        total = 0
-                        counter = 0
-                    # Otherwise, simply build values from previous reading
-                    else:
-                        y = prev_reading[2]
-                        values = self.build_values(prev_x, y, prev_reading[1])
-
-                    # Append the current values to valuelist
-                    value_list.append(values)
-
-                    prev_reading = reading
-                    prev_x = x
-
-                else:
-                    # if reading falls in same bucket, accumulate the reading value to average later
-                    if x == prev_x:
-                        total = total + prev_reading[2]
-                        counter += 1
-                        prev_x = x
-                        prev_reading = reading
-                    # Skip the reading if the readings are not in order. This is unlikely to occur.
-                    else:
-                        current_app.logger.info("Skipped Value for %s, %s", str(measurement_type), str(cur_date))
-
-            except ValueError as err:
-                raise ValueError('Error in preparing values list', measurement_type, reading)
-
-        return value_list
-
-    @staticmethod
-    def build_values(x, y, reading_date):
-        values = {
-            "x": x,
-            "y": round(y, 2),
-            #"date": str(reading_date)
-            "date": reading_date
-
-        }
-        return values
-
-    def update_value_list(self,value_list,annotations):
-        """Update value list to add annotations and convert date to string
-        Parameters:
-          - value_list  : list of all reading values
-          - annotations : list of associated annotations
-        Returns: updated value list after adding any eligible annotation and converting
-        the date to string format. Annotation is added to the closest reading available after
-        the annotation timestamp. So there can be multiple annotations associated with one reading."""
-        index=0
-        updated_value_list = []
-
-        value_index=0
-        annotation_index_list = []
-
-        if annotations:
-            cur_annotation = annotations[index]
-            annotation_date = cur_annotation[2]
-
-            for value in value_list:
-
-                if(value["date"] > annotation_date) and index < len(annotations):
-                    annotation_list = []
-                    annotation_index_list.append(value_index)
-
-                    while(value["date"] > annotation_date)  :
-                        annotation_list.append(cur_annotation)
-                        index= index +1
-
-                        if(index < len(annotations)):
-                            cur_annotation = annotations[index]
-                            annotation_date = cur_annotation[2]
-                        else:
-                            break
-
-                    updated_value = self.update_values(value,annotation_list)
-                    updated_value_list.append(updated_value)
-                else:
-                     updated_value = self.update_values(value,None)
-                     updated_value_list.append(updated_value)
-
-                value_index = value_index + 1
-        else:
-            for value in value_list:
-                updated_value = self.update_values(value,None)
-                updated_value_list.append(updated_value)
-
-        obj = {
-            "value_list" : updated_value_list,
-            "annotation_index_list" : annotation_index_list
-        }
-
-        return obj
-
-    @staticmethod
-    def update_values(value,annotations):
-        """Update the values object
-        Parameters:
-          - value: value to be updated
-          - annotations: annotations associated with the values
-        Returns:
-        the updated values object. Values are modified to include any associated
-        annotations and date in string format"""
-        if annotations is None:
-            values = {
-                "x": value["x"],
-                "y": value["y"],
-                "date": str(value["date"])
-            }
-        else:
-            annotation_list = []
-            for annotation in annotations:
-                obj = {
-                    "id" : annotation[1],
-                    "date" : str(annotation[2])
-                }
-                annotation_list.append(obj)
-
-            values = {
-                "x": value["x"],
-                "y": value["y"],
-                "date": str(value["date"]),
-                "annotations" : annotation_list
-            }
-
-        return values
-
-    @staticmethod
-    def get_system_name(conn, system_id):
-        s = SystemsDAO(conn)
-        return s.get_system_name(system_id)
-
-    @staticmethod
-    def calc_diff_hours(cur_date, start_date):
-        if cur_date < start_date:
-            raise ValueError('Current date is lesser than previous date', cur_date, start_date)
-        else:
-            diff = cur_date - start_date
-            return diff.days * 24 + diff.seconds / 3600
 
     def get_all_measurement_names(self):
         meas = self.mea.get_all_measurement_names()
