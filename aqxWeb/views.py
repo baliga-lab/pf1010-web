@@ -92,12 +92,17 @@ def sys_edit_data(system_uid, measurement, created_at):
         measurement_unit = '&deg;C'
     return render_template('edit_data.html', **locals())
 
+
 @frontend.route('/system/<system_uid>/update-measurement/<measurement>/<time>', methods=['POST'])
 def update_measurement(system_uid, measurement, time):
     """Action connected to the measurement form"""
     if not can_user_edit_system(system_uid):
         return render_template('no_access.html')
-
+    value = request.form['value']
+    timestamp_str = 'T'.join(time.split(' ')) + 'Z'
+    timestamp = time_utils.get_timestamp(timestamp_str)
+    measurement_dao = MeasurementDAO(current_app)
+    measurement_dao.update_measurement(system_uid, timestamp, measurement, value)
     # go back to history
     return redirect(url_for('frontend.sys_data', system_uid=system_uid, measurement=measurement))
 

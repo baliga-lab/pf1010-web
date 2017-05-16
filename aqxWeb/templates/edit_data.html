@@ -16,18 +16,15 @@
     <div class="container">
       <h1>Edit {{measurement_name}} Value</h1>
       <form name="editDataForm" action="{{url_for('frontend.update_measurement', system_uid=metadata.UID, measurement=measurement, time=created_at)}}" method="post">
-        <input type="hidden" name="measurementName" value="{{measurement}}"></input>
-        <input type="hidden" name="UID" value="{{metadata.UID}}"></input>
-        <input type="hidden" name="createdAt" value="{{created_at}}"></input>
         <div class="form-group">
           <label for="measure-current-value">Value for {{data.created_at}}</label>
           {% if measurement_unit %}
           <div class="input-group">
-            <input class="form-control" name="newValue" placeholder="{{data.value}}" value="{{data.value}}"></input>
+            <input class="form-control" name="value" placeholder="{{data.value}}" value="{{data.value}}"></input>
             <span id="value-addon" class="input-group-addon">{{measurement_unit|safe}}</span>
           </div>
           {% else %}
-          <input class="form-control" name="newValue" placeholder="{{data.value}}" value="{{data.value}}"></input>
+          <input class="form-control" name="value" placeholder="{{data.value}}" value="{{data.value}}"></input>
           {% endif %}
         </div>
         <div class="form-group">

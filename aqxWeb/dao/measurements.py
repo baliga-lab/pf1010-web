@@ -36,3 +36,15 @@ class MeasurementDAO:
             finally:
                 cursor.close()
                 conn.close()
+
+    def update_measurement(self, system_uid, timestamp, measurement, value):
+        conn = self.dbconn()
+        cursor = conn.cursor()
+        try:
+            table = sys_table_name(measurement, system_uid)
+            query = 'update ' + table + ' set value=%s,time=%s,updated_at=CURRENT_TIMESTAMP where time=%s'
+            cursor.execute(query, [value, timestamp, timestamp])
+            conn.commit()
+        finally:
+            cursor.close()
+            conn.close()

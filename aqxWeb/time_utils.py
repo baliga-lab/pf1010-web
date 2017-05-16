@@ -32,6 +32,9 @@ def get_form_time(datestr, timestr):
         s = "%sT%sZ" % (datestr, timestr)
     else:
         s = "%sT00:00:00Z" % datestr
+    return get_timestamp(s)
+
+def get_timestamp(s):
     try:
         return datetime.fromtimestamp(time.mktime(time.strptime(s, API_TIME_FORMAT)))
     except:
