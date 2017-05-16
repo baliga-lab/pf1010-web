@@ -251,6 +251,6 @@ def view_system(system_uid):
 
 @frontend.route('/subscribe-updates', methods=['POST'])
 def subscribe_updates():
+    email = request.form['email']
     api = API(current_app)
-    email = request.get_json()['email']
-    return api.subscribe(email)
+    return json.dumps(api.subscribe(email))

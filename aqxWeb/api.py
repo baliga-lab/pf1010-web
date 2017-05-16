@@ -124,18 +124,9 @@ class API:
             })
         return enums
 
-
-    ###########################################################################
-    # SubscriptionAPI
-    ###########################################################################
-
     def subscribe(self, email):
         subscriptionID = self.subscriptionDAO.subscribe(email)
-        return json.dumps({subscriptionID: subscriptionID})
-
-    ###########################################################################
-    # MeasurementAPI
-    ###########################################################################
+        return {subscriptionID: subscriptionID}
 
     def measurement_types(self):
         return json.dumps(self.measurementDAO.measurement_types())
