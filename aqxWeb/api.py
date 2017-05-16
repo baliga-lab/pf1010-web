@@ -168,9 +168,5 @@ class API:
     # MeasurementAPI
     ###########################################################################
 
-    def submit_reading(self, measurementType, systemUID, reading):
-        rowID = self.measurementDAO.submit_reading(measurementType, systemUID, reading)
-        return json.dumps({rowID: rowID})
-
     def measurement_types(self):
         return json.dumps(self.measurementDAO.measurement_types())

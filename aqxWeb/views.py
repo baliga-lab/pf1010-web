@@ -87,7 +87,19 @@ def sys_edit_data(system_uid, measurement, created_at):
     measurement_types = {mt['name']: (mt['full_name'], mt['unit'])
                          for mt in measurement_dao.measurement_types()}
     measurement_name = measurement_types[measurement][0]
+    measurement_unit = measurement_types[measurement][1]
+    if measurement_unit == 'celsius':
+        measurement_unit = '&deg;C'
     return render_template('edit_data.html', **locals())
+
+@frontend.route('/system/<system_uid>/update-measurement/<measurement>/<time>', methods=['POST'])
+def update_measurement(system_uid, measurement, time):
+    """Action connected to the measurement form"""
+    if not can_user_edit_system(system_uid):
+        return render_template('no_access.html')
+
+    # go back to history
+    return redirect(url_for('frontend.sys_data', system_uid=system_uid, measurement=measurement))
 
 
 def can_user_edit_system(system_uid):
@@ -124,23 +136,6 @@ def record_measurements(system_uid):
         measurement_dao.store_measurements(system_uid, mtime, measurements)
 
     return redirect(url_for('frontend.view_system', system_uid=system_uid))
-
-"""
-@frontend.route('/system/<system_uid>/annotations')
-def sys_annotations(system_uid):
-    metadata = json.loads(services.get_system(system_uid))
-    if can_user_edit_system(system_uid):
-        return render_template('sys_annotations.html', **locals())
-    else:
-        return render_template('no_access.html')
-"""
-
-@frontend.route('/system/<system_uid>/annotations')
-def sys_annotations(system_uid):
-    api_base_url = current_app.config['CHANGES_API_URL']
-    resp = requests.get(api_base_url + '/api/v1.0.0/system_changes/%s/add_base' % system_uid)
-    data = json.loads(resp.text)
-    return jsonify(data=data)
 
 
 @frontend.route('/new_system')

@@ -22,25 +22,6 @@ class MeasurementDAO:
 
         return readings
 
-    def submit_reading(self, measurementType, systemUID, reading):
-        conn = self.dbconn()
-        cursor = conn.cursor()
-
-        value = reading['value']
-        timestamp = reading['timestamp']
-        table = sys_table_name(measurementType, systemUID)
-
-        query = 'INSERT INTO ' + table + ' (value, time) VALUES (%s, %s)'
-
-        try:
-            cursor.execute(query, (value, timestamp))
-            conn.commit()
-        finally:
-            cursor.close()
-            conn.close()
-
-        return cursor.lastrowid
-
     def store_measurements(self, system_uid, timestamp, measurements):
         """saves a list of measurements to the database"""
         if system_uid is not None and timestamp is not None and len(measurements) > 0:

@@ -197,21 +197,6 @@ class AnalyticsAPI:
         }
         return json.dumps(obj)
 
-    def put_system_measurement(self, system_uid, measurement_id, time, value):
-        measurement = self.mea.get_measurement_name(measurement_id)
-        if 'error' in measurement:
-            return json.dumps(measurement)
-        measurement_name = measurement[0]
-        # Create the name of the table
-        table_name = self.get_measurement_table_name(measurement_name, system_uid)
-        result = self.mea.put_system_measurement(table_name, time, value)
-        if 'error' in result:
-            return json.dumps(result)
-        message = {
-            "message": result
-        }
-        return json.dumps({'status': message})
-
     def get_readings_for_plot(self, system_uid_list, measurement_id_list, status_id):
         measurement_types = [row[0] for row in self.mea.get_measurement_types(measurement_id_list)]
         data_retrieved = self.mea.get_measurements(system_uid_list, measurement_types, status_id)
@@ -461,24 +446,6 @@ class AnalyticsAPI:
         mlist.append('time')
         return json.dumps({"types": mlist})
 
-    def generate_data(self, min_range, max_range, systems, meas):
-        """generate test data
-        Parameters:
-          - conn: connection to db
-          - min_range: minimum value u want to insert
-          - max_range: maximum value u want to insert
-          - systems: list of systems
-          - meas: list of measurements"""
-        for s in systems:
-            for i in range(1, 6, 1):
-                for j in range(0, 24, 1):
-                    for m in meas:
-                        d = datetime.datetime(2015, 1, i, j, 0, 0)
-                        table_name = self.get_measurement_table_name(m, s)
-                        time = d.strftime('%Y-%m-%d %H:%M:%S')
-                        val = random.uniform(min_range, max_range)
-                        self.mea.put_system_measurement(table_name, time, val)
-
     def get_all_measurement_info(self):
         meas = self.mea.get_all_measurement_info()
         measurement_names = {m[1]: {
@@ -497,12 +464,6 @@ class AnalyticsAPI:
 
     def get_measurement_by_created_at(self, system, measurement, created_at):
         response = self.mea.get_measurement(system, measurement, created_at)
-        if 'error' in response:
-            return json.dumps(response)
-        return json.dumps(response)
-
-    def edit_measurement(self, system_uid, measurement, data):
-        response = self.mea.update_existing_measurement(system_uid, measurement, data)
         if 'error' in response:
             return json.dumps(response)
         return json.dumps(response)

@@ -52,38 +52,6 @@ class MeasurementsDAO:
 
 
     ###############################################################################
-    # insert measurement value
-    # param - table_name: name of the table
-    # param - time : time to be inserted
-    # param - value: value to be inserted corresponding to the given time
-    # returns:
-    #   (a) If successfully inserted: Record successfully inserted
-    #   (b) If the value at the given time already exists: Value at the given time
-    #       already recorded
-    #   (c) If encountered an insertion error: error message
-    def put_system_measurement(self, table_name, time, value):
-        conn = self.getDBConn()
-        time_already_recorded = self.get_recorded_time(table_name, time)
-        if len(time_already_recorded) != 0:
-            return {'error': 'Value at the given time already recorded'}
-        cursor = conn.cursor()
-        query_put = "INSERT INTO %s " \
-                    "(time, value) " \
-                    "VALUES (%%s, %%s)" % table_name
-        record = (time, value)
-        try:
-            cursor.execute(query_put, record)
-            conn.commit()
-        except Exception as e:
-            conn.rollback()
-            return {'error': e.args[1]}
-        finally:
-            cursor.close()
-            conn.close()
-        return "Record successfully inserted"
-
-
-    ###############################################################################
     # check if measurement exists
     # param - table_name: name of the table
     # param - time
