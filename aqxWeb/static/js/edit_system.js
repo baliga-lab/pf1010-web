@@ -76,6 +76,7 @@ if (!aqx_editsystem) {
         // that the form is not connected
         $(document.body).append(form);
         form.submit();
+        return false;
     };
 
     aqx_editsystem.create = function() {

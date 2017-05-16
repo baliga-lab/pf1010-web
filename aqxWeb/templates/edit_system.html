@@ -63,9 +63,9 @@
                                   organisms, "Number of Organisms", {{o.id}}, {{o.count}});
       {% endfor %}
 
-      $('#edit_form').submit(function () {
-      console.log('submitting the form');
-      aqx_editsystem.update("{{url_for('frontend.update_system', system_uid=system_data['UID'])}}"); });
+      $('#edit_form').submit(function (event) {
+        return aqx_editsystem.update("{{url_for('frontend.update_system', system_uid=system_data['UID'])}}");
+      });
       });
     </script>
 {% endblock %}
