@@ -106,23 +106,6 @@ def api_create_system():
         return json.dumps(result)
 
 
-# Get annotations for a system with given systemID
-@frontend.route('/aqxapi/v2/system/<systemID>/annotation', methods=['GET'])
-def getAnnotationsForSystem(systemID):
-    api = API(current_app)
-    return api.getAnnotationsForSystem(systemID)
-
-
-"""
-# Add an annotation for system with given systemID
-@frontend.route('/aqxapi/v2/system/<systemID>/annotation', methods=['POST'])
-def addAnnotation(systemID):
-    api = API(current_app)
-    annotation = request.get_json()
-    annotation['systemID'] = systemID
-    return api.addAnnotation(annotation)
-"""
-
 @frontend.route('/aqxapi/v2/measurement_types', methods=['GET'])
 def measurement_types():
     api = API(current_app)
@@ -138,21 +121,3 @@ def subscribe():
     api = API(current_app)
     email = request.get_json()['email']
     return api.subscribe(email)
-
-
-######################################################################
-# Annotation Services
-######################################################################
-
-# Get (somewhat) readable annotation given annotationID
-@frontend.route('/aqxapi/v2/annotation/<annotationID>', methods=['GET'])
-def getReadableAnnotation(annotationID):
-    api = API(current_app)
-    return api.getReadableAnnotation(annotationID)
-
-
-# Get (somewhat) readable annotations map
-@frontend.route('/aqxapi/v2/annotation', methods=['GET'])
-def getReadableAnnotations():
-    api = API(current_app)
-    return api.getReadableAnnotations()

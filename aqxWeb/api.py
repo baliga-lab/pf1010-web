@@ -126,35 +126,6 @@ class API:
             })
         return enums
 
-    ###########################################################################
-    # AnnotationAPI
-    ###########################################################################
-
-    def getReadableAnnotation(self, annotationID):
-        readable = self.annotationDAO.getReadableAnnotation(annotationID)
-        return json.dumps(readable)
-
-    def getReadableAnnotations(self):
-        map = {}
-        results = self.annotationDAO.getReadableAnnotations()
-        for result in results:
-            map[result[0]] = result[1:3]
-        return json.dumps(map)
-
-    def addAnnotation(self, annotation):
-        rowID = self.annotationDAO.addAnnotation(annotation)
-        return json.dumps({rowID: rowID})
-
-    def getAnnotationsForSystem(self, systemID):
-        annotations = []
-        results = self.annotationDAO.getAnnotationsForSystem(systemID)
-        for result in results:
-            annotations.append({
-                'key': result[0],
-                'value': result[1],
-                'description': result[2]
-            })
-        return json.dumps(annotations)
 
     ###########################################################################
     # SubscriptionAPI
