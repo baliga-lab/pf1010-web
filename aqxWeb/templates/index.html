@@ -115,77 +115,53 @@
             </div>
         </div>
 
-
         <!-- START THE FEATURETTES -->
-
         <hr class="featurette-divider">
-
         <div class="row featurette">
-            <div ng-controller="AddEmailController" class="col-sm-6">
-                <h2 class="featurette-heading">Get notified of any updates.</h2>
-                <p class="lead">Join our mailing list by entering your email!</p>
-                <div class="input-group">
-                    <input type="email" class="form-control" ng-model="email" placeholder="Email Address">
-                    <span class="input-group-btn">
-                    <button class="btn btn-green" type="button" ng-click="addEmail(email)">Get Notified</button>
-                    </span>
-                </div><!-- /input-group -->
-                <br>
-                <div ng-show="message" class="alert alert-warning alert-dismissable" role="alert">
-                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                    Thank you! You have been added to the mailing list.
-                </div>
+          <div class="col-sm-6">
+            <h2 class="featurette-heading">Get notified of any updates.</h2>
+            <p class="lead">Join our mailing list by entering your email!</p>
+            <div class="input-group">
+              <input type="email" class="form-control" name="email" placeholder="Email Address">
+              <span class="input-group-btn">
+                <button class="btn btn-green" type="button">Get Notified</button>
+              </span>
             </div>
-            <div class="col-sm-1"></div>
-            <div class="col-sm-5">
-                <h2 class="featurette-heading">Say hi and keep in touch.</h2>
-                <p class="lead">Connect with us today!</p>
-                <ul class="list-inline">
-                    <!-- Google+
-                    <li>
-                        <a class="btn-blue btn-outline">
-                        <span class="fa-stack fa-2x">
-                            <i class="fa fa-circle fa-stack-2x"></i>
-                            <i class="fa fa-google fa-stack-1x fa-inverse"></i>
-                        </span>
-                        </a>
-                    </li>
-                    -->
-
-                    <!-- Facebook -->
-                    <li>
-                        <a class="btn-blue btn-outline" href="https://www.facebook.com/groups/ProjectFeed1010/">
-                        <span class="fa-stack fa-2x">
-                            <i class="fa fa-circle fa-stack-2x"></i>
-                            <i class="fa fa-facebook fa-stack-1x fa-inverse"></i>
-                        </span>
-                        </a>
-                    </li>
-
-                    <!-- Instagram
-                    <li>
-                        <a class="btn-blue btn-outline">
-                        <span class="fa-stack fa-2x">
-                            <i class="fa fa-circle fa-stack-2x"></i>
-                            <i class="fa fa-instagram fa-stack-1x fa-inverse"></i>
-                        </span>
-                        </a>
-                    </li>
-                    -->
-
-                    <!-- Twitter -->
-                    <li>
-                        <a class="btn-blue btn-outline" href="https://twitter.com/isbusa">
-                        <span class="fa-stack fa-2x">
-                            <i class="fa fa-circle fa-stack-2x"></i>
-                            <i class="fa fa-twitter fa-stack-1x fa-inverse"></i>
-                        </span>
-                        </a>
-                    </li>
-                </ul>
+            <br>
+            {#
+            <div ng-show="message" class="alert alert-warning alert-dismissable" role="alert">
+              <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+              Thank you! You have been added to the mailing list.
             </div>
+            #}
+          </div>
+          <div class="col-sm-1"></div>
+          <div class="col-sm-5">
+            <h2 class="featurette-heading">Say hi and keep in touch.</h2>
+            <p class="lead">Connect with us today!</p>
+            <ul class="list-inline">
+              <!-- Facebook -->
+              <li>
+                <a class="btn-blue btn-outline" href="https://www.facebook.com/groups/ProjectFeed1010/">
+                  <span class="fa-stack fa-2x">
+                    <i class="fa fa-circle fa-stack-2x"></i>
+                    <i class="fa fa-facebook fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+              <!-- Twitter -->
+              <li>
+                <a class="btn-blue btn-outline" href="https://twitter.com/isbusa">
+                  <span class="fa-stack fa-2x">
+                    <i class="fa fa-circle fa-stack-2x"></i>
+                    <i class="fa fa-twitter fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+            </ul>
+          </div>
         </div>
 
         <hr class="featurette-divider">
@@ -210,8 +186,3 @@
     </div>
 
 {% endblock %}
-
-{% block scripts %}
-    {{ super() }}
-    <script src="{{ url_for('frontend.static', filename='js/index.js') }}"></script>
-{% endblock scripts %}

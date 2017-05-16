@@ -247,3 +247,10 @@ def view_system(system_uid):
     measurement_dao = MeasurementDAO(current_app)
     all_measurement_types = [mt['name'] for mt in measurement_dao.measurement_types()]
     return render_template("system_view.html", **locals())
+
+
+@frontend.route('/subscribe-updates', methods=['POST'])
+def subscribe_updates():
+    api = API(current_app)
+    email = request.get_json()['email']
+    return api.subscribe(email)

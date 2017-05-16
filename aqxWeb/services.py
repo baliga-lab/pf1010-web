@@ -111,13 +111,4 @@ def measurement_types():
     api = API(current_app)
     return api.measurement_types()
 
-######################################################################
-# Subscription Services
-######################################################################
 
-# Subscribe the given email to the mailing list
-@frontend.route('/aqxapi/v2/mailing', methods=['POST'])
-def subscribe():
-    api = API(current_app)
-    email = request.get_json()['email']
-    return api.subscribe(email)
