@@ -1,46 +1,82 @@
 {% extends "base.html" %}
 
 {% block styles %}
-    {{ super() }}
-    <link rel="stylesheet" type="text/css" href="{{ url_for('frontend.static', filename='css/system.css') }}">
-    <link rel="stylesheet" type="text/css" href="{{ url_for('frontend.static', filename='css/annotations.css') }}">
+{{ super() }}
+<link rel="stylesheet" type="text/css" href="{{ url_for('frontend.static', filename='css/system.css') }}">
+<link rel="stylesheet" type="text/css" href="{{ url_for('frontend.static', filename='css/annotations.css') }}">
 {% endblock %}
-
-{% block title %}Data{% endblock %}
-
+{% block title %}Data History{% endblock %}
 {% block content %}
-    <span class="hidden" id="UID">{{ system_uid }}</span>
-    <span class="hidden" id="meaurementName">{{measurement}}</span>
-    <span class="hidden" id="page">{{ page }}</span>
+<ol class="breadcrumb">
+  <li class="breadcrumb-item"><a href="{{url_for('frontend.view_system', system_uid=metadata.UID)}}">System</a></li>
+  <li class="breadcrumb-item active">Data History</li>
+</ol>
 
-    <ol class="breadcrumb">
-      <li class="breadcrumb-item"><a href="{{url_for('frontend.view_system', system_uid=metadata.UID)}}">System</a></li>
-      <li class="breadcrumb-item active">Data History</li>
-    </ol>
+<div class="col-md-12">
+  <h1 class="align-left">Data History for {{ measurement_name }}</h1>
+  <table class="table table-striped table-condensed table-hover">
+    <thead>
+      <tr>
+        <th class="id">Time</th>
+        <th class="updated_at">Last Updated</th>
+        <th class="name">Value</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for item in measurements %}
+      <tr>
+        <td>{{item.time}}</td>
+        <td>{{item.updated_at}}</td>
+        <td>{{item.value}} {{measurement_unit}}
+          <a href="{{url_for('frontend.sys_edit_data', system_uid=system_uid, measurement=measurement, created_at=item.time)}}" class="pull-right"><span style="margin-left: 10px" title="Edit this measurement" class="glyphicon glyphicon-pencil"></span></a>
+          <a href="{{url_for('frontend.delete_measurement', system_uid=system_uid, measurement=measurement, time=item.time)}}" id="{{item.time}}" class="delentry pull-right"><span title="Delete this measurement" class="glyphicon glyphicon-trash"></span></a>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
 
-    <div class="col-md-12">
-      <h1 class="align-left">Data History for {{ measurement_name }}</h1>
-      <table class="table table-striped table-condensed table-hover">
-        <thead>
-          <tr>
-            <th class="id">Time</th>
-            <th class="updated_at">Last Updated</th>
-            <th class="name">Value</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for item in measurements %}
-          <tr>
-            <td>{{item.time}}</td>
-            <td>{{item.updated_at}}</td>
-            <td>{{item.value}} {{measurement_unit}}
-              <a href="{{url_for('frontend.sys_edit_data', system_uid=system_uid, measurement=measurement, created_at=item.time)}}" class="pull-right">
-                <span title="Edit this measurement" class="glyphicon glyphicon-pencil"></span>
-              </a>
-            </td>
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-    </div>
+<div class="modal fade" id="confirm-dialog" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title">Confirm entry removal</h4>
+      </div>
+      <div class="modal-body">
+        <p>Do you want to delete this entry ?</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+        <button id="remove-confirm" type="button" class="btn btn-primary">Remove entry</button>
+      </div>
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+{% endblock %}
+{% block scripts %}
+{{super()}}
+<script>
+  $(document).ready(function() {
+    var timestamp, url;
+    $('.delentry').click(function(e) {
+      timestamp = $(this).attr('id');
+      url = $(this).attr('href');
+      $('#confirm-dialog').modal('show');
+      return false;
+    });
+
+    $('#remove-confirm').click(function (e) {
+      $.ajax({
+        url: url,
+        type: 'DELETE',
+        success: function (result) {
+          $('#confirm-dialog').modal('hide');
+          location.reload();
+        }
+      });
+    });
+  });
+</script>
 {% endblock %}

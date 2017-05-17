@@ -1,6 +1,11 @@
 {% extends "base.html" %}
 {% block title %}Edit System{% endblock %}
 {% block content %}
+<ol class="breadcrumb">
+  <li class="breadcrumb-item"><a href="{{url_for('frontend.view_system', system_uid=system_data['UID'])}}">System</a></li>
+  <li class="breadcrumb-item active">Edit System</li>
+</ol>
+
 <div>
   <form id="edit_form">
     <input type="hidden" name="uid" value="{{system_data['UID']}}"></input>

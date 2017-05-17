@@ -48,3 +48,15 @@ class MeasurementDAO:
         finally:
             cursor.close()
             conn.close()
+
+    def delete_measurement(self, system_uid, timestamp, measurement):
+        conn = self.dbconn()
+        cursor = conn.cursor()
+        try:
+            table = sys_table_name(measurement, system_uid)
+            query = 'delete from ' + table + ' where time=%s'
+            cursor.execute(query, [timestamp])
+            conn.commit()
+        finally:
+            cursor.close()
+            conn.close()

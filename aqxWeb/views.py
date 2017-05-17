@@ -92,6 +92,9 @@ def sys_edit_data(system_uid, measurement, created_at):
         measurement_unit = '&deg;C'
     return render_template('edit_data.html', **locals())
 
+def __timestamp_from_time_str(s):
+    timestamp_str = 'T'.join(s.split(' ')) + 'Z'
+    return time_utils.get_timestamp(timestamp_str)
 
 @frontend.route('/system/<system_uid>/update-measurement/<measurement>/<time>', methods=['POST'])
 def update_measurement(system_uid, measurement, time):
@@ -99,12 +102,21 @@ def update_measurement(system_uid, measurement, time):
     if not can_user_edit_system(system_uid):
         return render_template('no_access.html')
     value = request.form['value']
-    timestamp_str = 'T'.join(time.split(' ')) + 'Z'
-    timestamp = time_utils.get_timestamp(timestamp_str)
+    timestamp = __timestamp_from_time_str(time)
     measurement_dao = MeasurementDAO(current_app)
     measurement_dao.update_measurement(system_uid, timestamp, measurement, value)
     # go back to history
     return redirect(url_for('frontend.sys_data', system_uid=system_uid, measurement=measurement))
+
+@frontend.route('/system/<system_uid>/update-measurement/<measurement>/<time>', methods=['DELETE'])
+def delete_measurement(system_uid, measurement, time):
+    if not can_user_edit_system(system_uid):
+        return jsonify(status='error', message='no rights to delete this entry')
+
+    timestamp = __timestamp_from_time_str(time)
+    measurement_dao = MeasurementDAO(current_app)
+    measurement_dao.delete_measurement(system_uid, timestamp, measurement)
+    return jsonify(status='ok')
 
 
 def can_user_edit_system(system_uid):
