@@ -1,4 +1,4 @@
-<div class="row">
+<div class="row" style="margin-top: 20px">
   <div class="col-md-6">
     <dl class="dl-horizontal" style="margin-top: 8px">
       <dt>Name</dt>
@@ -29,6 +29,14 @@
       {% endif %}
     </dl>
 
+  </div>
+
+  <div class="col-md-6">
+    <div id="img-details" class="img-details"></div>
+  </div>
+</div>
+<div class="row" style="margin-top: 20px">
+  <div class="col-md-6">
     <a class="btn-blue" href="{{ url_for('dav.system_analyze', system_uid=system_neo4j[0][0]["system_uid"]) }}">
       Analyze Data</a>
 
@@ -59,7 +67,6 @@
     </form>
     {% endif %}
   </div>
-
   <!-- Google Maps -->
   <div class="col-md-6">
     <div id="map"></div>

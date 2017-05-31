@@ -80,5 +80,24 @@
     $('#measure-time').ptTimeSelect();
   }
   });
+
+  function setImagePlaceholder(selector) {
+    $.get("{{url_for('frontend.details_images_placeholder', system_uid=system_uid)}}",
+          function(data) { $(selector).replaceWith(data); });
+  }
+  function setImage(selector, imgurl) {
+    $.get("{{url_for('frontend.details_images_div', system_uid=system_uid)}}", {img_url: imgurl},
+        function(data) {
+          $(selector).replaceWith(data);
+        });
+  }
+  // for overview
+  $(document).ready(function() {
+  {% if img_url %}
+  setImage('#img-details', '{{img_url}}');
+  {% else %}
+  setImagePlaceholder('#img-details');
+  {% endif %}
+  });
 </script>
 {% endblock %}

@@ -1,0 +1,60 @@
+<div id="img-placeholder" class="img-placeholder" ondragover="">
+  <div style="height: 20px;"></div>
+  <p style="font-size:12pt; font-weight: bold;">
+    Drag&amp;Drop your image here (JPG or PNG)
+  </p>
+  <p style="font-weight: bold;">
+    or
+  </p>
+  <form id="upload-image-form" method="post" action="" enctype="multipart/form-data">
+    <input type="file" id="browse-image" name="image-file" style="display:none">
+    <input type="hidden" class="hidden" name="system-uid" value="{{system_uid}}"></input>
+    <button type="button" onclick="$('#browse-image').click();" class="btn btn-primary">Browse</button>
+  </form>
+  <script>
+function submitImageForm(formdata) {
+  $.ajax("{{url_for('frontend.set_system_image')}}",
+          {type: 'POST', data: formdata, contentType: 'multipart/form-data',
+           processData: false, contentType: false,
+           success: function(data) {
+             if ('error' in data) {
+               console.log('ERROR: ' + data);
+             } else {
+              setImage('#img-placeholder', data.img_url);
+             }
+           }});
+}
+$('#browse-image').change(function() {
+  var formdata = new FormData($("#upload-image-form")[0]);
+  submitImageForm(formdata);
+});
+
+$('#img-placeholder').on('dragenter', function(e) {
+  e.preventDefault();
+  $('#img-placeholder').addClass('dragover');
+});
+$('#img-placeholder').on('dragover', function(e) {
+  e.preventDefault();
+  if (!$('#img-placeholder').hasClass('dragover')) {
+    $('#img-placeholder').addClass('dragover');
+  }
+});
+$('#img-placeholder').on('dragleave', function(e) {
+  e.preventDefault();
+  $('#img-placeholder').removeClass('dragover');
+});
+$('#img-placeholder').on('drop', function(e) {
+  e.preventDefault();
+  $('#img-placeholder').removeClass('dragover');
+  var files = e.originalEvent.dataTransfer.files;
+  if (files.length > 0) {
+    var formdata = new FormData();
+    formdata.append('system-uid', '{{system_uid}}');
+    formdata.append('image-file', files[0]);
+    submitImageForm(formdata);
+  }
+});
+
+
+  </script>
+</div>

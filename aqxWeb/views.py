@@ -1,4 +1,5 @@
 from flask import render_template, current_app, flash, redirect, url_for, request, session, jsonify, abort
+from werkzeug import secure_filename
 from frontend import frontend
 import requests
 
@@ -11,8 +12,8 @@ from aqxWeb.social.models import User, System, Privacy, Group
 # put this in a general namespace not in social, damn it !!!
 from aqxWeb.social.models import convert_milliseconds_to_normal_date, get_address_from_lat_lng, get_system_measurements_dav_api
 
-
 import aqxWeb.time_utils as time_utils
+import aqxWeb.image_utils as image_utils
 
 # this is ugly, but: this app currently has too many layers
 # of indirection which we need to eliminate for long-term benefit
@@ -21,6 +22,7 @@ from aqxWeb.dao.measurements import MeasurementDAO
 import services
 import json
 import traceback
+import os
 
 
 BROWSER_NAMES = {
@@ -258,6 +260,7 @@ def view_system(system_uid):
     strip_measurement_types = ['alkalinity', 'ammonium', 'chlorine', 'hardness', 'nitrate', 'nitrite', 'ph']
     measurement_dao = MeasurementDAO(current_app)
     all_measurement_types = [mt['name'] for mt in measurement_dao.measurement_types()]
+    img_url = image_url(system_uid)
     return render_template("system_view.html", **locals())
 
 
@@ -266,3 +269,83 @@ def subscribe_updates():
     email = request.form['email']
     api = API(current_app)
     return json.dumps(api.subscribe(email))
+
+
+@frontend.route("/details_image_placeholder/<system_uid>", methods=["GET"])
+def details_images_placeholder(system_uid):
+    """a simple snippet to add an image control"""
+    return render_template('details_image_placeholder.html', **locals())
+
+
+@frontend.route("/details_image_div/<system_uid>", methods=["GET"])
+def details_images_div(system_uid):
+    """a simple snippet to add an image control"""
+    img_url = request.args.get('img_url');
+    return render_template('details_image_div.html', **locals())
+
+@frontend.route('/clear-system-image/<system_uid>', methods=['DELETE'])
+def clear_system_image(system_uid):
+    if can_user_edit_system(system_uid):
+        filename = "%s.jpg" % system_uid
+        thumb_name = "%s_thumb.jpg" % system_uid
+        target_path = os.path.join(current_app.config['UPLOAD_FOLDER'], filename)
+        thumb_path = os.path.join(current_app.config['UPLOAD_FOLDER'], thumb_name)
+        if os.path.exists(target_path):
+            os.remove(target_path)
+            if os.path.exists(thumb_path):
+                os.remove(thumb_path)
+        else:
+            filename = "%s.png" % system_uid
+            thumb_name = "%s_thumb.png" % system_uid
+            target_path = os.path.join(current_app.config['UPLOAD_FOLDER'], filename)
+            thumb_path = os.path.join(current_app.config['UPLOAD_FOLDER'], thumb_name)
+            if os.path.exists(target_path):
+                os.remove(target_path)
+                if os.path.exists(thumb_path):
+                    os.remove(thumb_path)
+
+        return jsonify(status="ok")
+    else:
+        return jsonify(error="attempt to modify non-owned system")
+
+
+@frontend.route("/system_image", methods=["POST"])
+def set_system_image():
+    sys_uid = request.form['system-uid']
+    if can_user_edit_system(sys_uid):
+        file = request.files['image-file']
+        if file:
+            filename = secure_filename(file.filename)
+            suffix = filename.split('.')[-1].lower()
+            current_app.logger.debug('suffix: %s', suffix)
+            if suffix in {'png', 'jpg'}:
+                filename = "%s.%s" % (sys_uid, suffix)
+                target_path = os.path.join(current_app.config['UPLOAD_FOLDER'], filename)
+                current_app.logger.info('upload file: %s', target_path)
+                file.save(target_path)
+                image_utils.make_thumbnail(current_app.config['UPLOAD_FOLDER'],
+                                           sys_uid, overwrite=True)
+                return jsonify(status="Ok", img_url="/static/uploads/%s" % filename)
+            else:
+                return jsonify(error="invalid image file name")
+        else:
+            return jsonify(error="please specify an image file")
+    else:
+        return jsonify(error="unauthorized attempt to set image file")
+
+
+#### HELPERS #####
+
+def image_url(system_uid):
+    img_url = None
+    mtime = None
+    jpg_path = os.path.join(current_app.config['UPLOAD_FOLDER'], "%s.jpg" % system_uid)
+    if os.path.exists(jpg_path):
+        mtime = os.path.getmtime(jpg_path)
+        img_url = '/static/uploads/%s.jpg?%s' % (system_uid, str(mtime))
+    if img_url is None:
+        png_path = os.path.join(current_app.config['UPLOAD_FOLDER'], "%s.png" % system_uid)
+        if os.path.exists(png_path):
+            mtime = os.path.getmtime(png_path)
+            img_url = '/static/uploads/%s.png?%s' % (system_uid, str(mtime))
+    return img_url
