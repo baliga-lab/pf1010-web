@@ -274,13 +274,18 @@ def subscribe_updates():
 @frontend.route("/details_image_placeholder/<system_uid>", methods=["GET"])
 def details_images_placeholder(system_uid):
     """a simple snippet to add an image control"""
+    user_sql_id = session.get('uid')
+    img_url = request.args.get('img_url');
+    user_privilege = System().get_user_privilege_for_system(user_sql_id, system_uid)
     return render_template('details_image_placeholder.html', **locals())
 
 
 @frontend.route("/details_image_div/<system_uid>", methods=["GET"])
 def details_images_div(system_uid):
     """a simple snippet to add an image control"""
+    user_sql_id = session.get('uid')
     img_url = request.args.get('img_url');
+    user_privilege = System().get_user_privilege_for_system(user_sql_id, system_uid)
     return render_template('details_image_div.html', **locals())
 
 @frontend.route('/clear-system-image/<system_uid>', methods=['DELETE'])
