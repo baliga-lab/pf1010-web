@@ -37,12 +37,10 @@
 </div>
 <div class="row" style="margin-top: 20px">
   <div class="col-md-6">
-    <a class="btn-blue" href="{{ url_for('dav.system_analyze', system_uid=system_neo4j[0][0]["system_uid"]) }}">
-      Analyze Data</a>
+    <a class="btn-blue" style="margin-right: 10px" href="{{ url_for('dav.system_analyze', system_uid=system_neo4j[0][0]["system_uid"]) }}"><span class="glyphicon glyphicon-stats"></span> Analyze Data</a>
 
     {% if user_privilege == "SYS_ADMIN" %}
-    <div class="row"><a href="{{ url_for('social.manage_system', system_uid= system_neo4j[0][0]["system_uid"]) }}">
-        <img class="cogWheelIcon" src="{{ url_for('social.static', filename='images/system_settings.png') }}"> Manage System Participants</a></div>
+    <a href="{{ url_for('social.manage_system', system_uid= system_neo4j[0][0]["system_uid"]) }}"><span class="glyphicon glyphicon-user"></span> Manage System Participants</a>
     {% else %}
 
     <!-- Subscribe / Request to Join Button-->
