@@ -105,3 +105,8 @@
     margin-bottom: 10px;
     text-align: center;
 }
+
+.img-details {
+    border-radius: 5px;
+    width: 100%;
+}
