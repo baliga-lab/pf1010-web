@@ -1,99 +1,70 @@
 {% extends "base.html" %}
-
 {% block title %}Search Systems{% endblock %}
-
 {% block styles %}
-    {{ super() }}
-    <link rel="stylesheet" href="{{ url_for('social.static', filename='css/system_search.css') }}">
+{{ super() }}
+<link rel="stylesheet" href="{{ url_for('social.static', filename='css/system_search.css') }}">
 {% endblock %}
-
 {% block content %}
+<div class="container">
+  <h3 class="page-header"><i class="fa fa-search" aria-hidden="true"></i>&nbsp; Search Systems</h3>
 
-    <div class="container">
+  <!-- Search Systems -->
+  <div class="row" id="searchSystemsTab">
 
-        <h3 class="page-header"><i class="fa fa-users" aria-hidden="true"></i>&nbsp; Systems</h3>
-        <ul class="nav nav-tabs">
-            <li class="active">
-                <a href="">
-                    <span class="glyphicon glyphicon-search"
-                          aria-hidden="true"></span>&nbsp;Search Systems
-                </a>
-            </li>
-            <li>
-                <a href="{{ url_for('social.self_systems') }}">
-                    <span class="glyphicon glyphicon-user"
-                          aria-hidden="true"></span>&nbsp;My Systems</a>
-            </li>
-            <li><a href="{{ url_for('social.all_systems_neo4j') }}">
-                <span class="glyphicon glyphicon-star"
-                      aria-hidden="true"></span>&nbsp;All Systems</a>
-            </li>
-        </ul>
-
-        <br/>
-
-        <!-- Search Systems -->
-        <div class="row" id="searchSystemsTab">
-
-            <form action="{{ url_for('social.search_systems') }}" method="post">
-                <!-- Search Box and Button Control Div -->
-                <div class="container systemSearchDiv">
-                    <div class="input-group col-md-6 pull-left">
-                          <input type="text" class="form-control"
-                                 name="txtSystemName"   pattern=".{1,}" required
-                                 title="System Name Cannot Be Empty"  
-                                 placeholder="Enter System Name"  
-                                 value= {% if post_method %} {{ search_param }} {% endif %}> 
-                    </div>
-                     
-                    <div class="input-group col-md-6"> 
-                        <button class="btn btn-green" type="submit">  <i class="fa fa-search"></i> </button>
-                         
-                    </div>
-                </div>
-                <!-- End of Search Box and Button Control Div -->
-            </form>
-
-            {% if post_method %}
-                <br/>
-                <!-- Search Results Div -->
-                <h4 class="page-header" style="padding-left: 10px">Search Results:</h4>
-                <div class="row systemSearchResults">
-                    {% if system_search_results %}
-                        {% for row in system_search_results %}
-                            <div class="row">
-                                <ul class="pull-left">
-                                    <span class="fa-stack fa-2x">
-                                        <i class="fa fa-circle fa-stack-2x"></i>
-                                        <i class="fa fa-leaf fa-stack-1x fa-inverse"></i>
-                                    </span>
-                                </ul>
-                                <br/>
-                                <ul>
-                                    <a href="{{ url_for('frontend.view_system', system_uid=row.system.system_uid) }}">{{ row.system.name }}</a>
-                                </ul>
-                            </div>
-                        {% endfor %}
-                    {% else %}
-                        <div class="container">
-                            <ul class="pull-left">
-                                <span class="fa-stack fa-2x">
-                                    <i class="fa fa-circle fa-stack-2x"></i>
-                                    <i class="fa fa-meh-o fa-stack-1x fa-inverse"></i>
-                                </span>
-                            </ul>
-                            <br/>
-                            <ul>
-                                Sorry, we are unable to find any system with name : {{ search_param }}
-                            </ul>
-                        </div>
-                    {% endif %}
-                </div>
-                <!-- End of Search Results Div -->
-            {% endif %}
-
+    <form action="{{ url_for('social.search_systems') }}" method="post">
+      <!-- Search Box and Button Control Div -->
+      <div class="container systemSearchDiv">
+        <div class="input-group col-md-6 pull-left">
+          <input type="text" class="form-control"
+                   name="txtSystemName" pattern=".{1,}" required
+                   title="System Name Cannot Be Empty"
+                   placeholder="Enter System Name"
+                   value= {% if post_method %} {{ search_param }} {% endif %}>
         </div>
+        <div class="input-group col-md-6">
+          <button class="btn btn-green" type="submit"><i class="fa fa-search"></i></button>
+        </div>
+      </div>
+      <!-- End of Search Box and Button Control Div -->
+    </form>
 
+    {% if post_method %}
+    <br/>
+    <!-- Search Results Div -->
+    <h4 class="page-header" style="padding-left: 10px">Search Results:</h4>
+    <div class="row systemSearchResults">
+      {% if system_search_results %}
+      {% for row in system_search_results %}
+      <div class="row">
+        <ul class="pull-left">
+          <span class="fa-stack fa-2x">
+            <i class="fa fa-circle fa-stack-2x"></i>
+            <i class="fa fa-leaf fa-stack-1x fa-inverse"></i>
+          </span>
+        </ul>
+        <br/>
+        <ul>
+          <a href="{{ url_for('frontend.view_system', system_uid=row.system.system_uid) }}">{{ row.system.name }}</a>
+        </ul>
+      </div>
+      {% endfor %}
+      {% else %}
+      <div class="container">
+        <ul class="pull-left">
+          <span class="fa-stack fa-2x">
+            <i class="fa fa-circle fa-stack-2x"></i>
+            <i class="fa fa-meh-o fa-stack-1x fa-inverse"></i>
+          </span>
+        </ul>
+        <br/>
+        <ul>
+          Sorry, we are unable to find any system with name : {{ search_param }}
+        </ul>
+      </div>
+      {% endif %}
     </div>
-
+    <!-- End of Search Results Div -->
+    {% endif %}
+  </div>
+</div>
 {% endblock %}

@@ -396,20 +396,8 @@ def self_systems():
             admin_systems = System().get_admin_systems(sql_id)
             img_thumbs = make_img_thumbs(admin_systems)
             participated_systems = System().get_participated_systems(sql_id)
-            subscribed_systems = System().get_subscribed_systems(sql_id)
-            recommended_systems = System().get_recommended_systems(sql_id)
+            #subscribed_systems = System().get_subscribed_systems(sql_id)
             return render_template("system_self.html", **locals())
-
-
-@social.route('/systems/all', methods=['GET'])
-def all_systems_neo4j():
-    sql_id = session.get('uid')
-    if sql_id is None:
-        return redirect(url_for('social.index'))
-    else:
-        if request.method == 'GET':
-            all_systems = System().get_all_systems()
-            return render_template("system_all.html", all_systems=all_systems)
 
 
 @social.route('/systems/approve_reject_participant', methods=['POST'])
