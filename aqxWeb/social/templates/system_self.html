@@ -45,18 +45,26 @@
                     <hr>
                     {% if admin_systems %}
                         {% for row in admin_systems %}
-                            <div class="row">
-                                <ul class="pull-left">
-                                    <span class="fa-stack fa-2x">
-                                        <i class="fa fa-circle fa-stack-2x"></i>
-                                        <i class="fa fa-leaf fa-stack-1x fa-inverse"></i>
-                                    </span>
-                                </ul>
-                                <br/>
-                                <ul>
-                                    <a href="{{ url_for('frontend.view_system', system_uid=row.system.system_uid) }}">{{ row.system.name }}</a>
-                                </ul>
-                            </div>
+                    <div class="row">
+                      {% if row.system.system_uid in img_thumbs %}
+                      <ul class="pull-left">
+                        <span class="fa-stack fa-2x">
+                          <img class="system-thumbnail" src="{{ img_thumbs[row.system.system_uid] }}">
+                        </span>
+                      </ul>
+                      {% else %}
+                      <ul class="pull-left">
+                        <span class="fa-stack fa-2x">
+                          <i class="fa fa-circle fa-stack-2x"></i>
+                          <i class="fa fa-leaf fa-stack-1x fa-inverse"></i>
+                        </span>
+                      </ul>
+                      {% endif %}
+                      <br/>
+                      <ul>
+                        <a href="{{ url_for('frontend.view_system', system_uid=row.system.system_uid) }}">{{ row.system.name }}</a>
+                      </ul>
+                    </div>
                         {% endfor %}
                     {% else %}
                         <div class="row">

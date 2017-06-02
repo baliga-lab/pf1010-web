@@ -279,3 +279,9 @@ Responsive CSS
     padding: 10px;
     margin-bottom: 10px;
 }
+
+.system-thumbnail {
+    border-radius: 5px;
+    width: 40px;
+    height: 40px;
+}

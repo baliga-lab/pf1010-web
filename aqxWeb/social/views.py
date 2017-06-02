@@ -5,6 +5,7 @@ import requests
 from flask_oauth import OAuth
 import json
 import datetime
+import os
 
 from aqxWeb.social.models import User, get_all_recent_posts, get_all_recent_comments, get_all_recent_likes
 from aqxWeb.social.models import get_total_likes_for_posts, get_all_post_owners, get_system_measurements_dav_api
@@ -366,6 +367,25 @@ def search_systems():
             return render_template("system_search.html")
 
 
+def make_img_thumbs(systems):
+    """Utility function to determine which thumbnails exist in the system"""
+    sys_uids = [s['system']['system_uid'] for s in systems]
+    png_thumbs = {system_uid: os.path.join(current_app.config['UPLOAD_FOLDER'],
+                                           '%s_thumb.png' % system_uid)
+                  for system_uid in sys_uids}
+    jpg_thumbs = {system_uid: os.path.join(current_app.config['UPLOAD_FOLDER'],
+                                           '%s_thumb.jpg' % system_uid)
+                  for system_uid in sys_uids}
+    img_thumbs = {}
+    for uid, path in png_thumbs.items():
+        if os.path.exists(path):
+            img_thumbs[uid] = "/static/uploads/%s" % path.split('/')[-1]
+    for uid, path in jpg_thumbs.items():
+        if os.path.exists(path):
+            img_thumbs[uid] = "/static/uploads/%s" % path.split('/')[-1]
+    return img_thumbs
+
+
 @social.route('/systems/self', methods=['GET'])
 def self_systems():
     sql_id = session.get('uid')
@@ -374,12 +394,11 @@ def self_systems():
     else:
         if request.method == 'GET':
             admin_systems = System().get_admin_systems(sql_id)
+            img_thumbs = make_img_thumbs(admin_systems)
             participated_systems = System().get_participated_systems(sql_id)
             subscribed_systems = System().get_subscribed_systems(sql_id)
             recommended_systems = System().get_recommended_systems(sql_id)
-            return render_template("system_self.html", admin_systems=admin_systems,
-                                   participated_systems=participated_systems, subscribed_systems=subscribed_systems,
-                                   recommended_systems=recommended_systems)
+            return render_template("system_self.html", **locals())
 
 
 @social.route('/systems/all', methods=['GET'])
