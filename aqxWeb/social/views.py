@@ -1470,33 +1470,3 @@ def get_system_for_user():
     else:
         error_msg = json.dumps({'error': 'Invalid request parameters. Required sql_id'})
         return error_msg, 400
-
-
-@social.route('/test_add_post', methods=['POST'])
-def test_add_post():
-    if session.get('uid') is not None:
-        privacy = request.form['privacy']
-        text = request.form['text']
-        link = request.form['link']
-        if text == "":
-            flash('Post cannot be empty.')
-        else:
-            User(session['uid']).test_add_post(text, privacy, link)
-            flash('Your post has been shared')
-    return redirect(url_for('social.index'))
-
-
-@social.route('/test_add_comment', methods=['POST'])
-def test_add_comment():
-    comment = request.form['newcomment']
-    post_id = request.form['postid']
-    if comment == "" or comment is None:
-        flash('Comment can not be empty')
-        redirect(url_for('social.index'))
-    elif post_id == "" or post_id is None:
-        flash('Post not found to comment on')
-        redirect(url_for('social.index'))
-    else:
-        User(session['uid']).test_add_comment(comment, post_id)
-        flash('Your comment has been posted')
-    return redirect(url_for('social.index'))

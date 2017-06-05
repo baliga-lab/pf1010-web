@@ -129,21 +129,6 @@ class User:
         post_node = graph_query(query, sql_id=user_id)
         graph_update(command, sql_id=posted_to_user_id, post_id=post_node[0]['post_id'])
 
-    def test_add_post(self, text, privacy, link):
-        user = self.find()
-        post = py2neo.Node(
-            "Post",
-            id=str(1),
-            text=text,
-            link=link,
-            privacy=privacy,
-            creation_time=timestamp(),
-            modified_time=timestamp(),
-            date=date()
-        )
-        rel = py2neo.Relationship(user, "POSTED", post)
-        social_graph().create(rel)
-
     def check_status(self, sessionID, user_sql_id):
         friend_status = "Add friend"
         sentreq_res, receivedreq_res, friends_res = User(sessionID).get_friends_and_sent_req()
@@ -211,19 +196,6 @@ class User:
         rel = py2neo.Relationship(post, 'HAS', comment)
         social_graph().create(rel)
 
-    def test_add_comment(self, new_comment, post_id):
-        user = self.find()
-        comment = py2neo.Node(
-            "Comment",
-            id=str(1),
-            content=new_comment,
-            user_sql_id=self.sql_id,
-            user_display_name=user['displayName'],
-            creation_time=timestamp(),
-            modified_time=timestamp())
-        post = social_graph().find_one("Post", "id", post_id)
-        rel = py2neo.Relationship(post, 'HAS', comment)
-        social_graph().create(rel)
 
     def edit_comment(self, new_comment, comment_id):
         user = self.find()
