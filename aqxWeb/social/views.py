@@ -38,14 +38,12 @@ def index():
     likes = get_all_recent_likes()
     total_likes = get_total_likes_for_posts()
     post_owners = get_all_post_owners()
-    privacy = Privacy([Privacy.FRIENDS, Privacy.PUBLIC], Privacy.FRIENDS,
+    privacy_info = Privacy([Privacy.FRIENDS, Privacy.PUBLIC], Privacy.FRIENDS,
                       'home', session['uid'])  # info about timeline/page)
-    privacy.user_relation = None
+    privacy_info.user_relation = None
     admin_systems = System().get_admin_systems(session['uid'])
-    return render_template('home.html', posts=posts, comments=comments,
-                           privacy_info=privacy, likes=likes,
-                           total_likes=total_likes, post_owners=post_owners,
-                           admin_systems=admin_systems)
+    img_thumbs = make_img_thumbs(admin_systems)
+    return render_template('home.html', **locals())
 
 
 @social.route('/signin')

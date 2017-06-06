@@ -1,33 +1,72 @@
 {% extends "base.html" %}
 {% block title %}Newsfeed{% endblock %}
 {% block styles %}
-  {{ super() }}
-  <link rel="stylesheet" type="text/css" href="{{ url_for('social.static', filename='css/layout.css') }}">
-  <link rel="stylesheet" type="text/css" href="{{ url_for('social.static', filename='css/newsfeed.css') }}">
+{{ super() }}
+<link rel="stylesheet" type="text/css" href="{{ url_for('social.static', filename='css/newsfeed.css') }}">
 {% endblock %}
 {% block content %}
-  {% if session.uid %}
-    <div class="row">
-      {# SIDEBAR #}
-      <div class="col-sm-3 hidden-sm hidden-xs">
-        <h3>Weather</h3>
-        <div id="weather"></div><hr>
-        {% include "sidebar.html" %}
-      </div>
-      {# NEWSFEED #}
-      <div class="col-sm-9">
-        {% include "post_form.html" %}
-        <h3>Recent Posts</h3>
-        {% include "display_posts.html" %}
-      </div>
+
+<h3>Your Systems</h3>
+<a href="{{url_for('frontend.new_system')}}" role="button" class="btn btn-default"><i class="fa fa-plus"></i>Create System</a>
+
+{% if admin_systems %}
+{% for row in admin_systems %}
+<div class="row">
+  <div class="system-box">
+    <div class="system-desc-row">
+{# TODO: system image thumbnails #}
+{% if row.system.system_uid in img_thumbs %}
+      <span><img class="system-thumbnail" src="{{ img_thumbs[row.system.system_uid] }}"></span>
+{% else %}
+      <span><img class="system-thumbnail-placeholder" src="/static/images/img_placeholder.png"></span>
+{% endif %}
+      <span><a href="{{url_for('frontend.view_system', system_uid=row.system.system_uid)}}">{{row.system.name}}</a></span>
+
     </div>
-  {% endif %}
+    <div class="swatch-row">
+      <span class="swatch swatch-ok">Temp: 27&deg;C</span>
+      <span class="swatch swatch-warn">Nitrate: 100 mg/l</span>
+      <span class="swatch swatch-warn">Nitrite: 100 mg/l</span>
+      <span class="swatch swatch-warn">Ammonium: 100 mg/l</span>
+      <span class="swatch swatch-ok">pH: 6.5</span>
+      <span class="swatch swatch-ok">Dis.ox: 100 mg/l</span>
+    </div>
+  </div>
+</div>
+{% endfor %}
+{% else %}
+<div class="row">
+  <p>You currently have no systems</p>
+</div>
+{% endif %}
+
+
+{% if session.uid %}
+<div class="row">
+  {# SIDEBAR #}
+  {#
+  <div class="col-sm-3 hidden-sm hidden-xs">
+    <h3>Weather</h3>
+    <div id="weather"></div><hr>
+    {% include "sidebar.html" %}
+  </div>
+  #}
+
+  <h3>Messages</h3>
+  {# NEWSFEED #}
+  <div class="col-sm-9">
+    {% include "post_form.html" %}
+    <h3>Recent Posts</h3>
+    {% include "display_posts.html" %}
+  </div>
+</div>
+{% endif %}
 {% endblock %}
 
 {% block scripts %}
-    {{ super() }}
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.simpleWeather/3.1.0/jquery.simpleWeather.min.js"></script>
-    <script src="{{ url_for('frontend.static', filename='js/weather.js') }}"></script>
-    <!-- jQuery Script To Display Logged In User Profile Details -->
-    <script type="text/javascript" src="{{ url_for('social.static', filename='js/home.js') }}"></script>
+{{ super() }}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.simpleWeather/3.1.0/jquery.simpleWeather.min.js"></script>
+<script src="{{ url_for('frontend.static', filename='js/weather.js') }}"></script>
+<!-- jQuery Script To Display Logged In User Profile Details -->
+<script type="text/javascript" src="{{ url_for('social.static', filename='js/home.js') }}"></script>
 {% endblock %}
