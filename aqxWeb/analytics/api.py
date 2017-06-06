@@ -12,6 +12,7 @@ from aqxWeb.analytics.dao.measurements import MeasurementsDAO
 from aqxWeb.analytics.dao.systems import SystemsDAO
 from aqxWeb.social.models import social_graph
 from aqxWeb.social.dao.users import UserDAO
+from aqxWeb.utils import get_measurement_table_name
 
 
 def to_float(value):
@@ -37,9 +38,6 @@ def calc_diff_hours(cur_date, start_date):
         diff = cur_date - start_date
         return diff.days * 24 + diff.seconds / 3600
 
-
-#def get_measurement_name(name):
-#        return re.findall(r"\(u'(.*?)',\)", str(name))[0]
 
 def form_values_list(measurement_type, all_readings):
     """
@@ -120,11 +118,6 @@ def form_values_list(measurement_type, all_readings):
     return value_list
 
 
-def get_measurement_table_name(measurement_name, system_uid):
-    table_name = "aqxs_" + measurement_name + "_" + system_uid
-    return table_name
-
-
 class AnalyticsAPI:
 
     def __init__(self, app):
@@ -191,7 +184,6 @@ class AnalyticsAPI:
             if measurement_name != 'time':
                 # As each measurement of a system has a table on it's own,
                 # we need to create the name of each table.
-                # Each measurement table is: aqxs_measurementName_systemUID
                 table_name = get_measurement_table_name(measurement_name, system_uid)
 
                 num_of_records = 1

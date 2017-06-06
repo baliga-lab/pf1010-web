@@ -78,3 +78,10 @@ def make_thumbnail(directory, system_uid, size=100, overwrite=False):
             img.save(filename=thumb_path)
         elif os.path.exists(thumb_path):
             print "can't overwrite existing file"
+
+
+def get_measurement_table_name(measurement_name, system_uid):
+    """Generate the measurement table name in the database given the
+    system UID and measurment name"""
+    table_name = "aqxs_" + measurement_name + "_" + system_uid
+    return table_name

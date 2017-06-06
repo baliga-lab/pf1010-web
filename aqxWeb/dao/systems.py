@@ -1,6 +1,7 @@
 import uuid
 import MySQLdb
 import traceback
+from aqxWeb.utils import get_measurement_table_name
 
 
 # TODO: This seems to be unnecessarily hard-coded
@@ -139,7 +140,7 @@ class SystemDAO:
 
         values5 = (systemUID, startDate)
 
-        names = list(map(lambda x: 'aqxs_' + x + '_' + systemUID, MEASUREMENTS))
+        names = list(map(lambda x: get_measurement_table_name(x, systemUID), MEASUREMENTS))
         # MySQL unfortunately has versions supporting different non-primary key timestamps
         # our production system (which runs on CentOS with ancient MySQL) does not accept
         # the default value, the newer development system requires a default value
@@ -240,7 +241,3 @@ class SystemDAO:
         finally:
             cursor.close()
             conn.close()
-
-
-def table_name(measurementType, systemUID):
-    return 'aqxs_' + measurementType + '_' + systemUID

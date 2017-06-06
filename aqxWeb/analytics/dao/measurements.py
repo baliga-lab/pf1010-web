@@ -4,6 +4,7 @@ import traceback
 import datetime as dt
 from flask import current_app
 from math import floor
+from aqxWeb.utils import get_measurement_table_name
 
 class MeasurementsDAO:
 
@@ -147,7 +148,7 @@ class MeasurementsDAO:
     def get_data_count(self, system_uid, measurement):
         conn = self.getDBConn()
         cursor = conn.cursor()
-        table_name = 'aqxs_' + measurement + '_' + system_uid
+        table_name = get_measurement_table_name(measurement, system_uid)
         payload = {}
         try:
             query = "SELECT COUNT(*) FROM %s" % table_name
@@ -178,7 +179,7 @@ class MeasurementsDAO:
         items_per_page = 20
         page = int(page)
         start = items_per_page * (page - 1)
-        table_name = 'aqxs_' + measurement + '_' + system_uid
+        table_name = get_measurement_table_name(measurement, system_uid)
 
         # Declare and initialize the payload
         payload = {'data': []}
@@ -223,13 +224,9 @@ class MeasurementsDAO:
     def create_measurement_query(system, measurements,time_ranges):
         query = ""
         for i in range(0, len(measurements)):
-            # query += """select {prefix}, {prefix}.time as time,
-            #             {prefix}.value as value from aqxs_{prefix}_{system}
-            #             {prefix} where """.format(prefix=measurements[i], system=system)
-
-
             query += "select \'" + measurements[i] + "\'," + measurements[i] + ".time as time," \
-                     + measurements[i] + ".value as value from aqxs_" + measurements[i] + "_" + system \
+                     + measurements[i] + ".value as value from " \
+                     + get_measurement_table_name(measurements[i], system) \
                      + " " + measurements[i] + " where "
             if time_ranges:
                 for j in range(0,len(time_ranges)):
@@ -342,7 +339,7 @@ class MeasurementsDAO:
 
         conn = self.getDBConn()
         cursor = conn.cursor()
-        table_name = 'aqxs_' + measurement + '_' + system_uid
+        table_name = get_measurement_table_name(measurement, system_uid)
 
         # Declare and initialize the payload
         payload = {'created_at': '', 'value': ''}
@@ -378,7 +375,7 @@ class MeasurementsDAO:
     def update_existing_measurement(self, system_uid, measurement, data):
         conn = self.getDBConn()
         cursor = conn.cursor()
-        table_name = 'aqxs_' + measurement + '_' + system_uid
+        table_name = get_measurement_table_name(measurement, system_uid)
         try:
             query = "UPDATE %s SET time=%%s, value=%%s, updated_at=%%s WHERE time=%%s" % table_name
             result = cursor.execute(query, (data['time'],  data['value'], data['updated_at'], data['time']))

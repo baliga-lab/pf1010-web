@@ -1,4 +1,4 @@
-from aqxWeb.dao.systems import table_name as sys_table_name
+from aqxWeb.utils import get_measurement_table_name
 import MySQLdb
 
 
@@ -29,7 +29,7 @@ class MeasurementDAO:
             cursor = conn.cursor()
             try:
                 for m in measurements:
-                    table = sys_table_name(m[0], system_uid)
+                    table = get_measurement_table_name(m[0], system_uid)
                     query = 'insert into ' + table + ' (value, time) values (%s, %s)'
                     cursor.execute(query, [m[1], timestamp])
                 conn.commit()
@@ -41,7 +41,7 @@ class MeasurementDAO:
         conn = self.dbconn()
         cursor = conn.cursor()
         try:
-            table = sys_table_name(measurement, system_uid)
+            table = get_measurement_table_name(measurement, system_uid)
             query = 'update ' + table + ' set value=%s,time=%s,updated_at=CURRENT_TIMESTAMP where time=%s'
             cursor.execute(query, [value, timestamp, timestamp])
             conn.commit()
@@ -53,7 +53,7 @@ class MeasurementDAO:
         conn = self.dbconn()
         cursor = conn.cursor()
         try:
-            table = sys_table_name(measurement, system_uid)
+            table = get_measurement_table_name(measurement, system_uid)
             query = 'delete from ' + table + ' where time=%s'
             cursor.execute(query, [timestamp])
             conn.commit()
