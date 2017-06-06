@@ -314,16 +314,16 @@ Responsive CSS
                         45deg,
                         #fafafa,
                         #fafafa 10px,
-                        #bbffcc 10px,
-                        #bbffcc 20px);
+                        #dcf2a6 10px,
+                        #dcf2a6 20px);
 }
 .swatch-warn {
     background: repeating-linear-gradient(
                         45deg,
                         #fafafa,
                         #fafafa 10px,
-                        #ffbbbb 10px,
-                        #ffbbbb 20px);
+                        #f78888 10px,
+                        #f78888 20px);
 }
 
 

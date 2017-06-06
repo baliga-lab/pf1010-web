@@ -18,6 +18,8 @@ from aqxWeb.social.api import SocialAPI
 import aqxWeb.social.models as models
 import aqxWeb.social.aqxdb as aqxdb
 
+from aqxWeb.dao.measurements import MeasurementDAO
+
 
 social = Blueprint('social', __name__, template_folder='templates', static_folder="static")
 
@@ -33,6 +35,8 @@ def dbconn():
 def index():
     if session.get('uid') is None:
         return redirect(url_for('index'))  # if no session, return to login
+
+    measurement_dao = MeasurementDAO(current_app)
     posts = get_all_recent_posts(session.get('uid'))
     comments = get_all_recent_comments()
     likes = get_all_recent_likes()
@@ -44,6 +48,21 @@ def index():
     admin_systems = System().get_admin_systems(session['uid'])
     num_admin_systems = len(admin_systems)
     img_thumbs = make_img_thumbs(admin_systems)
+    measurements = {}
+    measurement_types = {m['name']: m for m in measurement_dao.measurement_types()}
+    measurement_types['temp']['unit'] = '&deg;Celsius'
+    print(measurement_types)
+    for system in admin_systems:
+        system_uid = system['system']['system_uid']
+        measurements[system_uid] = measurement_dao.latest_measurements(system_uid)
+        for mname, value in measurements[system_uid].items():
+            if value is None:
+                measurements[system_uid][mname] = '-'
+            else:
+                unit = measurement_types[mname]['unit']
+                if unit is None:
+                    unit = ''
+                measurements[system_uid][mname] = '%.2f %s' % (value, unit)
     return render_template('home.html', **locals())
 
 
@@ -73,6 +92,9 @@ def signin():
 
 
 def get_user(google_id, google_api_response):
+    """TODO: this is where the database layer leaks into the view layer !!!
+    We need to encapsulate this soon
+    """
     conn = dbconn()
     cursor = conn.cursor()
     try:

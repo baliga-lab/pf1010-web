@@ -22,6 +22,23 @@ class MeasurementDAO:
 
         return readings
 
+    def latest_measurements(self, system_uid):
+        mtypes = self.measurement_types()
+        conn = self.dbconn()
+        cursor = conn.cursor()
+        result = {}
+        for mt in mtypes:
+            table = get_measurement_table_name(mt['name'], system_uid)
+            cursor.execute('select time,value from %s order by time desc limit 1' % table)
+            row = cursor.fetchone()
+            if row is not None:
+                time, value = row
+                value = float(value)
+            else:
+                time, value = None, None
+            result[mt['name']] = value
+        return result
+
     def store_measurements(self, system_uid, timestamp, measurements):
         """saves a list of measurements to the database"""
         if system_uid is not None and timestamp is not None and len(measurements) > 0:

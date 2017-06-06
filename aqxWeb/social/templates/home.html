@@ -23,12 +23,9 @@
 
     </div>
     <div class="swatch-row">
-      <span class="swatch swatch-ok">Temp: 27&deg;C</span>
-      <span class="swatch swatch-warn">Nitrate: 100 mg/l</span>
-      <span class="swatch swatch-warn">Nitrite: 100 mg/l</span>
-      <span class="swatch swatch-warn">Ammonium: 100 mg/l</span>
-      <span class="swatch swatch-ok">pH: 6.5</span>
-      <span class="swatch swatch-ok">Dis.ox: 100 mg/l</span>
+      {% for mname, m in measurement_types.items() %}
+      <span class="swatch swatch-ok">{{m.full_name}}: {{measurements[row.system.system_uid][mname]|safe}}</span>
+      {% endfor %}
     </div>
   </div>
 </div>
