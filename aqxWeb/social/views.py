@@ -42,6 +42,7 @@ def index():
                       'home', session['uid'])  # info about timeline/page)
     privacy_info.user_relation = None
     admin_systems = System().get_admin_systems(session['uid'])
+    num_admin_systems = len(admin_systems)
     img_thumbs = make_img_thumbs(admin_systems)
     return render_template('home.html', **locals())
 

@@ -12,8 +12,7 @@ from aqxWeb.social.models import User, System, Privacy, Group
 # put this in a general namespace not in social, damn it !!!
 from aqxWeb.social.models import convert_milliseconds_to_normal_date, get_address_from_lat_lng, get_system_measurements_dav_api
 
-import aqxWeb.time_utils as time_utils
-import aqxWeb.image_utils as image_utils
+import aqxWeb.utils as utils
 
 # this is ugly, but: this app currently has too many layers
 # of indirection which we need to eliminate for long-term benefit
@@ -96,7 +95,7 @@ def sys_edit_data(system_uid, measurement, created_at):
 
 def __timestamp_from_time_str(s):
     timestamp_str = 'T'.join(s.split(' ')) + 'Z'
-    return time_utils.get_timestamp(timestamp_str)
+    return utils.get_timestamp(timestamp_str)
 
 @frontend.route('/system/<system_uid>/update-measurement/<measurement>/<time>', methods=['POST'])
 def update_measurement(system_uid, measurement, time):
@@ -143,7 +142,7 @@ def record_measurements(system_uid):
     sys_uid = request.form['system-uid']
     measure_date = request.form['measure-date']
     measure_time = request.form['measure-time']
-    mtime = time_utils.get_form_time(measure_date, measure_time)
+    mtime = utils.get_form_time(measure_date, measure_time)
     measurement_dao = MeasurementDAO(current_app)
     measurement_types = [mt['name'] for mt in measurement_dao.measurement_types()]
     measurements = []
@@ -328,7 +327,7 @@ def set_system_image():
                 target_path = os.path.join(current_app.config['UPLOAD_FOLDER'], filename)
                 current_app.logger.info('upload file: %s', target_path)
                 file.save(target_path)
-                image_utils.make_thumbnail(current_app.config['UPLOAD_FOLDER'],
+                utils.make_thumbnail(current_app.config['UPLOAD_FOLDER'],
                                            sys_uid, overwrite=True)
                 return jsonify(status="Ok", img_url="/static/uploads/%s" % filename)
             else:

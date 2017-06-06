@@ -6,7 +6,7 @@
 {% endblock %}
 {% block content %}
 
-<h3>Your Systems</h3>
+<h3>Your Systems ({{num_admin_systems}})</h3>
 <a href="{{url_for('frontend.new_system')}}" role="button" class="btn btn-default"><i class="fa fa-plus"></i>Create System</a>
 
 {% if admin_systems %}
@@ -14,7 +14,6 @@
 <div class="row">
   <div class="system-box">
     <div class="system-desc-row">
-{# TODO: system image thumbnails #}
 {% if row.system.system_uid in img_thumbs %}
       <span><img class="system-thumbnail" src="{{ img_thumbs[row.system.system_uid] }}"></span>
 {% else %}
