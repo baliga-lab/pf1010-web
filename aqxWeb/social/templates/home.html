@@ -24,7 +24,7 @@
     </div>
     <div class="swatch-row">
       {% for mname, m in measurement_types.items() %}
-      <span class="swatch swatch-ok">{{m.full_name}}: {{measurements[row.system.system_uid][mname]|safe}}</span>
+      <span class="swatch swatch-ok">{{m.full_name}}:&nbsp;{{measurements[row.system.system_uid][mname]|safe}}</span>
       {% endfor %}
     </div>
   </div>
@@ -50,7 +50,7 @@
 
   <h3>Messages</h3>
   {# NEWSFEED #}
-  <div class="col-sm-9">
+  <div class="col-sm-12">
     {% include "post_form.html" %}
     <h3>Recent Posts</h3>
     {% include "display_posts.html" %}

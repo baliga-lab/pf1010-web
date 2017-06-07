@@ -51,7 +51,6 @@ def index():
     measurements = {}
     measurement_types = {m['name']: m for m in measurement_dao.measurement_types()}
     measurement_types['temp']['unit'] = '&deg;Celsius'
-    print(measurement_types)
     for system in admin_systems:
         system_uid = system['system']['system_uid']
         measurements[system_uid] = measurement_dao.latest_measurements(system_uid)
@@ -62,7 +61,7 @@ def index():
                 unit = measurement_types[mname]['unit']
                 if unit is None:
                     unit = ''
-                measurements[system_uid][mname] = '%.2f %s' % (value, unit)
+                measurements[system_uid][mname] = '%.2f&nbsp;%s' % (value, unit)
     return render_template('home.html', **locals())
 
 
