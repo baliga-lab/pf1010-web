@@ -306,15 +306,15 @@ Responsive CSS
     padding-left: 5px;
     padding-right: 5px;
     border-right: 1px solid black;
-    font-size: x-small;
+    font-size: small;
     font-weight: bold;
 }
 .swatch-ok {
     background: repeating-linear-gradient(
                         45deg,
                         #fafafa,
-                        #fafafa 10px,
-                        #dcf2a6 10px,
+                        #fafafa 2px,
+                        #dcf2a6 2px,
                         #dcf2a6 20px);
 }
 .swatch-warn {
@@ -329,6 +329,7 @@ Responsive CSS
 
 .system-desc-row {
     padding-bottom: 7px;
+    font-size: medium;
 }
 
 .swatch-row {
