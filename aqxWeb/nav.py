@@ -58,11 +58,8 @@ def member():
     return Navbar(
         SidedViewImage('https://aquaponics.systemsbiology.net/static/images/pflogo2.png', 'Project Feed 1010', True, 'social.index'),
         View('Home', 'social.index'),
-        Subgroup('System',
-            View('Create', 'frontend.new_system'),
-            View('Search Systems', 'social.search_systems')
-        ),
         View('Explore', 'dav.explore'),
+        View('Search Systems', 'social.search_systems'),
         Subgroup('Socialize',
             View('Friends', 'social.friends'),
             View('Groups', 'social.groups')
