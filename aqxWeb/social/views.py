@@ -418,20 +418,6 @@ def make_img_thumbs(systems):
     return img_thumbs
 
 
-@social.route('/systems/self', methods=['GET'])
-def self_systems():
-    sql_id = session.get('uid')
-    if sql_id is None:
-        return redirect(url_for('social.index'))
-    else:
-        if request.method == 'GET':
-            admin_systems = System().get_admin_systems(sql_id)
-            img_thumbs = make_img_thumbs(admin_systems)
-            participated_systems = System().get_participated_systems(sql_id)
-            #subscribed_systems = System().get_subscribed_systems(sql_id)
-            return render_template("system_self.html", **locals())
-
-
 @social.route('/systems/approve_reject_participant', methods=['POST'])
 def approve_reject_system_participant():
     if request.method == 'POST':

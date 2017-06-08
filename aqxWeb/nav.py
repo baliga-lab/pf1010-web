@@ -60,7 +60,6 @@ def member():
         View('Home', 'social.index'),
         Subgroup('System',
             View('Create', 'frontend.new_system'),
-            View('My Systems', 'social.self_systems'),
             View('Search Systems', 'social.search_systems')
         ),
         View('Explore', 'dav.explore'),
