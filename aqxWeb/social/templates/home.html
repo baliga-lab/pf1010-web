@@ -6,36 +6,79 @@
 {% endblock %}
 {% block content %}
 
-<h3>Your Systems ({{num_admin_systems}})</h3>
-<a href="{{url_for('frontend.new_system')}}" role="button" class="btn btn-default"><i class="fa fa-plus"></i>Create System</a>
+<div class="container">
+  <h3>Your Systems</h3>
+  <ul class="nav nav-tabs">
+    <li class="nav active"><a href="#admin" data-toggle="tab">As Admin ({{num_admin_systems}})</a></li>
+    <li class="nav"><a href="#participant" data-toggle="tab">As Participant ({{num_participant_systems}})</a></li>
+  </ul>
+  <div class="tab-content">
+    {# Admin systems Tab #}
+    <div class="tab-pane active" id="admin">
+      <div style="height: 20px"></div>
+      <a href="{{url_for('frontend.new_system')}}" role="button" class="btn btn-default"><i class="fa fa-plus"></i>Create System</a>
 
-{% if admin_systems %}
-{% for row in admin_systems %}
-<div class="row">
-  <div class="system-box">
-    <div class="system-desc-row">
-{% if row.system.system_uid in img_thumbs %}
-      <span><img class="system-thumbnail" src="{{ img_thumbs[row.system.system_uid] }}"></span>
-{% else %}
-      <span><img class="system-thumbnail-placeholder" src="/static/images/img_placeholder.png"></span>
-{% endif %}
-      <span><a href="{{url_for('frontend.view_system', system_uid=row.system.system_uid)}}">{{row.system.name}}</a></span>
+      {% if admin_systems %}
+      {% for row in admin_systems %}
+      <div class="row">
+        <div class="system-box">
+          <div class="system-desc-row">
+            {% if row.system.system_uid in admin_img_thumbs %}
+            <span><img class="system-thumbnail" src="{{admin_img_thumbs[row.system.system_uid]}}"></span>
+            {% else %}
+            <span><img class="system-thumbnail-placeholder" src="/static/images/img_placeholder.png"></span>
+            {% endif %}
+            <span><a href="{{url_for('frontend.view_system', system_uid=row.system.system_uid)}}">{{row.system.name}}</a></span>
 
-    </div>
-    <div class="swatch-row">
-      {% for mname, m in measurement_types.items() %}
-      <span class="swatch swatch-ok">{{m.full_name}}:&nbsp;{{measurements[row.system.system_uid][mname]|safe}}</span>
+          </div>
+          <div class="swatch-row">
+            {% for mname, m in measurement_types.items() %}
+            <span class="swatch swatch-ok">{{m.full_name}}:&nbsp;{{measurements[row.system.system_uid][mname]|safe}}</span>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
       {% endfor %}
-    </div>
-  </div>
-</div>
-{% endfor %}
-{% else %}
-<div class="row">
-  <p>You currently have no systems</p>
-</div>
-{% endif %}
+      {% else %}
+      <div class="row">
+        <p>You currently have no systems</p>
+      </div>
+      {% endif %}
+    </div>{# tab admin #}
 
+    {# Participant systems Tab #}
+    <div class="tab-pane active" id="participant">
+      <div style="height: 20px"></div>
+      {% if participant_systems %}
+      {% for row in participant_systems %}
+      <div class="row">
+        <div class="system-box">
+          <div class="system-desc-row">
+            {% if row.system.system_uid in participant_img_thumbs %}
+            <span><img class="system-thumbnail" src="{{participant_img_thumbs[row.system.system_uid]}}"></span>
+            {% else %}
+            <span><img class="system-thumbnail-placeholder" src="/static/images/img_placeholder.png"></span>
+            {% endif %}
+            <span><a href="{{url_for('frontend.view_system', system_uid=row.system.system_uid)}}">{{row.system.name}}</a></span>
+
+          </div>
+          <div class="swatch-row">
+            {% for mname, m in measurement_types.items() %}
+            <span class="swatch swatch-ok">{{m.full_name}}:&nbsp;{{measurements[row.system.system_uid][mname]|safe}}</span>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+      {% else %}
+      <div class="row">
+        <p>You currently do not participate in any systems</p>
+      </div>
+      {% endif %}
+    </div>{# tab participant #}
+
+  </div>{# tab-content #}
+</div>{# container #}
 
 {% if session.uid %}
 <div class="row">

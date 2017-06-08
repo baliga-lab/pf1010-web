@@ -31,6 +31,18 @@ def dbconn():
                                    database=current_app.config['DB'])
 
 
+
+def __add_measurements(measurement_dao, measurements, measurement_types, system_uid):
+    measurements[system_uid] = measurement_dao.latest_measurements(system_uid)
+    for mname, value in measurements[system_uid].items():
+        if value is None:
+            measurements[system_uid][mname] = '-'
+        else:
+            unit = measurement_types[mname]['unit']
+            if unit is None:
+                unit = ''
+            measurements[system_uid][mname] = '%.2f&nbsp;%s' % (value, unit)
+
 @social.route('/index')
 def index():
     if session.get('uid') is None:
@@ -47,21 +59,21 @@ def index():
     privacy_info.user_relation = None
     admin_systems = System().get_admin_systems(session['uid'])
     num_admin_systems = len(admin_systems)
-    img_thumbs = make_img_thumbs(admin_systems)
+    admin_img_thumbs = make_img_thumbs(admin_systems)
+
+    participant_systems = System().get_participated_systems(session['uid'])
+    num_participant_systems = len(participant_systems)
+    participant_img_thumbs = make_img_thumbs(participant_systems)
+
     measurements = {}
     measurement_types = {m['name']: m for m in measurement_dao.measurement_types()}
     measurement_types['temp']['unit'] = '&deg;Celsius'
     for system in admin_systems:
         system_uid = system['system']['system_uid']
-        measurements[system_uid] = measurement_dao.latest_measurements(system_uid)
-        for mname, value in measurements[system_uid].items():
-            if value is None:
-                measurements[system_uid][mname] = '-'
-            else:
-                unit = measurement_types[mname]['unit']
-                if unit is None:
-                    unit = ''
-                measurements[system_uid][mname] = '%.2f&nbsp;%s' % (value, unit)
+        __add_measurements(measurement_dao, measurements, measurement_types, system_uid)
+    for system in participant_systems:
+        system_uid = system['system']['system_uid']
+        __add_measurements(measurement_dao, measurements, measurement_types, system_uid)
     return render_template('home.html', **locals())
 
 
