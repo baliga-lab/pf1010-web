@@ -294,7 +294,7 @@ Responsive CSS
 /* System swatches */
 .system-box {
     width: 100%;
-    border: 1px solid black;
+    border: 1px solid #cccccc;
     border-radius: 5px;
     padding: 6px;
     margin-top: 10px;
@@ -305,9 +305,10 @@ Responsive CSS
     padding-bottom: 5px;
     padding-left: 5px;
     padding-right: 5px;
-    border-right: 1px solid black;
+    border-right: 1px solid #cccccc;
     font-size: small;
     font-weight: bold;
+    color: #555555;
 }
 .swatch-ok {
     background: repeating-linear-gradient(
@@ -342,7 +343,7 @@ Responsive CSS
 }
 
 .swatch-row {
-    border-top: 1px solid black;
+    border-top: 1px solid #cccccc;
     padding-top: 7px;
 }
 
