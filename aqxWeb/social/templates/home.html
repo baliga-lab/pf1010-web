@@ -32,9 +32,16 @@
 
           </div>
           <div class="swatch-row">
-            {% for mname in mtype_names %}
-            <span class="swatch swatch-{{measurements[row.system.system_uid][mname]['alert']}}">{{measurement_types[mname].full_name|safe}}:&nbsp;{{measurements[row.system.system_uid][mname]['value']|safe}}</span>
-            {% endfor %}
+            <div class="chem-row">
+              {% for mname in chem_mtype_names %}
+              <span class="swatch swatch-{{measurements[row.system.system_uid][mname]['alert']}}">{{measurement_types[mname].full_name|safe}}:&nbsp;{{measurements[row.system.system_uid][mname]['value']|safe}}</span>
+              {% endfor %}
+            </div>
+            <div class="nonchem-row">
+              {% for mname in nonchem_mtype_names %}
+              <span class="swatch swatch-{{measurements[row.system.system_uid][mname]['alert']}}">{{measurement_types[mname].full_name|safe}}:&nbsp;{{measurements[row.system.system_uid][mname]['value']|safe}}</span>
+              {% endfor %}
+            </div>
           </div>
         </div>
       </div>
@@ -63,9 +70,16 @@
 
           </div>
           <div class="swatch-row">
-            {% for mname in mtype_names %}
-            <span class="swatch swatch-{{measurements[row.system.system_uid][mname]['alert']}}">{{measurement_types[mname].full_name|safe}}:&nbsp;{{measurements[row.system.system_uid][mname]['value']|safe}}</span>
-            {% endfor %}
+            <div class="chem-row">
+              {% for mname in chem_mtype_names %}
+              <span class="swatch swatch-{{measurements[row.system.system_uid][mname]['alert']}}">{{measurement_types[mname].full_name|safe}}:&nbsp;{{measurements[row.system.system_uid][mname]['value']|safe}}</span>
+              {% endfor %}
+            </div>
+            <div class="nonchem-row">
+              {% for mname in nonchem_mtype_names %}
+              <span class="swatch swatch-{{measurements[row.system.system_uid][mname]['alert']}}">{{measurement_types[mname].full_name|safe}}:&nbsp;{{measurements[row.system.system_uid][mname]['value']|safe}}</span>
+              {% endfor %}
+            </div>
           </div>
         </div>
       </div>

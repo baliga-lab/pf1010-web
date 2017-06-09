@@ -16,9 +16,9 @@ class MeasurementDAO:
 
         conn = self.dbconn()
         cursor = conn.cursor()
-        cursor.execute('select id,name,unit,min,max,full_name from measurement_types where id < 9999 order by order_num')
-        return [{'id': m_id, 'name': name, 'unit': unit, 'min': to_float(mmin), 'max': to_float(mmax), 'full_name': full_name}
-                for m_id, name, unit, mmin, mmax, full_name in cursor.fetchall()]
+        cursor.execute('select id,name,unit,min,max,full_name,is_chemistry from measurement_types where id < 9999 order by order_num')
+        return [{'id': m_id, 'name': name, 'unit': unit, 'min': to_float(mmin), 'max': to_float(mmax), 'full_name': full_name, 'is_chemistry': is_chemistry}
+                for m_id, name, unit, mmin, mmax, full_name, is_chemistry in cursor.fetchall()]
 
         return readings
 

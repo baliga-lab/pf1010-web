@@ -77,7 +77,8 @@ def index():
     measurements = {}
     mtypes = measurement_dao.measurement_types()
     # this is to preserve the order by order_num
-    mtype_names = [m['name'] for m in mtypes]
+    chem_mtype_names = [m['name'] for m in mtypes if m['is_chemistry'] == 1]
+    nonchem_mtype_names = [m['name'] for m in mtypes if m['is_chemistry'] == 0]
     measurement_types = {m['name']: m for m in mtypes}
     __fix_measurement_types(measurement_types)
     for system in admin_systems:

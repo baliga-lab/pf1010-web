@@ -300,6 +300,14 @@ Responsive CSS
     margin-top: 10px;
 }
 
+.chem-row {
+    padding-bottom: 5px;
+    border-bottom: 1px dashed #cccccc;
+}
+.nonchem-row {
+    padding-top: 5px;
+}
+
 .swatch {
     padding-top: 5px;
     padding-bottom: 5px;
