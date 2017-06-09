@@ -46,6 +46,12 @@ def __add_measurements(measurement_dao, measurements, measurement_types, system_
             measurements[system_uid][mname]['value'] = '%.2f&nbsp;%s' % (value, unit)
             measurements[system_uid][mname]['alert'] = 'ok'
 
+def __fix_measurement_types(measurement_types):
+    """make sure the output of the measurment type full names looks good"""
+    measurement_types['temp']['unit'] = '&deg;Celsius'
+    for mname, mtype in measurement_types.items():
+        mtype['full_name'] = mtype['full_name'].replace(' ', '&nbsp;')
+
 @social.route('/index')
 def index():
     if session.get('uid') is None:
@@ -69,8 +75,11 @@ def index():
     participant_img_thumbs = make_img_thumbs(participant_systems)
 
     measurements = {}
-    measurement_types = {m['name']: m for m in measurement_dao.measurement_types()}
-    measurement_types['temp']['unit'] = '&deg;Celsius'
+    mtypes = measurement_dao.measurement_types()
+    # this is to preserve the order by order_num
+    mtype_names = [m['name'] for m in mtypes]
+    measurement_types = {m['name']: m for m in mtypes}
+    __fix_measurement_types(measurement_types)
     for system in admin_systems:
         system_uid = system['system']['system_uid']
         __add_measurements(measurement_dao, measurements, measurement_types, system_uid)
