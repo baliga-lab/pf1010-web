@@ -321,9 +321,18 @@ Responsive CSS
     background: repeating-linear-gradient(
                         45deg,
                         #fafafa,
-                        #fafafa 10px,
-                        #f78888 10px,
+                        #fafafa 2px,
+                        #f78888 2px,
                         #f78888 20px);
+}
+
+.swatch-none {
+    background: repeating-linear-gradient(
+                        45deg,
+                        #fafafa,
+                        #fafafa 2px,
+                        #eeeeee 2px,
+                        #eeeeee 20px);
 }
 
 

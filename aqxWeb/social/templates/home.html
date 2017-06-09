@@ -33,7 +33,7 @@
           </div>
           <div class="swatch-row">
             {% for mname, m in measurement_types.items() %}
-            <span class="swatch swatch-ok">{{m.full_name}}:&nbsp;{{measurements[row.system.system_uid][mname]|safe}}</span>
+            <span class="swatch swatch-{{measurements[row.system.system_uid][mname]['alert']}}">{{m.full_name}}:&nbsp;{{measurements[row.system.system_uid][mname]['value']|safe}}</span>
             {% endfor %}
           </div>
         </div>
@@ -64,7 +64,7 @@
           </div>
           <div class="swatch-row">
             {% for mname, m in measurement_types.items() %}
-            <span class="swatch swatch-ok">{{m.full_name}}:&nbsp;{{measurements[row.system.system_uid][mname]|safe}}</span>
+            <span class="swatch swatch-{{measurements[row.system.system_uid][mname]['alert']}}">{{m.full_name}}:&nbsp;{{measurements[row.system.system_uid][mname]['value']|safe}}</span>
             {% endfor %}
           </div>
         </div>

@@ -35,13 +35,16 @@ def dbconn():
 def __add_measurements(measurement_dao, measurements, measurement_types, system_uid):
     measurements[system_uid] = measurement_dao.latest_measurements(system_uid)
     for mname, value in measurements[system_uid].items():
+        measurements[system_uid][mname] = {}
         if value is None:
-            measurements[system_uid][mname] = '-'
+            measurements[system_uid][mname]['value'] = '-'
+            measurements[system_uid][mname]['alert'] = 'none'
         else:
             unit = measurement_types[mname]['unit']
             if unit is None:
                 unit = ''
-            measurements[system_uid][mname] = '%.2f&nbsp;%s' % (value, unit)
+            measurements[system_uid][mname]['value'] = '%.2f&nbsp;%s' % (value, unit)
+            measurements[system_uid][mname]['alert'] = 'ok'
 
 @social.route('/index')
 def index():
