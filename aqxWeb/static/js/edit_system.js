@@ -123,7 +123,20 @@ if (!aqx_editsystem) {
         $(selector).replaceWith(s);
     };
 
-    aqx_editsystem.makeInputRow = function(divID, typeName, num, choices, placeholder, selectedId, count) {
+    aqx_editsystem.makeDisplay = function(selector, name, choices, selectedId) {
+        var s = '<input name="' + name + '" type="hidden" value="' + selectedId + '"></input>';
+        var i;
+        for (i = 0; i < choices.length; i++) {
+            if (choices[i].id == selectedId) {
+                s += '<input value="' + choices[i].name + '" class="form-control" readonly></input>';
+                break;
+            }
+        }
+        $(selector).replaceWith(s);
+    }
+
+    aqx_editsystem.makeInputRow = function(divID, typeName, num, choices, placeholder, selectedId, count,
+                                           existing) {
         var selectID = 'select_' + typeName + '_' + num;
         var input = $('<input type="number" min="0" />')
             .addClass('form-control')
@@ -138,7 +151,11 @@ if (!aqx_editsystem) {
                                  .addClass('col-xs-4')
                                  .append(input))));
         $('#' + divID).replaceWith(newrow.add('<div id="' + divID + '"></div>'));
-        aqx_editsystem.makeSelect('#' + selectID, typeName + 'ID_' + num, choices, num > 0, selectedId);
+        if (existing) {
+            aqx_editsystem.makeDisplay('#' + selectID, typeName + 'ID_' + num, choices, selectedId);
+        } else {
+            aqx_editsystem.makeSelect('#' + selectID, typeName + 'ID_' + num, choices, num > 0, selectedId);
+        }
     };
 
     var numCropLists = 1;
@@ -152,7 +169,7 @@ if (!aqx_editsystem) {
         $('#addcrop').click(function () {
             if (numCropLists <= MAX_LIST_LEN) {
                 aqx_editsystem.makeInputRow('newcrop', 'crop', numCropLists++, crops,
-                                            'Number of Crops');
+                                            'Number of Crops', false);
                 if (numCropLists == MAX_LIST_LEN) {
                     $('#addcrop').remove();
                 }
@@ -161,7 +178,7 @@ if (!aqx_editsystem) {
         $('#addorganism').click(function () {
             if (numOrganismLists <= MAX_LIST_LEN) {
                 aqx_editsystem.makeInputRow('neworganism', 'organism', numOrganismLists++, organisms,
-                                            'Number of Organisms');
+                                            'Number of Organisms', false);
                 if (numOrganismLists == MAX_LIST_LEN) {
                     $('#addorganism').remove();
                 }

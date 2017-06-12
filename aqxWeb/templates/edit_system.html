@@ -53,19 +53,14 @@
         {% for o in enums['organisms'] %}{ "id": {{ o.ID }}, "name": "{{ o.name }}" },{% endfor %}
       ];
       $(document).ready(function () {
-        /*
-        if (!Modernizr.inputtypes.date) {
-          $('#start-date').datepicker({dateFormat: "yy-MM-dd"});
-        }
-      */
       {% for c in system_data['crops'] %}
       aqx_editsystem.makeInputRow('cropsrow_{{loop.index - 1}}', 'crop', {{loop.index - 1}},
-                                  crops, "Number of Crops", {{c.id}}, {{c.count}});
+                                  crops, "Number of Crops", {{c.id}}, {{c.count}}, true);
       {% endfor %}
 
       {% for o in system_data['organisms'] %}
       aqx_editsystem.makeInputRow('orgrow_{{loop.index - 1}}', 'organism', {{loop.index - 1}},
-                                  organisms, "Number of Organisms", {{o.id}}, {{o.count}});
+                                  organisms, "Number of Organisms", {{o.id}}, {{o.count}}, true);
       {% endfor %}
 
       $('#edit_form').submit(function (event) {
