@@ -228,14 +228,28 @@ class SystemDAO:
             update_crops = True
 
             if update_organisms:
-                cursor.execute('delete from system_aquatic_organisms where system_id=%s', [system_id])
+                # Never delete the relationship in UPDATE !!!
                 for o in organisms:
-                    cursor.execute('insert into system_aquatic_organisms (system_id,organism_id,num) values (%s,%s,%s)', [system_id, o['ID'], o['count']])
+                    cursor.execute('select count(*) from system_aquatic_organisms where system_id=%s and organism_id=%s', [system_id, o['ID']])
+                    if cursor.fetchone()[0] == 0:
+                        if o['ID'] > 0:
+                            cursor.execute('insert into system_aquatic_organisms (system_id,organism_id,num) values (%s,%s,%s)',
+                                           [system_id, o['ID'], o['count']])
+                    else:
+                        cursor.execute('update system_aquatic_organisms set num=%s where system_id=%s and organism_id=%s', [o['count'], system_id, o['ID']])
 
             if update_crops:
-                cursor.execute('delete from system_crops where system_id=%s', [system_id])
+                # Never delete the relationship in UPDATE !!!
                 for c in crops:
-                    cursor.execute('insert into system_crops (system_id,crop_id,num) values (%s,%s,%s)', [system_id, c['ID'], c['count']])
+                    cursor.execute('select count(*) from system_crops where system_id=%s and crop_id=%s',
+                                   [system_id, c['ID']])
+                    if cursor.fetchone()[0] == 0:
+                        if c['ID'] > 0:
+                            cursor.execute('insert into system_crops (system_id,crop_id,num) values (%s,%s,%s)',
+                                           [system_id, c['ID'], c['count']])
+                    else:
+                        cursor.execute('update system_crops set num=%s where system_id=%s and crop_id=%s',
+                                       [c['count'], system_id, c['ID']])
 
             conn.commit()
         finally:

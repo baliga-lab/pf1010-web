@@ -143,17 +143,30 @@ if (!aqx_editsystem) {
             .attr('name', typeName + 'Count_' + num)
             .attr('placeholder', placeholder);
         if (count) input.val(count);
-        var newrow = $('<div>').addClass('form-group')
-            .append($('<div>').addClass('row')
-                    .append($('<div>').addClass('col-xs-8')
-                            .append($('<div id="' + selectID + '">'))
-                            .add($('<div>')
-                                 .addClass('col-xs-4')
-                                 .append(input))));
-        $('#' + divID).replaceWith(newrow.add('<div id="' + divID + '"></div>'));
+        var formGroup = $('<div>').addClass('form-group');
+        var newrow = $('<div>').addClass('row');
+        var selectControl = $('<div>').addClass('col-xs-8').append($('<div id="' + selectID + '">'));
+        var inputControl = existing ? $('<div>').addClass('col-xs-2').append(input)
+            : $('<div>').addClass('col-xs-4').append(input);
+        var removeControl = $('<div>').addClass('col-xs-2')
+            .append($('<a>').addClass('form-control btn btn-default')
+                    .attr('placeholder', '.col-xs-2')
+                    .text('Remove'));
+
+        newrow = newrow.append(selectControl);
+        newrow = newrow.append(inputControl);
+
         if (existing) {
+            if (existing) newrow = newrow.append(removeControl);
+            formGroup = formGroup.append(newrow).add('<div id="' + divID + '"></div>');
+            $('#' + divID).replaceWith(formGroup);
+           // add that new HTML for the edit row to the DOM
             aqx_editsystem.makeDisplay('#' + selectID, typeName + 'ID_' + num, choices, selectedId);
         } else {
+            // add that new HTML for the edit row to the DOM, but also add another
+            // placeholder row to add more rows
+            formGroup = formGroup.append(newrow).add('<div id="' + divID + '"></div>');
+            $('#' + divID).replaceWith(formGroup);
             aqx_editsystem.makeSelect('#' + selectID, typeName + 'ID_' + num, choices, num > 0, selectedId);
         }
     };
