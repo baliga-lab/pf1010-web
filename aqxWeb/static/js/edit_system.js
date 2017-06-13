@@ -10,6 +10,8 @@ if (!aqx_editsystem) {
 }
 
 (function () {
+    var itemCount = {};
+    var MAX_LIST_LEN = 3;
 
     function convertFormData(data) {
         var submitData = { 'location': {}, 'gbMedia': [{'ID': 0}],
@@ -137,6 +139,12 @@ if (!aqx_editsystem) {
 
     aqx_editsystem.makeInputRow = function(divID, typeName, num, choices, placeholder, selectedId, count,
                                            existing) {
+        if (itemCount[typeName] == MAX_LIST_LEN) {
+            return;
+        }
+        if (!(typeName in itemCount)) {
+            itemCount[typeName] = 0;
+        }
         var selectID = 'select_' + typeName + '_' + num;
         var input = $('<input type="number" min="0" />')
             .addClass('form-control')
@@ -169,33 +177,27 @@ if (!aqx_editsystem) {
             $('#' + divID).replaceWith(formGroup);
             aqx_editsystem.makeSelect('#' + selectID, typeName + 'ID_' + num, choices, num > 0, selectedId);
         }
+        itemCount[typeName]++;
+        if (itemCount[typeName] == MAX_LIST_LEN) {
+            $('#add' + typeName).remove();
+        }
+    };
+    aqx_editsystem.setItemCount = function(key, count) {
+        itemCount[key] = count;
     };
 
-    var numCropLists = 1;
-    var numOrganismLists = 1;
-    var MAX_LIST_LEN = 3;
 
     $(document).ready(function() {
         $('#get_geocoords').click(function () {
             address_to_geocode($("input[name='address']").val());
         });
         $('#addcrop').click(function () {
-            if (numCropLists <= MAX_LIST_LEN) {
-                aqx_editsystem.makeInputRow('newcrop', 'crop', numCropLists++, crops,
-                                            'Number of Crops', false);
-                if (numCropLists == MAX_LIST_LEN) {
-                    $('#addcrop').remove();
-                }
-            }
+            aqx_editsystem.makeInputRow('newcrop', 'crop', itemCount['crop'], crops,
+                                        'Number of Crops', false);
         });
         $('#addorganism').click(function () {
-            if (numOrganismLists <= MAX_LIST_LEN) {
-                aqx_editsystem.makeInputRow('neworganism', 'organism', numOrganismLists++, organisms,
-                                            'Number of Organisms', false);
-                if (numOrganismLists == MAX_LIST_LEN) {
-                    $('#addorganism').remove();
-                }
-            }
+            aqx_editsystem.makeInputRow('neworganism', 'organism', itemCount['organism'], organisms,
+                                        'Number of Organisms', false);
         });
     });
 

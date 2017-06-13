@@ -102,6 +102,9 @@
         }
         aqx_editsystem.makeSelect('#select_crops', 'cropID_0', crops, false);
         aqx_editsystem.makeSelect('#select_organism', 'organismID_0', organisms, false);
+        // limit the list count
+        aqx_editsystem.setItemCount('crop', 1);
+        aqx_editsystem.setItemCount('organism', 1);
         $('#create_form').submit(aqx_editsystem.create);
       });
     </script>
