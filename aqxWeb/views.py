@@ -192,11 +192,11 @@ def update_system(system_uid):
             result = social_api.update_system_with_system_uid(sys_obj)
             if "error" in result:
                 print result
-                flash('could not update social attributes', 'warn')
+                flash('could not update social attributes', 'warning')
             else:
-                flash('update successful')
+                flash('update successful', 'success')
         else:
-            flash('only administrators can update system attributes')
+            flash('only administrators can update system attributes', 'danger')
     except:
         flash('update failed', 'error')
 
