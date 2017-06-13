@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}Edit System{% endblock %}
+{% block title %}Edit System - {{system_data['name']}}{% endblock %}
 {% block content %}
 <ol class="breadcrumb">
   <li class="breadcrumb-item"><a href="{{url_for('frontend.view_system', system_uid=system_data['UID'])}}">System</a></li>

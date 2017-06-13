@@ -6,7 +6,7 @@
 <link rel="stylesheet" href="{{ url_for('dav.static', filename='css/explore.css') }}">
 <link rel="stylesheet" href="{{ url_for('dav.static', filename='css/chosen.min.css') }}">
 {% endblock %}
-{% block title %}Analyze Your System{% endblock %}
+{% block title %}Analyze System - {{metadata['name']}}{% endblock %}
 {% block content %}
 <ol class="breadcrumb">
   <li class="breadcrumb-item"><a href="{{url_for('frontend.view_system', system_uid=system_uid)}}">System</a></li>
