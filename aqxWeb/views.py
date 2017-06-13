@@ -204,13 +204,13 @@ def update_system(system_uid):
 
 @frontend.route('/<system_uid>/crop/<crop_id>', methods=['DELETE'])
 def delete_crop(system_uid, crop_id):
-    # TODO
-    return redirect(url_for('frontend.edit_system', system_uid=system_uid))
+    current_app.logger.debug('delete crop %s from system %s', crop_id, system_uid)
+    return jsonify(status='ok')
 
 @frontend.route('/<system_uid>/organism/<organism_id>', methods=['DELETE'])
 def delete_organism(system_uid, organism_id):
-    # TODO
-    return redirect(url_for('frontend.edit_system', system_uid=system_uid))
+    current_app.logger.debug('delete organism %s from system %s', organism_id, system_uid)
+    return jsonify(status='ok')
 
 
 @frontend.route('/system/<system_uid>', methods=['GET'])

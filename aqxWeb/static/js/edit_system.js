@@ -216,11 +216,26 @@ if (!aqx_editsystem) {
                                         'Number of Organisms', false);
         });
 
-
         $('#remove-confirm').click(function (e) {
-            console.log("TODO: Remove");
-            console.log('remove type: ' + $('#remove_type').val());
-            console.log('remove id: ' + $('#remove_id').val());
+            // The process of building the delete URL is a bit involved since
+            // we do not want to hard code the URL in the Javascript source file
+            var removeType = $('#remove_type').val();
+            var removeId = $('#remove_id').val();
+            var urlId = '#delete_' + $('#remove_type').val() + '_url';
+            var url = $(urlId).val();
+            var idx = url.lastIndexOf('/');
+            var deleteURL = url.substring(0, idx + 1) + removeId;
+            var thisURL = $('#this_url').val();
+            console.log(deleteURL);
+
+            $.ajax({
+                type: 'DELETE',
+                url: deleteURL,
+                success: function (data) {
+                    window.location.href = thisURL;
+                },
+                dataType: 'json'
+            });
             $('#confirm-dialog').modal('hide');
         });
 

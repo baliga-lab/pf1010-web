@@ -8,6 +8,9 @@
 
 <div>
   <form id="edit_form">
+    <input type="hidden" id="this_url" value="{{url_for('frontend.edit_system', system_uid=system_data['UID'])}}"></input>
+    <input type="hidden" id="delete_crop_url" value="{{url_for('frontend.delete_crop', system_uid=system_data['UID'], crop_id=0)}}"></input>
+    <input type="hidden" id="delete_organism_url" value="{{url_for('frontend.delete_organism', system_uid=system_data['UID'], organism_id=0)}}"></input>
     <input type="hidden" name="uid" value="{{system_data['UID']}}"></input>
     <h2>Edit System</h2>
     <div class="notice">
