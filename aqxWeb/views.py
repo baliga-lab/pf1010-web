@@ -17,6 +17,7 @@ import aqxWeb.utils as utils
 # this is ugly, but: this app currently has too many layers
 # of indirection which we need to eliminate for long-term benefit
 from aqxWeb.dao.measurements import MeasurementDAO
+from aqxWeb.dao.systems import SystemDAO
 
 import services
 import json
@@ -208,15 +209,31 @@ def update_system(system_uid):
 
     return redirect(url_for('frontend.edit_system', system_uid=system_uid))
 
+
 @frontend.route('/<system_uid>/crop/<crop_id>', methods=['DELETE'])
 def delete_crop(system_uid, crop_id):
-    current_app.logger.debug('delete crop %s from system %s', crop_id, system_uid)
-    return jsonify(status='ok')
+    if can_user_edit_system(system_uid):
+        system_dao = SystemDAO(current_app)
+        try:
+            system_dao.delete_crop_from_system(system_uid, crop_id)
+            return jsonify(status='ok')
+        except:
+            return jsonify(status='error')
+    else:
+        return jsonify(status='error')
+
 
 @frontend.route('/<system_uid>/organism/<organism_id>', methods=['DELETE'])
 def delete_organism(system_uid, organism_id):
-    current_app.logger.debug('delete organism %s from system %s', organism_id, system_uid)
-    return jsonify(status='ok')
+    if can_user_edit_system(system_uid):
+        system_dao = SystemDAO(current_app)
+        try:
+            system_dao.delete_organism_from_system(system_uid, organism_id)
+            return jsonify(status='ok')
+        except:
+            return jsonify(status='error')
+    else:
+        return jsonify(status='error')
 
 
 @frontend.route('/system/<system_uid>', methods=['GET'])

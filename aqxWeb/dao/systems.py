@@ -206,6 +206,32 @@ class SystemDAO:
 
         return result
 
+    def delete_crop_from_system(self, system_uid, crop_id):
+        conn = self.dbconn()
+        cursor = conn.cursor()
+        try:
+            cursor.execute('select id from systems where system_uid=%s', [system_uid])
+            system_pk = cursor.fetchone()[0]
+            cursor.execute('delete from system_crops where system_id=%s and crop_id=%s',
+                           [system_pk, crop_id])
+            conn.commit()
+        finally:
+            cursor.close()
+            conn.close()
+
+    def delete_organism_from_system(self, system_uid, organism_id):
+        conn = self.dbconn()
+        cursor = conn.cursor()
+        try:
+            cursor.execute('select id from systems where system_uid=%s', [system_uid])
+            system_pk = cursor.fetchone()[0]
+            cursor.execute('delete from system_aquatic_organisms where system_id=%s and organism_id=%s',
+                           [system_pk, organism_id])
+            conn.commit()
+        finally:
+            cursor.close()
+            conn.close()
+
     def update_system(self, system):
         conn = self.dbconn()
         cursor = conn.cursor()
