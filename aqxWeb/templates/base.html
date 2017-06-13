@@ -26,12 +26,15 @@
     <!-- Error Flash Message Propagation -->
     <div class="container">
       <div class="flash">
-        {% for message in get_flashed_messages() %}
-        <div class="alert alert-info alert-dismissible" role="alert">
+        {# FLASH MESSAGES #}
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% for category, message in messages %}
+        <div class="alert alert-{{category}} alert-dismissible" role="alert">
           <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
           {{message}}
         </div>
         {% endfor %}
+        {% endwith %}
       </div>
       {% block content %}{% endblock %}
     </div>

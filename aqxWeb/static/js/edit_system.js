@@ -232,7 +232,8 @@ if (!aqx_editsystem) {
                 type: 'DELETE',
                 url: deleteURL,
                 success: function (data) {
-                    window.location.href = thisURL;
+                    var append = data.status == 'ok' ? 'status=delete_ok' : 'status=delete_error';
+                    window.location.href = thisURL + '?' + append;
                 },
                 dataType: 'json'
             });

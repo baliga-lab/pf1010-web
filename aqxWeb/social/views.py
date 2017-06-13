@@ -209,7 +209,7 @@ def updateprofile():
         User(sql_id).update_profile(given_name, family_name, display_name, gender, organization, user_type,
                                     date_of_birth)
         session['displayName'] = display_name
-        flash("User Profile Updated successfully!")
+        flash("User Profile Updated successfully!", 'success')
         return editprofile()
     except Exception as ex:
         current_app.logger.exception("Exception Occurred At updateprofile: ", ex)
@@ -291,7 +291,7 @@ def accept_friend_request(u_sql_id):
     accepted_sql_id = u_sql_id
     User(session['uid']).accept_friend_request(accepted_sql_id)
     User(session['uid']).delete_friend_request(accepted_sql_id)
-    flash('Friend Request Accepted');
+    flash('Friend Request Accepted', 'success');
     return redirect(url_for('social.pendingRequest'))
 
 
@@ -299,7 +299,7 @@ def accept_friend_request(u_sql_id):
 def decline_friend_request(u_sql_id):
     accepted_sql_id = u_sql_id
     User(session['uid']).delete_friend_request(accepted_sql_id)
-    flash('Friend Request Deleted');
+    flash('Friend Request Deleted', 'success');
     return redirect(url_for('social.pendingRequest'))
 
 
@@ -307,7 +307,7 @@ def decline_friend_request(u_sql_id):
 def block_friend(u_sql_id):
     blocked_sql_id = u_sql_id
     User(session['uid']).block_a_friend(blocked_sql_id)
-    flash('Friend Blocked');
+    flash('Friend Blocked', 'success');
     return redirect(url_for('social.friends'))
 
 
@@ -315,7 +315,7 @@ def block_friend(u_sql_id):
 def unblock_friend(u_sql_id):
     blocked_sql_id = u_sql_id
     User(session['uid']).unblock_a_friend(blocked_sql_id)
-    flash('Friend Blocked');
+    flash('Friend Blocked', 'success');
     return redirect(url_for('social.friends'))
 
 
@@ -323,7 +323,7 @@ def unblock_friend(u_sql_id):
 def delete_friend(u_sql_id):
     accepted_sql_id = u_sql_id
     User(session['uid']).delete_friend(accepted_sql_id)
-    flash('Friend  Deleted');
+    flash('Friend  Deleted', 'success');
     return redirect(url_for('social.friends'))
 
 
@@ -331,7 +331,7 @@ def delete_friend(u_sql_id):
 def delete_friend_timeline(u_sql_id):
     accepted_sql_id = u_sql_id
     User(session['uid']).delete_friend(accepted_sql_id)
-    flash('Friend  Deleted');
+    flash('Friend  Deleted', 'success');
     return redirect(User(session['uid']).redirect_url())
 
 
@@ -752,7 +752,7 @@ def update_group_info():
                 user_privilege = group.get_user_privilege_for_group(sql_id, group_uid)
                 if user_privilege == "GROUP_ADMIN":
                     group.update_group_info(group_uid, name, description, is_private_group)
-            flash("Group Information Updated successfully!")
+            flash("Group Information Updated successfully!", 'success')
             return redirect(url_for('social.manage_group', group_uid=group_uid))
         else:
             return redirect(url_for('social.groups'))
@@ -770,17 +770,17 @@ def create_group():
     is_private = request.form['is_private_group']
     group = Group()
     if is_private == "" or is_private is None:
-        flash('Privacy option can not be empty')
+        flash('Privacy option can not be empty', 'warning')
 
     elif description == "" or description is None:
-        flash('Description cannot be empty')
+        flash('Description cannot be empty', 'warning')
 
     elif name == "" or name is None:
-        flash('Name cannot be empty')
+        flash('Name cannot be empty', 'warning')
 
     else:
         group_uid = group.create_group(sql_id, name, description, is_private)
-        flash('Your Group has been Successfully Created!')
+        flash('Your Group has been Successfully Created!', 'success')
         return redirect(url_for('social.view_group', group_uid=group_uid))
     return redirect(url_for('social.groups'))
 
@@ -894,14 +894,14 @@ def add_comment():
     comment = request.form['newcomment']
     postid = request.form['postid']
     if comment == "" or comment is None:
-        flash('Comment can not be empty')
+        flash('Comment can not be empty', 'warning')
         redirect(request.referrer)
     elif postid == "" or postid is None:
-        flash('Post not found to comment on')
+        flash('Post not found to comment on', 'danger')
         redirect(request.referrer)
     else:
         User(session['uid']).add_comment(comment, postid)
-        flash('Your comment has been posted')
+        flash('Your comment has been posted', 'success')
 
     return redirect(request.referrer)
 
@@ -912,18 +912,18 @@ def edit_or_delete_comment():
         commentid = request.form['commentid']
         # system_uid = request.form["system_uid"]
         if commentid == "" or commentid is None:
-            flash('Comment not found to edit')
+            flash('Comment not found to edit', 'danger')
         else:
             comment = request.form['editedcomment']
             if request.form['submit'] == 'deleteComment':
                 User(session['uid']).delete_comment(commentid)
-                flash('Your post has been deleted')
+                flash('Your post has been deleted', 'success')
             elif request.form['submit'] == 'editComment':
                 if comment == "" or comment is None:
-                    flash('Comment can not be empty')
+                    flash('Comment can not be empty', 'warning')
                 else:
                     User(session['uid']).edit_comment(comment, commentid)
-                    flash('Your comment has been updated')
+                    flash('Your comment has been updated', 'success')
     return redirect(request.referrer)
 
 
@@ -933,19 +933,19 @@ def edit_or_delete_system_comment():
         comment_id = request.form['commentid']
         system_uid = request.form['system_uid']
         if comment_id == "" or comment_id is None:
-            flash('Comment not found to edit')
+            flash('Comment not found to edit', 'danger')
             return redirect(url_for('frontend.view_system', system_uid=system_uid))
         else:
             comment = request.form['editedcomment']
             if request.form['submit'] == 'deleteComment':
                 System().delete_system_comment(comment_id)
-                flash('Your post has been deleted')
+                flash('Your post has been deleted', 'success')
             elif request.form['submit'] == 'editComment':
                 if comment == "" or comment is None:
-                    flash('Comment can not be empty')
+                    flash('Comment can not be empty', 'danger')
                 else:
                     System().edit_system_comment(comment, comment_id)
-                    flash('Your comment has been updated')
+                    flash('Your comment has been updated', 'success')
     return redirect(url_for('frontend.view_system', system_uid=system_uid))
 
 
@@ -955,19 +955,19 @@ def edit_or_delete_group_comment():
         comment_id = request.form['commentid']
         group_uid = request.form['group_uid']
         if comment_id == "" or comment_id is None:
-            flash('Comment not found to edit')
+            flash('Comment not found to edit', 'danger')
             return redirect(url_for('social.view_group', group_uid=group_uid))
         else:
             comment = request.form['editedcomment']
             if request.form['submit'] == 'deleteComment':
                 Group().delete_group_comment(comment_id)
-                flash('Your post has been deleted')
+                flash('Your post has been deleted', 'success')
             elif request.form['submit'] == 'editComment':
                 if comment == "" or comment is None:
-                    flash('Comment can not be empty')
+                    flash('Comment can not be empty', 'danger')
                 else:
                     Group().edit_group_comment(comment, comment_id)
-                    flash('Your comment has been updated')
+                    flash('Your comment has been updated', 'success')
     return redirect(url_for('social.view_group', group_uid=group_uid))
 
 
@@ -976,14 +976,14 @@ def edit_comment():
     if session.get('uid') is not None:
         comment_id = request.form['commentid']
         if comment_id == "" or comment_id is None:
-            flash('Comment not found to edit')
+            flash('Comment not found to edit', 'danger')
         else:
             comment = request.form['editedcomment']
             if comment == "" or comment is None:
-                flash('Comment can not be empty')
+                flash('Comment can not be empty', 'danger')
             else:
                 User(session['uid']).edit_comment(comment, comment_id)
-                flash('Your comment has been updated')
+                flash('Your comment has been updated', 'success')
     return redirect(request.referrer)
 
 
@@ -993,12 +993,12 @@ def edit_post():
     post_id = request.form['postid']
 
     if new_post == "" or new_post is None:
-        flash('New post can not be empty')
+        flash('New post can not be empty', 'danger')
     elif post_id == "" or post_id is None:
-        flash('Post not found to edit')
+        flash('Post not found to edit', 'danger')
     else:
         User(session['uid']).edit_post(new_post, post_id)
-        flash('Your comment has been updated')
+        flash('Your comment has been updated', 'success')
     return redirect(request.referrer)
 
 
@@ -1006,11 +1006,11 @@ def edit_post():
 def delete_comment():
     comment_id = request.form['commentid']
     if comment_id == "" or comment_id is None:
-        flash('Comment not found to delete')
+        flash('Comment not found to delete', 'danger')
         redirect(url_for('social.index'))
     else:
         User(session['uid']).delete_comment(comment_id)
-        flash('Your comment has been updated')
+        flash('Your comment has been updated', 'success')
     return redirect(url_for('social.index'))
 
 
@@ -1028,7 +1028,7 @@ def add_post():
 
     text = request.form['text']
     if text == "":
-        flash('Post cannot be empty.')
+        flash('Post cannot be empty.', 'danger')
         return redirect_to_page(page_type, google_id)
 
     user = User(session['uid'])
@@ -1045,7 +1045,7 @@ def add_post():
 
     user.add_post(text, privacy, link, user_profile, link_title, link_img, link_description)
 
-    flash('Your post has been shared')
+    flash('Your post has been shared', 'success')
     return redirect_to_page(page_type, google_id)
 
 
@@ -1067,7 +1067,7 @@ def add_system_post():
         system_neo4j = system.get_system_by_uid(system_uid)
         # InValid System_UID
         if not system_neo4j:
-            flash('System not found in neo4j.')
+            flash('System not found in neo4j.', 'danger')
             return redirect(url_for('frontend.view_system', system_uid=system_uid))
             # Valid System_UID
         else:
@@ -1081,7 +1081,7 @@ def add_system_post():
             link_description = request.form.get('link_description', '')
 
             if text == "":
-                flash('Post cannot be empty.')
+                flash('Post cannot be empty.', 'danger')
             else:
                 System().add_system_post(system_uid, user_sql_id, text, privacy,
                                          link, link_title, link_img, link_description)
@@ -1099,7 +1099,7 @@ def add_group_post():
         group_neo4j = group.get_group_by_uid(group_uid)
         # InValid System_UID
         if not group_neo4j:
-            flash('Group not found in neo4j.')
+            flash('Group not found in neo4j.', 'danger')
             return redirect(url_for('social.view_group', group_uid=group_uid))
             # Valid System_UID
         else:
@@ -1113,7 +1113,7 @@ def add_group_post():
             link_description = request.form.get('link_description', '')
 
             if text == "":
-                flash('Post cannot be empty.')
+                flash('Post cannot be empty.', 'danger')
             else:
                 Group().add_group_post(group_uid, user_sql_id, text, privacy,
                                          link, link_title, link_img, link_description)
@@ -1125,10 +1125,10 @@ def delete_group_post():
     post_id = request.form['postid']
     group_uid = request.form['group_uid']
     if post_id == "" or post_id is None:
-        flash('Post not found to delete')
+        flash('Post not found to delete', 'danger')
     else:
         Group().delete_group_post(post_id)
-        flash('Your comment has been updated')
+        flash('Your comment has been updated', 'success')
     return redirect(url_for('social.view_group', group_uid=group_uid))
 
 
@@ -1139,12 +1139,12 @@ def edit_group_post():
     group_uid = request.form['group_uid']
 
     if new_post == "" or new_post is None:
-        flash('New post can not be empty')
+        flash('New post can not be empty', 'danger')
     elif post_id == "" or post_id is None:
-        flash('Post not found to edit')
+        flash('Post not found to edit', 'danger')
     else:
         Group().edit_group_post(new_post, post_id)
-        flash('Your comment has been updated')
+        flash('Your comment has been updated', 'success')
     return redirect(url_for('social.view_group', group_uid=group_uid))
 
 
@@ -1154,14 +1154,14 @@ def like_or_unlike_post():
         if session.get('uid') is not None:
             post_id = request.form['postid']
             if post_id == "":
-                flash('Can not find the post to delete.')
+                flash('Can not find the post to delete.', 'danger')
             else:
                 if request.form['submit'] == 'likePost':
                     User(session['uid']).like_post(post_id)
-                    flash('You liked the post')
+                    flash('You liked the post', 'success')
                 elif request.form['submit'] == 'unlikePost':
                     User(session['uid']).unlike_post(post_id)
-                    flash('You unliked the post')
+                    flash('You unliked the post', 'success')
             return redirect(request.referrer)
 
 
@@ -1170,10 +1170,10 @@ def delete_post():
     if session.get('uid') is not None:
         post_id = request.form['postid']
         if post_id == "":
-            flash('Can not find the post to delete.')
+            flash('Can not find the post to delete.', 'danger')
         else:
             User(session['uid']).delete_post(post_id)
-            flash('Your post has been deleted')
+            flash('Your post has been deleted', 'success')
     return redirect(request.referrer)
 
 
@@ -1184,14 +1184,14 @@ def add_system_comment():
     userid = session['uid']
     system_uid = request.form['system_uid']
     if comment == "" or comment is None:
-        flash('Comment can not be empty')
+        flash('Comment can not be empty', 'danger')
         redirect(url_for('frontend.view_system', system_uid=system_uid))
     elif postid == "" or postid is None:
-        flash('Post not found to comment on')
+        flash('Post not found to comment on', 'danger')
         redirect(url_for('frontend.view_system', system_uid=system_uid))
     else:
         System().add_system_comment(userid, comment, postid)
-        flash('Your comment has been posted')
+        flash('Your comment has been posted', 'success')
     return redirect(url_for('frontend.view_system', system_uid=system_uid))
 
 
@@ -1202,14 +1202,14 @@ def add_group_comment():
     userid = session['uid']
     group_uid = request.form['group_uid']
     if comment == "" or comment is None:
-        flash('Comment can not be empty')
+        flash('Comment can not be empty', 'danger')
         redirect(url_for('social.view_group', group_uid=group_uid))
     elif postid == "" or postid is None:
-        flash('Post not found to comment on')
+        flash('Post not found to comment on', 'danger')
         redirect(url_for('social.view_group', group_uid=group_uid))
     else:
         Group().add_group_comment(userid, comment, postid)
-        flash('Your comment has been posted')
+        flash('Your comment has been posted', 'success')
     return redirect(url_for('social.view_group', group_uid=group_uid))
 
 
@@ -1220,14 +1220,14 @@ def edit_system_post():
     system_uid = request.form['system_uid']
 
     if newpost == "" or newpost is None:
-        flash('New post can not be empty')
+        flash('New post can not be empty', 'danger')
         redirect(url_for('frontend.view_system', system_uid=system_uid))
     elif postid == "" or postid is None:
-        flash('Post not found to edit')
+        flash('Post not found to edit', 'danger')
         redirect(url_for('frontend.view_system', system_uid=system_uid))
     else:
         System().edit_system_post(newpost, postid)
-        flash('Your comment has been updated')
+        flash('Your comment has been updated', 'success')
     return redirect(url_for('frontend.view_system', system_uid=system_uid))
 
 
@@ -1236,11 +1236,11 @@ def delete_system_post():
     postid = request.form['postid']
     system_uid = request.form['system_uid']
     if postid == "" or postid is None:
-        flash('Post not found to delete')
+        flash('Post not found to delete', 'danger')
         redirect(url_for('frontend.view_system', system_uid=system_uid))
     else:
         System().delete_system_post(postid)
-        flash('Your comment has been updated')
+        flash('Your comment has been updated', 'success')
     return redirect(url_for('frontend.view_system', system_uid=system_uid))
 
 
@@ -1252,14 +1252,14 @@ def like_or_unlike_system_post():
             userid = session['uid']
             system_uid = request.form['system_uid']
             if postid == "":
-                flash('Can not find the post to delete.')
+                flash('Can not find the post to delete.', 'danger')
             else:
                 if request.form['submit'] == 'likePost':
                     System().like_system_post(userid, postid)
-                    flash('You liked the post')
+                    flash('You liked the post', 'success')
                 elif request.form['submit'] == 'unlikePost':
                     System().unlike_system_post(userid, postid)
-                    flash('You unliked the post')
+                    flash('You unliked the post', 'success')
     return redirect(url_for('frontend.view_system', system_uid=system_uid))
 
 
@@ -1271,14 +1271,14 @@ def like_or_unlike_group_post():
             user_id = session['uid']
             group_uid = request.form['group_uid']
             if post_id == "":
-                flash('Can not find the post to delete.')
+                flash('Can not find the post to delete.', 'danger')
             else:
                 if request.form['submit'] == 'likePost':
                     Group().like_group_post(user_id, post_id)
-                    flash('You liked the post')
+                    flash('You liked the post', 'success')
                 elif request.form['submit'] == 'unlikePost':
                     Group().unlike_group_post(user_id, post_id)
-                    flash('You unliked the post')
+                    flash('You unliked the post', 'success')
     return redirect(url_for('social.view_group', group_uid=group_uid))
 
 
@@ -1289,7 +1289,7 @@ def like_system_post():
         postid = request.form['postid']
         system_uid = request.form['system_uid']
         System().like_system_post(userid, postid)
-        flash('You liked the post')
+        flash('You liked the post', 'success')
         return redirect(url_for('frontend.view_system', system_uid=system_uid))
     else:
         return render_template("/home.html")
@@ -1300,7 +1300,7 @@ def like_post():
     if session.get('uid') is not None:
         postid = request.form['postid']
         User(session['uid']).like_post(postid)
-        flash('You liked the post')
+        flash('You liked the post', 'success')
         return redirect(url_for('social.index'))
     else:
         return render_template("/home.html")
@@ -1311,7 +1311,7 @@ def unlike_post():
     if session.get('uid') is not None:
         postid = request.form['postid']
         User(session['uid']).unlike_post(postid)
-        flash('You unliked the post')
+        flash('You unliked the post', 'success')
         return redirect(url_for('social.index'))
     else:
         return render_template("/home.html")

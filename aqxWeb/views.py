@@ -165,6 +165,12 @@ def new_system():
 
 @frontend.route('/edit_system/<system_uid>')
 def edit_system(system_uid):
+    alert_status = request.args.get('status')
+    if alert_status is not None:
+        if alert_status == 'delete_ok':
+            flash('Entry was successfully deleted.', 'success')
+        elif alert_status == 'delete_error':
+            flash('Entry could not be deleted.', 'danger')
     api = API(current_app)
     system_data = api.get_system(system_uid)
     enums = api.catalogs()
@@ -198,7 +204,7 @@ def update_system(system_uid):
         else:
             flash('only administrators can update system attributes', 'danger')
     except:
-        flash('update failed', 'error')
+        flash('update failed', 'danger')
 
     return redirect(url_for('frontend.edit_system', system_uid=system_uid))
 
