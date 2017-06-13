@@ -132,6 +132,12 @@
             </button>
             Thank you! You have been added to the mailing list.
           </div>
+          <div id="alert-subscribe-error" class="alert alert-danger alert-dismissable hide" role="alert">
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+            Please provide a valid email address.
+          </div>
         </div>
         <div class="col-sm-1"></div>
         <div class="col-sm-5">
@@ -188,7 +194,11 @@
         $('#subscribe').click(function() {
           var email = $('#email').val();
           $.post("{{url_for('frontend.subscribe_updates')}}", {'email': email}, function (data) {
-            $('#alert-subscribe-success').removeClass('hide');
+            if (data.status == 'ok') {
+              $('#alert-subscribe-success').removeClass('hide');
+            } else {
+              $('#alert-subscribe-error').removeClass('hide');
+            }
           });
         });
       });

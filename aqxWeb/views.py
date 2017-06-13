@@ -265,9 +265,16 @@ def view_system(system_uid):
 
 @frontend.route('/subscribe-updates', methods=['POST'])
 def subscribe_updates():
-    email = request.form['email']
+    email = request.form['email'].strip()
     api = API(current_app)
-    return json.dumps(api.subscribe(email))
+    if len(email) == 0:
+        return jsonify(status='error', message="Please provide a valid email address")
+    else:
+        try:
+            result = api.subscribe(email)
+            return jsonify(status=result['status'], message="Successfully subscribed")
+        except:
+            return jsonify(status='error', message="Error while trying to subscribe")
 
 
 @frontend.route("/details_image_placeholder/<system_uid>", methods=["GET"])

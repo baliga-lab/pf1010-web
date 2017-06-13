@@ -126,7 +126,7 @@ class API:
 
     def subscribe(self, email):
         subscriptionID = self.subscriptionDAO.subscribe(email)
-        return {subscriptionID: subscriptionID}
+        return {'status': 'ok', 'subscriptionID': subscriptionID}
 
     def measurement_types(self):
         return json.dumps(self.measurementDAO.measurement_types())
