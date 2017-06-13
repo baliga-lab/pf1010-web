@@ -125,15 +125,16 @@ if (!aqx_editsystem) {
         $(selector).replaceWith(s);
     };
 
-    aqx_editsystem.makeDisplay = function(selector, name, choices, selectedId) {
-        var s = '<input name="' + name + '" type="hidden" value="' + selectedId + '"></input>';
+    function getChoice(choices, selectedId) {
         var i;
         for (i = 0; i < choices.length; i++) {
-            if (choices[i].id == selectedId) {
-                s += '<input value="' + choices[i].name + '" class="form-control" readonly></input>';
-                break;
-            }
+            if (choices[i].id == selectedId) return choices[i].name;
         }
+    }
+
+    aqx_editsystem.makeDisplay = function(selector, name, choices, selectedId) {
+        var s = '<input name="' + name + '" type="hidden" value="' + selectedId + '"></input>';
+        s += '<input value="' + getChoice(choices, selectedId) + '" class="form-control" readonly></input>';
         $(selector).replaceWith(s);
     }
 
@@ -156,9 +157,12 @@ if (!aqx_editsystem) {
         var selectControl = $('<div>').addClass('col-xs-8').append($('<div id="' + selectID + '">'));
         var inputControl = existing ? $('<div>').addClass('col-xs-2').append(input)
             : $('<div>').addClass('col-xs-4').append(input);
+        var removeButtonId = 'remove_' + typeName + selectedId;
         var removeControl = $('<div>').addClass('col-xs-2')
             .append($('<a>').addClass('form-control btn btn-default')
-                    .attr('placeholder', '.col-xs-2')
+                    .attr('href', 'javascript:void(0)')
+                    .attr('role', 'button')
+                    .attr('id', removeButtonId)
                     .text('Remove'));
 
         newrow = newrow.append(selectControl);
@@ -177,6 +181,18 @@ if (!aqx_editsystem) {
             $('#' + divID).replaceWith(formGroup);
             aqx_editsystem.makeSelect('#' + selectID, typeName + 'ID_' + num, choices, num > 0, selectedId);
         }
+        $('#' + removeButtonId).click(function() {
+            // remove action here, selectedId is the item to remove
+            $('#confirm-message').replaceWith($('p')
+                                              .attr('id', 'confirm-message')
+                                              .text('Do you want to remove "' +
+                                                    getChoice(choices, selectedId) +
+                                                    '" from the system ?'));
+            $('#remove_type').val(typeName);
+            $('#remove_id').val(selectedId);
+            $('#confirm-dialog').modal('show');
+            return false;
+        });
         itemCount[typeName]++;
         if (itemCount[typeName] == MAX_LIST_LEN) {
             $('#add' + typeName).remove();
@@ -199,6 +215,15 @@ if (!aqx_editsystem) {
             aqx_editsystem.makeInputRow('neworganism', 'organism', itemCount['organism'], organisms,
                                         'Number of Organisms', false);
         });
+
+
+        $('#remove-confirm').click(function (e) {
+            console.log("TODO: Remove");
+            console.log('remove type: ' + $('#remove_type').val());
+            console.log('remove id: ' + $('#remove_id').val());
+            $('#confirm-dialog').modal('hide');
+        });
+
     });
 
 }());

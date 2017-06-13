@@ -202,6 +202,16 @@ def update_system(system_uid):
 
     return redirect(url_for('frontend.edit_system', system_uid=system_uid))
 
+@frontend.route('/<system_uid>/crop/<crop_id>', methods=['DELETE'])
+def delete_crop(system_uid, crop_id):
+    # TODO
+    return redirect(url_for('frontend.edit_system', system_uid=system_uid))
+
+@frontend.route('/<system_uid>/organism/<organism_id>', methods=['DELETE'])
+def delete_organism(system_uid, organism_id):
+    # TODO
+    return redirect(url_for('frontend.edit_system', system_uid=system_uid))
+
 
 @frontend.route('/system/<system_uid>', methods=['GET'])
 def view_system(system_uid):
