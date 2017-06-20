@@ -90,7 +90,7 @@ if (!aqx_editsystem) {
             data: JSON.stringify(submitData),
             contentType: 'application/json;charset=utf-8',
             success: function (data) {
-                window.location.href = '/system/' + data.systemUID + '/measurements';
+                window.location.href = '/system/' + data.systemUID;
             },
             dataType: 'json'
             });
