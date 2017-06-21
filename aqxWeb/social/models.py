@@ -397,24 +397,6 @@ class User:
 
 ########### END OF USER class #############
 
-
-def get_system_measurements_dav_api(system_uid):
-    """
-    purpose : gets measurements for the system from dav team db for given system uid
-    params :
-        system_uid - id which uniqly represents the system
-    returns : json string of system_uid and measurements array"""
-    try:
-        base_url = urlparse(request.url).netloc
-        dav_system_measurement_url = "http://" + str(base_url) + "/dav/aqxapi/v1/measurements"
-        with current_app.test_client() as client:
-            query_param = {'system_uid': system_uid}
-            response = client.get(dav_system_measurement_url, query_string=query_param)
-            return response.data
-    except Exception as ex:
-        current_app.logger.exception("Exception in get_system_measurements_dav_api", ex)
-
-
 def get_all_recent_posts(user_id):
     # query restricting for friends posts
     query = """

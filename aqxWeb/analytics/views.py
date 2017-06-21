@@ -133,28 +133,6 @@ def system_analyze(system_uid):
         traceback.print_exc()
         return render_template("error.html"), 400
 
-
-@dav.route('/aqxapi/v1/measurements', methods=['GET'])
-def get_system_measurement():
-    system_uid = request.args.get('system_uid')
-    if system_uid is None or len(system_uid) <= 0:
-        error_msg_system = json.dumps({'error': 'Invalid system_uid'})
-        return error_msg_system, 400
-    measurement_id = request.args.get('measurement_id')
-    if measurement_id is None:
-        dav_api = AnalyticsAPI(current_app)
-        result = dav_api.get_system_measurements(system_uid)
-    elif len(measurement_id) <= 0:
-        error_msg_measurement = json.dumps({'error': 'Invalid measurement id'})
-        return error_msg_measurement, 400
-    else:
-        dav_api = AnalyticsAPI(current_app)
-        result = dav_api.get_system_measurement(system_uid, measurement_id)
-    if 'error' in result:
-        return result, 400
-    else:
-        return result
-
 def get_readings_for_tsplot(system_uid_list, msr_id_list,status_id):
     dav_api = AnalyticsAPI(current_app)
     return dav_api.get_readings_for_plot(system_uid_list, msr_id_list,status_id)

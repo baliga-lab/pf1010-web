@@ -10,7 +10,7 @@ from aqxWeb.social.api import SocialAPI
 
 from aqxWeb.social.models import User, System, Privacy, Group
 # put this in a general namespace not in social, damn it !!!
-from aqxWeb.social.models import convert_milliseconds_to_normal_date, get_address_from_lat_lng, get_system_measurements_dav_api
+from aqxWeb.social.models import convert_milliseconds_to_normal_date, get_address_from_lat_lng
 
 import aqxWeb.utils as utils
 
@@ -29,6 +29,11 @@ BROWSER_NAMES = {
     'msie': 'Internet Explorer', 'chrome': 'Chrome', 'firefox': 'Firefox',
     'safari': 'Safari', 'opera': 'Opera'
 }
+
+def get_system_measurements_dav_api(system_uid):
+    dav_api = AnalyticsAPI(current_app)
+    return dav_api.get_system_measurements(system_uid)
+
 
 @frontend.route('/')
 def index():
