@@ -4,9 +4,6 @@ import traceback
 from aqxWeb.utils import get_measurement_table_name
 
 
-# TODO: This seems to be unnecessarily hard-coded
-MEASUREMENTS = ['ammonium', 'o2', 'ph', 'nitrate', 'light', 'temp', 'nitrite', 'chlorine', 'hardness', 'alkalinity', 'leaf_count', 'height']
-
 class SystemDAO:
     def __init__(self, app):
         self.app = app
@@ -140,14 +137,20 @@ class SystemDAO:
 
         values5 = (systemUID, startDate)
 
-        names = list(map(lambda x: get_measurement_table_name(x, systemUID), MEASUREMENTS))
         # MySQL unfortunately has versions supporting different non-primary key timestamps
         # our production system (which runs on CentOS with ancient MySQL) does not accept
         # the default value, the newer development system requires a default value
-        create_query1 = 'CREATE TABLE %s (time TIMESTAMP PRIMARY KEY NOT NULL, value DECIMAL(13,10) NOT NULL, updated_at TIMESTAMP)'
-        create_query2 = 'CREATE TABLE %s (time TIMESTAMP PRIMARY KEY NOT NULL, value DECIMAL(13,10) NOT NULL, updated_at TIMESTAMP default current_timestamp)'
+        create_single_query1 = 'CREATE TABLE %s (time TIMESTAMP PRIMARY KEY NOT NULL, value DECIMAL(13,10) NOT NULL, updated_at TIMESTAMP)'
+        create_single_query2 = 'CREATE TABLE %s (time TIMESTAMP PRIMARY KEY NOT NULL, value DECIMAL(13,10) NOT NULL, updated_at TIMESTAMP default current_timestamp)'
+
+        # create multi table if the measurement type is marked as such
+        create_multi_query1 = 'CREATE TABLE %s (time TIMESTAMP PRIMARY KEY NOT NULL, value DECIMAL(13,10) NOT NULL, updated_at TIMESTAMP, foreign_key integer not null)'
+        create_multi_query2 = 'CREATE TABLE %s (time TIMESTAMP PRIMARY KEY NOT NULL, value DECIMAL(13,10) NOT NULL, updated_at TIMESTAMP default current_timestamp, foreign_key integer not null)'
 
         try:
+            cursor.execute('select name, multi_table from measurement_types where id < 100000')
+            meas_types = {name: multi_table for name, multi_table in cursor.fetchall()}
+
             cursor.execute(query1, values1)
             systemID = cursor.lastrowid
             for medium in gbMedia:
@@ -162,11 +165,18 @@ class SystemDAO:
 
             # make sure the query is creating the table in either production system
             # or dev system format
-            for name in names:
+            for name, multi_table in meas_types.items():
+                table_name = get_measurement_table_name(name, systemUID)
                 try:
-                    cursor.execute(create_query1 % name)
+                    if multi_table is None:
+                        cursor.execute(create_single_query1 % table_name)
+                    else:
+                        cursor.execute(create_multi_query1 % table_name)
                 except:
-                    cursor.execute(create_query2 % name)
+                    if multi_table is None:
+                        cursor.execute(create_single_query2 % table_name)
+                    else:
+                        cursor.execute(create_multi_query2 % table_name)
 
             conn.commit()
         finally:
