@@ -174,6 +174,8 @@ class AnalyticsAPI:
         return {'filters': values}
 
     def get_system_measurements(self, system_uid):
+        """Retrieve the latest measurements of the specified system.
+        Returns a Python dictionary"""
         # Fetch names of all the measurements
         names = self.mea.get_all_measurement_names()
         # Create a list to store the name, latest time and value of all the measurements
@@ -190,7 +192,7 @@ class AnalyticsAPI:
                 # Get the latest value stored in the table
                 value = self.mea.get_latest_value(table_name, num_of_records)
                 if 'error' in value:
-                    return json.dumps(value)
+                    return value
                 # Append the value to the latest_value[] list
                 if len(value) == 1:
                     value_temp = value[0]
@@ -218,11 +220,10 @@ class AnalyticsAPI:
 
                 x.append(temp)
 
-        obj = {
+        return {
             'system_uid': str(system_uid),
             'measurements': x
         }
-        return json.dumps(obj)
 
     def get_system_measurement(self, system_uid, measurement_id):
         # Encode the measurement_id

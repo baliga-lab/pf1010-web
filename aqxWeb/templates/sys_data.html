@@ -26,7 +26,7 @@
       <tr>
         <td>{{item.time}}</td>
         <td>{% if item.updated_at %}{{item.updated_at}}{% else %}-{% endif %}</td>
-        <td>{{item.value}}{% if measurement_unit %}{{measurement_unit}}{% endif %}
+        <td>{{item.value}}{% if measurement_unit %} {{measurement_unit}}{% endif %}
           <a href="{{url_for('frontend.sys_edit_data', system_uid=system_uid, measurement=measurement, created_at=item.time)}}" class="pull-right"><span style="margin-left: 10px" title="Edit this measurement" class="glyphicon glyphicon-pencil"></span></a>
           <a href="{{url_for('frontend.delete_measurement', system_uid=system_uid, measurement=measurement, time=item.time)}}" id="{{item.time}}" class="delentry pull-right"><span title="Delete this measurement" class="glyphicon glyphicon-trash"></span></a>
         </td>

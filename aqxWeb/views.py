@@ -30,10 +30,6 @@ BROWSER_NAMES = {
     'safari': 'Safari', 'opera': 'Opera'
 }
 
-def get_system_measurements_dav_api(system_uid):
-    dav_api = AnalyticsAPI(current_app)
-    return dav_api.get_system_measurements(system_uid)
-
 
 @frontend.route('/')
 def index():
@@ -277,8 +273,8 @@ def view_system(system_uid):
     total_likes = system.get_total_likes_for_system_posts(system_uid)
     post_owners = system.get_system_post_owners(system_uid)
 
-    measurements_output_dav = get_system_measurements_dav_api(system_uid)
-    json_output_measurement = json.loads(measurements_output_dav)
+    dav_api = AnalyticsAPI(current_app)
+    json_output_measurement = dav_api.get_system_measurements(system_uid)
     latest_measurements = None
     if "error" not in json_output_measurement:
         latest_measurements = json_output_measurement['measurements']
