@@ -1,3 +1,17 @@
+<h2>Import Measurements</h2>
+<p>
+  You can upload a tab separated file here. Please provide the file using format according to this <a href="{{ url_for('frontend.static', filename='docs/measurements.tsv') }}">(tsv)</a> or this <a href="{{ url_for('frontend.static', filename='docs/measurements.xlsx') }}">(xlsx, save as tab separated to import in this application)</a>.
+</p>
+<form action="{{url_for('frontend.upload_measurements', system_uid=system_uid)}}"
+      method="post"
+      enctype="multipart/form-data">
+  <div>
+    <input type="file" name="importfile"></input>
+  </div>
+  <div style="margin-top: 5px">
+    <input type="submit" value="Upload"></input>
+  </div>
+</form>
 <h2>Enter Measurements</h2>
 <form action="{{url_for('frontend.record_measurements', system_uid=system_uid)}}" method="post">
   <div class="row" style="background-color: #ddeeff; border: 1px solid #888888; border-radius: 3px; padding: 3px; margin-top: 5px; margin-bottom: 12px">

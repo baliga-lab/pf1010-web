@@ -2,6 +2,7 @@ from flask import render_template, current_app, flash, redirect, url_for, reques
 from werkzeug import secure_filename
 from frontend import frontend
 import requests
+from werkzeug.exceptions import BadRequestKeyError
 
 from aqxWeb.api import API
 from aqxWeb.analytics.api import AnalyticsAPI
@@ -23,6 +24,11 @@ import services
 import json
 import traceback
 import os
+import tempfile
+import pandas
+import numpy as np
+import datetime
+import time
 
 
 BROWSER_NAMES = {
@@ -133,6 +139,79 @@ def can_user_edit_system(system_uid):
         priv = social_api.user_privilege_for_system(session['uid'], system_uid)
         return priv == 'SYS_ADMIN' or priv == 'SYS_PARTICIPANT'
     return False
+
+
+def parse_time(s):
+    try:
+        # timestamp = time.mktime(tup)
+        tup = datetime.datetime.strptime(s, '%Y-%m-%d %H:%M:%S').timetuple()
+        return datetime.datetime.fromtimestamp(time.mktime(tup))
+    except:
+        pass
+    try:
+        tup = datetime.datetime.strptime(s, '%m/%d/%Y %H:%M:%S').timetuple()
+        return datetime.datetime.fromtimestamp(time.mktime(tup))
+    except:
+        traceback.print_exc()
+        return None
+
+
+def parse_value(s):
+    return float(s)
+
+
+# map to the database prefixes
+UPLOAD_MT_MAP = {
+    'alkalinity': 'alkalinity', 'ammonium': 'ammonium', 'chlorine': 'chlorine',
+    'hardness': 'hardness', 'light': 'light', 'nitrate': 'nitrate',
+    'nitrite': 'nitrite', 'oxygen': 'o2', 'ph': 'ph', 'temp': 'temp',
+    'leafs': 'leaf_count', 'plant_height': 'height', 'time': 'time'
+}
+
+
+@frontend.route('/system/<system_uid>/upload-measurements', methods=['POST'])
+def upload_measurements(system_uid):
+    """Action connected to the measurement form"""
+    current_app.logger.info("upload_measurements()")
+    if not can_user_edit_system(system_uid):
+        return render_template('no_access.html')
+    try:
+        import_file = request.files['importfile']
+        measurement_dao = MeasurementDAO(current_app)
+        print(import_file)
+        with tempfile.TemporaryFile() as outfile:
+            import_file.save(outfile)
+            outfile.seek(0)
+            df = pandas.read_csv(outfile, sep='\t', index_col=None, header=0)
+            measurements = []
+            for i, row in df.iterrows():
+                for col in df.columns:
+                    try:
+                        prefix = UPLOAD_MT_MAP[col]
+                        if prefix == 'time':
+                            mtime = parse_time(row[col])
+                        else:
+                            value = parse_value(row[col])
+                            if not np.isnan(value):
+                                measurements.append((prefix, value))
+
+                    except KeyError:
+                        flash("not found: '%s'" % col, 'error')
+                # all columns processed, now store
+                if measurements > 0:
+                    current_app.logger.info('storing for system %s', system_uid)
+                    try:
+                        measurement_dao.store_measurements(system_uid, mtime, measurements)
+                    except:
+                        flash('errors during import, you are likely trying to add values that already exist (%s)' % (str(mtime)), 'error')
+
+        ## standard message
+        flash('Uploaded values were stored.')
+    except BadRequestKeyError:
+        flash('Please provide an upload file', 'error')
+    except pandas.io.common.CParserError:
+        flash('Please provide a valid tsv file', 'error')
+    return redirect(url_for('frontend.view_system', system_uid=system_uid))
 
 
 @frontend.route('/system/<system_uid>/record-measurements', methods=['POST'])

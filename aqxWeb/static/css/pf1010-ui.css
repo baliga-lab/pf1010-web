@@ -110,3 +110,8 @@
     border-radius: 5px;
     width: 100%;
 }
+
+.alert-error {
+    background-color: pink;
+    color: red;
+}
