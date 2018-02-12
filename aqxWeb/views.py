@@ -178,7 +178,6 @@ def upload_measurements(system_uid):
     try:
         import_file = request.files['importfile']
         measurement_dao = MeasurementDAO(current_app)
-        print(import_file)
         with tempfile.TemporaryFile() as outfile:
             import_file.save(outfile)
             outfile.seek(0)
@@ -278,7 +277,6 @@ def update_system(system_uid):
                 }}
             result = social_api.update_system_with_system_uid(sys_obj)
             if "error" in result:
-                print result
                 flash('could not update social attributes', 'warning')
             else:
                 flash('update successful', 'success')
