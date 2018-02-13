@@ -5,11 +5,11 @@
 <form action="{{url_for('frontend.upload_measurements', system_uid=system_uid)}}"
       method="post"
       enctype="multipart/form-data">
-  <div>
-    <input type="file" name="importfile"></input>
+  <div class="form-group col-md-12">
+    <input class="form-control" type="file" name="importfile"></input>
   </div>
-  <div style="margin-top: 5px">
-    <input type="submit" value="Upload"></input>
+  <div class="form-group col-sm-12">
+    <button type="submit" class="btn btn-default">Upload Measurements</button>
   </div>
 </form>
 <h2>Enter Measurements</h2>
