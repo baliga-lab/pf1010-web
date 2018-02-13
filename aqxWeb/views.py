@@ -180,14 +180,9 @@ def upload_measurements(system_uid):
         measurement_dao = MeasurementDAO(current_app)
         # we are using a NamedTemporaryFile because our web server can'th
         # handle TemporaryFile in combination with pandas
-        outfile = tempfile.NamedTemporaryFile(mode="w", delete=False)
-        import_file.save(outfile)
-        size = outfile.tell()
-        if size == 0:
-            flash("You either did not provide an upload file or the upload file is empty")
-        outfile.close()
-        outpath = outfile.name
-        with open(outpath) as outfile:
+        with tempfile.TemporaryFile() as outfile:
+            import_file.save(outfile)
+            outfile.seek(0)
             df = pandas.read_csv(outfile, sep='\t', index_col=None, header=0)
             measurements = []
             for i, row in df.iterrows():
@@ -210,13 +205,12 @@ def upload_measurements(system_uid):
                         measurement_dao.store_measurements(system_uid, mtime, measurements)
                     except:
                         flash('errors during import, you are likely trying to add values that already exist (%s)' % (str(mtime)), 'error')
-        os.remove(outpath)
 
         ## standard message
         flash('Uploaded values were stored.')
     except BadRequestKeyError:
         flash('Please provide an upload file', 'error')
-    except pandas.io.common.CParserError:
+    except:  ## pandas.io.common.CParserError our old server can not handle it
         flash('Please provide a valid tsv file', 'error')
     return redirect(url_for('frontend.view_system', system_uid=system_uid))
 
