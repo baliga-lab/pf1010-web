@@ -169,7 +169,7 @@ UPLOAD_MT_MAP = {
 }
 
 
-@frontend.route('/system/<system_uid>/upload-measurements', methods=['POST'])
+@frontend.route('/system/<system_uid>/upload-measurements', methods=['POST', 'GET'])
 def upload_measurements(system_uid):
     """Action connected to the measurement form"""
     current_app.logger.info("upload_measurements()")
@@ -178,9 +178,16 @@ def upload_measurements(system_uid):
     try:
         import_file = request.files['importfile']
         measurement_dao = MeasurementDAO(current_app)
-        with tempfile.TemporaryFile() as outfile:
-            import_file.save(outfile)
-            outfile.seek(0)
+        # we are using a NamedTemporaryFile because our web server can'th
+        # handle TemporaryFile in combination with pandas
+        outfile = tempfile.NamedTemporaryFile(mode="w", delete=False)
+        import_file.save(outfile)
+        size = outfile.tell()
+        if size == 0:
+            flash("You either did not provide an upload file or the upload file is empty")
+        outfile.close()
+        outpath = outfile.name
+        with open(outpath) as outfile:
             df = pandas.read_csv(outfile, sep='\t', index_col=None, header=0)
             measurements = []
             for i, row in df.iterrows():
@@ -203,6 +210,7 @@ def upload_measurements(system_uid):
                         measurement_dao.store_measurements(system_uid, mtime, measurements)
                     except:
                         flash('errors during import, you are likely trying to add values that already exist (%s)' % (str(mtime)), 'error')
+        os.remove(outpath)
 
         ## standard message
         flash('Uploaded values were stored.')
