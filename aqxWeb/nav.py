@@ -56,7 +56,7 @@ def guest():
 @nav.navigation('member')
 def member():
     return Navbar(
-        SidedViewImage('https://aquaponics.systemsbiology.net/static/images/pflogo2.png', 'Project Feed 1010', True, 'social.index'),
+        SidedViewImage('https://pf1010.systemsbiology.net/static/images/pflogo_isblogo.png', 'Project Feed 1010', True, 'social.index'),
         View('Home', 'social.index'),
         View('Explore', 'dav.explore'),
         View('Search Systems', 'social.search_systems'),
