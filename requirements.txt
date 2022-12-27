@@ -30,7 +30,7 @@ pyowm==2.3.0
 python-dateutil==2.4.2
 pytz==2015.7
 requests>=2.20.0
-setuptools==19.6
+setuptools==65.5.1
 six==1.10.0
 virtualenv==14.0.1
 visitor==0.1.2
